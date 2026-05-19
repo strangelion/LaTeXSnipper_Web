@@ -18,9 +18,8 @@ Thumbs.db
 
 # Project specific
 tinymist.lock
-user_manual.pdf
-user_manual.html
+*.pdf
+*.typ
 body.html
 deploy_kv.ps1
 typ2html.py
-*.typ

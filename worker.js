@@ -2,22 +2,21 @@
  * LaTeXSnipper 用户手册 - Cloudflare Worker
  *
  * 部署方式：
- *  1. 登录 Cloudflare Dashboard → Workers & Pages → Create Worker
- *  2. 将本文件内容粘贴到代码编辑器
- *  3. 创建 KV Namespace: `wrangler kv:namespace create "LATEXSNIPPER_KV"` 或通过 Dashboard 创建
- *  4. 将 Worker 绑定到 KV（变量名 `LATEXSNIPPER_KV`）
- *  5. 使用 wrangler 或 Dashboard 将 user_manual.html 上传到 KV
- *     - Key: `pages/user_manual.html`
- *     - Value: user_manual.html 的文件内容
- *  6. 部署 Worker
+ *  1. 将 HTML/CSS/JS 文件推送到 GitHub 仓库的根目录
+ *  2. 登录 Cloudflare Dashboard → Workers & Pages → Create Worker
+ *  3. 将本文件内容粘贴到代码编辑器
+ *  4. 部署 Worker
  *
- * KV 上传命令（使用 wrangler）:
- *  npx wrangler kv:key put --binding=LATEXSNIPPER_KV "pages/user_manual.html" --path=./user_manual.html
+ * 文件结构（GitHub 仓库根目录）：
+ *  index.html        → 主页
+ *  user_manual.html  → 用户手册
+ *  styles.css        → 样式
+ *  script.js         → 脚本
  *
  * Routes:
- *  /                         → 用户手册首页
+ *  /                         → index.html
+ *  /user_manual              → user_manual.html
  *  /ping                     → 健康检查
- *  /api/*                    → API 接口（预留）
  */
 
 // ── KV binding ──────────────────────────────────────────────────
@@ -28,17 +27,19 @@
 const CONFIG = {
   CACHE_MAX_AGE: 3600, // 浏览器缓存时间（秒）
   CDN_CACHE_MAX_AGE: 86400, // Cloudflare CDN 缓存时间（秒）
-  PAGE_KEY: "pages/user_manual.html",
+  // GitHub 仓库配置（用于存储静态网页文件）
+  GITHUB_OWNER: "strangelion",      // GitHub 用户名
+  GITHUB_REPO: "LaTeXSnipper_user_manual", // 仓库名
+  GITHUB_BRANCH: "main",             // 分支名
 };
 
 // 可按路径映射的页面（可扩展）
 const PAGE_ROUTE_MAP = {
-  '/': 'pages/index.html',
-  '/home': 'pages/index.html',
-  // 将 /help 指向用户手册的 KV key（pages/user_manual.html）
-  '/help': CONFIG.PAGE_KEY,
-  '/user_manual': CONFIG.PAGE_KEY,
-  '/manual': CONFIG.PAGE_KEY,
+  '/': 'index.html',
+  '/home': 'index.html',
+  '/help': 'user_manual.html',
+  '/user_manual': 'user_manual.html',
+  '/manual': 'user_manual.html',
 };
 
 // ── MIME types ───────────────────────────────────────────────────
@@ -119,23 +120,26 @@ async function handlePage(request, env) {
   const STATIC_EXTS = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'pdf', 'txt', 'md', 'typ', 'html'];
   const ext = (pathname.split('.').pop() || '').toLowerCase();
 
-  // 如果没有直接映射，尝试拼接 pages/<path>
-  // 静态文件直接用原路径，HTML 页面才补 .html 后缀
-  let inferredKey;
-  if (mappedKey) {
-    inferredKey = mappedKey;
-  } else if (pathname === '/') {
-    inferredKey = CONFIG.PAGE_KEY;
-  } else if (STATIC_EXTS.includes(ext)) {
-    inferredKey = `pages${pathname}`;
-  } else {
-    inferredKey = `pages${pathname}.html`;
-  }
+// 静态文件直接用原路径，HTML 页面补 .html 后缀
+let inferredKey;
+if (mappedKey) {
+  inferredKey = mappedKey;
+} else if (pathname === '/') {
+  inferredKey = 'index.html';
+} else if (STATIC_EXTS.includes(ext)) {
+  inferredKey = pathname.substring(1); // 去掉前导 /
+} else {
+  inferredKey = pathname.substring(1) + '.html';
+}
 
   try {
     let html = null;
-    if (env?.LATEXSNIPPER_KV) {
-      html = await env.LATEXSNIPPER_KV.get(inferredKey);
+
+    // 从 GitHub 仓库获取文件
+    const githubUrl = `https://raw.githubusercontent.com/${CONFIG.GITHUB_OWNER}/${CONFIG.GITHUB_REPO}/${CONFIG.GITHUB_BRANCH}/${inferredKey}`;
+    const response = await fetch(githubUrl);
+    if (response.ok) {
+      html = await response.text();
     }
 
     if (!html) {
