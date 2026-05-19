@@ -30,7 +30,7 @@ const CONFIG = {
   // GitHub 仓库配置（用于存储静态网页文件）
   GITHUB_OWNER: "WangWenXuan",      // GitHub 用户名
   GITHUB_REPO: "LaTeXSnipper_user_manual", // 仓库名
-  GITHUB_BRANCH: "main",             // 分支名
+  GITHUB_BRANCH: "master",             // 分支名
 };
 
 // 可按路径映射的页面（可扩展）
