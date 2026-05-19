@@ -1,6 +1,6 @@
 /**
  * LaTeXSnipper 用户手册 - Cloudflare Worker
- * 从 GitHub 仓库获取静态文件
+ * 根据域名区分站点：从 GitHub 仓库获取静态文件
  */
 
 const GITHUB_OWNER = "strangelion";
@@ -16,59 +16,64 @@ const MIME_TYPES = {
   ico: "image/x-icon",
 };
 
-const PAGE_MAP = {
-  "/": "index.html",
-  "/home": "index.html",
-  "/user_manual": "user_manual.html",
-  "/help": "user_manual.html",
-  "/manual": "user_manual.html",
-  "/ping": null,
-};
+function getMimeType(path) {
+  const ext = path.split(".").pop().toLowerCase();
+  return MIME_TYPES[ext] || "text/plain; charset=utf-8";
+}
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+function jsonResponse(data) {
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() },
+  });
+}
+
+function errorResponse(message, status = 500) {
+  return new Response(message, {
+    status,
+    headers: { "Content-Type": "text/plain; charset=utf-8", ...corsHeaders() },
+  });
+}
 
 export default {
   async fetch(request) {
     const url = new URL(request.url);
+    const host = url.hostname;
     const path = url.pathname;
 
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-          "Access-Control-Max-Age": "86400",
-        },
-      });
+      return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
     if (path === "/ping") {
-      return new Response(
-        JSON.stringify({
-          status: "ok",
-          service: "LaTeXSnipper User Manual",
-          version: "2.3.2",
-          timestamp: new Date().toISOString(),
-        }),
-        {
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
+      return jsonResponse({
+        status: "ok",
+        service: "LaTeXSnipper User Manual",
+        version: "2.3.3",
+        timestamp: new Date().toISOString(),
+      });
     }
 
-    let filePath = PAGE_MAP[path];
+    let site = "home";
+    if (host === "help.interknot.dpdns.org") {
+      site = "help";
+    }
 
-    if (!filePath) {
+    let filePath;
+    if (path === "/") {
+      filePath = site === "help" ? "user_manual.html" : "index.html";
+    } else {
       const ext = path.split(".").pop() || "";
       const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
       filePath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-    }
-
-    if (url.searchParams.has("raw")) {
-      filePath = "index.html";
     }
 
     try {
@@ -76,42 +81,23 @@ export default {
       const response = await fetch(githubUrl);
 
       if (!response.ok) {
-        return new Response(
-          `404 Not Found: ${path}`,
-          {
-            status: 404,
-            headers: {
-              "Content-Type": "text/plain; charset=utf-8",
-              "Access-Control-Allow-Origin": "*",
-            },
-          }
-        );
+        return errorResponse(`404 Not Found: ${path}`, 404);
       }
 
       const content = await response.text();
-      const ext = filePath.split(".").pop().toLowerCase();
-      const mimeType = MIME_TYPES[ext] || "text/plain; charset=utf-8";
+      const mimeType = getMimeType(filePath);
 
       return new Response(content, {
         headers: {
           "Content-Type": mimeType,
           "Cache-Control": "public, max-age=3600, s-maxage=86400",
-          "Access-Control-Allow-Origin": "*",
+          ...corsHeaders(),
           "X-Content-Type-Options": "nosniff",
         },
       });
     } catch (err) {
       console.error("Error fetching from GitHub:", err);
-      return new Response(
-        `Error: ${err.message}`,
-        {
-          status: 500,
-          headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
+      return errorResponse(`Error: ${err.message}`, 500);
     }
   },
 };
