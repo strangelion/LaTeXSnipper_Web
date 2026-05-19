@@ -2,7 +2,7 @@
 # 使用方式: npx wrangler deploy
 # 或者直接复制 worker.js 内容到 Cloudflare Dashboard
 
-name = "latexsnipper-manual"
+name = "latexsnipper"
 main = "worker.js"
 compatibility_date = "2025-05-16"
 workers_dev = false
