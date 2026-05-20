@@ -366,11 +366,27 @@ code { font-family: var(--mono); font-size: .88em; }
 @media (max-width: 640px){
   .slide-section { padding: 60px 0.8rem; min-height: 160vh; }
   .slide-section[data-slide="hero"] { min-height: 200vh; }
+  .slide-section[data-slide="ending"] { min-height: 80vh; }
   .card-front, .card-detail { padding: .9rem 1rem; }
   .card-front h3 { font-size: 1.15rem; }
-  .hero-title { font-size: 1.6rem; }
+  .card-viewport { min-height: 280px; }
+  .hero-title { font-size: 1.6rem; word-break: break-word; overflow-wrap: break-word; }
   .hero-sub { font-size: 0.9rem; }
   .section-title { font-size: 1.4rem; }
+  .slide-scroll { max-width: 100%; box-sizing: border-box; padding: 0 .5rem; }
+}
+
+@media (max-width: 400px){
+  .hero-title { font-size: 1.3rem; }
+  .hero-sub { font-size: .82rem; }
+  .hero-ctas .btn { font-size: .82rem; padding: .4rem .7rem; display: inline-block; margin-bottom: .4rem; }
+  .card-viewport { min-height: 240px; }
+  .card-front h3 { font-size: 1rem; }
+  .card-front p { font-size: .85rem; }
+  .card-detail-inner p { font-size: .8rem; }
+  .main-nav a { margin-left: .5rem; font-size: .85rem; }
+  .brand a { font-size: .9rem; }
+  .brand-icon { width: 28px; height: 28px; }
 }
 
 /* --- 用户手册暗色模式 --- */
