@@ -26,9 +26,9 @@ body{font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;mar
   z-index: -2;
   pointer-events: none;
   transition: opacity 1s ease;
-  background: transparent;
 }
-#bg-video-dark { opacity: 0; }
+#bg-video-light { background: #f8fafc; }
+#bg-video-dark { background: #0f111a; opacity: 0; }
 
 #bg-overlay {
   position: fixed;
