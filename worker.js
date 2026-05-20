@@ -24,6 +24,8 @@ const MIME_TYPES = {
 
 const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico", "mp4", "webm"];
 
+const VIDEO_CACHE_TTL = 60 * 60 * 24 * 7; // 7 days in seconds
+
 function getMimeType(path) {
   const ext = path.split(".").pop().toLowerCase();
   return MIME_TYPES[ext] || "text/plain; charset=utf-8";
@@ -51,6 +53,49 @@ function errorResponse(message, status = 500) {
   });
 }
 
+async function fetchWithCache(url, options, isVideo) {
+  const cache = await caches.open("latex-snipper-v1");
+  const cacheKey = url;
+
+  // 对于视频，优先从缓存读取
+  if (isVideo) {
+    const cachedResponse = await cache.match(cacheKey);
+    if (cachedResponse) {
+      return { response: cachedResponse, fromCache: true };
+    }
+  }
+
+  // 从 GitHub 获取
+  const response = await fetch(url, options);
+
+  // 视频存入缓存（可缓存的响应）
+  if (isVideo && response.ok) {
+    const responseToCache = response.clone();
+    const headers = {};
+    responseToCache.headers.forEach((v, k) => headers[k] = v);
+    const body = await responseToCache.arrayBuffer();
+    
+    const cachedResponse = new Response(body, {
+      status: responseToCache.status,
+      statusText: responseToCache.statusText,
+      headers: {
+        ...headers,
+        "Cache-Control": `public, max-age=${VIDEO_CACHE_TTL}`,
+      },
+    });
+    
+    try {
+      await cache.put(cacheKey, cachedResponse);
+    } catch (e) {
+      // 缓存写入失败（如存储配额），继续使用
+    }
+    
+    return { response, fromCache: false };
+  }
+
+  return { response, fromCache: false };
+}
+
 export default {
   async fetch(request) {
     const url = new URL(request.url);
@@ -65,7 +110,7 @@ export default {
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.3",
+        version: "2.3.4",
         timestamp: new Date().toISOString(),
       });
     }
@@ -106,7 +151,8 @@ export default {
         const range = request.headers.get("Range");
         if (range) fetchOpts.headers = { Range: range };
       }
-      const response = await fetch(githubUrl, fetchOpts);
+
+      const { response, fromCache } = await fetchWithCache(githubUrl, fetchOpts, isVideo);
 
       if (!response.ok && response.status !== 206) {
         return errorResponse(`404 Not Found: ${path}`, 404);
@@ -117,7 +163,7 @@ export default {
       const mimeType = getMimeType(filePath);
       const headers = {
         "Content-Type": mimeType,
-        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        "Cache-Control": fromCache ? `public, max-age=${VIDEO_CACHE_TTL}` : "public, max-age=3600, s-maxage=86400",
         ...corsHeaders(),
         "X-Content-Type-Options": "nosniff",
       };
@@ -131,11 +177,13 @@ export default {
               "Content-Range": response.headers.get("Content-Range"),
               "Content-Length": response.headers.get("Content-Length"),
               "Accept-Ranges": "bytes",
+              "X-Cache": fromCache ? "HIT" : "MISS",
             },
           });
         }
         headers["Accept-Ranges"] = "bytes";
         headers["Content-Length"] = response.headers.get("Content-Length");
+        headers["X-Cache"] = fromCache ? "HIT" : "MISS";
       }
 
       const content = isBinary ? await response.arrayBuffer() : await response.text();
