@@ -1,6 +1,6 @@
 /**
  * LaTeXSnipper 用户手册 - Cloudflare Worker
- * 根据域名区分站点：从 GitHub 仓库获取静态文件
+ * 根据域名区分站点：从 GitHub 仓库获取静态文件，视频走 R2
  */
 
 const GITHUB_OWNER = "strangelion";
@@ -20,6 +20,116 @@ const MIME_TYPES = {
   ico: "image/x-icon",
   mp4: "video/mp4",
   webm: "video/webm",
+};
+
+const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico"];
+
+function getMimeType(path) {
+  const ext = path.split(".").pop().toLowerCase();
+  return MIME_TYPES[ext] || "text/plain; charset=utf-8";
+}
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+  };
+}
+
+function jsonResponse(data) {
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() },
+  });
+}
+
+function errorResponse(message, status = 500) {
+  return new Response(message, {
+    status,
+    headers: { "Content-Type": "text/plain; charset=utf-8", ...corsHeaders() },
+  });
+}
+
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const host = url.hostname;
+    const path = url.pathname;
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+
+    if (path === "/ping") {
+      return jsonResponse({
+        status: "ok",
+        service: "LaTeXSnipper User Manual",
+        version: "2.3.5",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    let site = "home";
+    if (host === "help.interknot.dpdns.org") {
+      site = "help";
+    }
+
+    let filePath;
+    if (path === "/") {
+      filePath = site === "help" ? "user_manual.html" : "index.html";
+    } else {
+      const ext = path.split(".").pop() || "";
+      const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
+      filePath = hasExt ? path.slice(1) : path.slice(1) + ".html";
+    }
+
+    // 视频走 R2，直接 302 重定向
+    if (filePath.endsWith(".mp4") || filePath.endsWith(".webm")) {
+      const r2Url = `https://video.interknot.dpdns.org/${filePath}`;
+      return new Response(null, {
+        status: 302,
+        headers: {
+          "Location": r2Url,
+          "Cache-Control": "public, max-age=3600",
+        },
+      });
+    }
+
+    // favicon 返回 icon.png
+    if (filePath.endsWith(".ico")) {
+      const pngUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/icon.png`;
+      const icoResp = await fetch(pngUrl);
+      if (!icoResp.ok) {
+        return new Response(null, { status: 204, headers: corsHeaders() });
+      }
+      const icoContent = await icoResp.arrayBuffer();
+      return new Response(icoContent, {
+        headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400", ...corsHeaders() },
+      });
+    }
+
+    // 其他文件从 GitHub 获取
+    const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filePath}`;
+    const response = await fetch(githubUrl);
+
+    if (!response.ok) {
+      return errorResponse(`404 Not Found: ${path}`, 404);
+    }
+
+    const ext = filePath.split(".").pop().toLowerCase();
+    const isBinary = BINARY_TYPES.includes(ext);
+    const mimeType = getMimeType(filePath);
+    const headers = {
+      "Content-Type": mimeType,
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+      ...corsHeaders(),
+      "X-Content-Type-Options": "nosniff",
+    };
+
+    const content = isBinary ? await response.arrayBuffer() : await response.text();
+    return new Response(content, { headers });
+  },
 };
 
 const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico", "mp4", "webm"];
@@ -146,48 +256,18 @@ export default {
         });
       }
 
-      const fetchOpts = {};
+// 视频走 R2 自定义域名，直接返回 302 重定向
       if (isVideo) {
-        const range = request.headers.get("Range");
-        if (range) fetchOpts.headers = { Range: range };
+        const r2Url = `https://video.interknot.dpdns.org/${filePath}`;
+        return new Response(null, {
+          status: 302,
+          headers: {
+            "Location": r2Url,
+            "Cache-Control": "public, max-age=3600",
+            ...corsHeaders(),
+          },
+        });
       }
-
-      const { response, fromCache } = await fetchWithCache(githubUrl, fetchOpts, isVideo);
-
-      if (!response.ok && response.status !== 206) {
-        return errorResponse(`404 Not Found: ${path}`, 404);
-      }
-
-      const ext = filePath.split(".").pop().toLowerCase();
-      const isBinary = BINARY_TYPES.includes(ext);
-      const mimeType = getMimeType(filePath);
-      const headers = {
-        "Content-Type": mimeType,
-        "Cache-Control": fromCache ? `public, max-age=${VIDEO_CACHE_TTL}` : "public, max-age=3600, s-maxage=86400",
-        ...corsHeaders(),
-        "X-Content-Type-Options": "nosniff",
-      };
-
-      if (isVideo) {
-        if (response.status === 206) {
-          return new Response(response.body, {
-            status: 206,
-            headers: {
-              ...headers,
-              "Content-Range": response.headers.get("Content-Range"),
-              "Content-Length": response.headers.get("Content-Length"),
-              "Accept-Ranges": "bytes",
-              "X-Cache": fromCache ? "HIT" : "MISS",
-            },
-          });
-        }
-        headers["Accept-Ranges"] = "bytes";
-        headers["Content-Length"] = response.headers.get("Content-Length");
-        headers["X-Cache"] = fromCache ? "HIT" : "MISS";
-      }
-
-      const content = isBinary ? await response.arrayBuffer() : await response.text();
-      return new Response(content, { headers });
     } catch (err) {
       console.error("Error fetching from GitHub:", err);
       return errorResponse(`Error: ${err.message}`, 500);
