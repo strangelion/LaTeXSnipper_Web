@@ -123,15 +123,15 @@
     window.addEventListener('load', deferInit);
   }
 
-  // Re-init on theme switch so the gradient texture updates
-  var themeObserver = new MutationObserver(function () {
-    if (ripples) {
-      setTimeout(function () {
-        ripples.imageUrl = getGradientDataUrl();
-        ripples.loadImage();
-      }, 50);
-    }
-  });
+  // Disabled: Re-init on theme switch - removed custom imageUrl, using transparent texture instead
+  // var themeObserver = new MutationObserver(function () {
+  //   if (ripples) {
+  //     setTimeout(function () {
+  //       ripples.imageUrl = getGradientDataUrl();
+  //       ripples.loadImage();
+  //     }, 50);
+  //   }
+  // });
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   window.addEventListener('resize', function () {
