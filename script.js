@@ -1,3 +1,20 @@
+// ============= 主题加载（先执行）=============
+(function () {
+  const root = document.documentElement;
+  const STORAGE_KEY = 'latexSnipper-theme';
+
+  function lsGet() {
+    try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+  }
+
+  const saved = lsGet();
+  if (saved === 'dark' || saved === 'light') {
+    root.setAttribute('data-theme', saved);
+  } else {
+    root.removeAttribute('data-theme');
+  }
+})();
+
 // ============= 视频背景 =============
 (function () {
   const lightVideo = document.getElementById('bg-video-light');
@@ -15,15 +32,16 @@
     if (isDark()) {
       lightVideo.style.opacity = '0';
       darkVideo.style.opacity = '1';
-      darkVideo.play().catch(() => {});
     } else {
       lightVideo.style.opacity = '1';
       darkVideo.style.opacity = '0';
-      lightVideo.play().catch(() => {});
     }
+    lightVideo.play().catch(() => {});
+    darkVideo.play().catch(() => {});
   }
 
   switchVideo();
+
   const observer = new MutationObserver(switchVideo);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', switchVideo);

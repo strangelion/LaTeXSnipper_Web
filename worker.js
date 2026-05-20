@@ -84,16 +84,29 @@ export default {
       filePath = hasExt ? path.slice(1) : path.slice(1) + ".html";
     }
 
-    // 视频走 R2，直接 302 重定向
+    // 视频走 R2，直接代理（同域避免 autoplay 问题）
     if (filePath.endsWith(".mp4") || filePath.endsWith(".webm")) {
       const r2Url = `https://video.interknot.dpdns.org/${filePath}`;
-      return new Response(null, {
-        status: 302,
-        headers: {
-          "Location": r2Url,
-          "Cache-Control": "public, max-age=3600",
-        },
-      });
+      const fetchOpts = {};
+      const range = request.headers.get("Range");
+      if (range) fetchOpts.headers = { Range: range };
+      const videoResp = await fetch(r2Url, fetchOpts);
+      if (!videoResp.ok && videoResp.status !== 206) {
+        return errorResponse(`Video not found: ${path}`, 404);
+      }
+      const mimeType = getMimeType(filePath);
+      const headers = {
+        "Content-Type": mimeType,
+        "Cache-Control": "public, max-age=86400",
+        "Accept-Ranges": "bytes",
+        ...corsHeaders(),
+      };
+      if (videoResp.status === 206) {
+        headers["Content-Range"] = videoResp.headers.get("Content-Range") || "";
+        return new Response(videoResp.body, { status: 206, headers });
+      }
+      headers["Content-Length"] = videoResp.headers.get("Content-Length") || "";
+      return new Response(videoResp.body, { headers });
     }
 
     // favicon 返回 icon.png
