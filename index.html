@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>LaTeXSnipper — 主页</title>
   <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
@@ -171,17 +171,21 @@
       var t = document.querySelector('.hero-title');
       if (!t) return;
       function fit() {
-        var w = t.parentElement.clientWidth - 32;
-        t.style.fontSize = '';
+        var p = t.parentElement;
+        var w = p.clientWidth - 32;
+        if (w <= 0) return;
         t.style.whiteSpace = 'nowrap';
         var sw = t.scrollWidth;
         if (sw > w) {
-          var fs = parseFloat(getComputedStyle(t).fontSize);
-          t.style.fontSize = (fs * w / sw * 0.95) + 'px';
+          var fs = parseFloat(getComputedStyle(t).fontSize) || 33.6;
+          t.style.fontSize = (Math.max(12, fs * w / sw * 0.92)) + 'px';
+        } else {
+          t.style.fontSize = '';
         }
       }
-      fit();
+      requestAnimationFrame(function(){ fit(); });
       window.addEventListener('resize', fit);
+      window.addEventListener('load', fit);
     })();
   </script>
   <script src="script.js"></script>
