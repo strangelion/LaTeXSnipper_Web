@@ -408,3 +408,27 @@ document.addEventListener('DOMContentLoaded', function () {
     tick();
   }
 });
+
+// ============= 复制代码 =============
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.classList.add('copied-fade');
+      setTimeout(() => {
+        btn.textContent = '复制';
+        btn.classList.remove('copied', 'copied-fade');
+      }, 600);
+    }, 800);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = code; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已复制';
+    setTimeout(() => { btn.textContent = '复制'; }, 1500);
+  });
+}

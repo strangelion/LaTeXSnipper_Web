@@ -21,11 +21,8 @@ tinymist.lock
 *.pdf
 *.typ
 *.py
+*.png
 body.html
 deploy_kv.ps1
 typ2html.py
 user_manual.md
-mathcraft_abstract_algebra.png
-mathcraft_chinese_lecture.png
-mathcraft_dynamics_journal.png
-mathcraft_limits_series.png

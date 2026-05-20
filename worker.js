@@ -13,8 +13,14 @@ const MIME_TYPES = {
   js: "application/javascript; charset=utf-8",
   json: "application/json; charset=utf-8",
   png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  svg: "image/svg+xml",
   ico: "image/x-icon",
 };
+
+const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico"];
 
 function getMimeType(path) {
   const ext = path.split(".").pop().toLowerCase();
@@ -84,7 +90,9 @@ export default {
         return errorResponse(`404 Not Found: ${path}`, 404);
       }
 
-      const content = await response.text();
+      const ext = filePath.split(".").pop().toLowerCase();
+      const isBinary = BINARY_TYPES.includes(ext);
+      const content = isBinary ? await response.arrayBuffer() : await response.text();
       const mimeType = getMimeType(filePath);
 
       return new Response(content, {

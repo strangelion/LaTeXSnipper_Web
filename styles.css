@@ -144,9 +144,21 @@ img  { max-width: 100%; height: auto; border-radius: var(--radius); }
 .callout.info  .callout-title { color: var(--blue); }
 .callout-body p { margin: .15rem 0; }
 
+.code-block { position: relative; margin: .6rem 0; }
+.code-block:hover .copy-btn { opacity: 1; pointer-events: auto; }
+.copy-btn {
+	position: absolute; top: 6px; right: 6px; z-index: 2;
+	padding: 2px 10px; font-size: .75rem; cursor: pointer;
+	border: 1px solid var(--border-color-manual); border-radius: 4px;
+	background: var(--card-bg); color: var(--text-color);
+	opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.copy-btn.copied { background: #4caf50; color: #fff; border-color: #4caf50; }
+.copy-btn.copied-fade { transition: opacity .6s; opacity: 0 !important; }
+
 pre {
 	background: var(--code-bg); border: 1px solid #bdbdbd;
-	border-radius: var(--radius); padding: .75rem 1rem; margin: .6rem 0;
+	border-radius: var(--radius); padding: .75rem 1rem; margin: 0;
 	overflow-x: auto; font-family: var(--mono); font-size: .82rem;
 	line-height: 1.55;
 }
