@@ -2,25 +2,10 @@
 <html lang="zh-CN" style="overflow-x: hidden; max-width: 100vw;">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>LaTeXSnipper — 主页</title>
   <script>
     (function(){
-      // 动态设置 viewport 缩放倍率
-      var setViewportScale = function(){
-        var w = window.innerWidth;
-        var scale = 1;
-        if (w <= 320) scale = 0.6;
-        else if (w <= 360) scale = 0.7;
-        else if (w <= 400) scale = 0.8;
-        else if (w <= 640) scale = 0.9;
-        var meta = document.querySelector('meta[name="viewport"]');
-        if (meta) meta.setAttribute('content', 'width=device-width,initial-scale=' + scale + ',minimum-scale=0.5,maximum-scale=1');
-      };
-      setViewportScale();
-      window.addEventListener('resize', setViewportScale);
-      
-      // 动态调整标题字体大小
       function runFit() {
         var t = document.querySelector('.hero-title');
         if (!t) return;
@@ -28,11 +13,10 @@
           var p = t.parentElement;
           var w = p.clientWidth - 32;
           if (w <= 0) return;
-          t.style.whiteSpace = 'nowrap';
           var sw = t.scrollWidth;
           if (sw > w) {
-            var fs = parseFloat(getComputedStyle(t).fontSize) || 33.6;
-            t.style.fontSize = (Math.max(12, fs * w / sw * 0.92)) + 'px';
+            var fs = parseFloat(getComputedStyle(t).fontSize) || 20.8;
+            t.style.fontSize = (Math.max(14, fs * w / sw * 0.95)) + 'px';
           } else {
             t.style.fontSize = '';
           }

@@ -277,11 +277,13 @@ code { font-family: var(--mono); font-size: .88em; }
   margin: 0 0 .6rem;
   color: var(--fg);
   will-change: transform, opacity;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 641px){
-  .hero-title { font-size: 2.1rem; }
+  .hero-title { font-size: 2.1rem; white-space: nowrap; }
 }
 .hero-sub {
   font-size: 1.05rem;
