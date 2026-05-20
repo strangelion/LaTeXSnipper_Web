@@ -1,40 +1,13 @@
 <!doctype html>
-<html lang="zh-CN" style="overflow-x: hidden; max-width: 100vw;">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LaTeXSnipper — 主页</title>
-  <script>
-    (function(){
-      function runFit() {
-        var t = document.querySelector('.hero-title');
-        if (!t) return;
-        function fit() {
-          var p = t.parentElement;
-          var w = p.clientWidth - 32;
-          if (w <= 0) return;
-          var sw = t.scrollWidth;
-          if (sw > w) {
-            var fs = parseFloat(getComputedStyle(t).fontSize) || 20.8;
-            t.style.fontSize = (Math.max(14, fs * w / sw * 0.95)) + 'px';
-          } else {
-            t.style.fontSize = '';
-          }
-        }
-        requestAnimationFrame(function(){ fit(); });
-        window.addEventListener('resize', fit);
-      }
-      if (document.readyState === 'complete') {
-        runFit();
-      } else {
-        window.addEventListener('load', runFit);
-      }
-    })();
-  </script>
   <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body style="overflow-x: hidden; max-width: 100vw;">
+<body>
   <canvas id="bg-canvas" aria-hidden="true"></canvas>
   <header class="hero-header">
     <div class="container hero-inner">

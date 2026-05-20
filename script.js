@@ -266,6 +266,7 @@
 (function () {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const lerp = (a, b, t) => a + (b - a) * t;
+  let isMobile = window.innerWidth < 700;
 
   function getProgress(el) {
     const r = el.getBoundingClientRect();
@@ -287,14 +288,20 @@
     if (heroSection) {
       const inner = heroSection.querySelector('.slide-inner');
       if (inner) {
-        const range = heroSection.offsetHeight;
-        const raw = clamp(window.scrollY / range, 0, 1);
-        const easeZ = 1 - Math.pow(1 - raw, 2);
-        const scale = lerp(2, 1, clamp(easeZ / 0.65, 0, 1));
-        const opacity = easeZ < 0.65 ? 1 : clamp(1 - (easeZ - 0.65) / 0.35, 0, 1);
+        if (isMobile) {
+          const p = getProgress(heroSection);
+          inner.style.opacity = Math.min(1, (1 - p) * 4).toFixed(4);
+          inner.style.transform = 'none';
+        } else {
+          const range = heroSection.offsetHeight;
+          const raw = clamp(window.scrollY / range, 0, 1);
+          const easeZ = 1 - Math.pow(1 - raw, 2);
+          const scale = lerp(2, 1, clamp(easeZ / 0.65, 0, 1));
+          const opacity = easeZ < 0.65 ? 1 : clamp(1 - (easeZ - 0.65) / 0.35, 0, 1);
 
-        inner.style.transform = `scale(${scale.toFixed(4)})`;
-        inner.style.opacity = opacity.toFixed(4);
+          inner.style.transform = `scale(${scale.toFixed(4)})`;
+          inner.style.opacity = opacity.toFixed(4);
+        }
       }
     }
 
@@ -306,77 +313,85 @@
       const detail = section.querySelector('.card-detail');
       if (!wrapper || !front || !detail) return;
 
-      const c = segment(p, 0.10, 0.80);
-
-      let wrapScale, wrapOpacity, frontWidth, detailLeft, briefOpacity;
-
-      if (c < 0.10) {
-        // Phase 1a ─ 进入: scale 0.5→1
-        const t = c / 0.10;
-        wrapScale = lerp(0.5, 1, t);
-        wrapOpacity = t;
-        frontWidth = 100;
-        detailLeft = 100;
-        briefOpacity = 1;
-      } else if (c < 0.30) {
-        // Phase 1b ─ 停留前面板, 不压缩, 继续下滑
-        wrapScale = 1;
-        wrapOpacity = 1;
-        frontWidth = 100;
-        detailLeft = 100;
-        briefOpacity = 1;
-      } else if (c < 0.46) {
-        // Phase 2 ─ 压缩 + 详情滑入 同时进行
-        const t = (c - 0.30) / 0.16;
-        wrapScale = 1;
-        wrapOpacity = 1;
-        frontWidth = lerp(100, 30, t);
-        detailLeft = lerp(100, 30, t);
-        briefOpacity = lerp(1, 0, t);
-      } else if (c < 0.66) {
-        // Phase 3 ─ 停留
-        wrapScale = 1;
-        wrapOpacity = 1;
-        frontWidth = 30;
-        detailLeft = 30;
-        briefOpacity = 0;
-      } else if (c < 0.82) {
-        // Phase 4 ─ 回到原来样式
-        const t = (c - 0.66) / 0.16;
-        wrapScale = 1;
-        wrapOpacity = 1;
-        frontWidth = lerp(30, 100, t);
-        detailLeft = lerp(30, 100, t);
-        briefOpacity = lerp(0, 1, t);
+      if (isMobile) {
+        wrapper.style.transform = `scale(${lerp(0.94, 1, Math.min(1, p * 2.5)).toFixed(4)})`;
+        wrapper.style.opacity = Math.min(1, p * 3).toFixed(4);
+        const brief = front.querySelector('p');
+        if (brief) brief.style.opacity = '1';
+        detail.style.opacity = '1';
+        detail.style.transform = 'none';
+        detail.style.clipPath = 'none';
       } else {
-        // Phase 5 ─ 由大变小
-        const t = (c - 0.82) / 0.18;
-        wrapScale = lerp(1, 0.4, t);
-        wrapOpacity = 1 - t;
-        frontWidth = 100;
-        detailLeft = 100;
-        briefOpacity = 1;
+        const c = segment(p, 0.10, 0.80);
+
+        let wrapScale, wrapOpacity, frontWidth, detailLeft, briefOpacity;
+
+        if (c < 0.10) {
+          const t = c / 0.10;
+          wrapScale = lerp(0.5, 1, t);
+          wrapOpacity = t;
+          frontWidth = 100;
+          detailLeft = 100;
+          briefOpacity = 1;
+        } else if (c < 0.30) {
+          wrapScale = 1;
+          wrapOpacity = 1;
+          frontWidth = 100;
+          detailLeft = 100;
+          briefOpacity = 1;
+        } else if (c < 0.46) {
+          const t = (c - 0.30) / 0.16;
+          wrapScale = 1;
+          wrapOpacity = 1;
+          frontWidth = lerp(100, 30, t);
+          detailLeft = lerp(100, 30, t);
+          briefOpacity = lerp(1, 0, t);
+        } else if (c < 0.66) {
+          wrapScale = 1;
+          wrapOpacity = 1;
+          frontWidth = 30;
+          detailLeft = 30;
+          briefOpacity = 0;
+        } else if (c < 0.82) {
+          const t = (c - 0.66) / 0.16;
+          wrapScale = 1;
+          wrapOpacity = 1;
+          frontWidth = lerp(30, 100, t);
+          detailLeft = lerp(30, 100, t);
+          briefOpacity = lerp(0, 1, t);
+        } else {
+          const t = (c - 0.82) / 0.18;
+          wrapScale = lerp(1, 0.4, t);
+          wrapOpacity = 1 - t;
+          frontWidth = 100;
+          detailLeft = 100;
+          briefOpacity = 1;
+        }
+
+        wrapper.style.transform = `scale(${wrapScale.toFixed(4)})`;
+        wrapper.style.opacity = wrapOpacity.toFixed(4);
+        front.style.width = `${frontWidth.toFixed(1)}%`;
+        detail.style.left = `${detailLeft.toFixed(1)}%`;
+
+        const brief = front.querySelector('p');
+        if (brief) brief.style.opacity = briefOpacity.toFixed(4);
       }
-
-      wrapper.style.transform = `scale(${wrapScale.toFixed(4)})`;
-      wrapper.style.opacity = wrapOpacity.toFixed(4);
-
-      front.style.width = `${frontWidth.toFixed(1)}%`;
-      detail.style.left = `${detailLeft.toFixed(1)}%`;
-
-      const brief = front.querySelector('p');
-      if (brief) brief.style.opacity = briefOpacity.toFixed(4);
     });
 
     // ── Ending ──
     const endSection = document.querySelector('[data-slide="ending"]');
     if (endSection) {
-      const p = getProgress(endSection);
       const inner = endSection.querySelector('.slide-inner');
       if (inner) {
-        const f = segment(p, 0.1, 0.6);
-        inner.style.opacity = f.toFixed(4);
-        inner.style.transform = `scale(${lerp(0.8, 1, f).toFixed(4)})`;
+        const p = getProgress(endSection);
+        if (isMobile) {
+          inner.style.opacity = Math.min(1, p * 3).toFixed(4);
+          inner.style.transform = 'none';
+        } else {
+          const f = segment(p, 0.1, 0.6);
+          inner.style.opacity = f.toFixed(4);
+          inner.style.transform = `scale(${lerp(0.8, 1, f).toFixed(4)})`;
+        }
       }
     }
   }
@@ -386,7 +401,7 @@
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   update();
-  window.addEventListener('resize', update);
+  window.addEventListener('resize', () => { isMobile = window.innerWidth < 700; update(); });
 })();
 
 // ============= 打字效果 =============
