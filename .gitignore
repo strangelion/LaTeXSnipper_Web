@@ -20,6 +20,7 @@ Thumbs.db
 tinymist.lock
 *.pdf
 *.typ
+*.py
 body.html
 deploy_kv.ps1
 typ2html.py
