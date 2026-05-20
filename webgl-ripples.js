@@ -40,7 +40,9 @@ function loadConfig() {
 		'OES_texture_float',
 		'OES_texture_half_float',
 		'OES_texture_float_linear',
-		'OES_texture_half_float_linear'
+		'OES_texture_half_float_linear',
+		'WEBGL_color_buffer_float',
+		'EXT_color_buffer_float'
 	].forEach(function(name) {
 		var extension = gl.getExtension(name);
 		if (extension) {
