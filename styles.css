@@ -369,11 +369,12 @@ code { font-family: var(--mono); font-size: .88em; }
   .slide-section[data-slide="ending"] { min-height: 80vh; }
   .card-front, .card-detail { padding: .9rem 1rem; }
   .card-front h3 { font-size: 1.15rem; }
-  .card-viewport { min-height: 280px; }
-  .hero-title { font-size: 1.6rem; }
-  .hero-sub { font-size: 0.9rem; }
+  .card-viewport { min-height: 220px; }
+  .hero-title { font-size: 1.4rem; white-space: nowrap; }
+  .hero-sub { font-size: 0.85rem; }
   .section-title { font-size: 1.4rem; }
   .slide-scroll { max-width: 100%; box-sizing: border-box; padding: 0 .5rem; }
+  .hero-ctas .btn { font-size: .85rem; padding: .45rem .8rem; }
 }
 
 @media (max-width: 420px){
