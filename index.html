@@ -166,6 +166,24 @@
     <div class="container">© 2026 LaTeXSnipper — 开源项目</div>
   </footer>
 
+  <script>
+    (function(){
+      var t = document.querySelector('.hero-title');
+      if (!t) return;
+      function fit() {
+        var w = t.parentElement.clientWidth - 32;
+        t.style.fontSize = '';
+        t.style.whiteSpace = 'nowrap';
+        var sw = t.scrollWidth;
+        if (sw > w) {
+          var fs = parseFloat(getComputedStyle(t).fontSize);
+          t.style.fontSize = (fs * w / sw * 0.95) + 'px';
+        }
+      }
+      fit();
+      window.addEventListener('resize', fit);
+    })();
+  </script>
   <script src="script.js"></script>
   <button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部"><span class="btt-arrow">▲</span><span class="btt-text">顶部</span></button>
 </body>

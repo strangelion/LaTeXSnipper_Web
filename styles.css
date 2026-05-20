@@ -377,25 +377,10 @@ code { font-family: var(--mono); font-size: .88em; }
 }
 
 @media (max-width: 420px){
-  .hero-title { font-size: clamp(1rem, 5cqi, 1.4rem); white-space: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .hero-sub { font-size: .82rem; }
-  .hero-ctas .btn { font-size: .82rem; padding: .4rem .7rem; display: inline-block; margin-bottom: .4rem; }
   .card-viewport { min-height: 240px; }
   .card-front h3 { font-size: 1rem; }
   .card-front p { font-size: .85rem; }
   .card-detail-inner p { font-size: .8rem; }
-  .main-nav a { margin-left: .5rem; font-size: .85rem; }
-  .brand a { font-size: .9rem; }
-  .brand-icon { width: 28px; height: 28px; }
-}
-
-@media (max-width: 350px){
-  .hero-title { font-size: clamp(.82rem, 4cqi, 1.1rem); white-space: nowrap; }
-  .hero-sub { font-size: .72rem; }
-  .hero-ctas .btn { font-size: .72rem; padding: .3rem .45rem; }
-  .main-nav a { margin-left: .3rem; font-size: .72rem; }
-  .brand a { font-size: .78rem; }
-  .main-nav { gap: .3rem; }
 }
 
 /* --- 用户手册暗色模式 --- */
