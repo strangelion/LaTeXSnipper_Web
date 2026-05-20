@@ -18,9 +18,17 @@
     '#748FFC','#DA77F2','#F783AC','#FF922B','#FF8787'
   ];
 
-  // 浅蓝底色 (从 CSS 变量读取，支持暗色模式)
+  function isDarkMode() {
+    const attr = document.documentElement.getAttribute('data-theme');
+    if (attr === 'dark') return true;
+    if (attr === 'light') return false;
+    return matchMedia('(prefers-color-scheme: dark)').matches;
+  }
   function getBgColor() {
-    return getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg').trim() || '#eef4fb';
+    return isDarkMode() ? '#181c26' : '#eef4fb';
+  }
+  function rippleRGB() {
+    return isDarkMode() ? '255,255,255' : '0,0,0';
   }
 
   let W, H;
@@ -32,20 +40,30 @@
     pts.push({
       x: Math.random() * W, y: Math.random() * H,
       vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-      r: 22 + Math.random() * 50,          // 半径 22~72px（缩小）  
-      cr: 0,                                // 当前半径（从0开始渐变）
+      r: 22 + Math.random() * 50,
+      cr: 0,
       c: PALETTE[i],
-      ph: Math.random() * Math.PI * 2,      // 呼吸相位
-      pd: 3500 + Math.random() * 6500,      // 呼吸周期
-      aHi: 0.65 + Math.random() * 0.30,     // 最大不透明度 (提高到95%)
-      aLo: 0.12 + Math.random() * 0.12,    // 最小不透明度 (提高到12-24%)
-      ca: 0,                                 // 当前不透明度
-      pulse: 0,                              // 波纹脉冲
-      rippleR: 100 + Math.random() * 160,    // 波纹影响半径
-      decay: 0.965 + Math.random() * 0.02,   // 脉冲衰减（慢很多: ~97%/帧）
-      pulseMax: 0.30 + Math.random() * 0.25, // 最大脉冲强度（提高）
+      ph: Math.random() * Math.PI * 2,
+      pd: 3500 + Math.random() * 6500,
+      aHi: 0.65 + Math.random() * 0.30,
+      aLo: 0.12 + Math.random() * 0.12,
+      ca: 0,
+      pulse: 0,
+      rippleR: 100 + Math.random() * 160,
+      decay: 0.965 + Math.random() * 0.02,
+      pulseMax: 0.30 + Math.random() * 0.25,
     });
   }
+
+  const clickRipples = [];
+  addEventListener('click', e => {
+    clickRipples.push({
+      x: e.clientX, y: e.clientY,
+      time: performance.now(),
+      maxR: Math.max(W, H) * 0.55,
+      duration: 1500,
+    });
+  });
 
   let mx = -9999, my = -9999, tmx = -9999, tmy = -9999;
   let pmx = -9999, pmy = -9999;
@@ -55,27 +73,24 @@
   let lt = performance.now();
 
   function loop(now) {
+    try {
     const dt = Math.min(now - lt, 50); lt = now;
     mx += (tmx - mx) * 0.06; my += (tmy - my) * 0.06;
     const spd = Math.hypot(mx - pmx, my - pmy); pmx = mx; pmy = my;
 
-    // 先画底色（跟随系统日/夜模式）
     ctx.fillStyle = getBgColor();
     ctx.fillRect(0, 0, W, H);
 
     for (const p of pts) {
-      // 呼吸透明度
       const t = (now % p.pd) / p.pd;
       const ta = p.aLo + ((Math.sin(t * Math.PI * 2 + p.ph) + 1) / 2) * (p.aHi - p.aLo);
 
-      // 漂移
       p.x += p.vx * (dt / 16); p.y += p.vy * (dt / 16);
       if (p.x < -p.r) p.x = W + p.r;
       if (p.x > W + p.r) p.x = -p.r;
       if (p.y < -p.r) p.y = H + p.r;
       if (p.y > H + p.r) p.y = -p.r;
 
-      // 水波纹：鼠标移动时给附近粒子脉冲，再次划过可叠加
       if (mx > -5000 && spd > 0.3) {
         const dist = Math.hypot(p.x - mx, p.y - my);
         if (dist < p.rippleR) {
@@ -84,19 +99,28 @@
           if (ripple > 0.003) p.pulse = Math.min(p.pulse + ripple * 1.3, p.pulseMax);
         }
       }
-      // 慢衰减
       p.pulse *= p.decay;
       if (p.pulse < 0.0005) p.pulse = 0;
 
-      // 半径：基础 + 脉冲膨胀
-      const tr = p.r * (1 + p.pulse);
-      p.cr += (tr - p.cr) * 0.15;             // 更慢的收缩过渡
+      // ── Click ripple effect ──
+      for (const rp of clickRipples) {
+        const elapsed = now - rp.time;
+        const progress = Math.min(elapsed / rp.duration, 1);
+        const currentR = rp.maxR * progress;
+        const dist = Math.hypot(p.x - rp.x, p.y - rp.y);
+        if (dist < currentR && dist > 0) {
+          const nd = dist / currentR;
+          const wave = (1 - nd) * Math.sin(nd * Math.PI * 4) * (1 - progress);
+          if (wave > 0.003) p.pulse = Math.min(p.pulse + wave * 2.5, p.pulseMax * 1.4);
+        }
+      }
 
-      // 不透明度平滑
+      const tr = p.r * (1 + p.pulse);
+      p.cr += (tr - p.cr) * 0.15;
+
       p.ca += (ta - p.ca) * 0.05;
       const alpha = Math.min(p.ca * (1 + p.pulse * 0.5), 0.9);
 
-      // 绘制
       const rad = p.cr || p.r;
       const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
       g.addColorStop(0, p.c);
@@ -108,12 +132,38 @@
       ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalAlpha = 1;
+
+    // ── Draw click ripple rings ──
+    const rippleRgb = rippleRGB();
+    for (let ri = clickRipples.length - 1; ri >= 0; ri--) {
+      const rp = clickRipples[ri];
+      const elapsed = now - rp.time;
+      const progress = Math.min(elapsed / rp.duration, 1);
+      if (progress >= 1) { clickRipples.splice(ri, 1); continue; }
+      const currentR = Math.max(0, rp.maxR * progress);
+      const alpha = 0.4 * (1 - progress);
+      ctx.beginPath();
+      ctx.arc(rp.x, rp.y, currentR, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(${rippleRgb},${alpha.toFixed(3)})`;
+      ctx.lineWidth = 2.5 * (1 - progress) + 0.5;
+      ctx.stroke();
+      if (progress > 0.2) {
+        const innerR = Math.max(0, rp.maxR * (progress - 0.15));
+        ctx.beginPath();
+        ctx.arc(rp.x, rp.y, innerR, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${rippleRgb},${(alpha * 0.5).toFixed(3)})`;
+        ctx.lineWidth = 1.5 * (1 - progress) + 0.5;
+        ctx.stroke();
+      }
+    }
+
+    } catch(e) { /* keep loop alive */ }
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 })();
 
-// ============= 手动主题切换（含 localStorage 持久化） =============
+// ============= 手动主题切换 =============
 (function () {
   const toggle = document.getElementById('themeToggle');
   const root = document.documentElement;
@@ -125,7 +175,7 @@
     if (saved === 'dark' || saved === 'light') {
       root.setAttribute('data-theme', saved);
     } else {
-      root.removeAttribute('data-theme'); // 无保存时跟随系统
+      root.removeAttribute('data-theme');
     }
   }
 
@@ -133,7 +183,7 @@
     const attr = root.getAttribute('data-theme');
     if (attr === 'dark') return true;
     if (attr === 'light') return false;
-    return darkMQ.matches; // 无属性时跟随系统
+    return darkMQ.matches;
   }
 
   function saveTheme() {
@@ -155,7 +205,7 @@
     }
     updateIcon();
     darkMQ.addEventListener('change', () => {
-      loadTheme(); // 系统切换时重载（若用户未手动设置，则 data-theme 为空，isDark 跟随系统）
+      loadTheme();
       updateIcon();
     });
 
@@ -176,7 +226,7 @@
   const btn = document.getElementById('backToTop');
   if (!btn) return;
   let fadeTimer = null;
-  const FADE_DELAY = 4000; // 闲置 4 秒后半透明
+  const FADE_DELAY = 4000;
 
   function toggle() {
     if (window.scrollY > 400) {
@@ -212,88 +262,135 @@
   toggle();
 })();
 
-// ============= Hero 渐变滚动：句中 → 左上 (连续过渡) =============
+// ============= Slide 滚动驱动动画 =============
 (function () {
-  const hero = document.querySelector('.hero-section');
-  const content = document.querySelector('.hero-content');
-  const title = document.querySelector('.hero-title');
-  const subtitle = document.querySelector('.hero-sub');
-  const ctas = document.querySelector('.hero-ctas');
-  const header = document.querySelector('.hero-header');
-  if (!hero || !content) return;
-
-  // 缓存的动态值
-  let heroH = 0, headerH = 56, maxScroll = 300;
-  function recalc() {
-    heroH = hero.getBoundingClientRect().height;
-    headerH = header ? header.getBoundingClientRect().height : 56;
-    maxScroll = Math.max(300, heroH * 0.82); // 更大的滚动范围，过渡更缓慢
-  }
-  recalc();
-  window.addEventListener('resize', recalc);
-
-  // 缓动插值函数
-  const lerp = (a, b, t) => a + (b - a) * t;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
 
-  let rafId = null;
+  function getProgress(el) {
+    const r = el.getBoundingClientRect();
+    const vh = window.innerHeight;
+    return clamp(1 - (r.top + r.height) / (vh + r.height), 0, 1);
+  }
+
+  function segment(p, a, b) {
+    return clamp((p - a) / (b - a), 0, 1);
+  }
+
+  let raf = null;
+
   function update() {
-    rafId = null;
-    const sy = window.scrollY;
-    const p = clamp(sy / maxScroll, 0, 1); // 0=居中, 1=左上
+    raf = null;
 
-    // ease-out: 用更平缓的曲线，整体过渡更柔和
-    const ep = 1 - Math.pow(1 - p, 2.5); 
+    // ── Hero ──
+    const heroSection = document.querySelector('[data-slide="hero"]');
+    if (heroSection) {
+      const inner = heroSection.querySelector('.slide-inner');
+      if (inner) {
+        const range = heroSection.offsetHeight;
+        const raw = clamp(window.scrollY / range, 0, 1);
+        const easeZ = 1 - Math.pow(1 - raw, 2);
+        const scale = lerp(2, 1, clamp(easeZ / 0.65, 0, 1));
+        const opacity = easeZ < 0.65 ? 1 : clamp(1 - (easeZ - 0.65) / 0.35, 0, 1);
 
-    // 竖直偏移: 从视口中心 → header下方
-    const startY = (heroH - content.offsetHeight) / 2; // 居中时的顶部偏移
-    const endY = headerH + 16; // 左上目标: header下方16px
-    const ty = lerp(startY, endY, ep) - startY;
-
-    // 标题字号: 2.1rem → 1.4rem
-    const titleSize = lerp(2.1, 1.4, ep);
-    // 副标题字号: 1.05rem → 0.9rem
-    const subSize = lerp(1.05, 0.9, ep);
-    // CTA按钮透明度: 1 → 0.5 (滚动时渐隐)
-    const ctaOpacity = lerp(1, 0.3, ep);
-
-    // 应用样式 (textAlign/alignItems 用原始 p，在滚动中段自然翻转)
-    content.style.transform = `translateY(${ty.toFixed(1)}px)`;
-    content.style.textAlign = p > 0.6 ? 'left' : 'center';
-    content.style.alignItems = p > 0.6 ? 'flex-start' : 'center';
-    title.style.fontSize = titleSize.toFixed(2) + 'rem';
-    if (subtitle) {
-      subtitle.style.fontSize = subSize.toFixed(2) + 'rem';
-      subtitle.style.marginBottom = lerp(1, 0.4, ep).toFixed(2) + 'rem';
+        inner.style.transform = `scale(${scale.toFixed(4)})`;
+        inner.style.opacity = opacity.toFixed(4);
+      }
     }
-    if (ctas) {
-      ctas.style.opacity = ctaOpacity.toFixed(2);
-      ctas.style.transform = `scale(${ctaOpacity.toFixed(2)})`;
+
+    // ── Card Slides ──
+    document.querySelectorAll('.card-slide').forEach(section => {
+      const p = getProgress(section);
+      const wrapper = section.querySelector('.card-wrapper');
+      const front = section.querySelector('.card-front');
+      const detail = section.querySelector('.card-detail');
+      if (!wrapper || !front || !detail) return;
+
+      const c = segment(p, 0.10, 0.80);
+
+      let wrapScale, wrapOpacity, frontWidth, detailLeft, briefOpacity;
+
+      if (c < 0.10) {
+        // Phase 1a ─ 进入: scale 0.5→1
+        const t = c / 0.10;
+        wrapScale = lerp(0.5, 1, t);
+        wrapOpacity = t;
+        frontWidth = 100;
+        detailLeft = 100;
+        briefOpacity = 1;
+      } else if (c < 0.30) {
+        // Phase 1b ─ 停留前面板, 不压缩, 继续下滑
+        wrapScale = 1;
+        wrapOpacity = 1;
+        frontWidth = 100;
+        detailLeft = 100;
+        briefOpacity = 1;
+      } else if (c < 0.46) {
+        // Phase 2 ─ 压缩 + 详情滑入 同时进行
+        const t = (c - 0.30) / 0.16;
+        wrapScale = 1;
+        wrapOpacity = 1;
+        frontWidth = lerp(100, 30, t);
+        detailLeft = lerp(100, 30, t);
+        briefOpacity = lerp(1, 0, t);
+      } else if (c < 0.66) {
+        // Phase 3 ─ 停留
+        wrapScale = 1;
+        wrapOpacity = 1;
+        frontWidth = 30;
+        detailLeft = 30;
+        briefOpacity = 0;
+      } else if (c < 0.82) {
+        // Phase 4 ─ 回到原来样式
+        const t = (c - 0.66) / 0.16;
+        wrapScale = 1;
+        wrapOpacity = 1;
+        frontWidth = lerp(30, 100, t);
+        detailLeft = lerp(30, 100, t);
+        briefOpacity = lerp(0, 1, t);
+      } else {
+        // Phase 5 ─ 由大变小
+        const t = (c - 0.82) / 0.18;
+        wrapScale = lerp(1, 0.4, t);
+        wrapOpacity = 1 - t;
+        frontWidth = 100;
+        detailLeft = 100;
+        briefOpacity = 1;
+      }
+
+      wrapper.style.transform = `scale(${wrapScale.toFixed(4)})`;
+      wrapper.style.opacity = wrapOpacity.toFixed(4);
+
+      front.style.width = `${frontWidth.toFixed(1)}%`;
+      detail.style.left = `${detailLeft.toFixed(1)}%`;
+
+      const brief = front.querySelector('p');
+      if (brief) brief.style.opacity = briefOpacity.toFixed(4);
+    });
+
+    // ── Ending ──
+    const endSection = document.querySelector('[data-slide="ending"]');
+    if (endSection) {
+      const p = getProgress(endSection);
+      const inner = endSection.querySelector('.slide-inner');
+      if (inner) {
+        const f = segment(p, 0.1, 0.6);
+        inner.style.opacity = f.toFixed(4);
+        inner.style.transform = `scale(${lerp(0.8, 1, f).toFixed(4)})`;
+      }
     }
   }
 
   function onScroll() {
-    if (!rafId) rafId = requestAnimationFrame(update);
+    if (!raf) raf = requestAnimationFrame(update);
   }
   window.addEventListener('scroll', onScroll, { passive: true });
-  update(); // 初始状态
+  update();
+  window.addEventListener('resize', update);
 })();
 
-// ============= 原有交互脚本 =============
-// 简单前端交互脚本：平滑滚动、打字效果、scroll reveal
+// ============= 打字效果 =============
 document.addEventListener('DOMContentLoaded', function () {
-  // 平滑滚动（为内链链接）
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', function (e) {
-      const target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
-
-  // 简单打字效果
   const typedEl = document.getElementById('typed');
   const words = ['快速插入', '实时预览', '智能识别'];
   if (typedEl) {
@@ -310,16 +407,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     tick();
   }
-
-  // scroll reveal
-  const reveals = document.querySelectorAll('.card, .section-title, .hero-content');
-  const onScroll = () => {
-    const top = window.innerHeight;
-    reveals.forEach(el => {
-      const r = el.getBoundingClientRect();
-      if (r.top < top - 60) el.classList.add('visible');
-    });
-  };
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
 });

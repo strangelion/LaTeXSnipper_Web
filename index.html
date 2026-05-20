@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LaTeXSnipper — 主页</title>
+  <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -23,96 +24,141 @@
   </header>
 
   <main>
-    <section class="hero-section">
-      <div class="container hero-content">
-        <h1 class="hero-title">在编辑器中快速插入 LaTeX 片段</h1>
-        <p class="hero-sub">让公式录入更快速、更智能 — <span id="typed"></span></p>
-        <p class="hero-ctas">
-          <a class="btn primary" href="user_manual.html">阅读用户手册</a>
-          <a class="btn" href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">查看源码</a>
-        </p>
+    <!-- ========= Slide 1: Hero ========= -->
+    <section class="slide-section" data-slide="hero">
+      <div class="slide-scroll">
+        <div class="slide-inner hero-layout">
+          <h1 class="hero-title">在编辑器中快速插入 LaTeX 片段</h1>
+          <p class="hero-sub">让公式录入更快速、更智能 — <span id="typed"></span></p>
+          <div class="hero-ctas">
+            <a class="btn primary" href="user_manual.html">阅读用户手册</a>
+            <a class="btn" href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">查看源码</a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="features container">
-      <h2 class="section-title">主要特性</h2>
-      <div class="cards">
-        <div class="card" data-detail="按下截图快捷键框选公式区域，内置 MathCraft ONNX 模型在本地完成 OCR 识别，无需上传任何数据到云端。支持印刷公式、手写体、图片内嵌公式等多场景识别，识别结果自动进入编辑区可供修改。">
-          <div class="card-inner">
+    <!-- ========= Slide 2: Card 0 ========= -->
+    <section class="slide-section card-slide" data-slide="card-0">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
             <div class="card-front">
               <h3>截取识别</h3>
               <p>一键截图并自动识别 LaTeX 公式，支持手写与图像。</p>
             </div>
-            <div class="card-back">
-              <p>按下截图快捷键框选公式区域，内置 MathCraft ONNX 模型在本地完成 OCR 识别，无需上传任何数据到云端。支持印刷公式、手写体、图片内嵌公式等多场景识别，识别结果自动进入编辑区可供修改。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-detail="编辑区支持 Typst、MathJax、LaTeX 三种渲染引擎实时预览，所见即所得。切换引擎无需重启，公式渲染效果即时呈现，方便在不同输出场景下对比排版效果。">
-          <div class="card-inner">
-            <div class="card-front">
-              <h3>实时预览</h3>
-              <p>编辑区支持实时渲染，Typst/MathJax/LaTeX 多种引擎。</p>
-            </div>
-            <div class="card-back">
-              <p>编辑区支持 Typst、MathJax、LaTeX 三种渲染引擎实时预览，所见即所得。切换引擎无需重启，公式渲染效果即时呈现，方便在不同输出场景下对比排版效果。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-detail="支持 Pandoc 导出为 Word/HTML/Markdown，Typst 源码转换，以及 PNG/SVG/PDF 等多种图片格式导出。复制 LaTeX/MathML 可直接粘贴到 Word、Typora 等编辑器中。">
-          <div class="card-inner">
-            <div class="card-front">
-              <h3>导出与转换</h3>
-              <p>支持 Pandoc 导出、Typst 转换以及多种图片格式。</p>
-            </div>
-            <div class="card-back">
-              <p>支持 Pandoc 导出为 Word/HTML/Markdown，Typst 源码转换，以及 PNG/SVG/PDF 等多种图片格式导出。复制 LaTeX/MathML 可直接粘贴到 Word、Typora 等编辑器中。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-detail="内置 MathCraft ONNX 本地 OCR 模型，无需联网即可完成高精度公式识别。模型自动下载部署，首次启动通过依赖向导完成配置，后续离线使用零延迟。">
-          <div class="card-inner">
-            <div class="card-front">
-              <h3>本地模型</h3>
-              <p>内置 MathCraft ONNX 引擎，离线可用，隐私安全。</p>
-            </div>
-            <div class="card-back">
-              <p>内置 MathCraft ONNX 本地 OCR 模型，无需联网即可完成高精度公式识别。模型自动下载部署，首次启动通过依赖向导完成配置，后续离线使用零延迟。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-detail="除本地模型外，支持接入外部 API 模型（如 Mathpix、SimpleTex 等）获得更高识别精度。在设置中配置 API Key 即可切换，满足不同使用场景。">
-          <div class="card-inner">
-            <div class="card-front">
-              <h3>外部模型</h3>
-              <p>支持接入 Mathpix、SimpleTex 等外部 API 引擎。</p>
-            </div>
-            <div class="card-back">
-              <p>除本地模型外，支持接入外部 API 模型（如 Mathpix、SimpleTex 等）获得更高识别精度。在设置中配置 API Key 即可切换，满足不同使用场景。</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" data-detail="全面支持 Windows、Linux、macOS 三大桌面平台。Windows 上可注册为自启动服务，Linux 下支持 Wayland/X11 截图，macOS 拥有原生风格界面。">
-          <div class="card-inner">
-            <div class="card-front">
-              <h3>多平台</h3>
-              <p>全面支持 Windows / Linux / macOS，体验一致。</p>
-            </div>
-            <div class="card-back">
-              <p>全面支持 Windows、Linux、macOS 三大桌面平台。Windows 上可注册为自启动服务，Linux 下支持 Wayland/X11 截图，macOS 拥有原生风格界面。</p>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>按下截图快捷键框选公式区域，内置 MathCraft ONNX 模型在本地完成 OCR 识别，无需上传任何数据到云端。支持印刷公式、手写体、图片内嵌公式等多场景识别，识别结果自动进入编辑区可供修改。</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="more container">
-      <p>更多信息请查看用户手册或直接前往 GitHub 提交 Issue。</p>
+    <!-- ========= Slide 3: Card 1 ========= -->
+    <section class="slide-section card-slide" data-slide="card-1">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
+            <div class="card-front">
+              <h3>实时预览</h3>
+              <p>编辑区支持实时渲染，Typst/MathJax/LaTeX 多种引擎。</p>
+            </div>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>编辑区支持 Typst、MathJax、LaTeX 三种渲染引擎实时预览，所见即所得。切换引擎无需重启，公式渲染效果即时呈现，方便在不同输出场景下对比排版效果。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Slide 4: Card 2 ========= -->
+    <section class="slide-section card-slide" data-slide="card-2">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
+            <div class="card-front">
+              <h3>导出与转换</h3>
+              <p>支持 Pandoc 导出、Typst 转换以及多种图片格式。</p>
+            </div>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>支持 Pandoc 导出为 Word/HTML/Markdown，Typst 源码转换，以及 PNG/SVG/PDF 等多种图片格式导出。复制 LaTeX/MathML 可直接粘贴到 Word、Typora 等编辑器中。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Slide 5: Card 3 ========= -->
+    <section class="slide-section card-slide" data-slide="card-3">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
+            <div class="card-front">
+              <h3>本地模型</h3>
+              <p>内置 MathCraft ONNX 引擎，离线可用，隐私安全。</p>
+            </div>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>内置 MathCraft ONNX 本地 OCR 模型，无需联网即可完成高精度公式识别。模型自动下载部署，首次启动通过依赖向导完成配置，后续离线使用零延迟。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Slide 6: Card 4 ========= -->
+    <section class="slide-section card-slide" data-slide="card-4">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
+            <div class="card-front">
+              <h3>外部模型</h3>
+              <p>支持接入 Mathpix、SimpleTex 等外部 API 引擎。</p>
+            </div>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>除本地模型外，支持接入外部 API 模型（如 Mathpix、SimpleTex 等）获得更高识别精度。在设置中配置 API Key 即可切换，满足不同使用场景。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Slide 7: Card 5 ========= -->
+    <section class="slide-section card-slide" data-slide="card-5">
+      <div class="slide-scroll">
+        <div class="card-wrapper">
+          <div class="card-viewport">
+            <div class="card-front">
+              <h3>多平台</h3>
+              <p>全面支持 Windows / Linux / macOS，体验一致。</p>
+            </div>
+            <div class="card-detail">
+              <div class="card-detail-inner">
+                <p>全面支持 Windows、Linux、macOS 三大桌面平台。Windows 上可注册为自启动服务，Linux 下支持 Wayland/X11 截图，macOS 拥有原生风格界面。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========= Slide 8: Ending ========= -->
+    <section class="slide-section" data-slide="ending">
+      <div class="slide-scroll">
+        <div class="slide-inner ending-layout">
+          <p>更多信息请查看用户手册或直接前往 GitHub 提交 Issue。</p>
+        </div>
+      </div>
     </section>
   </main>
 
