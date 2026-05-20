@@ -41,10 +41,31 @@
       if (ripples) { ripples.destroy(); }
       ripples = new Ripples(overlay, {
         resolution: 256,
-        dropRadius: 18,
-        perturbance: 0.025,
+        dropRadius: 24,
+        perturbance: 0.04,
         interactive: true
       });
+
+      document.addEventListener('mousemove', function (e) {
+        if (ripples) ripples.drop(e.clientX, e.clientY, 12, 0.035);
+      });
+      document.addEventListener('touchmove', function (e) {
+        var t = e.touches[0];
+        if (ripples && t) ripples.drop(t.clientX, t.clientY, 20, 0.05);
+      }, { passive: true });
+
+      var autoDrop = function () {
+        if (!ripples) return;
+        var x = Math.random() * window.innerWidth;
+        var y = Math.random() * window.innerHeight;
+        ripples.drop(x, y, 20 + Math.random() * 20, 0.02 + Math.random() * 0.02);
+      };
+      var autoTimer = setInterval(autoDrop, 3000);
+      var origDestroy = ripples.destroy;
+      ripples.destroy = function () {
+        clearInterval(autoTimer);
+        origDestroy.call(ripples);
+      };
     } catch (e) {
       console.error('水波纹初始化失败:', e);
     }
@@ -79,8 +100,15 @@
   const darkMQ = matchMedia('(prefers-color-scheme: dark)');
   const STORAGE_KEY = 'latexSnipper-theme';
 
+  function lsGet() {
+    try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+  }
+  function lsSet(v) {
+    try { if (v) localStorage.setItem(STORAGE_KEY, v); else localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+
   function loadTheme() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = lsGet();
     if (saved === 'dark' || saved === 'light') {
       root.setAttribute('data-theme', saved);
     } else {
@@ -97,13 +125,7 @@
 
   function saveTheme() {
     const attr = root.getAttribute('data-theme');
-    if (attr === 'dark') {
-      localStorage.setItem(STORAGE_KEY, 'dark');
-    } else if (attr === 'light') {
-      localStorage.setItem(STORAGE_KEY, 'light');
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    lsSet(attr === 'dark' || attr === 'light' ? attr : null);
   }
 
   loadTheme();

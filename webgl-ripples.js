@@ -64,6 +64,7 @@ function loadConfig() {
 		if (linearSupport) {
 			configExtensions.push(nameLinear);
 		}
+		configExtensions.push('WEBGL_color_buffer_float', 'EXT_color_buffer_float');
 
 		return {
 			type: glType,
