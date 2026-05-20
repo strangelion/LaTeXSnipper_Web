@@ -86,10 +86,29 @@ export default {
 
     try {
       const isVideo = filePath.endsWith(".mp4") || filePath.endsWith(".webm");
+      const isIco = filePath.endsWith(".ico");
       const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filePath}`;
-      const response = await fetch(githubUrl);
 
-      if (!response.ok) {
+      if (isIco) {
+        const pngUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/icon.png`;
+        const icoResp = await fetch(pngUrl);
+        if (!icoResp.ok) {
+          return new Response(null, { status: 204, headers: corsHeaders() });
+        }
+        const icoContent = await icoResp.arrayBuffer();
+        return new Response(icoContent, {
+          headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400", ...corsHeaders() },
+        });
+      }
+
+      const fetchOpts = {};
+      if (isVideo) {
+        const range = request.headers.get("Range");
+        if (range) fetchOpts.headers = { Range: range };
+      }
+      const response = await fetch(githubUrl, fetchOpts);
+
+      if (!response.ok && response.status !== 206) {
         return errorResponse(`404 Not Found: ${path}`, 404);
       }
 
@@ -104,26 +123,19 @@ export default {
       };
 
       if (isVideo) {
-        const range = request.headers.get("Range");
-        if (range) {
-          const full = await response.arrayBuffer();
-          const total = full.byteLength;
-          const parts = range.replace(/bytes=/, "").split("-");
-          const start = parseInt(parts[0], 10);
-          const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
-          const chunk = full.slice(start, end + 1);
-
-          return new Response(chunk, {
+        if (response.status === 206) {
+          return new Response(response.body, {
             status: 206,
             headers: {
               ...headers,
-              "Content-Range": `bytes ${start}-${end}/${total}`,
-              "Content-Length": chunk.byteLength,
+              "Content-Range": response.headers.get("Content-Range"),
+              "Content-Length": response.headers.get("Content-Length"),
               "Accept-Ranges": "bytes",
             },
           });
         }
         headers["Accept-Ranges"] = "bytes";
+        headers["Content-Length"] = response.headers.get("Content-Length");
       }
 
       const content = isBinary ? await response.arrayBuffer() : await response.text();
