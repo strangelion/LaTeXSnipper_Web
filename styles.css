@@ -273,10 +273,15 @@ code { font-family: var(--mono); font-size: .88em; }
   justify-content: center;
 }
 .hero-title {
-  font-size: 2.1rem;
+  font-size: 1.3rem;
   margin: 0 0 .6rem;
   color: var(--fg);
   will-change: transform, opacity;
+  white-space: nowrap;
+}
+
+@media (min-width: 641px){
+  .hero-title { font-size: 2.1rem; }
 }
 .hero-sub {
   font-size: 1.05rem;
@@ -370,7 +375,7 @@ code { font-family: var(--mono); font-size: .88em; }
   .card-front, .card-detail { padding: .9rem 1rem; }
   .card-front h3 { font-size: 1.15rem; }
   .card-viewport { min-height: 220px; }
-  .hero-title { font-size: 1.4rem; white-space: nowrap; }
+  .hero-title { font-size: 1.3rem; }
   .hero-sub { font-size: 0.85rem; }
   .section-title { font-size: 1.4rem; }
   .slide-scroll { max-width: 100%; box-sizing: border-box; padding: 0 .5rem; }
