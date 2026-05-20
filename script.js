@@ -1,166 +1,75 @@
-// ============= 动态彩色光点背景 =============
+// ============= 视频背景 =============
 (function () {
-  const canvas = document.getElementById('bg-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d', { willReadFrequently: false });
+  const lightVideo = document.getElementById('bg-video-light');
+  const darkVideo = document.getElementById('bg-video-dark');
+  if (!lightVideo || !darkVideo) return;
 
-  const COUNT = 50;
-  const PALETTE = [
-    '#FF6B6B','#FF8E72','#FFA94D','#FFD43B','#C0EB75',
-    '#69DB7C','#38D9A9','#63E6BE','#20C997','#66D9E8',
-    '#4DABF7','#748FFC','#9775FA','#DA77F2','#F783AC',
-    '#F06595','#E64980','#CC5DE8','#845EF7','#5C7CFA',
-    '#339AF0','#22B8CF','#15AABF','#0CA678','#40C057',
-    '#82C91E','#94D82D','#FCC419','#F59F00','#FD7E14',
-    '#FF6B6B','#F06595','#E599F7','#B197FC','#91A7FF',
-    '#74C0FC','#66D9E8','#63E6BE','#FFD8A8','#FFC078',
-    '#FFA8A8','#FFD43B','#A9E34B','#69DB7C','#38D9A9',
-    '#748FFC','#DA77F2','#F783AC','#FF922B','#FF8787'
-  ];
-
-  function isDarkMode() {
+  function isDark() {
     const attr = document.documentElement.getAttribute('data-theme');
     if (attr === 'dark') return true;
     if (attr === 'light') return false;
     return matchMedia('(prefers-color-scheme: dark)').matches;
   }
-  function getBgColor() {
-    return isDarkMode() ? '#181c26' : '#eef4fb';
-  }
-  function rippleRGB() {
-    return isDarkMode() ? '255,255,255' : '0,0,0';
-  }
 
-  let W, H;
-  function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
-  resize(); addEventListener('resize', resize);
-
-  const pts = [];
-  for (let i = 0; i < COUNT; i++) {
-    pts.push({
-      x: Math.random() * W, y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-      r: 22 + Math.random() * 50,
-      cr: 0,
-      c: PALETTE[i],
-      ph: Math.random() * Math.PI * 2,
-      pd: 3500 + Math.random() * 6500,
-      aHi: 0.65 + Math.random() * 0.30,
-      aLo: 0.12 + Math.random() * 0.12,
-      ca: 0,
-      pulse: 0,
-      rippleR: 100 + Math.random() * 160,
-      decay: 0.965 + Math.random() * 0.02,
-      pulseMax: 0.30 + Math.random() * 0.25,
-    });
+  function switchVideo() {
+    if (isDark()) {
+      lightVideo.style.opacity = '0';
+      darkVideo.style.opacity = '1';
+      darkVideo.play().catch(() => {});
+    } else {
+      lightVideo.style.opacity = '1';
+      darkVideo.style.opacity = '0';
+      lightVideo.play().catch(() => {});
+    }
   }
 
-  const clickRipples = [];
-  addEventListener('click', e => {
-    clickRipples.push({
-      x: e.clientX, y: e.clientY,
-      time: performance.now(),
-      maxR: Math.max(W, H) * 0.55,
-      duration: 1500,
-    });
-  });
+  switchVideo();
+  const observer = new MutationObserver(switchVideo);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', switchVideo);
+})();
 
-  let mx = -9999, my = -9999, tmx = -9999, tmy = -9999;
-  let pmx = -9999, pmy = -9999;
-  addEventListener('mousemove', e => { tmx = e.clientX; tmy = e.clientY; });
-  addEventListener('mouseleave', () => { tmx = tmy = -9999; });
+// ============= WebGL 水波纹 =============
+(function () {
+  const overlay = document.getElementById('bg-overlay');
+  if (!overlay || typeof Ripples === 'undefined') return;
 
-  let lt = performance.now();
+  let ripples;
 
-  function loop(now) {
+  function initRipples() {
     try {
-    const dt = Math.min(now - lt, 50); lt = now;
-    mx += (tmx - mx) * 0.06; my += (tmy - my) * 0.06;
-    const spd = Math.hypot(mx - pmx, my - pmy); pmx = mx; pmy = my;
-
-    ctx.fillStyle = getBgColor();
-    ctx.fillRect(0, 0, W, H);
-
-    for (const p of pts) {
-      const t = (now % p.pd) / p.pd;
-      const ta = p.aLo + ((Math.sin(t * Math.PI * 2 + p.ph) + 1) / 2) * (p.aHi - p.aLo);
-
-      p.x += p.vx * (dt / 16); p.y += p.vy * (dt / 16);
-      if (p.x < -p.r) p.x = W + p.r;
-      if (p.x > W + p.r) p.x = -p.r;
-      if (p.y < -p.r) p.y = H + p.r;
-      if (p.y > H + p.r) p.y = -p.r;
-
-      if (mx > -5000 && spd > 0.3) {
-        const dist = Math.hypot(p.x - mx, p.y - my);
-        if (dist < p.rippleR) {
-          const nd = dist / p.rippleR;
-          const ripple = (1 - nd) * Math.sin(nd * Math.PI * 3) * Math.min(spd * 0.55, 1);
-          if (ripple > 0.003) p.pulse = Math.min(p.pulse + ripple * 1.3, p.pulseMax);
-        }
-      }
-      p.pulse *= p.decay;
-      if (p.pulse < 0.0005) p.pulse = 0;
-
-      // ── Click ripple effect ──
-      for (const rp of clickRipples) {
-        const elapsed = now - rp.time;
-        const progress = Math.min(elapsed / rp.duration, 1);
-        const currentR = rp.maxR * progress;
-        const dist = Math.hypot(p.x - rp.x, p.y - rp.y);
-        if (dist < currentR && dist > 0) {
-          const nd = dist / currentR;
-          const wave = (1 - nd) * Math.sin(nd * Math.PI * 4) * (1 - progress);
-          if (wave > 0.003) p.pulse = Math.min(p.pulse + wave * 2.5, p.pulseMax * 1.4);
-        }
-      }
-
-      const tr = p.r * (1 + p.pulse);
-      p.cr += (tr - p.cr) * 0.15;
-
-      p.ca += (ta - p.ca) * 0.05;
-      const alpha = Math.min(p.ca * (1 + p.pulse * 0.5), 0.9);
-
-      const rad = p.cr || p.r;
-      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
-      g.addColorStop(0, p.c);
-      g.addColorStop(0.35, p.c);
-      g.addColorStop(1, 'transparent');
-
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.arc(p.x, p.y, rad, 0, Math.PI * 2); ctx.fill();
+      if (ripples) { ripples.destroy(); }
+      ripples = new Ripples(overlay, {
+        resolution: 256,
+        dropRadius: 18,
+        perturbance: 0.025,
+        interactive: true
+      });
+    } catch (e) {
+      console.error('水波纹初始化失败:', e);
     }
-    ctx.globalAlpha = 1;
-
-    // ── Draw click ripple rings ──
-    const rippleRgb = rippleRGB();
-    for (let ri = clickRipples.length - 1; ri >= 0; ri--) {
-      const rp = clickRipples[ri];
-      const elapsed = now - rp.time;
-      const progress = Math.min(elapsed / rp.duration, 1);
-      if (progress >= 1) { clickRipples.splice(ri, 1); continue; }
-      const currentR = Math.max(0, rp.maxR * progress);
-      const alpha = 0.4 * (1 - progress);
-      ctx.beginPath();
-      ctx.arc(rp.x, rp.y, currentR, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${rippleRgb},${alpha.toFixed(3)})`;
-      ctx.lineWidth = 2.5 * (1 - progress) + 0.5;
-      ctx.stroke();
-      if (progress > 0.2) {
-        const innerR = Math.max(0, rp.maxR * (progress - 0.15));
-        ctx.beginPath();
-        ctx.arc(rp.x, rp.y, innerR, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(${rippleRgb},${(alpha * 0.5).toFixed(3)})`;
-        ctx.lineWidth = 1.5 * (1 - progress) + 0.5;
-        ctx.stroke();
-      }
-    }
-
-    } catch(e) { /* keep loop alive */ }
-    requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
+
+  function deferInit() {
+    const check = () => {
+      if (overlay.offsetWidth > 0 && overlay.offsetHeight > 0) {
+        initRipples();
+      } else {
+        requestAnimationFrame(check);
+      }
+    };
+    check();
+  }
+
+  if (document.readyState === 'complete') {
+    deferInit();
+  } else {
+    window.addEventListener('load', deferInit);
+  }
+
+  window.addEventListener('resize', () => {
+    if (ripples) ripples.updateSize();
+  });
 })();
 
 // ============= 手动主题切换 =============
@@ -266,7 +175,7 @@
 (function () {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const lerp = (a, b, t) => a + (b - a) * t;
-  let isMobile = window.innerWidth < 700;
+  let isMobile = window.innerWidth < 768;
 
   function getProgress(el) {
     const r = el.getBoundingClientRect();
@@ -401,7 +310,7 @@
   }
   window.addEventListener('scroll', onScroll, { passive: true });
   update();
-  window.addEventListener('resize', () => { isMobile = window.innerWidth < 700; update(); });
+  window.addEventListener('resize', () => { isMobile = window.innerWidth < 768; update(); });
 })();
 
 // ============= 打字效果 =============

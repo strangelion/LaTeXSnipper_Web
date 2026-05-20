@@ -1,18 +1,8 @@
-# LaTeXSnipper 用户手册 - Cloudflare Worker 配置
-# 使用方式: npx wrangler deploy
-# 或者直接复制 worker.js 内容到 Cloudflare Dashboard
-
-name = "latexsnipper"
+name = "latexsnipper-manual"
 main = "worker.js"
-compatibility_date = "2025-05-16"
+compatibility_date = "2026-05-20"
 workers_dev = false
-preview_urls = false
-routes = [
-  "home.interknot.dpdns.org/*",
-  "help.interknot.dpdns.org/*"
-]
 
-# 部署说明：
-# 1. 将 HTML/CSS/JS 文件推送到 GitHub 仓库根目录
-# 2. 修改 worker.js 中的 GITHUB_OWNER、GITHUB_REPO 为你的仓库信息
-# 3. npx wrangler deploy
+# routes = [
+#   "your-domain.com/*",
+# ]

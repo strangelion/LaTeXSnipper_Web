@@ -18,9 +18,11 @@ const MIME_TYPES = {
   gif: "image/gif",
   svg: "image/svg+xml",
   ico: "image/x-icon",
+  mp4: "video/mp4",
+  webm: "video/webm",
 };
 
-const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico"];
+const BINARY_TYPES = ["png", "jpg", "jpeg", "gif", "svg", "ico", "mp4", "webm"];
 
 function getMimeType(path) {
   const ext = path.split(".").pop().toLowerCase();
@@ -83,6 +85,7 @@ export default {
     }
 
     try {
+      const isVideo = filePath.endsWith(".mp4") || filePath.endsWith(".webm");
       const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filePath}`;
       const response = await fetch(githubUrl);
 
@@ -92,17 +95,39 @@ export default {
 
       const ext = filePath.split(".").pop().toLowerCase();
       const isBinary = BINARY_TYPES.includes(ext);
-      const content = isBinary ? await response.arrayBuffer() : await response.text();
       const mimeType = getMimeType(filePath);
+      const headers = {
+        "Content-Type": mimeType,
+        "Cache-Control": "public, max-age=3600, s-maxage=86400",
+        ...corsHeaders(),
+        "X-Content-Type-Options": "nosniff",
+      };
 
-      return new Response(content, {
-        headers: {
-          "Content-Type": mimeType,
-          "Cache-Control": "public, max-age=3600, s-maxage=86400",
-          ...corsHeaders(),
-          "X-Content-Type-Options": "nosniff",
-        },
-      });
+      if (isVideo) {
+        const range = request.headers.get("Range");
+        if (range) {
+          const full = await response.arrayBuffer();
+          const total = full.byteLength;
+          const parts = range.replace(/bytes=/, "").split("-");
+          const start = parseInt(parts[0], 10);
+          const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+          const chunk = full.slice(start, end + 1);
+
+          return new Response(chunk, {
+            status: 206,
+            headers: {
+              ...headers,
+              "Content-Range": `bytes ${start}-${end}/${total}`,
+              "Content-Length": chunk.byteLength,
+              "Accept-Ranges": "bytes",
+            },
+          });
+        }
+        headers["Accept-Ranges"] = "bytes";
+      }
+
+      const content = isBinary ? await response.arrayBuffer() : await response.text();
+      return new Response(content, { headers });
     } catch (err) {
       console.error("Error fetching from GitHub:", err);
       return errorResponse(`Error: ${err.message}`, 500);
