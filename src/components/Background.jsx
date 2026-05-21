@@ -117,28 +117,6 @@ export default function Background() {
 
   return (
     <>
-      <video
-        id="bg-video-light"
-        className="bg-video"
-        src="https://video.interknot.dpdns.org/light_bg.mp4"
-        preload="auto"
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-      />
-      <video
-        id="bg-video-dark"
-        className="bg-video"
-        src="https://video.interknot.dpdns.org/dark_bg.mp4"
-        preload="auto"
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-      />
       <div id="bg-overlay" ref={overlayRef} aria-hidden="true" />
     </>
   )

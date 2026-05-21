@@ -222,7 +222,7 @@ export default function MathBackground() {
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: -1,
+        zIndex: -2,
         pointerEvents: 'none',
       }}
       aria-hidden="true"

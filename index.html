@@ -8,8 +8,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <video id="bg-video-light" class="bg-video" src="https://video.interknot.dpdns.org/light_bg.mp4" preload="auto" autoplay loop muted playsinline aria-hidden="true"></video>
-  <video id="bg-video-dark" class="bg-video" src="https://video.interknot.dpdns.org/dark_bg.mp4" preload="auto" autoplay loop muted playsinline aria-hidden="true"></video>
+  <!-- 视频已移除，使用 canvas/overlay 作为背景 -->
   <div id="bg-overlay" aria-hidden="true"></div>
   <header class="hero-header">
     <div class="container hero-inner">
@@ -206,8 +205,8 @@
     <div class="container">© 2026 LaTeXSnipper — 开源项目</div>
   </footer>
 
-  <script src="webgl-ripples.js"></script>
-  <script src="script.js"></script>
+  <script type="module" src="webgl-ripples.js"></script>
+  <script type="module" src="script.js"></script>
   <button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部"><span class="btt-arrow">▲</span><span class="btt-text">顶部</span></button>
 </body>
 </html>

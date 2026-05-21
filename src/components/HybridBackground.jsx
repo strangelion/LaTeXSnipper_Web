@@ -178,37 +178,7 @@ export default function HybridBackground() {
         />
       )}
       
-      {/* 视频背景（备选） */}
-      <video
-        id="bg-video-light"
-        className="bg-video"
-        src="https://video.interknot.dpdns.org/light_bg.mp4"
-        preload="auto"
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-        style={{
-          display: canvasSupported ? 'none' : 'block',
-          zIndex: -2,
-        }}
-      />
-      <video
-        id="bg-video-dark"
-        className="bg-video"
-        src="https://video.interknot.dpdns.org/dark_bg.mp4"
-        preload="auto"
-        autoPlay
-        loop
-        muted
-        playsInline
-        aria-hidden="true"
-        style={{
-          display: canvasSupported ? 'none' : 'block',
-          zIndex: -2,
-        }}
-      />
+      {/* 视频已移除（原为 canvas 不支持时的备选） */}
     </>
   )
 }

@@ -5,7 +5,6 @@ import CardSlide from './components/CardSlide'
 import EndingSection from './components/EndingSection'
 import BackToTop from './components/BackToTop'
 import MathBackground from './components/MathBackground'
-import VideoBackground from './components/VideoBackground'
 import './App.css'
 
 const CARDS = [
@@ -85,7 +84,6 @@ export default function App() {
         <div className="container">© 2026 LaTeXSnipper — 开源项目</div>
       </footer>
       <BackToTop />
-      <VideoBackground />
     </div>
   )
 }
