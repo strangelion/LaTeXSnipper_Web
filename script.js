@@ -86,17 +86,17 @@
   darkVideo.load();
   console.log('[Video] 已调用 load()');
 
-  // 等视频加载完（canplay）再显示
+  // 等视频加载完（loadeddata）再显示
   let videoReady = false;
-  function onCanPlay() {
+  function onLoadedData() {
     if (!videoReady) {
       videoReady = true;
-      console.log('[Video] 视频加载完成，调用 switchVideo(canplay)');
-      switchVideo('canplay');
+      console.log('[Video] 视频数据加载完成，调用 switchVideo(loadeddata)');
+      switchVideo('loadeddata');
     }
   }
-  lightVideo.addEventListener('canplay', onCanPlay);
-  darkVideo.addEventListener('canplay', onCanPlay);
+  lightVideo.addEventListener('loadeddata', onLoadedData);
+  darkVideo.addEventListener('loadeddata', onLoadedData);
 
   // 监听其他事件用于调试
   lightVideo.addEventListener('loadstart', () => console.log('[Video] lightVideo loadstart'));
