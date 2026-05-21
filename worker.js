@@ -1,6 +1,6 @@
 /**
  * LaTeXSnipper 用户手册 - Cloudflare Worker
- * 根据域名区分站点：从 GitHub 仓库获取静态文件，视频走 R2
+ * 从 GitHub 仓库获取静态文件
  */
 
 const GITHUB_OWNER = "strangelion";
@@ -55,7 +55,6 @@ function errorResponse(message, status = 500) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    const host = url.hostname;
     const path = url.pathname;
 
     if (request.method === "OPTIONS") {
@@ -71,58 +70,19 @@ export default {
       });
     }
 
-    let site = "home";
-    if (host === "help.interknot.dpdns.org") {
-      site = "help";
-    }
-
     let filePath;
     if (path === "/") {
-      filePath = site === "help" ? "manual.html" : "dist/index.html";
+      filePath = "dist/index.html";
     } else {
       const ext = path.split(".").pop() || "";
       const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
       const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-      // home 站点的 Vite 构建产物（index.html 和 assets/*）在 dist/ 目录下
-      if (site === "home" && (rawPath.startsWith("assets/") || rawPath === "index.html")) {
+      // Vite 构建产物（index.html 和 assets/*）在 dist/ 目录下
+      if (rawPath.startsWith("assets/") || rawPath === "index.html") {
         filePath = "dist/" + rawPath;
       } else {
         filePath = rawPath;
       }
-    }
-
-    // 视频走 R2，直接代理（同域避免 autoplay 问题）
-    if (filePath.endsWith(".mp4") || filePath.endsWith(".webm")) {
-      const r2Url = `https://video.interknot.dpdns.org/${filePath}`;
-      const fetchOpts = {};
-      const range = request.headers.get("Range");
-      if (range) {
-        fetchOpts.headers = { Range: range };
-      }
-      const videoResp = await fetch(r2Url, fetchOpts);
-      if (!videoResp.ok && videoResp.status !== 206) {
-        return errorResponse(`Video not found: ${path}`, 404);
-      }
-      const mimeType = getMimeType(filePath);
-      const headers = {
-        "Content-Type": mimeType,
-        "Cache-Control": "public, max-age=86400",
-        "Accept-Ranges": "bytes",
-        ...corsHeaders(),
-      };
-      
-      // 转发所有必要的响应头
-      if (videoResp.status === 206) {
-        const contentRange = videoResp.headers.get("Content-Range");
-        const contentLength = videoResp.headers.get("Content-Length");
-        if (contentRange) headers["Content-Range"] = contentRange;
-        if (contentLength) headers["Content-Length"] = contentLength;
-        return new Response(videoResp.body, { status: 206, headers });
-      }
-      
-      const contentLength = videoResp.headers.get("Content-Length");
-      if (contentLength) headers["Content-Length"] = contentLength;
-      return new Response(videoResp.body, { status: 200, headers });
     }
 
     // WASM + 字体走 R2（release 桶，同域避免跨域问题）
