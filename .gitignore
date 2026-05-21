@@ -1,28 +1,40 @@
+# === Dependencies ===
 node_modules/
-.venv/
+
+# === Build Output ===
+dist/
+public/fonts/
+public/wasm/
+*.svg
+user_manual.md
+user_manual.pdf
+
+# === Python ===
 __pycache__/
 *.pyc
-.DS_Store
+.mypy_cache/
+.venv/
+
+# === Environment & IDE ===
 .env
 .env.local
 .env.*.local
+.idea/
+.vscode/
+tinymist.lock
+
+# === OS Files ===
+.DS_Store
+*.swp
+*.swo
+*~
+
+# === Logs ===
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.mypy_cache/
+
+# === Cloudflare Workers ===
 .wrangler/
-tinymist.lock
-dist/
-node_modules/
-user_manual.md
-user_manual.pdf
-npm-debug.log*
-
-

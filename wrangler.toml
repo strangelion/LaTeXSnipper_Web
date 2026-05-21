@@ -3,6 +3,27 @@ main = "worker.js"
 compatibility_date = "2026-05-20"
 workers_dev = false
 
+# 部署时排除的文件/目录（Worker 静态文件走 GitHub，无需打包）
+exclude = [
+  "dist",
+  "public",
+  "wasm",
+  "fonts",
+  "assets",
+  "src",
+  "styles",
+  "js",
+  "scripts",
+  "index.html",
+  "manual.html",
+  "user_manual.html",
+  "user_manual.typ",
+  "*.md",
+  "*.py",
+  "vite.config.*",
+  "package*.json",
+]
+
 # routes = [
 #   "your-domain.com/*",
 # ]
