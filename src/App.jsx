@@ -72,7 +72,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <VideoBackground />
       <MathBackground />
       <Header />
       <main>
@@ -86,6 +85,7 @@ export default function App() {
         <div className="container">© 2026 LaTeXSnipper — 开源项目</div>
       </footer>
       <BackToTop />
+      <VideoBackground />
     </div>
   )
 }
