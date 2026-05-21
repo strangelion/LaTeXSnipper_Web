@@ -7,6 +7,8 @@ export default function MathBackground() {
   const trailRef = useRef([])
   const formulasRef = useRef([])
   const timeRef = useRef(0)
+  const lastMoveTimeRef = useRef(Date.now())
+  const isPageVisibleRef = useRef(true)
 
   const MATH_SYMBOLS = ['∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ', 'λ', 'θ', 'α', 'β', 'γ']
   
@@ -81,6 +83,7 @@ export default function MathBackground() {
       if (trailRef.current.length > 18) {
         trailRef.current.splice(0, trailRef.current.length - 18)
       }
+      lastMoveTimeRef.current = Date.now()
     }
     window.addEventListener('mousemove', handleMouseMove)
 
@@ -196,7 +199,7 @@ export default function MathBackground() {
         p.life -= 0.008
         p.x += p.vx
         p.y += p.vy
-        p.vy += 0.015
+        p.vy += 0.045
         p.vx *= 0.995
 
         if (p.life <= 0) {
@@ -218,15 +221,56 @@ export default function MathBackground() {
       }
     }
 
+    const spawnIdleParticle = () => {
+      // 鼠标静止超过 800ms 时，在鼠标当前位置附近生成下落粒子
+      const idleTime = Date.now() - lastMoveTimeRef.current
+      if (idleTime < 800) return
+
+      const mx = mouseRef.current.x
+      const my = mouseRef.current.y
+      // 鼠标尚未移动过（还在默认位置），不生成
+      if (mx < 0) return
+
+      trailRef.current.push({
+        x: mx + (Math.random() - 0.5) * 30,
+        y: my + (Math.random() - 0.5) * 20,
+        symbol: MATH_SYMBOLS[Math.floor(Math.random() * MATH_SYMBOLS.length)],
+        life: 1,
+        size: Math.random() * 6 + 12,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: Math.random() * 0.3 + 0.2,
+      })
+      if (trailRef.current.length > 30) {
+        trailRef.current.splice(0, trailRef.current.length - 30)
+      }
+    }
+
     const animate = () => {
       timeRef.current++
+
+      if (!isPageVisibleRef.current || document.hidden) {
+        // 页面在后台，跳过渲染，继续请求下一帧以检测恢复
+        animationRef.current = requestAnimationFrame(animate)
+        return
+      }
+
       drawCheckerboard()
       drawFormulas()
+      // 每 ~20 帧尝试生成一个静止粒子
+      if (timeRef.current % 20 === 0) {
+        spawnIdleParticle()
+      }
       drawTrail()
       animationRef.current = requestAnimationFrame(animate)
     }
 
     animate()
+
+    // 页面可见性变化时暂停/恢复渲染
+    const handleVisibilityChange = () => {
+      isPageVisibleRef.current = !document.hidden
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     const themeObserver = new MutationObserver(() => {})
     themeObserver.observe(document.documentElement, {
@@ -237,6 +281,7 @@ export default function MathBackground() {
     return () => {
       window.removeEventListener('resize', resizeCanvas)
       window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       themeObserver.disconnect()
     }
