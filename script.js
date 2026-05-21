@@ -54,6 +54,22 @@
     console.log('[Video] 已调用 load()');
     lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
     darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
+    
+    // 延迟后检查实际的 opacity 值和其他样式
+    setTimeout(() => {
+      const lightOpacity = window.getComputedStyle(lightVideo).opacity;
+      const darkOpacity = window.getComputedStyle(darkVideo).opacity;
+      const lightZIndex = window.getComputedStyle(lightVideo).zIndex;
+      const darkZIndex = window.getComputedStyle(darkVideo).zIndex;
+      const lightDisplay = window.getComputedStyle(lightVideo).display;
+      const darkDisplay = window.getComputedStyle(darkVideo).display;
+      const lightVisibility = window.getComputedStyle(lightVideo).visibility;
+      const darkVisibility = window.getComputedStyle(darkVideo).visibility;
+      console.log('[Video] computed styles:');
+      console.log('  light: opacity=' + lightOpacity + ', zIndex=' + lightZIndex + ', display=' + lightDisplay + ', visibility=' + lightVisibility);
+      console.log('  dark: opacity=' + darkOpacity + ', zIndex=' + darkZIndex + ', display=' + darkDisplay + ', visibility=' + darkVisibility);
+      console.log('[Video] inline style - light:', lightVideo.style.opacity, 'dark:', darkVideo.style.opacity);
+    }, 100);
   }
 
   // 立即调用 switchVideo，不等 canplay（因为 canplay 可能永远不触发）
