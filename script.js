@@ -49,11 +49,17 @@
       darkVideo.style.opacity = '0';
       console.log('[Video] 设置 lightVideo opacity=1, darkVideo opacity=0');
     }
-    console.log('[Video] 调用 play() on both...');
-    lightVideo.load(); darkVideo.load();
-    console.log('[Video] 已调用 load()');
-    lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
-    darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
+    
+    // 只在初始化时调用 load()，切换主题时不调用（避免中止加载）
+    if (label === 'init') {
+      console.log('[Video] 初始化：调用 load()');
+      lightVideo.load(); 
+      darkVideo.load();
+    }
+    
+    console.log('[Video] 调用 play()...');
+    lightVideo.play().catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
+    darkVideo.play().catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
     
     // 延迟后检查实际的 opacity 值和其他样式
     setTimeout(() => {
