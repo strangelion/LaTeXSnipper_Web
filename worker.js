@@ -82,8 +82,8 @@ export default {
       const ext = path.split(".").pop() || "";
       const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
       const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-      // home 站点的构建产物（CSS/JS/assets）在 dist/ 目录下
-      if (site === "home" && ext !== "" && !rawPath.startsWith("dist/")) {
+      // home 站点的 Vite 构建产物（/assets/*）在 dist/ 目录下
+      if (site === "home" && rawPath.startsWith("assets/")) {
         filePath = "dist/" + rawPath;
       } else {
         filePath = rawPath;
