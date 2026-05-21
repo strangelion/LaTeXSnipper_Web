@@ -130,7 +130,7 @@
   - #link(<sec-install>)[安装和环境问题]
   - #link(<sec-network>)[网络与更新问题]
   - #link(<sec-pdf>)[PDF 与识别效果问题]
-  - #link(<sec-typst>)[Typst 渲染与导出相关问题]
+  //- #link(<sec-typst>)[Typst 渲染与导出相关问题]
   - #link(<sec-usage>)[使用技巧与功能问题]
   - #link(<sec-platform>)[平台特定问题（Linux / macOS）]
   - #link(<sec-conflict>)[与其他软件冲突]
@@ -666,201 +666,201 @@ https://www.python.org/downloads/macos/
 
 #pagebreak()
 
-// ═══════════════════════════════════════════
-// Typst 渲染与导出
-// ═══════════════════════════════════════════
-#heading(level: 1)[Typst 渲染与导出相关问题] <sec-typst>
-
-#info-block("Typst 是什么", [
-  Typst 是一种现代化的排版语言，语法比 LaTeX 更简洁。LaTeXSnipper 支持将 Typst 作为 #text(weight: "bold")[公式预览渲染引擎]（设置 → 渲染 → 渲染引擎 → Typst），
-  也可通过 Pandoc #text(weight: "bold")[导出为 .typ 文件]。
-])
-
-== Typst 渲染引擎简介
-
-LaTeXSnipper 提供了 #text(weight: "bold")[6 种公式预览渲染模式]：
-
-#block(
-  fill: rgb("#F5F5F5"),
-  inset: 12pt,
-  radius: 4pt,
-  stroke: 0.8pt + rgb("#BDBDBD"),
-  width: 100%,
-)[
-  #set par(spacing: 0.25em)
-  - #text(weight: "bold")[自动] — 自动选择最佳渲染方式
-  - #text(weight: "bold")[本地 MathJax] — 使用内置 MathJax 渲染 LaTeX
-  - #text(weight: "bold")[CDN MathJax] — 使用在线 MathJax 渲染（需要网络）
-  - #text(weight: "bold")[LaTeX + pdflatex] — 使用本地 LaTeX 编译为 SVG
-  - #text(weight: "bold")[LaTeX + xelatex] — 使用 xelatex 编译为 SVG（支持中文）
-  - #text(weight: "bold")[Typst] — 使用 Typst CLI 编译为 SVG
-]
-
-#v(0.5em)
-
-Typst 渲染的工作流程为：
-#v(0.35em)
-#text(weight: "bold")[LaTeX 公式] → pypandoc 转换 → #text(weight: "bold")[Typst 数学语法] → Typst CLI 编译 → #text(weight: "bold")[SVG 图片] → 嵌入预览
-
-#warn-block("重要提示", [
-  Typst 渲染模式 #text(weight: "bold")[不会回退到 MathJax]。如果 Typst 编译失败，预览区会显示原始公式代码而非渲染结果。
-  这是因为 MathJax 无法解析 Typst 语法。
-])
-
-== Typst 渲染模式实时切换
-
-在设置中切换渲染引擎（如 LaTeX ↔ Typst），LaTeXSnipper 会自动执行以下操作 #text(weight: "bold")[无需手动干预]：
-
-#v(0.35em)
-
-- #text(weight: "bold")[编辑器内容：] 自动在当前格式与目标格式之间转换（LaTeX → Typst 或 Typst → LaTeX）
-- #text(weight: "bold")[历史记录：] 批量转换所有历史条目，并更新格式标签
-- #text(weight: "bold")[公式收藏：] 同步转换收藏夹中的公式
-- #text(weight: "bold")[预览刷新：] 清空渲染缓存，立刻用新引擎重新渲染
-- #text(weight: "bold")[UI 标签：] 编辑器标题、占位符文本、复制消息等自动适配当前模式
-
-#info-block("转换原理", [
-  LaTeX → Typst 通过 pypandoc 完成；Typst → LaTeX 通过内置转换器完成。
-  两种转换都是#text(weight: "bold")[有损]的——复杂的自定义宏或特殊环境可能在转换后需要手动微调。
-  遇到转换问题时可随时切回原模式恢复原内容。
-])
-
-== 选择了 Typst 渲染但公式显示为原始代码
-
-*现象：* 设置中选择了 "Typst" 渲染引擎，但公式预览区域显示的是原始 LaTeX/Typst 代码文本，而非渲染后的公式图片。
-
-#v(0.35em)
-
-*原因：*
-- Typst CLI 未安装或不在 PATH 中
-- 设置的 Typst 路径不正确
-- Typst 版本太旧，不支持 `--format svg`
-- pypandoc 未安装，LaTeX 到 Typst 的自动转换失败
-- Typst 编译过程报错（语法不兼容）
-
-#v(0.35em)
-
-*解决：*
-- #text(weight: "bold")[安装 Typst CLI：] 访问 https://github.com/typst/typst 下载安装，或通过包管理器安装：
-  ```text
-  # Windows (scoop / winget)
-  winget install Typst.Typst
-
-  # macOS
-  brew install typst
-
-  # Linux
-  cargo install typst-cli
-  ```
-- #text(weight: "bold")[配置路径：] 设置 → 渲染 → 渲染引擎选 "Typst" → 点击"自动检测"或手动填写 Typst CLI 路径 → 点击"验证路径"
-- #text(weight: "bold")[安装 pypandoc（可选但推荐）：] 用于自动将 LaTeX 公式转换为 Typst 语法：
-  ```text
-  pip install pypandoc
-  ```
-  同时也需要系统中有 Pandoc 二进制文件（https://pandoc.org）
-- 如果 Typst CLI 已安装但仍不工作，打开终端执行 `typst --version` 确认版本 ≥ 0.11
-
-== Typst 验证路径失败
-
-*现象：* 在设置中点击"验证路径"后提示失败。
-
-#v(0.35em)
-
-*原因：*
-- 填写的路径不是 Typst 可执行文件
-- 路径中包含空格或特殊字符但未正确引用
-- Typst 版本太低
-
-#v(0.35em)
-
-*解决：*
-- 终端执行 `typst --version` 获取正确的完整路径
-- Windows 上通常是 `C:\Users\<用户名>\.cargo\bin\typst.exe`（cargo 安装）或 `C:\Program Files\Typst\typst.exe`（winget 安装）
-- macOS/Linux 上通常是 `/usr/local/bin/typst` 或 `~/.cargo/bin/typst`
-- 也可以留空让应用自动检测 PATH 中的 typst
-
-== Typst 渲染某些公式报错或显示异常
-
-*现象：* 大部分公式渲染正常，但某些特定公式在 Typst 模式下显示错误或空白。
-
-#v(0.35em)
-
-*原因：*
-- pypandoc 的 LaTeX → Typst 转换不完美，某些 LaTeX 宏或包无法转换
-- Typst 数学语法与 LaTeX 有差异（如 `\mathbb{R}` vs `RR`、矩阵语法等）
-- 公式中包含 Typst 不支持的 LaTeX 命令
-
-#v(0.35em)
-
-*解决：*
-- 切换到 "自动"、"MathJax" 或 "LaTeX + pdflatex/xelatex" 渲染模式
-- 如果必须使用 Typst 模式，手动编辑公式为 Typst 兼容语法
-- 检查日志中 `[Typst] Pandoc conversion` 和 `[ERROR] Typst compile failed` 的错误信息
-
-#info-block("已知转换差异", [
-  pypandoc 的 latex→typst 转换器可以处理大多数常用 LaTeX 数学命令，但以下情况可能出问题：
-  - 自定义宏（`\newcommand` 定义的命令）
-  - 某些 AMSmath 环境（如 `\substack`、`\xrightarrow` 等）
-  - 复杂的表格/矩阵嵌套
-  - LaTeX 特有字体命令
-  #v(0.4em)
-  遇到这些问题时，建议切换到 MathJax 或 LaTeX 渲染模式。
-])
-
-== Typst 渲染超时
-
-*现象：* 公式渲染卡住很久（超过 15 秒），然后显示原始代码。
-
-#v(0.35em)
-
-*原因：* Typst 编译超时限制为 15 秒。复杂的公式或系统资源不足时可能超时。
-
-#v(0.35em)
-
-*解决：*
-- 切换到更轻量的渲染模式（MathJax 或 自动）
-- 确保系统有足够的内存/CPU
-- 如果使用远程桌面或虚拟机，Typst 的首次冷启动可能较慢，重试一次
-
-== 导出 .typ 文件后无法编译
-
-*现象：* 通过 Pandoc 导出了 `.typ` 文件，但用 Typst CLI 编译时出错。
-
-#v(0.35em)
-
-*原因：*
-- Pandoc 的 typst 输出器生成的代码可能不完全兼容最新版 Typst
-- 文档中包含 Pandoc 无法正确转换的 LaTeX 结构
-- Typst 版本与 Pandoc 版本不匹配
-
-#v(0.35em)
-
-*解决：*
-- 确保 Pandoc 版本 ≥ 3.0（`pandoc --version` 查看）
-- 确保 Typst 版本 ≥ 0.11
-- 导出后手动检查 `.typ` 文件，修正不兼容的语法
-- 简单的公式和文档导出兼容性最好，复杂排版建议用 LaTeX 导出
-
-== MathCraft OCR 输出 Typst 公式
-
-LaTeXSnipper 的 MathCraft OCR 引擎在生成 Markdown 文档时支持 `typst_formulas` 参数。当此参数为 `True` 时，识别的 LaTeX 公式会自动转换为 Typst 语法。
-
-#v(0.35em)
-
-*前提条件：*
-- 安装了 `pypandoc`（`pip install pypandoc`）
-- 系统中有可用的 Pandoc 二进制文件
-- 如果 pypandoc 不可用，公式将保持 LaTeX 格式不变（不会报错）
-
-#tip-block("命令行验证", [
-  可以在 Python 中测试转换效果：
-  #v(0.35em)
-  ```text
-  python -c "from core.mathcraft_document_engine import convert_latex_to_typst; print(convert_latex_to_typst(r'\\int_{0}^{\\infty} e^{-x} dx'))"
-  ```
-])
-
-#pagebreak()
+//// ═══════════════════════════════════════════
+//// Typst 渲染与导出
+//// ═══════════════════════════════════════════
+//#heading(level: 1)[Typst 渲染与导出相关问题] <sec-typst>
+//
+//#info-block("Typst 是什么", [
+//  Typst 是一种现代化的排版语言，语法比 LaTeX 更简洁。LaTeXSnipper 支持将 Typst 作为 #text(weight: "bold")[公//式预览渲染引擎]（设置 → 渲染 → 渲染引擎 → Typst），
+//  也可通过 Pandoc #text(weight: "bold")[导出为 .typ 文件]。
+//])
+//
+//== Typst 渲染引擎简介
+//
+//LaTeXSnipper 提供了 #text(weight: "bold")[6 种公式预览渲染模式]：
+//
+//#block(
+//  fill: rgb("#F5F5F5"),
+//  inset: 12pt,
+//  radius: 4pt,
+//  stroke: 0.8pt + rgb("#BDBDBD"),
+//  width: 100%,
+//)[
+//  #set par(spacing: 0.25em)
+//  - #text(weight: "bold")[自动] — 自动选择最佳渲染方式
+//  - #text(weight: "bold")[本地 MathJax] — 使用内置 MathJax 渲染 LaTeX
+//  - #text(weight: "bold")[CDN MathJax] — 使用在线 MathJax 渲染（需要网络）
+//  - #text(weight: "bold")[LaTeX + pdflatex] — 使用本地 LaTeX 编译为 SVG
+//  - #text(weight: "bold")[LaTeX + xelatex] — 使用 xelatex 编译为 SVG（支持中文）
+//  - #text(weight: "bold")[Typst] — 使用 Typst CLI 编译为 SVG
+//]
+//
+//#v(0.5em)
+//
+//Typst 渲染的工作流程为：
+//#v(0.35em)
+//#text(weight: "bold")[LaTeX 公式] → pypandoc 转换 → #text(weight: "bold")[Typst 数学语法] → Typst CLI 编//译 → #text(weight: "bold")[SVG 图片] → 嵌入预览
+//
+//#warn-block("重要提示", [
+//  Typst 渲染模式 #text(weight: "bold")[不会回退到 MathJax]。如果 Typst 编译失败，预览区会显示原始公式代码而非//渲染结果。
+//  这是因为 MathJax 无法解析 Typst 语法。
+//])
+//
+//== Typst 渲染模式实时切换
+//
+//在设置中切换渲染引擎（如 LaTeX ↔ Typst），LaTeXSnipper 会自动执行以下操作 #text(weight: "bold")[无需手动干//预]：
+//
+//#v(0.35em)
+//
+//- #text(weight: "bold")[编辑器内容：] 自动在当前格式与目标格式之间转换（LaTeX → Typst 或 Typst → LaTeX）
+//- #text(weight: "bold")[历史记录：] 批量转换所有历史条目，并更新格式标签
+//- #text(weight: "bold")[公式收藏：] 同步转换收藏夹中的公式
+//- #text(weight: "bold")[预览刷新：] 清空渲染缓存，立刻用新引擎重新渲染
+//- #text(weight: "bold")[UI 标签：] 编辑器标题、占位符文本、复制消息等自动适配当前模式
+//
+//#info-block("转换原理", [
+//  LaTeX → Typst 通过 pypandoc 完成；Typst → LaTeX 通过内置转换器完成。
+//  两种转换都是#text(weight: "bold")[有损]的——复杂的自定义宏或特殊环境可能在转换后需要手动微调。
+//  遇到转换问题时可随时切回原模式恢复原内容。
+//])
+//
+//== 选择了 Typst 渲染但公式显示为原始代码
+//
+//*现象：* 设置中选择了 "Typst" 渲染引擎，但公式预览区域显示的是原始 LaTeX/Typst 代码文本，而非渲染后的公式图片。
+//
+//#v(0.35em)
+//
+//*原因：*
+//- Typst CLI 未安装或不在 PATH 中
+//- 设置的 Typst 路径不正确
+//- Typst 版本太旧，不支持 `--format svg`
+//- pypandoc 未安装，LaTeX 到 Typst 的自动转换失败
+//- Typst 编译过程报错（语法不兼容）
+//
+//#v(0.35em)
+//
+//*解决：*
+//- #text(weight: "bold")[安装 Typst CLI：] 访问 https://github.com/typst/typst 下载安装，或通过包管理器安装：
+//  ```text
+//  # Windows (scoop / winget)
+//  winget install Typst.Typst
+//
+//  # macOS
+//  brew install typst
+//
+//  # Linux
+//  cargo install typst-cli
+//  ```
+//- #text(weight: "bold")[配置路径：] 设置 → 渲染 → 渲染引擎选 "Typst" → 点击"自动检测"或手动填写 Typst CLI 路//径 → 点击"验证路径"
+//- #text(weight: "bold")[安装 pypandoc（可选但推荐）：] 用于自动将 LaTeX 公式转换为 Typst 语法：
+//  ```text
+//  pip install pypandoc
+//  ```
+//  同时也需要系统中有 Pandoc 二进制文件（https://pandoc.org）
+//- 如果 Typst CLI 已安装但仍不工作，打开终端执行 `typst --version` 确认版本 ≥ 0.11
+//
+//== Typst 验证路径失败
+//
+//*现象：* 在设置中点击"验证路径"后提示失败。
+//
+//#v(0.35em)
+//
+//*原因：*
+//- 填写的路径不是 Typst 可执行文件
+//- 路径中包含空格或特殊字符但未正确引用
+//- Typst 版本太低
+//
+//#v(0.35em)
+//
+//*解决：*
+//- 终端执行 `typst --version` 获取正确的完整路径
+//- Windows 上通常是 `C:\Users\<用户名>\.cargo\bin\typst.exe`（cargo 安装）或 `C:\Program Files\Typst\typst.//exe`（winget 安装）
+//- macOS/Linux 上通常是 `/usr/local/bin/typst` 或 `~/.cargo/bin/typst`
+//- 也可以留空让应用自动检测 PATH 中的 typst
+//
+//== Typst 渲染某些公式报错或显示异常
+//
+//*现象：* 大部分公式渲染正常，但某些特定公式在 Typst 模式下显示错误或空白。
+//
+//#v(0.35em)
+//
+//*原因：*
+//- pypandoc 的 LaTeX → Typst 转换不完美，某些 LaTeX 宏或包无法转换
+//- Typst 数学语法与 LaTeX 有差异（如 `\mathbb{R}` vs `RR`、矩阵语法等）
+//- 公式中包含 Typst 不支持的 LaTeX 命令
+//
+//#v(0.35em)
+//
+//*解决：*
+//- 切换到 "自动"、"MathJax" 或 "LaTeX + pdflatex/xelatex" 渲染模式
+//- 如果必须使用 Typst 模式，手动编辑公式为 Typst 兼容语法
+//- 检查日志中 `[Typst] Pandoc conversion` 和 `[ERROR] Typst compile failed` 的错误信息
+//
+//#info-block("已知转换差异", [
+//  pypandoc 的 latex→typst 转换器可以处理大多数常用 LaTeX 数学命令，但以下情况可能出问题：
+//  - 自定义宏（`\newcommand` 定义的命令）
+//  - 某些 AMSmath 环境（如 `\substack`、`\xrightarrow` 等）
+//  - 复杂的表格/矩阵嵌套
+//  - LaTeX 特有字体命令
+//  #v(0.4em)
+//  遇到这些问题时，建议切换到 MathJax 或 LaTeX 渲染模式。
+//])
+//
+//== Typst 渲染超时
+//
+//*现象：* 公式渲染卡住很久（超过 15 秒），然后显示原始代码。
+//
+//#v(0.35em)
+//
+//*原因：* Typst 编译超时限制为 15 秒。复杂的公式或系统资源不足时可能超时。
+//
+//#v(0.35em)
+//
+//*解决：*
+//- 切换到更轻量的渲染模式（MathJax 或 自动）
+//- 确保系统有足够的内存/CPU
+//- 如果使用远程桌面或虚拟机，Typst 的首次冷启动可能较慢，重试一次
+//
+//== 导出 .typ 文件后无法编译
+//
+//*现象：* 通过 Pandoc 导出了 `.typ` 文件，但用 Typst CLI 编译时出错。
+//
+//#v(0.35em)
+//
+//*原因：*
+//- Pandoc 的 typst 输出器生成的代码可能不完全兼容最新版 Typst
+//- 文档中包含 Pandoc 无法正确转换的 LaTeX 结构
+//- Typst 版本与 Pandoc 版本不匹配
+//
+//#v(0.35em)
+//
+//*解决：*
+//- 确保 Pandoc 版本 ≥ 3.0（`pandoc --version` 查看）
+//- 确保 Typst 版本 ≥ 0.11
+//- 导出后手动检查 `.typ` 文件，修正不兼容的语法
+//- 简单的公式和文档导出兼容性最好，复杂排版建议用 LaTeX 导出
+//
+//== MathCraft OCR 输出 Typst 公式
+//
+//LaTeXSnipper 的 MathCraft OCR 引擎在生成 Markdown 文档时支持 `typst_formulas` 参数。当此参数为 `True` 时，识//别的 LaTeX 公式会自动转换为 Typst 语法。
+//
+//#v(0.35em)
+//
+//*前提条件：*
+//- 安装了 `pypandoc`（`pip install pypandoc`）
+//- 系统中有可用的 Pandoc 二进制文件
+//- 如果 pypandoc 不可用，公式将保持 LaTeX 格式不变（不会报错）
+//
+//#tip-block("命令行验证", [
+//  可以在 Python 中测试转换效果：
+//  #v(0.35em)
+//  ```text
+//  python -c "from core.mathcraft_document_engine import convert_latex_to_typst; print//(convert_latex_to_typst(r'\\int_{0}^{\\infty} e^{-x} dx'))"
+//  ```
+//])
+//
+//#pagebreak()
 
 // ═══════════════════════════════════════════
 // 使用技巧
