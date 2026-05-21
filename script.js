@@ -43,12 +43,15 @@
     if (dark) {
       lightVideo.style.opacity = '0';
       darkVideo.style.opacity = '1';
+      console.log('[Video] 设置 darkVideo opacity=1, lightVideo opacity=0');
     } else {
       lightVideo.style.opacity = '1';
       darkVideo.style.opacity = '0';
+      console.log('[Video] 设置 lightVideo opacity=1, darkVideo opacity=0');
     }
     console.log('[Video] 调用 play() on both...');
     lightVideo.load(); darkVideo.load();
+    console.log('[Video] 已调用 load()');
     lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
     darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
   }
@@ -56,16 +59,23 @@
   // 初始化时先隐藏两个视频，等加载完再显示
   lightVideo.style.opacity = '0';
   darkVideo.style.opacity = '0';
-  console.log('[Video] 初始隐藏两个视频，等待加载...');
+  console.log('[Video] 初始隐藏两个视频，等待 canplay 事件...');
 
   // 等视频加载完再显示
-  function onCanPlay() {
-    console.log('[Video] canplay 事件触发，调用 switchVideo');
+  function onCanPlay(e) {
+    console.log('[Video] canplay 事件触发 from', e.target.id, '当前 readyState:', e.target.readyState);
     switchVideo('canplay');
   }
 
   lightVideo.addEventListener('canplay', onCanPlay, { once: true });
   darkVideo.addEventListener('canplay', onCanPlay, { once: true });
+  console.log('[Video] 已注册 canplay 监听器');
+
+  // 也监听 loadstart 和 progress 事件来追踪加载进度
+  lightVideo.addEventListener('loadstart', () => console.log('[Video] lightVideo loadstart'));
+  darkVideo.addEventListener('loadstart', () => console.log('[Video] darkVideo loadstart'));
+  lightVideo.addEventListener('progress', () => console.log('[Video] lightVideo progress, readyState:', lightVideo.readyState));
+  darkVideo.addEventListener('progress', () => console.log('[Video] darkVideo progress, readyState:', darkVideo.readyState));
 
   const observer = new MutationObserver(function () {
     console.log('[Video] MutationObserver 触发 data-theme 变化');
