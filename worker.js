@@ -89,11 +89,34 @@ export default {
       const r2Url = `https://video.interknot.dpdns.org/${filePath}`;
       const fetchOpts = {};
       const range = request.headers.get("Range");
-      if (range) fetchOpts.headers = { Range: range };
+      if (range) {
+        fetchOpts.headers = { Range: range };
+      }
       const videoResp = await fetch(r2Url, fetchOpts);
       if (!videoResp.ok && videoResp.status !== 206) {
         return errorResponse(`Video not found: ${path}`, 404);
       }
+      const mimeType = getMimeType(filePath);
+      const headers = {
+        "Content-Type": mimeType,
+        "Cache-Control": "public, max-age=86400",
+        "Accept-Ranges": "bytes",
+        ...corsHeaders(),
+      };
+      
+      // 转发所有必要的响应头
+      if (videoResp.status === 206) {
+        const contentRange = videoResp.headers.get("Content-Range");
+        const contentLength = videoResp.headers.get("Content-Length");
+        if (contentRange) headers["Content-Range"] = contentRange;
+        if (contentLength) headers["Content-Length"] = contentLength;
+        return new Response(videoResp.body, { status: 206, headers });
+      }
+      
+      const contentLength = videoResp.headers.get("Content-Length");
+      if (contentLength) headers["Content-Length"] = contentLength;
+      return new Response(videoResp.body, { status: 200, headers });
+    }
       const mimeType = getMimeType(filePath);
       const headers = {
         "Content-Type": mimeType,
