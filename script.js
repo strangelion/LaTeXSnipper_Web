@@ -56,22 +56,13 @@
     darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
   }
 
-  // 初始化时先隐藏两个视频，等加载完再显示
-  lightVideo.style.opacity = '0';
-  darkVideo.style.opacity = '0';
-  console.log('[Video] 初始隐藏两个视频，等待 canplay 事件...');
+  // 立即调用 switchVideo，不等 canplay（因为 canplay 可能永远不触发）
+  switchVideo('init');
+  console.log('[Video] 已立即调用 switchVideo(init)');
 
-  // 等视频加载完再显示
-  function onCanPlay(e) {
-    console.log('[Video] canplay 事件触发 from', e.target.id, '当前 readyState:', e.target.readyState);
-    switchVideo('canplay');
-  }
-
-  lightVideo.addEventListener('canplay', onCanPlay, { once: true });
-  darkVideo.addEventListener('canplay', onCanPlay, { once: true });
-  console.log('[Video] 已注册 canplay 监听器');
-
-  // 也监听 loadstart 和 progress 事件来追踪加载进度
+  // 监听 canplay 事件用于调试
+  lightVideo.addEventListener('canplay', () => console.log('[Video] lightVideo canplay, readyState:', lightVideo.readyState));
+  darkVideo.addEventListener('canplay', () => console.log('[Video] darkVideo canplay, readyState:', darkVideo.readyState));
   lightVideo.addEventListener('loadstart', () => console.log('[Video] lightVideo loadstart'));
   darkVideo.addEventListener('loadstart', () => console.log('[Video] darkVideo loadstart'));
   lightVideo.addEventListener('progress', () => console.log('[Video] lightVideo progress, readyState:', lightVideo.readyState));
