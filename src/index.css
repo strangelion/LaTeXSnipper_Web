@@ -222,6 +222,27 @@ main {
   background: rgba(128, 128, 128, 0.1);
 }
 
+.palette-selector {
+  background: rgba(128, 128, 128, 0.08);
+  color: var(--fg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.palette-selector:hover {
+  background: rgba(128, 128, 128, 0.14);
+}
+
+.palette-selector:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* --- Header --- */
 .hero-header {
   background: var(--hdr-bg);
