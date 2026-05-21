@@ -8,10 +8,13 @@
   }
 
   const saved = lsGet();
+  console.log('[Init] 读取 localStorage theme:', saved);
   if (saved === 'dark' || saved === 'light') {
     root.setAttribute('data-theme', saved);
+    console.log('[Init] 设置 data-theme =', saved);
   } else {
     root.removeAttribute('data-theme');
+    console.log('[Init] 无保存主题，移除 data-theme');
   }
 })();
 
@@ -19,32 +22,48 @@
 (function () {
   const lightVideo = document.getElementById('bg-video-light');
   const darkVideo = document.getElementById('bg-video-dark');
-  if (!lightVideo || !darkVideo) return;
+  console.log('[Video] lightVideo:', !!lightVideo, 'darkVideo:', !!darkVideo,
+    'light src:', lightVideo?.src, 'dark src:', darkVideo?.src,
+    'light readyState:', lightVideo?.readyState, 'dark readyState:', darkVideo?.readyState);
+  if (!lightVideo || !darkVideo) { console.error('[Video] 未找到视频元素'); return; }
 
   function isDark() {
     const attr = document.documentElement.getAttribute('data-theme');
-    if (attr === 'dark') return true;
-    if (attr === 'light') return false;
-    return matchMedia('(prefers-color-scheme: dark)').matches;
+    let result;
+    if (attr === 'dark') result = true;
+    else if (attr === 'light') result = false;
+    else result = matchMedia('(prefers-color-scheme: dark)').matches;
+    console.log('[Video] isDark():', result, '(data-theme:', attr, ')');
+    return result;
   }
 
-  function switchVideo() {
-    if (isDark()) {
+  function switchVideo(label) {
+    const dark = isDark();
+    console.log('[Video] switchVideo(' + (label || 'init') + ') dark=', dark);
+    if (dark) {
       lightVideo.style.opacity = '0';
       darkVideo.style.opacity = '1';
     } else {
       lightVideo.style.opacity = '1';
       darkVideo.style.opacity = '0';
     }
-    lightVideo.play().catch(() => {});
-    darkVideo.play().catch(() => {});
+  console.log('[Video] 调用 play() on both...');
+  lightVideo.load(); darkVideo.load();
+  lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
+  darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
   }
 
-  switchVideo();
+  switchVideo('init');
 
-  const observer = new MutationObserver(switchVideo);
+  const observer = new MutationObserver(function () {
+    console.log('[Video] MutationObserver 触发 data-theme 变化');
+    switchVideo('mut');
+  });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', switchVideo);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+    console.log('[Video] prefers-color-scheme 变化');
+    switchVideo('mq');
+  });
 })();
 
 // ============= WebGL 水波纹 =============
@@ -171,8 +190,6 @@
     const attr = root.getAttribute('data-theme');
     lsSet(attr === 'dark' || attr === 'light' ? attr : null);
   }
-
-  loadTheme();
 
   if (toggle) {
     function updateIcon() {
