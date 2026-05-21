@@ -81,28 +81,19 @@ export default function MathBackground() {
     initFormulas()
 
     const getThemeColors = () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' ||
-        (!document.documentElement.getAttribute('data-theme') && 
-         window.matchMedia('(prefers-color-scheme: dark)').matches)
-      
-      if (isDark) {
-        return {
-          bg1: '#0f111a',
-          bg2: '#1e293b',
-          bg3: '#334155',
-          grid: 'rgba(148, 163, 184, 0.05)',
-          symbol: 'rgba(148, 163, 184, 0.4)',
-          formula: 'rgba(100, 116, 139, 0.3)',
-        }
-      } else {
-        return {
-          bg1: '#f8fafc',
-          bg2: '#e2e8f0',
-          bg3: '#cbd5e1',
-          grid: 'rgba(100, 116, 139, 0.05)',
-          symbol: 'rgba(100, 116, 139, 0.3)',
-          formula: 'rgba(100, 116, 139, 0.2)',
-        }
+      const cs = getComputedStyle(document.documentElement)
+      const read = (name, fallback) => {
+        const v = cs.getPropertyValue(name)
+        return v ? v.trim() : fallback
+      }
+
+      return {
+        bg1: read('--bg1', '#f7fbff'),
+        bg2: read('--bg2', '#e6eef8'),
+        bg3: read('--bg3', '#cfddea'),
+        grid: read('--grid-color', 'rgba(100, 116, 139, 0.06)'),
+        symbol: read('--symbol-color', 'rgba(55, 65, 81, 0.9)'),
+        formula: read('--formula-color', 'rgba(55, 65, 81, 0.85)'),
       }
     }
 

@@ -1,20 +1,82 @@
+/* ===== 主题调色板 ===== */
+/* 冷色系（默认） - 现代、清爽 */
 :root {
-  --bg: #f8fafc;
-  --fg: #0f172a;
+  --bg: #f6fbff;
+  --fg: #0b1220;
   --accent: #2563eb;
   --accent-hover: #1d4ed8;
-  --muted: #64748b;
+  --muted: #6b7280;
   --max-w: 960px;
-  --hdr-bg: rgba(255, 255, 255, 0.6);
-  --ftr-bg: rgba(255, 255, 255, 0.6);
-  --border-color: #e2e8f0;
-  --text-shadow: 0 0 20px rgba(2, 6, 23, 0.08);
-  --canvas-bg: #eef4fb;
-  --card-bg: rgba(255, 255, 255, 0.78);
-  --card-border: rgba(255, 255, 255, 0.9);
+  --hdr-bg: rgba(255, 255, 255, 0.75);
+  --ftr-bg: rgba(255, 255, 255, 0.75);
+  --border-color: #e6eef8;
+  --text-shadow: 0 0 16px rgba(2, 6, 23, 0.06);
+  --canvas-bg: #eef6fb;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(255, 255, 255, 0.95);
   --card-text: #475569;
-  --card-shadow: 0 8px 32px rgba(2, 6, 23, 0.08);
-  --card-shadow-hover: 0 16px 48px rgba(2, 6, 23, 0.16);
+  --card-shadow: 0 8px 32px rgba(2, 6, 23, 0.06);
+  --card-shadow-hover: 0 16px 48px rgba(2, 6, 23, 0.12);
+
+  /* Canvas / 背景渐变色 */
+  --bg1: #f7fbff;
+  --bg2: #e6eef8;
+  --bg3: #cfe6f2;
+  --grid-color: rgba(100, 116, 139, 0.06);
+  --symbol-color: rgba(30, 41, 59, 0.95);
+  --formula-color: rgba(30, 41, 59, 0.9);
+}
+
+/* 暖色系 - 亲和、活泼 */
+:root[data-palette="warm"] {
+  --bg: #fff8f2;
+  --fg: #1b1b17;
+  --accent: #ff7a45;
+  --accent-hover: #ff5a1f;
+  --muted: #7a6e63;
+  --hdr-bg: rgba(255, 248, 240, 0.8);
+  --ftr-bg: rgba(255, 248, 240, 0.8);
+  --border-color: #f3e6dd;
+  --text-shadow: 0 0 16px rgba(27, 27, 23, 0.06);
+  --canvas-bg: #fff6ef;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(255, 255, 255, 0.95);
+  --card-text: #5a4e43;
+  --card-shadow: 0 8px 32px rgba(27, 27, 23, 0.06);
+  --card-shadow-hover: 0 16px 48px rgba(27, 27, 23, 0.12);
+
+  --bg1: #fff8f2;
+  --bg2: #fceede;
+  --bg3: #f5dcc8;
+  --grid-color: rgba(120, 110, 100, 0.06);
+  --symbol-color: rgba(35, 30, 25, 0.95);
+  --formula-color: rgba(35, 30, 25, 0.9);
+}
+
+/* 极简灰度 - 低干扰，突出内容 */
+:root[data-palette="minimal"] {
+  --bg: #fafafa;
+  --fg: #0b0b0b;
+  --accent: #6b7280;
+  --accent-hover: #4b5563;
+  --muted: #9aa3ad;
+  --hdr-bg: rgba(250, 250, 250, 0.9);
+  --ftr-bg: rgba(250, 250, 250, 0.9);
+  --border-color: #e9ecef;
+  --text-shadow: 0 0 16px rgba(11, 11, 11, 0.05);
+  --canvas-bg: #f5f7f9;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --card-border: rgba(255, 255, 255, 0.95);
+  --card-text: #4a5568;
+  --card-shadow: 0 8px 32px rgba(11, 11, 11, 0.05);
+  --card-shadow-hover: 0 16px 48px rgba(11, 11, 11, 0.1);
+
+  --bg1: #fafafa;
+  --bg2: #f4f6f8;
+  --bg3: #eceff1;
+  --grid-color: rgba(80, 86, 96, 0.05);
+  --symbol-color: rgba(15, 20, 25, 0.92);
+  --formula-color: rgba(15, 20, 25, 0.85);
 }
 
 html {
@@ -98,21 +160,29 @@ main {
 /* ===== 暗色模式 ===== */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f111a;
-    --fg: #e2e8f0;
+    --bg: #0b1220;
+    --fg: #e6eef8;
     --muted: #94a3b8;
     --accent: #60a5fa;
     --accent-hover: #3b82f6;
-    --hdr-bg: rgba(15, 17, 26, 0.82);
-    --ftr-bg: rgba(15, 17, 26, 0.7);
-    --border-color: #1e293b;
-    --text-shadow: 0 0 20px rgba(0, 0, 0, 0.45);
-    --canvas-bg: #181c26;
-    --card-bg: rgba(30, 34, 48, 0.82);
-    --card-border: rgba(30, 34, 48, 0.9);
+    --hdr-bg: rgba(11, 18, 32, 0.82);
+    --ftr-bg: rgba(11, 18, 32, 0.72);
+    --border-color: #0f1724;
+    --text-shadow: 0 0 16px rgba(0, 0, 0, 0.45);
+    --canvas-bg: #0f1724;
+    --card-bg: rgba(18, 24, 36, 0.86);
+    --card-border: rgba(18, 24, 36, 0.92);
     --card-text: #94a3b8;
     --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
+
+    /* Canvas / 背景渐变色（Dark） */
+    --bg1: #0b1220;
+    --bg2: #121827;
+    --bg3: #223047;
+    --grid-color: rgba(148, 163, 184, 0.06);
+    --symbol-color: rgba(148, 163, 184, 0.9);
+    --formula-color: rgba(148, 163, 184, 0.8);
   }
 }
 
