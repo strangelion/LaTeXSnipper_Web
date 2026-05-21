@@ -257,3 +257,39 @@
     justify-content: flex-start;
   }
 }
+
+/* ===== 数学公式样式 ===== */
+.preview-content .math-display {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  text-align: center;
+  background: var(--canvas-bg);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.preview-content .math-display .katex {
+  font-size: 1.15em;
+}
+
+.preview-content .katex {
+  color: var(--fg);
+}
+
+.preview-content .math-error {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+  font-family: "Cascadia Code", "Fira Code", "Consolas", monospace;
+  font-size: 0.85em;
+}
+
+:root[data-theme="dark"] .preview-content .math-error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ef9a9a;
+  border-color: rgba(244, 67, 54, 0.3);
+}

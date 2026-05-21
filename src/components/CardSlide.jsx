@@ -19,13 +19,16 @@ export default function CardSlide({ card, isMobile }) {
       const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
       const lerp = (a, b, t) => a + (b - a) * t
       const segment = (p, a, b) => clamp((p - a) / (b - a), 0, 1)
+      // Cinematic easing — folio-2025 style power curves
+      const easeOut = (t) => 1 - Math.pow(1 - t, 3)
+      const easeInOut = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 
       const c = segment(progress, 0.1, 0.8)
 
       let wrapScale, wrapOpacity, frontWidth, detailLeft, briefOpacity
 
       if (c < 0.1) {
-        const t = c / 0.1
+        const t = easeOut(c / 0.1)
         wrapScale = lerp(0.5, 1, t)
         wrapOpacity = t
         frontWidth = 100
@@ -38,7 +41,7 @@ export default function CardSlide({ card, isMobile }) {
         detailLeft = 100
         briefOpacity = 1
       } else if (c < 0.46) {
-        const t = (c - 0.3) / 0.16
+        const t = easeInOut((c - 0.3) / 0.16)
         wrapScale = 1
         wrapOpacity = 1
         frontWidth = lerp(100, 30, t)
@@ -51,14 +54,14 @@ export default function CardSlide({ card, isMobile }) {
         detailLeft = 30
         briefOpacity = 0
       } else if (c < 0.82) {
-        const t = (c - 0.66) / 0.16
+        const t = easeInOut((c - 0.66) / 0.16)
         wrapScale = 1
         wrapOpacity = 1
         frontWidth = lerp(30, 100, t)
         detailLeft = lerp(30, 100, t)
         briefOpacity = lerp(0, 1, t)
       } else {
-        const t = (c - 0.82) / 0.18
+        const t = easeOut((c - 0.82) / 0.18)
         wrapScale = lerp(1, 0.4, t)
         wrapOpacity = 1 - t
         frontWidth = 100

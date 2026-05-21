@@ -19,3 +19,4 @@ pnpm-debug.log*
 *~
 .mypy_cache/
 .wrangler/
+tinymist.lock

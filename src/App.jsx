@@ -5,6 +5,8 @@ import CardSlide from './components/CardSlide'
 import EndingSection from './components/EndingSection'
 import BackToTop from './components/BackToTop'
 import MathBackground from './components/MathBackground'
+import ScrollProgress from './components/ScrollProgress'
+import SectionIndicator from './components/SectionIndicator'
 import './App.css'
 
 const CARDS = [
@@ -72,6 +74,7 @@ export default function App() {
   return (
     <div className="app">
       <MathBackground />
+      <ScrollProgress />
       <Header />
       <main>
         <HeroSection />
@@ -83,6 +86,7 @@ export default function App() {
       <footer className="site-footer">
         <div className="container">© 2026 LaTeXSnipper — 开源项目</div>
       </footer>
+      <SectionIndicator />
       <BackToTop />
     </div>
   )

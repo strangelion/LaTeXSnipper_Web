@@ -1,26 +1,46 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export default function MathBackground() {
   const canvasRef = useRef(null)
   const animationRef = useRef(null)
-  const particlesRef = useRef([])
+  const mouseRef = useRef({ x: -100, y: -100 })
+  const trailRef = useRef([])
   const formulasRef = useRef([])
   const timeRef = useRef(0)
-  const [canvasSupported, setCanvasSupported] = useState(true)
 
-  // 常用数学公式和符号
-  const MATH_SYMBOLS = ['∑', '∫', '∂', '∇', '√', 'π', 'e', 'i', 'Δ', 'Σ', '∞', '≈', '≠', '≤', '≥']
-  const MATH_FORMULAS = [
-    'e^(iπ) + 1 = 0',
-    '∫ e^(-x²) dx',
-    '∑ 1/n²',
-    '∇ · F = 0',
-    'F = ma',
-    'E = mc²',
-    'a² + b² = c²',
-    '∂u/∂t = ∇²u',
-    'det(A) ≠ 0',
-    'lim(x→∞)',
+  const MATH_SYMBOLS = ['∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ', 'λ', 'θ', 'α', 'β', 'γ']
+  
+  const FORMULAS = [
+    'e^{iπ}+1=0',
+    '∫e^{-x²}dx',
+    '∑1/n²',
+    '∇·F=0',
+    'F=ma',
+    'E=mc²',
+    'a²+b²=c²',
+    '∂u/∂t=∇²u',
+    'det(A)≠0',
+    'lim x→∞',
+    'sin²θ+cos²θ=1',
+    'Δ=b²-4ac',
+    'φ=(1+√5)/2',
+    'i²=-1',
+    'dx/dt=v',
+    '∫₀^∞',
+    '∑_{n=0}^∞',
+    'f\'(x)=lim',
+    '∮ E·dl',
+    '∇×B=μJ',
+  ]
+
+  const MATRIX_TEMPLATES = [
+    '[ a b ]',
+    '[ c d ]',
+    '| x₁ x₂ |',
+    '( 1 0 )',
+    '( 0 1 )',
+    '[ cosθ -sinθ ]',
+    '[ sinθ cosθ ]',
   ]
 
   useEffect(() => {
@@ -28,10 +48,7 @@ export default function MathBackground() {
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      setCanvasSupported(false)
-      return
-    }
+    if (!ctx) return
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
@@ -40,157 +57,172 @@ export default function MathBackground() {
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
 
-    // 初始化粒子（数学符号）
-    const initParticles = () => {
-      particlesRef.current = []
-      const particleCount = Math.floor((canvas.width * canvas.height) / 15000)
-      for (let i = 0; i < particleCount; i++) {
-        particlesRef.current.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-            symbol: MATH_SYMBOLS[Math.floor(Math.random() * MATH_SYMBOLS.length)],
-            size: Math.random() * 14 + 12,
-            opacity: Math.random() * 0.6 + 0.4,
-          rotation: Math.random() * Math.PI * 2,
-          rotationSpeed: (Math.random() - 0.5) * 0.02,
-        })
+    const handleMouseMove = (e) => {
+      const prev = mouseRef.current
+      const dx = e.clientX - prev.x
+      const dy = e.clientY - prev.y
+      const speed = Math.sqrt(dx * dx + dy * dy)
+      mouseRef.current = { x: e.clientX, y: e.clientY }
+
+      // 速度越快，粒子越沿运动方向散开；静止时自然下落
+      const isMoving = speed > 2
+      const spreadX = isMoving ? dx * 0.15 + (Math.random() - 0.5) * 1.2 : (Math.random() - 0.5) * 1.0
+      const spreadY = isMoving ? dy * 0.15 + (Math.random() - 0.5) * 1.2 : Math.random() * 0.8 + 0.3
+
+      trailRef.current.push({
+        x: e.clientX + (Math.random() - 0.5) * 6,
+        y: e.clientY + (Math.random() - 0.5) * 6,
+        symbol: MATH_SYMBOLS[Math.floor(Math.random() * MATH_SYMBOLS.length)],
+        life: 1,
+        size: Math.random() * 8 + 14,
+        vx: spreadX,
+        vy: spreadY,
+      })
+      if (trailRef.current.length > 18) {
+        trailRef.current.splice(0, trailRef.current.length - 18)
       }
     }
-    initParticles()
+    window.addEventListener('mousemove', handleMouseMove)
 
-    // 初始化浮动公式
     const initFormulas = () => {
       formulasRef.current = []
-      const formulaCount = 5
-      for (let i = 0; i < formulaCount; i++) {
-        formulasRef.current.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.1,
-          vy: (Math.random() - 0.5) * 0.1,
-          formula: MATH_FORMULAS[Math.floor(Math.random() * MATH_FORMULAS.length)],
-          size: Math.random() * 18 + 14,
-          opacity: Math.random() * 0.6 + 0.4,
-          rotation: Math.random() * Math.PI * 2,
-          rotationSpeed: (Math.random() - 0.5) * 0.005,
-        })
+      const count = Math.max(15, Math.floor((canvas.width * canvas.height) / 50000))
+      for (let i = 0; i < count; i++) {
+        formulasRef.current.push(createFormula(canvas))
       }
     }
+
+    const createFormula = (canvas) => {
+      const useMatrix = Math.random() > 0.6
+      const content = useMatrix
+        ? MATRIX_TEMPLATES[Math.floor(Math.random() * MATRIX_TEMPLATES.length)]
+        : FORMULAS[Math.floor(Math.random() * FORMULAS.length)]
+      
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        content,
+        size: Math.random() * 14 + 16,
+        opacity: 0,
+        targetOpacity: Math.random() * 0.3 + 0.25,
+        fadeSpeed: Math.random() * 0.008 + 0.003,
+        life: Math.random() * 600 + 300,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        phase: 'in',
+      }
+    }
+
     initFormulas()
 
-    const getThemeColors = () => {
-      const cs = getComputedStyle(document.documentElement)
-      const read = (name, fallback) => {
-        const v = cs.getPropertyValue(name)
-        return v ? v.trim() : fallback
-      }
-
-      return {
-        bg1: read('--bg1', '#f7fbff'),
-        bg2: read('--bg2', '#e6eef8'),
-        bg3: read('--bg3', '#cfddea'),
-        grid: read('--grid-color', 'rgba(100, 116, 139, 0.06)'),
-        symbol: read('--symbol-color', 'rgba(55, 65, 81, 0.9)'),
-        formula: read('--formula-color', 'rgba(55, 65, 81, 0.85)'),
-      }
+    const isDarkMode = () => {
+      return document.documentElement.getAttribute('data-theme') === 'dark' ||
+        (!document.documentElement.getAttribute('data-theme') &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)
     }
 
-    const drawGradient = (time) => {
-      const colors = getThemeColors()
-      const gradient = ctx.createLinearGradient(
-        0, 0,
-        Math.cos(time * 0.0001) * canvas.width,
-        Math.sin(time * 0.0001) * canvas.height
-      )
-      gradient.addColorStop(0, colors.bg1)
-      gradient.addColorStop(0.5, colors.bg2)
-      gradient.addColorStop(1, colors.bg3)
-      ctx.fillStyle = gradient
+    const drawCheckerboard = () => {
+      const dark = isDarkMode()
+      const size = 40
+
+      // 背景色
+      ctx.fillStyle = dark ? '#0f111a' : '#f6fbff'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
 
-    const drawGrid = () => {
-      const colors = getThemeColors()
-      ctx.strokeStyle = colors.grid
-      ctx.lineWidth = 0.5
-      const gridSize = 80
-      
-      for (let x = 0; x < canvas.width; x += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, canvas.height)
-        ctx.stroke()
+      // 方格色：白底黑格，黑底白格（提高可见度）
+      ctx.fillStyle = dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.06)'
+      for (let x = 0; x < canvas.width; x += size * 2) {
+        for (let y = 0; y < canvas.height; y += size * 2) {
+          ctx.fillRect(x, y, size, size)
+          ctx.fillRect(x + size, y + size, size, size)
+        }
       }
-      
-      for (let y = 0; y < canvas.height; y += gridSize) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(canvas.width, y)
-        ctx.stroke()
-      }
-    }
-
-    const drawSymbols = () => {
-      const colors = getThemeColors()
-      particlesRef.current.forEach((particle) => {
-        particle.x += particle.vx
-        particle.y += particle.vy
-        particle.rotation += particle.rotationSpeed
-        
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
-        
-        particle.x = Math.max(0, Math.min(canvas.width, particle.x))
-        particle.y = Math.max(0, Math.min(canvas.height, particle.y))
-        
-        ctx.save()
-        ctx.translate(particle.x, particle.y)
-        ctx.rotate(particle.rotation)
-        ctx.fillStyle = colors.symbol
-        ctx.globalAlpha = particle.opacity
-        ctx.font = `${particle.size}px serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(particle.symbol, 0, 0)
-        ctx.globalAlpha = 1
-        ctx.restore()
-      })
     }
 
     const drawFormulas = () => {
-      const colors = getThemeColors()
-      formulasRef.current.forEach((formula) => {
-        formula.x += formula.vx
-        formula.y += formula.vy
-        formula.rotation += formula.rotationSpeed
-        
-        if (formula.x < -200 || formula.x > canvas.width + 200) formula.vx *= -1
-        if (formula.y < -100 || formula.y > canvas.height + 100) formula.vy *= -1
-        
+      const dark = isDarkMode()
+      const color = dark ? 'rgba(180, 200, 240, 0.85)' : 'rgba(40, 50, 80, 0.7)'
+
+      formulasRef.current.forEach((f, i) => {
+        f.x += f.vx
+        f.y += f.vy
+        f.life--
+
+        if (f.phase === 'in') {
+          f.opacity += f.fadeSpeed
+          if (f.opacity >= f.targetOpacity) {
+            f.phase = 'hold'
+          }
+        } else if (f.phase === 'hold') {
+          if (f.life < 80) {
+            f.phase = 'out'
+          }
+        } else if (f.phase === 'out') {
+          f.opacity -= f.fadeSpeed
+        }
+
+        if (f.life <= 0 || f.opacity <= 0) {
+          formulasRef.current[i] = createFormula(canvas)
+          return
+        }
+
+        if (f.x < -300 || f.x > canvas.width + 300 ||
+            f.y < -50 || f.y > canvas.height + 50) {
+          formulasRef.current[i] = createFormula(canvas)
+          return
+        }
+
+        // 四舍五入坐标到 0.5px，消除亚像素抖动
+        const drawX = Math.round(f.x * 2) / 2
+        const drawY = Math.round(f.y * 2) / 2
+
         ctx.save()
-        ctx.translate(formula.x, formula.y)
-        ctx.rotate(formula.rotation)
-        ctx.fillStyle = colors.formula
-        ctx.globalAlpha = formula.opacity
-        ctx.font = `${formula.size}px monospace`
+        ctx.globalAlpha = Math.max(0, f.opacity)
+        ctx.fillStyle = color
+        ctx.font = `${f.size}px "Times New Roman", serif`
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
-        ctx.fillText(formula.formula, 0, 0)
-        ctx.globalAlpha = 1
+        ctx.fillText(f.content, drawX, drawY)
         ctx.restore()
       })
     }
 
+    const drawTrail = () => {
+      const dark = isDarkMode()
+      const color = dark ? 'rgba(96, 165, 250, 0.9)' : 'rgba(37, 99, 235, 0.9)'
+
+      for (let i = trailRef.current.length - 1; i >= 0; i--) {
+        const p = trailRef.current[i]
+        p.life -= 0.008
+        p.x += p.vx
+        p.y += p.vy
+        p.vy += 0.015
+        p.vx *= 0.995
+
+        if (p.life <= 0) {
+          trailRef.current.splice(i, 1)
+          continue
+        }
+
+        const drawPx = Math.round(p.x * 2) / 2
+        const drawPy = Math.round(p.y * 2) / 2
+
+        ctx.save()
+        ctx.globalAlpha = Math.max(0, p.life * 0.8)
+        ctx.fillStyle = color
+        ctx.font = `${p.size}px serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(p.symbol, drawPx, drawPy)
+        ctx.restore()
+      }
+    }
+
     const animate = () => {
-      timeRef.current += 1
-      
-      drawGradient(timeRef.current)
-      drawGrid()
-      drawSymbols()
+      timeRef.current++
+      drawCheckerboard()
       drawFormulas()
-      
+      drawTrail()
       animationRef.current = requestAnimationFrame(animate)
     }
 
@@ -204,6 +236,7 @@ export default function MathBackground() {
 
     return () => {
       window.removeEventListener('resize', resizeCanvas)
+      window.removeEventListener('mousemove', handleMouseMove)
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       themeObserver.disconnect()
     }

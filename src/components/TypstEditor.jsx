@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { parseTypst } from '../utils/typstParser'
+import 'katex/dist/katex.min.css'
 import './TypstEditor.css'
 
 export default function TypstEditor({ filePath = null }) {
