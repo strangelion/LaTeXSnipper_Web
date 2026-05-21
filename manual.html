@@ -77,8 +77,8 @@
 <body class="manual">
   <nav class="top-nav">
     <div class="inner">
-      <a href="index.html" class="brand-link">LaTeXSnipper</a>
-      <a href="index.html">主页</a>
+      <a href="home.interknot.dpdns.org" class="brand-link">LaTeXSnipper</a>
+      <a href="home.interknot.dpdns.org">主页</a>
       <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a>
       <button class="theme-toggle" id="themeToggle" title="切换日/夜模式">🌙</button>
     </div>
@@ -101,9 +101,9 @@
     </svg>
   </button>
 
-  <!-- 用 type="module" 的 import 方式替代 script src，避免 load 事件不可靠 -->
+  <!-- 本地化：从 node_modules 拷贝到 js/ 目录，不再从 CDN 下载 -->
   <script type="module">
-    import * as Typst from 'https://cdn.jsdelivr.net/npm/@myriaddreamin/typst.ts/dist/esm/contrib/all-in-one-lite.bundle.js';
+    import * as Typst from './js/all-in-one-lite.bundle.js';
 
     var $typst = Typst.$typst;
     var TypstSnippet = Typst.TypstSnippet;
