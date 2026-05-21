@@ -4,7 +4,8 @@ import HeroSection from './components/HeroSection'
 import CardSlide from './components/CardSlide'
 import EndingSection from './components/EndingSection'
 import BackToTop from './components/BackToTop'
-import Background from './components/Background'
+import MathBackground from './components/MathBackground'
+import VideoBackground from './components/VideoBackground'
 import './App.css'
 
 const CARDS = [
@@ -71,7 +72,8 @@ export default function App() {
 
   return (
     <div className="app">
-      <Background />
+      <VideoBackground />
+      <MathBackground />
       <Header />
       <main>
         <HeroSection />
