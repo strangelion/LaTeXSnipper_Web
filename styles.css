@@ -13,6 +13,7 @@
   --card-shadow: 0 8px 32px rgba(2,6,23,0.08);
   --card-shadow-hover: 0 16px 48px rgba(2,6,23,0.16);
 }
+html { background: var(--bg); }
 *{box-sizing:border-box}
 body{font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;margin:0;background:transparent;color:var(--fg);line-height:1.6;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative}
 
@@ -26,8 +27,9 @@ body{font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;mar
   z-index: -2;
   pointer-events: none;
   transition: opacity 1s ease;
+  opacity: 1;
 }
-#bg-video-light { background: #f8fafc; }
+#bg-video-light { background: #f8fafc; opacity: 1; }
 #bg-video-dark { background: #0f111a; opacity: 0; }
 
 #bg-overlay {

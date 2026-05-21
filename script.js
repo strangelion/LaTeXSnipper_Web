@@ -47,13 +47,25 @@
       lightVideo.style.opacity = '1';
       darkVideo.style.opacity = '0';
     }
-  console.log('[Video] 调用 play() on both...');
-  lightVideo.load(); darkVideo.load();
-  lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
-  darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
+    console.log('[Video] 调用 play() on both...');
+    lightVideo.load(); darkVideo.load();
+    lightVideo.play().then(() => console.log('[Video] lightVideo play OK')).catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
+    darkVideo.play().then(() => console.log('[Video] darkVideo play OK')).catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
   }
 
-  switchVideo('init');
+  // 初始化时先隐藏两个视频，等加载完再显示
+  lightVideo.style.opacity = '0';
+  darkVideo.style.opacity = '0';
+  console.log('[Video] 初始隐藏两个视频，等待加载...');
+
+  // 等视频加载完再显示
+  function onCanPlay() {
+    console.log('[Video] canplay 事件触发，调用 switchVideo');
+    switchVideo('canplay');
+  }
+
+  lightVideo.addEventListener('canplay', onCanPlay, { once: true });
+  darkVideo.addEventListener('canplay', onCanPlay, { once: true });
 
   const observer = new MutationObserver(function () {
     console.log('[Video] MutationObserver 触发 data-theme 变化');
