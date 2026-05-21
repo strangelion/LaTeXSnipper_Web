@@ -77,11 +77,17 @@ export default {
 
     let filePath;
     if (path === "/") {
-      filePath = site === "help" ? "user_manual.html" : "index.html";
+      filePath = site === "help" ? "user_manual.html" : "dist/index.html";
     } else {
       const ext = path.split(".").pop() || "";
       const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
-      filePath = hasExt ? path.slice(1) : path.slice(1) + ".html";
+      const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
+      // home 站点的构建产物（CSS/JS/assets）在 dist/ 目录下
+      if (site === "home" && ext !== "" && !rawPath.startsWith("dist/")) {
+        filePath = "dist/" + rawPath;
+      } else {
+        filePath = rawPath;
+      }
     }
 
     // 视频走 R2，直接代理（同域避免 autoplay 问题）
