@@ -79,12 +79,26 @@
   }
 
   // 立即调用 switchVideo，不等 canplay（因为 canplay 可能永远不触发）
-  switchVideo('init');
-  console.log('[Video] 已立即调用 switchVideo(init)');
+  console.log('[Video] 初始化：隐藏两个视频，等待加载...');
+  lightVideo.style.opacity = '0';
+  darkVideo.style.opacity = '0';
+  lightVideo.load(); 
+  darkVideo.load();
+  console.log('[Video] 已调用 load()');
 
-  // 监听 canplay 事件用于调试
-  lightVideo.addEventListener('canplay', () => console.log('[Video] lightVideo canplay, readyState:', lightVideo.readyState));
-  darkVideo.addEventListener('canplay', () => console.log('[Video] darkVideo canplay, readyState:', darkVideo.readyState));
+  // 等视频加载完（canplay）再显示
+  let videoReady = false;
+  function onCanPlay() {
+    if (!videoReady) {
+      videoReady = true;
+      console.log('[Video] 视频加载完成，调用 switchVideo(canplay)');
+      switchVideo('canplay');
+    }
+  }
+  lightVideo.addEventListener('canplay', onCanPlay);
+  darkVideo.addEventListener('canplay', onCanPlay);
+
+  // 监听其他事件用于调试
   lightVideo.addEventListener('loadstart', () => console.log('[Video] lightVideo loadstart'));
   darkVideo.addEventListener('loadstart', () => console.log('[Video] darkVideo loadstart'));
   lightVideo.addEventListener('progress', () => console.log('[Video] lightVideo progress, readyState:', lightVideo.readyState));
