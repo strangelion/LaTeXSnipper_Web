@@ -22,97 +22,49 @@
 (function () {
   const lightVideo = document.getElementById('bg-video-light');
   const darkVideo = document.getElementById('bg-video-dark');
-  console.log('[Video] lightVideo:', !!lightVideo, 'darkVideo:', !!darkVideo,
-    'light src:', lightVideo?.src, 'dark src:', darkVideo?.src,
-    'light readyState:', lightVideo?.readyState, 'dark readyState:', darkVideo?.readyState);
-  if (!lightVideo || !darkVideo) { console.error('[Video] 未找到视频元素'); return; }
+  
+  if (!lightVideo || !darkVideo) {
+    console.error('[Video] 视频元素未找到');
+    return;
+  }
+
+  console.log('[Video] 初始化视频播放');
 
   function isDark() {
     const attr = document.documentElement.getAttribute('data-theme');
-    let result;
-    if (attr === 'dark') result = true;
-    else if (attr === 'light') result = false;
-    else result = matchMedia('(prefers-color-scheme: dark)').matches;
-    console.log('[Video] isDark():', result, '(data-theme:', attr, ')');
-    return result;
+    if (attr === 'dark') return true;
+    if (attr === 'light') return false;
+    return matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  function switchVideo(label) {
+  function updateVideoVisibility() {
     const dark = isDark();
-    console.log('[Video] switchVideo(' + (label || 'init') + ') dark=', dark);
+    console.log('[Video] 更新视频可见性, dark=' + dark);
+    
     if (dark) {
       lightVideo.style.opacity = '0';
       darkVideo.style.opacity = '1';
-      console.log('[Video] 设置 darkVideo opacity=1, lightVideo opacity=0');
     } else {
       lightVideo.style.opacity = '1';
       darkVideo.style.opacity = '0';
-      console.log('[Video] 设置 lightVideo opacity=1, darkVideo opacity=0');
-    }
-    
-    // 只在初始化时调用 load()，切换主题时不调用（避免中止加载）
-    if (label === 'init') {
-      console.log('[Video] 初始化：调用 load()');
-      lightVideo.load(); 
-      darkVideo.load();
-    }
-    
-    console.log('[Video] 调用 play()...');
-    lightVideo.play().catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
-    darkVideo.play().catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
-    
-    // 延迟后检查实际的 opacity 值和其他样式
-    setTimeout(() => {
-      const lightOpacity = window.getComputedStyle(lightVideo).opacity;
-      const darkOpacity = window.getComputedStyle(darkVideo).opacity;
-      const lightZIndex = window.getComputedStyle(lightVideo).zIndex;
-      const darkZIndex = window.getComputedStyle(darkVideo).zIndex;
-      const lightDisplay = window.getComputedStyle(lightVideo).display;
-      const darkDisplay = window.getComputedStyle(darkVideo).display;
-      const lightVisibility = window.getComputedStyle(lightVideo).visibility;
-      const darkVisibility = window.getComputedStyle(darkVideo).visibility;
-      console.log('[Video] computed styles:');
-      console.log('  light: opacity=' + lightOpacity + ', zIndex=' + lightZIndex + ', display=' + lightDisplay + ', visibility=' + lightVisibility);
-      console.log('  dark: opacity=' + darkOpacity + ', zIndex=' + darkZIndex + ', display=' + darkDisplay + ', visibility=' + darkVisibility);
-      console.log('[Video] inline style - light:', lightVideo.style.opacity, 'dark:', darkVideo.style.opacity);
-    }, 100);
-  }
-
-  // 立即调用 switchVideo，不等 canplay（因为 canplay 可能永远不触发）
-  console.log('[Video] 初始化：隐藏两个视频，等待加载...');
-  lightVideo.style.opacity = '0';
-  darkVideo.style.opacity = '0';
-  lightVideo.load(); 
-  darkVideo.load();
-  console.log('[Video] 已调用 load()');
-
-  // 等视频加载完（loadeddata）再显示
-  let videoReady = false;
-  function onLoadedData() {
-    if (!videoReady) {
-      videoReady = true;
-      console.log('[Video] 视频数据加载完成，调用 switchVideo(loadeddata)');
-      switchVideo('loadeddata');
     }
   }
-  lightVideo.addEventListener('loadeddata', onLoadedData);
-  darkVideo.addEventListener('loadeddata', onLoadedData);
 
-  // 监听其他事件用于调试
-  lightVideo.addEventListener('loadstart', () => console.log('[Video] lightVideo loadstart'));
-  darkVideo.addEventListener('loadstart', () => console.log('[Video] darkVideo loadstart'));
-  lightVideo.addEventListener('progress', () => console.log('[Video] lightVideo progress, readyState:', lightVideo.readyState));
-  darkVideo.addEventListener('progress', () => console.log('[Video] darkVideo progress, readyState:', darkVideo.readyState));
+  // 初始化：两个视频都开始播放（静音自动播放）
+  lightVideo.play().catch(e => console.warn('[Video] lightVideo play 失败:', e.message));
+  darkVideo.play().catch(e => console.warn('[Video] darkVideo play 失败:', e.message));
+  
+  // 设置初始可见性
+  updateVideoVisibility();
 
-  const observer = new MutationObserver(function () {
-    console.log('[Video] MutationObserver 触发 data-theme 变化');
-    switchVideo('mut');
-  });
+  // 监听主题变化
+  const observer = new MutationObserver(updateVideoVisibility);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
-    console.log('[Video] prefers-color-scheme 变化');
-    switchVideo('mq');
-  });
+  
+  // 监听系统主题变化
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateVideoVisibility);
+
+  console.log('[Video] 视频播放逻辑初始化完成');
 })();
 
 // ============= WebGL 水波纹 =============
