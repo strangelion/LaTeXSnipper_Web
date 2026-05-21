@@ -1,28 +1,21 @@
-# Python
+node_modules/
+dist/
+.venv/
 __pycache__/
 *.pyc
-*.pyo
-.mypy_cache/
-.venv/
-venv/
-
-# Node
-node_modules/
-
-# Cloudflare Wrangler
-.wrangler/
-
-# OS
-Thumbs.db
 .DS_Store
-
-# Project specific
-tinymist.lock
-*.pdf
-*.typ
-*.py
-*.png
-body.html
-deploy_kv.ps1
-typ2html.py
-user_manual.md
+.env
+.env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.mypy_cache/
+.wrangler/

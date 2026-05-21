@@ -71,6 +71,8 @@
   if (!overlay || typeof Ripples === 'undefined') return;
 
   let ripples;
+  let autoTimer;
+  let isPageVisible = true;
 
   function getGradientDataUrl() {
     var cs = getComputedStyle(overlay);
@@ -86,6 +88,23 @@
     return c.toDataURL();
   }
 
+  function startAutoDrops() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(function () {
+      if (!ripples || !isPageVisible) return;
+      var x = Math.random() * window.innerWidth;
+      var y = Math.random() * window.innerHeight;
+      ripples.drop(x, y, 20 + Math.random() * 20, 0.02 + Math.random() * 0.02);
+    }, 3000);
+  }
+
+  function stopAutoDrops() {
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+  }
+
   function initRipples() {
     try {
       if (ripples) { ripples.destroy(); }
@@ -98,25 +117,14 @@
       });
 
       document.addEventListener('mousemove', function (e) {
-        if (ripples) ripples.drop(e.clientX, e.clientY, 12, 0.035);
+        if (ripples && isPageVisible) ripples.drop(e.clientX, e.clientY, 12, 0.035);
       });
       document.addEventListener('touchmove', function (e) {
         var t = e.touches[0];
-        if (ripples && t) ripples.drop(t.clientX, t.clientY, 20, 0.05);
+        if (ripples && t && isPageVisible) ripples.drop(t.clientX, t.clientY, 20, 0.05);
       }, { passive: true });
 
-      var autoDrop = function () {
-        if (!ripples) return;
-        var x = Math.random() * window.innerWidth;
-        var y = Math.random() * window.innerHeight;
-        ripples.drop(x, y, 20 + Math.random() * 20, 0.02 + Math.random() * 0.02);
-      };
-      var autoTimer = setInterval(autoDrop, 3000);
-      var origDestroy = ripples.destroy;
-      ripples.destroy = function () {
-        clearInterval(autoTimer);
-        origDestroy.call(ripples);
-      };
+      startAutoDrops();
     } catch (e) {
       console.error('水波纹初始化失败:', e);
     }
@@ -138,6 +146,18 @@
   } else {
     window.addEventListener('load', deferInit);
   }
+
+  // 监听页面可见性变化，后台时暂停，前台时恢复
+  document.addEventListener('visibilitychange', function () {
+    isPageVisible = !document.hidden;
+    if (isPageVisible) {
+      console.log('[Ripples] 页面回到前台，恢复水波纹');
+      startAutoDrops();
+    } else {
+      console.log('[Ripples] 页面进入后台，暂停水波纹');
+      stopAutoDrops();
+    }
+  });
 
   // Re-init on theme switch so the gradient texture updates
   var themeObserver = new MutationObserver(function () {

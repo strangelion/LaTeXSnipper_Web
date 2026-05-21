@@ -117,20 +117,6 @@ export default {
       if (contentLength) headers["Content-Length"] = contentLength;
       return new Response(videoResp.body, { status: 200, headers });
     }
-      const mimeType = getMimeType(filePath);
-      const headers = {
-        "Content-Type": mimeType,
-        "Cache-Control": "public, max-age=86400",
-        "Accept-Ranges": "bytes",
-        ...corsHeaders(),
-      };
-      if (videoResp.status === 206) {
-        headers["Content-Range"] = videoResp.headers.get("Content-Range") || "";
-        return new Response(videoResp.body, { status: 206, headers });
-      }
-      headers["Content-Length"] = videoResp.headers.get("Content-Length") || "";
-      return new Response(videoResp.body, { headers });
-    }
 
     // favicon 返回 icon.png
     if (filePath.endsWith(".ico")) {
