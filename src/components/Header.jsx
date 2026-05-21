@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 
 export default function Header() {
   const [isDark, setIsDark] = useState(false)
-  const STORAGE_KEY = 'latexSnipper-theme'
+  const [palette, setPalette] = useState('cool')
+  const THEME_KEY = 'latexSnipper-theme'
+  const PALETTE_KEY = 'latexSnipper-palette'
 
   useEffect(() => {
     const loadTheme = () => {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY)
+        const saved = localStorage.getItem(THEME_KEY)
         if (saved === 'dark' || saved === 'light') {
           document.documentElement.setAttribute('data-theme', saved)
           setIsDark(saved === 'dark')
@@ -18,7 +20,21 @@ export default function Header() {
       } catch (e) {}
     }
 
+    const loadPalette = () => {
+      try {
+        const saved = localStorage.getItem(PALETTE_KEY)
+        if (saved === 'cool' || saved === 'warm' || saved === 'minimal') {
+          document.documentElement.setAttribute('data-palette', saved)
+          setPalette(saved)
+        } else {
+          document.documentElement.setAttribute('data-palette', 'cool')
+          setPalette('cool')
+        }
+      } catch (e) {}
+    }
+
     loadTheme()
+    loadPalette()
 
     const darkMQ = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => loadTheme()
@@ -32,9 +48,18 @@ export default function Header() {
     const newTheme = current === 'dark' ? 'light' : 'dark'
     root.setAttribute('data-theme', newTheme)
     try {
-      localStorage.setItem(STORAGE_KEY, newTheme)
+      localStorage.setItem(THEME_KEY, newTheme)
     } catch (e) {}
     setIsDark(newTheme === 'dark')
+  }
+
+  const handlePaletteChange = (e) => {
+    const newPalette = e.target.value
+    document.documentElement.setAttribute('data-palette', newPalette)
+    setPalette(newPalette)
+    try {
+      localStorage.setItem(PALETTE_KEY, newPalette)
+    } catch (e) {}
   }
 
   return (
