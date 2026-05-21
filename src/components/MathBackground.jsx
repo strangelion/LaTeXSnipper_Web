@@ -50,9 +50,9 @@ export default function MathBackground() {
           y: Math.random() * canvas.height,
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3,
-          symbol: MATH_SYMBOLS[Math.floor(Math.random() * MATH_SYMBOLS.length)],
-          size: Math.random() * 12 + 8,
-          opacity: Math.random() * 0.4 + 0.2,
+            symbol: MATH_SYMBOLS[Math.floor(Math.random() * MATH_SYMBOLS.length)],
+            size: Math.random() * 14 + 12,
+            opacity: Math.random() * 0.6 + 0.4,
           rotation: Math.random() * Math.PI * 2,
           rotationSpeed: (Math.random() - 0.5) * 0.02,
         })
@@ -71,8 +71,8 @@ export default function MathBackground() {
           vx: (Math.random() - 0.5) * 0.1,
           vy: (Math.random() - 0.5) * 0.1,
           formula: MATH_FORMULAS[Math.floor(Math.random() * MATH_FORMULAS.length)],
-          size: Math.random() * 14 + 12,
-          opacity: Math.random() * 0.3 + 0.1,
+          size: Math.random() * 18 + 14,
+          opacity: Math.random() * 0.6 + 0.4,
           rotation: Math.random() * Math.PI * 2,
           rotationSpeed: (Math.random() - 0.5) * 0.005,
         })
@@ -163,6 +163,7 @@ export default function MathBackground() {
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(particle.symbol, 0, 0)
+        ctx.globalAlpha = 1
         ctx.restore()
       })
     }
@@ -186,6 +187,7 @@ export default function MathBackground() {
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
         ctx.fillText(formula.formula, 0, 0)
+        ctx.globalAlpha = 1
         ctx.restore()
       })
     }
