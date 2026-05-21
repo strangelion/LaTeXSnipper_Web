@@ -133,9 +133,16 @@ export default {
     const ext = filePath.split(".").pop().toLowerCase();
     const isBinary = BINARY_TYPES.includes(ext);
     const mimeType = getMimeType(filePath);
+    
+    // HTML/CSS/JS 用短缓存，其他文件用长缓存
+    let cacheControl = "public, max-age=3600, s-maxage=86400";
+    if (filePath.endsWith(".html") || filePath.endsWith(".css") || filePath.endsWith(".js")) {
+      cacheControl = "public, max-age=0, s-maxage=3600, must-revalidate";
+    }
+    
     const headers = {
       "Content-Type": mimeType,
-      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+      "Cache-Control": cacheControl,
       ...corsHeaders(),
       "X-Content-Type-Options": "nosniff",
     };
