@@ -33,9 +33,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   scroll-behavior: smooth;
-  /* 防止滚动跳动 */
   overscroll-behavior: none;
-  /* 防止横向溢出滚动 */
   overflow-x: hidden;
 }
 
@@ -52,10 +50,6 @@ body {
 /* 只对关键 UI 元素做主题过渡，避免全局 * 选择器性能开销 */
 .hero-header,
 .site-footer,
-.card-viewport,
-.card-front,
-.card-detail,
-.card-detail-inner,
 .ending-feature,
 .section-dot,
 .back-to-top,
@@ -243,25 +237,26 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 1rem;
+  padding: clamp(0.5rem, 1.5vw, 0.9rem) clamp(0.5rem, 1.5vw, 1rem);
 }
 
 .brand a {
   font-weight: 700;
   color: var(--fg);
   text-decoration: none;
-  font-size: 1.05rem;
+  font-size: clamp(0.82rem, 2.2vw, 1.05rem);
 }
 
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(0.5rem, 2.5vw, 1.5rem);
 }
 
 .main-nav a {
   color: var(--accent);
   text-decoration: none;
+  font-size: clamp(0.78rem, 1.6vw, 0.9rem);
 }
 
 .btn {
@@ -361,89 +356,7 @@ main {
   justify-content: center;
 }
 
-/* Card slide */
-.card-wrapper {
-  width: 100%;
-  max-width: 940px;
-  will-change: transform, opacity;
-}
 
-.card-viewport {
-  position: relative;
-  overflow: hidden;
-  border-radius: 24px;
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(16px);
-  height: 70vh;
-  min-height: 360px;
-  max-height: 620px;
-}
-
-.card-front {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  padding: 4rem 3rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: var(--card-bg);
-  border-radius: 24px;
-  border: 1px solid var(--card-border);
-  will-change: width;
-}
-
-.card-detail {
-  position: absolute;
-  top: 0;
-  left: 100%;
-  width: calc(70% - 0.8%);
-  height: 100%;
-  z-index: 1;
-  padding: 2rem 1.8rem;
-  display: flex;
-  align-items: center;
-  background: var(--card-bg);
-  border-radius: 24px;
-  border: 1px solid var(--card-border);
-  margin-left: 0.8%;
-}
-
-.card-detail-inner {
-  position: relative;
-  z-index: 1;
-  padding-left: 1rem;
-  border-left: 3px solid var(--accent);
-  max-height: 100%;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-color) transparent;
-}
-
-.card-front h3 {
-  font-size: 1.4rem;
-  margin: 0 0 0.6rem;
-  color: var(--fg);
-}
-
-.card-front p {
-  font-size: 1rem;
-  color: var(--card-text);
-  line-height: 1.7;
-  margin: 0;
-}
-
-.card-detail-inner p {
-  font-size: 0.9rem;
-  color: var(--card-text);
-  line-height: 1.55;
-  margin: 0;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
 
 /* ===== Carousel (PPT-style horizontal slides) ===== */
 .carousel-section {
@@ -476,104 +389,124 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1rem;
+  padding: 0 clamp(0.35rem, 2vw, 1rem);
 }
 
+/* Carousel card — 3D 翻牌效果 */
 .carousel-card {
   width: 100%;
   max-width: 900px;
-  min-height: 480px;
-  position: relative;
-  overflow: hidden;
+  perspective: 1200px;
 }
 
-/* Front panel */
+/* 翻牌内层容器：前面板撑开高度，反面板 absolute 叠在上方 */
+.carousel-card-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 24px;
+  will-change: transform;
+}
+
+.carousel-card.show-detail .carousel-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* 前面板 — 常规流撑高度，翻转时平滑淡出 */
 .carousel-front {
-  width: 100%;
-  min-height: 480px;
-  padding: 4rem 3rem;
+  border-radius: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(16px);
+  padding: clamp(1.5rem, 5vw, 4rem) clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: var(--card-bg);
-  border-radius: 24px;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(16px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  position: relative;
-  z-index: 1;
+  transition: opacity 0.3s ease;
 }
 
 .carousel-card.show-detail .carousel-front {
   opacity: 0;
-  transform: translateX(-30px) scale(0.97);
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
 }
 
 .carousel-front h3 {
-  font-size: 1.6rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
   font-weight: 800;
   margin: 0 0 0.8rem;
   color: var(--fg);
 }
 
 .carousel-front p {
-  font-size: 1.05rem;
+  font-size: clamp(0.85rem, 1.6vw, 1.05rem);
   color: var(--card-text);
   line-height: 1.7;
   margin: 0 0 1.5rem;
   max-width: 600px;
 }
 
-/* Detail panel */
+/* 反面板 — absolute 叠在 front 上方，翻转后平滑淡入 */
 .carousel-detail {
-  width: 100%;
-  min-height: 480px;
-  padding: 3rem 3rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: var(--card-bg);
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
   border-radius: 24px;
+  background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(16px);
+  padding: clamp(1.5rem, 3.5vw, 3rem) clamp(1rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
   opacity: 0;
-  transform: translateX(30px) scale(0.97);
-  pointer-events: none;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  transition: opacity 0.3s ease;
 }
 
 .carousel-card.show-detail .carousel-detail {
   opacity: 1;
-  transform: translateX(0) scale(1);
-  pointer-events: auto;
-  position: relative;
+}
+
+/* 详细面板头部：返回按钮 + 标题 */
+.carousel-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.carousel-detail-header .carousel-flip-btn.back {
+  flex-shrink: 0;
+}
+
+.carousel-detail-title {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0;
+  line-height: 1.3;
 }
 
 .carousel-detail-inner {
   padding-left: 1rem;
   border-left: 3px solid var(--accent);
-  max-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
+  flex: 1;
+  min-height: 0;
 }
 
 .carousel-detail-inner p {
-  font-size: 0.95rem;
+  font-size: clamp(0.82rem, 1.4vw, 0.95rem);
   color: var(--card-text);
   line-height: 1.65;
-  margin: 0 0 1.5rem;
-  max-width: 100%;
+  margin: 0;
   word-break: break-word;
   overflow-wrap: break-word;
 }
@@ -586,7 +519,7 @@ main {
   padding: 0.5rem 1.2rem;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: clamp(0.78rem, 1.4vw, 0.9rem);
   border: 1px solid var(--border-color);
   background: var(--card-bg);
   color: var(--accent);
@@ -902,335 +835,7 @@ main {
   from { opacity: 0; transform: translateX(4px); }
   to { opacity: 1; transform: translateX(0); }
 }
-/* --- Mobile --- */
-@media (max-width: 768px) {
-  .hero-header .hero-inner {
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.6rem 0.75rem;
-  }
 
-  .main-nav {
-    gap: 0.6rem;
-  }
-
-  .main-nav a {
-    font-size: 0.82rem;
-  }
-
-  .slide-section {
-    min-height: auto;
-    padding: 0.5rem 0;
-  }
-
-  .slide-section[data-slide="hero"] {
-    min-height: auto;
-    padding-top: 4rem;
-    padding-bottom: 1rem;
-  }
-
-  .slide-section[data-slide="ending"] {
-    min-height: auto;
-    padding-bottom: 2rem;
-  }
-
-  .slide-section.card-slide {
-    margin-bottom: 1.5rem;
-  }
-
-  .slide-scroll {
-    position: relative;
-    top: auto;
-    height: auto;
-    max-width: 100%;
-  }
-
-  .slide-inner {
-    will-change: transform, opacity;
-  }
-
-  .hero-title {
-    font-size: 1.35rem;
-    word-break: break-word;
-    padding: 0 0.4rem;
-    background: none;
-    -webkit-background-clip: unset;
-    -webkit-text-fill-color: unset;
-    background-clip: unset;
-  }
-
-  .hero-sub {
-    font-size: 0.85rem;
-  }
-
-  .hero-ctas .btn {
-    font-size: 0.85rem;
-    padding: 0.4rem 0.7rem;
-  }
-
-  .card-wrapper {
-    will-change: transform, opacity;
-    padding: 0 0.5rem;
-  }
-
-  .card-viewport {
-    min-height: auto;
-    height: auto;
-    max-height: none;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    backdrop-filter: blur(12px);
-    border-radius: 20px;
-    box-shadow: var(--card-shadow);
-    overflow: visible;
-  }
-
-  .card-front {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 100%;
-    height: auto;
-    padding: 1.6rem 1.25rem;
-    border-radius: 20px 20px 0 0;
-    border: 1px solid var(--card-border);
-    border-bottom: none;
-    flex-shrink: 0;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .card-front:active {
-    transform: scale(0.98);
-  }
-
-  .card-detail {
-    position: relative;
-    left: auto;
-    top: auto;
-    width: 100%;
-    padding: 0.8rem 1.25rem 1.25rem;
-    margin-left: 0;
-    border-radius: 0 0 20px 20px;
-    border: 1px solid var(--card-border);
-    border-top: none;
-    flex-shrink: 0;
-  }
-
-  .card-detail-inner {
-    padding-left: 0.5rem;
-    overflow-y: visible;
-    max-height: none;
-  }
-
-  .card-front h3 {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .card-front p {
-    font-size: 0.85rem;
-    line-height: 1.5;
-  }
-
-  .card-detail-inner p {
-    font-size: 0.82rem;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .ending-layout {
-    font-size: 0.9rem;
-    padding: 1rem;
-  }
-
-  .ending-title {
-    font-size: 1.3rem;
-  }
-
-  .ending-features {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-
-  .ending-feature {
-    font-size: 0.85rem;
-    padding: 0.35rem 0.5rem;
-  }
-
-  /* Carousel mobile */
-  .carousel-section {
-    min-height: auto;
-    padding: 1rem 0;
-  }
-
-  .carousel-container {
-    padding: 0;
-  }
-
-  .carousel-track {
-    transition-duration: 0.35s;
-  }
-
-  .carousel-slide {
-    padding: 0 0.35rem;
-  }
-
-  .carousel-card {
-    min-height: auto;
-    max-width: 100%;
-  }
-
-  .carousel-front {
-    min-height: auto;
-    padding: 1.5rem 1rem;
-    border-radius: 16px;
-  }
-
-  .carousel-front h3 {
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
-  }
-
-  .carousel-front p {
-    font-size: 0.82rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .carousel-detail {
-    min-height: auto;
-    padding: 1.25rem 1rem;
-    border-radius: 16px;
-    align-items: center;
-    text-align: center;
-    justify-content: flex-start;
-    overflow-y: auto;
-  }
-
-  .carousel-detail-inner {
-    padding-left: 0;
-    border-left: none;
-    max-height: none;
-  }
-
-  .carousel-detail-inner p {
-    font-size: 0.8rem;
-    text-align: center;
-    max-width: 100%;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .carousel-flip-btn {
-    font-size: 0.78rem;
-    padding: 0.35rem 0.8rem;
-    border-radius: 8px;
-  }
-
-  .carousel-arrow {
-    width: 32px;
-    height: 32px;
-  }
-
-  .carousel-arrow svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .carousel-arrow-left {
-    left: 0.15rem;
-  }
-
-  .carousel-arrow-right {
-    right: 0.15rem;
-  }
-
-  .carousel-dot {
-    width: 24px;
-    height: 24px;
-  }
-
-  .carousel-dot svg {
-    width: 11px;
-    height: 11px;
-  }
-
-  .carousel-dots {
-    margin-top: 0.75rem;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
-  .carousel-counter {
-    display: none;
-  }
-
-  .section-indicator {
-    display: none;
-  }
-
-  .back-to-top {
-    width: 36px;
-    height: 36px;
-    bottom: 1.2rem;
-    right: 1.2rem;
-  }
-}
-
-/* 超小屏适配 */
-@media (max-width: 380px) {
-  .carousel-slide {
-    padding: 0 0.2rem;
-  }
-
-  .carousel-front {
-    padding: 1.2rem 0.75rem;
-    border-radius: 14px;
-  }
-
-  .carousel-front h3 {
-    font-size: 0.92rem;
-  }
-
-  .carousel-front p {
-    font-size: 0.78rem;
-  }
-
-  .carousel-detail {
-    padding: 1rem 0.75rem;
-    border-radius: 14px;
-  }
-
-  .carousel-detail-inner p {
-    font-size: 0.76rem;
-    max-width: 100%;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .carousel-dot {
-    width: 20px;
-    height: 20px;
-  }
-
-  .carousel-dot svg {
-    width: 10px;
-    height: 10px;
-  }
-
-  .carousel-dots {
-    gap: 3px;
-  }
-
-  .ending-features {
-    gap: 0.35rem;
-  }
-
-  .ending-feature {
-    font-size: 0.78rem;
-    padding: 0.3rem 0.4rem;
-  }
-}
 
 /* --- 回到顶部按钮 --- */
 .back-to-top {

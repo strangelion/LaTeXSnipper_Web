@@ -28,7 +28,7 @@ function DotIcon({ name }) {
   }
 }
 
-export default function CardCarousel({ cards, isMobile }) {
+export default function CardCarousel({ cards }) {
   const [current, setCurrent] = useState(1) // start at index 1 (first real card)
   const [flipped, setFlipped] = useState({})
   const sectionRef = useRef(null)
@@ -159,36 +159,27 @@ export default function CardCarousel({ cards, isMobile }) {
     track.addEventListener('touchmove', onPointerMove, { passive: false })
     track.addEventListener('touchend', onPointerUp, { passive: true })
 
-    // Mouse events (desktop only)
-    if (!isMobile) {
-      track.addEventListener('mousedown', onPointerDown)
-      track.addEventListener('mousemove', onPointerMove)
-      track.addEventListener('mouseup', onPointerUp)
-      // Prevent text selection while dragging
-      const preventDrag = (e) => { if (isHorizontalDrag) e.preventDefault() }
-      track.addEventListener('dragstart', preventDrag)
-      return () => {
-        track.removeEventListener('touchstart', onPointerDown)
-        track.removeEventListener('touchmove', onPointerMove)
-        track.removeEventListener('touchend', onPointerUp)
-        track.removeEventListener('mousedown', onPointerDown)
-        track.removeEventListener('mousemove', onPointerMove)
-        track.removeEventListener('mouseup', onPointerUp)
-        track.removeEventListener('dragstart', preventDrag)
-      }
-    }
+    // Mouse events
+    track.addEventListener('mousedown', onPointerDown)
+    track.addEventListener('mousemove', onPointerMove)
+    track.addEventListener('mouseup', onPointerUp)
+    // Prevent text selection while dragging
+    const preventDrag = (e) => { if (isHorizontalDrag) e.preventDefault() }
+    track.addEventListener('dragstart', preventDrag)
 
     return () => {
       track.removeEventListener('touchstart', onPointerDown)
       track.removeEventListener('touchmove', onPointerMove)
       track.removeEventListener('touchend', onPointerUp)
+      track.removeEventListener('mousedown', onPointerDown)
+      track.removeEventListener('mousemove', onPointerMove)
+      track.removeEventListener('mouseup', onPointerUp)
+      track.removeEventListener('dragstart', preventDrag)
     }
-  }, [goPrev, goNext, isMobile])
+  }, [goPrev, goNext])
 
   // Scroll-driven entrance/exit
   useEffect(() => {
-    if (isMobile) return
-
     const handleScroll = () => {
       const section = sectionRef.current
       const wrapper = wrapperRef.current
@@ -232,10 +223,25 @@ export default function CardCarousel({ cards, isMobile }) {
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isMobile])
+  }, [])
 
   // Compute the real card index for display (dots / counter)
   const realIndex = ((current - 1) % total + total) % total
+
+  // 测量并均衡前后面板高度，确保翻牌后内容完整可见
+  useEffect(() => {
+    const inners = document.querySelectorAll('.carousel-card-inner');
+    inners.forEach((inner) => {
+      const front = inner.querySelector('.carousel-front');
+      const detail = inner.querySelector('.carousel-detail');
+      if (front && detail) {
+        const frontH = front.offsetHeight;
+        const detailH = detail.scrollHeight;
+        const minH = Math.max(frontH, detailH);
+        inner.style.minHeight = minH + 'px';
+      }
+    });
+  }, [flipped, current])
 
   // Listen for transition end to reset isTransitioning and handle loop jumps
   useEffect(() => {
@@ -262,28 +268,33 @@ export default function CardCarousel({ cards, isMobile }) {
             {loopCards.current.map((card) => (
               <div key={card.id} className="carousel-slide">
                 <div className={`carousel-card ${flipped[card.id] ? 'show-detail' : ''}`}>
-                  {/* Front face */}
-                  <div className="carousel-front">
-                    <h3>{card.title}</h3>
-                    <p>{card.brief}</p>
-                    <button
-                      className="carousel-flip-btn"
-                      onClick={() => toggleFlip(card.id)}
-                    >
-                      了解更多 →
-                    </button>
-                  </div>
-
-                  {/* Detail face */}
-                  <div className="carousel-detail">
-                    <div className="carousel-detail-inner">
-                      <p>{card.detail}</p>
+                  <div className="carousel-card-inner">
+                    {/* Front face */}
+                    <div className="carousel-front">
+                      <h3>{card.title}</h3>
+                      <p>{card.brief}</p>
                       <button
-                        className="carousel-flip-btn back"
+                        className="carousel-flip-btn"
                         onClick={() => toggleFlip(card.id)}
                       >
-                        ← 返回
+                        了解更多 →
                       </button>
+                    </div>
+
+                    {/* Detail face */}
+                    <div className="carousel-detail">
+                      <div className="carousel-detail-header">
+                        <button
+                          className="carousel-flip-btn back"
+                          onClick={() => toggleFlip(card.id)}
+                        >
+                          ← 返回
+                        </button>
+                        <h4 className="carousel-detail-title">{card.title}</h4>
+                      </div>
+                      <div className="carousel-detail-inner">
+                        <p>{card.detail}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
