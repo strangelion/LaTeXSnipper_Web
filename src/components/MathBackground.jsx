@@ -13,36 +13,94 @@ export default function MathBackground() {
   const MATH_SYMBOLS = ['∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ', 'λ', 'θ', 'α', 'β', 'γ']
   
   const FORMULAS = [
-    'e^{iπ}+1=0',
-    '∫e^{-x²}dx',
-    '∑1/n²',
-    '∇·F=0',
-    'F=ma',
-    'E=mc²',
-    'a²+b²=c²',
-    '∂u/∂t=∇²u',
-    'det(A)≠0',
-    'lim x→∞',
-    'sin²θ+cos²θ=1',
-    'Δ=b²-4ac',
-    'φ=(1+√5)/2',
-    'i²=-1',
-    'dx/dt=v',
-    '∫₀^∞',
-    '∑_{n=0}^∞',
-    'f\'(x)=lim',
-    '∮ E·dl',
-    '∇×B=μJ',
+    // 数学公式
+    { type: 'text', content: 'e^{iπ}+1=0' },
+    { type: 'text', content: '∫e^{-x²}dx' },
+    { type: 'text', content: '∑1/n²' },
+    { type: 'text', content: '∇·F=0' },
+    { type: 'text', content: 'a²+b²=c²' },
+    { type: 'text', content: '∂u/∂t=∇²u' },
+    { type: 'text', content: 'det(A)≠0' },
+    { type: 'text', content: 'lim x→∞' },
+    { type: 'text', content: 'Δ=b²-4ac' },
+    { type: 'text', content: 'φ=(1+√5)/2' },
+    { type: 'text', content: 'i²=-1' },
+    { type: 'text', content: '∫₀^∞' },
+    { type: 'text', content: '∑_{n=0}^∞' },
+    { type: 'text', content: "f'(x)=lim" },
+    { type: 'text', content: '∮ E·dl' },
+    // 三角函数
+    { type: 'text', content: 'sin²θ+cos²θ=1' },
+    { type: 'text', content: 'sin(2θ)=2sinθcosθ' },
+    { type: 'text', content: 'cos(2θ)=cos²θ-sin²θ' },
+    { type: 'text', content: 'tanθ=sinθ/cosθ' },
+    { type: 'text', content: 'cscθ=1/sinθ' },
+    { type: 'text', content: 'secθ=1/cosθ' },
+    { type: 'text', content: 'cotθ=1/tanθ' },
+    { type: 'text', content: 'sin(π/2-θ)=cosθ' },
+    { type: 'text', content: 'sin(π+θ)=-sinθ' },
+    { type: 'text', content: 'sin(α±β)=sinαcosβ±cosαsinβ' },
+    { type: 'text', content: 'cos(α±β)=cosαcosβ∓sinαsinβ' },
+    { type: 'text', content: 'sinh x=(eˣ-e⁻ˣ)/2' },
+    { type: 'text', content: 'cosh x=(eˣ+e⁻ˣ)/2' },
+    { type: 'text', content: 'arcsin x' },
+    { type: 'text', content: 'arccos x' },
+    { type: 'text', content: 'arctan x' },
+    // 物理公式
+    { type: 'text', content: 'F=q(E+v×B)' },
+    { type: 'text', content: 'PV=nRT' },
+    { type: 'text', content: 'F=Gm₁m₂/r²' },
+    { type: 'text', content: 'E=hf' },
+    { type: 'text', content: 'KE=½mv²' },
+    { type: 'text', content: 'PE=mgh' },
+    { type: 'text', content: 'ΔxΔp≥ℏ/2' },
+    { type: 'text', content: 'v=fλ' },
+    { type: 'text', content: 'I=V/R' },
+    { type: 'text', content: 'P=IV' },
+    { type: 'text', content: 'F=kx' },
+    { type: 'text', content: 'W=Fd' },
+    { type: 'text', content: 'p=mv' },
+    { type: 'text', content: 'F=BIL' },
+    { type: 'text', content: 'c=λf' },
+    { type: 'text', content: 'τ=r×F' },
+    { type: 'text', content: 'S=k·ln(W)' },
+    { type: 'text', content: 'F=ma' },
+    { type: 'text', content: 'E=mc²' },
+    { type: 'text', content: 'KE=½Iω²' },
+    { type: 'text', content: 'E₀=mc²' },
+    { type: 'text', content: 'Γ(n)=(n-1)!!' },
+    { type: 'text', content: '∇·B=0' },
+    { type: 'text', content: '∇×E=-∂B/∂t' },
+    { type: 'text', content: 'E=ℏω' },
+    { type: 'text', content: 'p=ℏk' },
+    // 分式公式
+    { type: 'frac', num: 'dv', den: 'dt' },
+    { type: 'frac', num: 'Δx', den: 'Δt' },
+    { type: 'frac', num: 'F', den: 'm' },
+    { type: 'frac', num: '∂ψ', den: '∂t' },
+    { type: 'frac', num: 'ΔQ', den: 'Δt' },
+    { type: 'frac', num: 'ρ', den: 'ε₀' },
+    { type: 'frac', num: '∂u', den: '∂t' },
+    // 动态数值公式（数值会随时间切换）
+    { type: 'dynamic', template: 'sin({n}π)', values: ['0', '¼', '½', '¾', '1', '3/2', '2'] },
+    { type: 'dynamic', template: 'cos({n}°)', values: ['0', '30', '45', '60', '90', '120', '180'] },
+    { type: 'dynamic', template: 'tan({n}°)', values: ['0', '30', '45', '60'] },
+    { type: 'dynamic', template: 'x={n}', values: ['0', '1', '2', '3', '4', '5'] },
+    { type: 'dynamic', template: 'x^{n}', values: ['0', '1', '2', '3', '4'] },
+    { type: 'dynamic', template: '√{n}', values: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] },
+    { type: 'dynamic', template: 'log_{n}x', values: ['2', '3', '4', '5', '10'] },
+    { type: 'dynamic', template: 'E_n=-{n}/n²', values: ['13.6', '3.4', '1.51', '0.85'] },
+    { type: 'dynamic', template: 'n!={n}', values: ['1', '2', '6', '24', '120', '720'] },
+    { type: 'dynamic', template: 'e^{n}', values: ['0', '1', '2', '3'] },
   ]
 
   const MATRIX_TEMPLATES = [
-    '[ a b ]',
-    '[ c d ]',
-    '| x₁ x₂ |',
-    '( 1 0 )',
-    '( 0 1 )',
-    '[ cosθ -sinθ ]',
-    '[ sinθ cosθ ]',
+    { type: 'matrix', rows: [['a', 'b'], ['c', 'd']] },
+    { type: 'matrix', rows: [['1', '0'], ['0', '1']] },
+    { type: 'matrix', rows: [['x₁', 'x₂'], ['y₁', 'y₂']] },
+    { type: 'matrix', rows: [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']] },
+    { type: 'matrix', rows: [['1', '0', '0'], ['0', '1', '0'], ['0', '0', '1']] },
+    { type: 'matrix', rows: [['σ₁', '0'], ['0', 'σ₂']] },
   ]
 
   useEffect(() => {
@@ -96,15 +154,14 @@ export default function MathBackground() {
     }
 
     const createFormula = (canvas) => {
-      const useMatrix = Math.random() > 0.6
-      const content = useMatrix
+      const useMatrix = Math.random() > 0.7
+      const def = useMatrix
         ? MATRIX_TEMPLATES[Math.floor(Math.random() * MATRIX_TEMPLATES.length)]
         : FORMULAS[Math.floor(Math.random() * FORMULAS.length)]
       
-      return {
+      const base = {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        content,
         size: Math.random() * 14 + 16,
         opacity: 0,
         targetOpacity: Math.random() * 0.3 + 0.25,
@@ -113,6 +170,24 @@ export default function MathBackground() {
         vx: (Math.random() - 0.5) * 0.2,
         vy: (Math.random() - 0.5) * 0.2,
         phase: 'in',
+      }
+      
+      if (def.type === 'frac') {
+        return { ...base, type: 'frac', num: def.num, den: def.den, content: '' }
+      } else if (def.type === 'matrix') {
+        return { ...base, type: 'matrix', rows: def.rows, content: '' }
+      } else if (def.type === 'dynamic') {
+        return {
+          ...base,
+          type: 'dynamic',
+          template: def.template,
+          values: def.values,
+          valueIndex: Math.floor(Math.random() * def.values.length),
+          switchTimer: Math.floor(Math.random() * 100) + 60,
+          content: def.template.replace('{n}', def.values[0])
+        }
+      } else {
+        return { ...base, type: 'text', content: def.content }
       }
     }
 
@@ -138,6 +213,75 @@ export default function MathBackground() {
         for (let y = 0; y < canvas.height; y += size * 2) {
           ctx.fillRect(x, y, size, size)
           ctx.fillRect(x + size, y + size, size, size)
+        }
+      }
+    }
+
+    const drawFraction = (ctx, x, y, num, den, size, color) => {
+      const fontSize = size * 0.65
+      ctx.font = `${fontSize}px "Times New Roman", serif`
+      ctx.textAlign = 'center'
+      ctx.fillStyle = color
+
+      const numWidth = ctx.measureText(num).width
+      const denWidth = ctx.measureText(den).width
+      const lineWidth = Math.max(numWidth, denWidth) + 8
+      const lineY = y + 2
+
+      ctx.textBaseline = 'bottom'
+      ctx.fillText(num, x, lineY - 3)
+
+      ctx.strokeStyle = color
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(x - lineWidth / 2, lineY)
+      ctx.lineTo(x + lineWidth / 2, lineY)
+      ctx.stroke()
+
+      ctx.textBaseline = 'top'
+      ctx.fillText(den, x, lineY + 4)
+      ctx.textBaseline = 'middle'
+    }
+
+    const drawMatrix = (ctx, x, y, rows, size, color) => {
+      const fontSize = size * 0.55
+      ctx.font = `${fontSize}px "Times New Roman", serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = color
+      ctx.strokeStyle = color
+
+      const r = rows.length
+      const c = rows[0].length
+      const cellW = fontSize * 1.5
+      const cellH = fontSize * 1.4
+      const padding = 4
+
+      const matrixW = c * cellW
+      const matrixH = r * cellH
+
+      ctx.lineWidth = 2
+      // 左括号
+      const lx = x - matrixW / 2 - padding - 6
+      ctx.beginPath()
+      ctx.moveTo(lx + 4, y - matrixH / 2 - 2)
+      ctx.lineTo(lx, y - matrixH / 2 - 2)
+      ctx.lineTo(lx, y + matrixH / 2 + 2)
+      ctx.lineTo(lx + 4, y + matrixH / 2 + 2)
+      ctx.stroke()
+
+      // 右括号
+      const rx = x + matrixW / 2 + padding + 6
+      ctx.beginPath()
+      ctx.moveTo(rx - 4, y - matrixH / 2 - 2)
+      ctx.lineTo(rx, y - matrixH / 2 - 2)
+      ctx.lineTo(rx, y + matrixH / 2 + 2)
+      ctx.lineTo(rx - 4, y + matrixH / 2 + 2)
+      ctx.stroke()
+
+      for (let i = 0; i < r; i++) {
+        for (let j = 0; j < c; j++) {
+          ctx.fillText(rows[i][j], x + (j - (c - 1) / 2) * cellW, y + (i - (r - 1) / 2) * cellH)
         }
       }
     }
@@ -175,17 +319,35 @@ export default function MathBackground() {
           return
         }
 
+        // 动态公式：周期性切换数值
+        if (f.type === 'dynamic') {
+          f.switchTimer--
+          if (f.switchTimer <= 0) {
+            f.valueIndex = (f.valueIndex + 1) % f.values.length
+            f.content = f.template.replace('{n}', f.values[f.valueIndex])
+            f.switchTimer = Math.floor(Math.random() * 80) + 50
+          }
+        }
+
         // 四舍五入坐标到 0.5px，消除亚像素抖动
         const drawX = Math.round(f.x * 2) / 2
         const drawY = Math.round(f.y * 2) / 2
 
         ctx.save()
         ctx.globalAlpha = Math.max(0, f.opacity)
-        ctx.fillStyle = color
-        ctx.font = `${f.size}px "Times New Roman", serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(f.content, drawX, drawY)
+
+        if (f.type === 'frac') {
+          drawFraction(ctx, drawX, drawY, f.num, f.den, f.size, color)
+        } else if (f.type === 'matrix') {
+          drawMatrix(ctx, drawX, drawY, f.rows, f.size, color)
+        } else {
+          ctx.fillStyle = color
+          ctx.font = `${f.size}px "Times New Roman", serif`
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(f.content, drawX, drawY)
+        }
+
         ctx.restore()
       })
     }
