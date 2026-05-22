@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+  <title>LaTeXSnipper — 下载</title>
+  <link rel="icon" type="image/png" href="assets/images/icon.png">
+  <script>
+    try { var s = localStorage.getItem('latexSnipper-theme'); if (s === 'dark' || s === 'light') document.documentElement.setAttribute('data-theme', s); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="styles/styles.css">
+  <style>
+    .spacer-top { height: 60px; }
+    .top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--hdr-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); }
+    .top-nav .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.25rem; height: 48px; display: flex; align-items: center; gap: 1rem; }
+    .top-nav a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand-link { font-weight: 700; font-size: 1rem; }
+    .theme-toggle { margin-left: auto; background: none; border: none; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 1.15rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .theme-toggle:hover { background: rgba(128,128,128,0.1); }
+
+    .download-page {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 3rem 1.25rem 5rem;
+      text-align: center;
+    }
+
+    .download-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 0 0 0.5rem;
+      background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .download-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin: 0 0 2.5rem;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .platform-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2.5rem 1.5rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .platform-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .platform-icon {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .platform-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin: 0;
+    }
+
+    .platform-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      background: var(--accent);
+      color: #fff;
+      transition: background 0.2s, transform 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .download-btn:hover {
+      background: var(--accent-hover);
+      transform: scale(1.03);
+    }
+
+    .download-btn:active {
+      transform: scale(0.97);
+    }
+
+    .download-btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .other-info {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .other-info a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .other-info a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .platform-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .download-title { font-size: 1.4rem; }
+      .platform-card { padding: 1.5rem 1rem; }
+      .platform-icon { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶栏导航 -->
+  <nav class="top-nav">
+    <div class="inner">
+      <a href="index.html" class="brand-link">LaTeXSnipper</a>
+      <a href="manual.html">用户手册</a>
+      <a href="download.html" style="color:var(--accent);font-weight:600;">下载</a>
+      <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+      <button class="theme-toggle" id="themeToggle" title="切换日/夜模式">🌙</button>
+    </div>
+  </nav>
+
+  <div class="spacer-top"></div>
+
+  <div class="download-page">
+    <h1 class="download-title">下载 LaTeXSnipper</h1>
+    <p class="download-sub">选择你的操作系统，下载对应版本</p>
+
+    <div class="platform-grid">
+      <!-- Windows -->
+      <div class="platform-card">
+        <div class="platform-icon">🪟</div>
+        <h2 class="platform-name">Windows</h2>
+        <p class="platform-desc">Windows 10 / 11，x86_64</p>
+        <a class="download-btn" href="https://release.interknot.dpdns.org/LaTeXSnipperSetup-2.3.2.exe">下载 Windows 版</a>
+      </div>
+
+      <!-- Linux -->
+      <div class="platform-card">
+        <div class="platform-icon">🐧</div>
+        <h2 class="platform-name">Linux</h2>
+        <p class="platform-desc">Debian / Ubuntu / 其他发行版</p>
+        <a class="download-btn" href="https://release.interknot.dpdns.org/latexsnipper_2.3.2_amd64.deb">下载 Linux 版</a>
+      </div>
+
+      <!-- macOS -->
+      <div class="platform-card">
+        <div class="platform-icon">🍎</div>
+        <h2 class="platform-name">macOS</h2>
+        <p class="platform-desc">macOS 11+，Apple Silicon</p>
+        <a class="download-btn" href="https://release.interknot.dpdns.org/LaTeXSnipper_2.3.2_arm64.dmg">下载 macOS 版</a>
+      </div>
+    </div>
+
+    <div class="other-info">
+      <p>可以从 <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub Releases</a> 查看所有版本和发布说明。</p>
+      <p>遇到安装问题？请查阅 <a href="manual.html">用户手册</a> 或在 GitHub 提交 Issue。</p>
+    </div>
+  </div>
+
+  <script>
+    // 主题切换
+    const btn = document.getElementById('themeToggle')
+    btn.addEventListener('click', function () {
+      const root = document.documentElement
+      const curr = root.getAttribute('data-theme')
+      const next = curr === 'dark' ? 'light' : 'dark'
+      root.setAttribute('data-theme', next)
+      try { localStorage.setItem('latexSnipper-theme', next) } catch (e) {}
+      btn.textContent = next === 'dark' ? '☀️' : '🌙'
+    })
+
+    // 初始化主题按钮文字
+    ;(function () {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+      btn.textContent = isDark ? '☀️' : '🌙'
+    })()
+  </script>
+</body>
+</html>

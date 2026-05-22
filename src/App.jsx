@@ -56,7 +56,7 @@ const CARDS = [
     id: 'card-7',
     title: '多平台',
     brief: 'Windows / Linux / macOS 都能用。',
-    detail: 'LaTeXSnipper 支持三大桌面系统。Windows 上可以用SignPath Foundation 提供的代码签名的安装包；Linux 上提供 Deb 包；macOS 上用 DMG 镜像安装。三个平台的界面和操作方式完全一致，都是现代化的 Fluent Design 风格。不管用什么系统，体验都一样好。'
+    detail: 'LaTeXSnipper 支持三大桌面系统。Windows 上可以用 SignPath Foundation 提供的代码签名的安装包；Linux 上提供 Deb 包；macOS 上用 DMG 镜像安装。三个平台的界面和操作方式完全一致，都是现代化的 Fluent Design 风格。不管用什么系统，体验都一样好。'
   },
   {
     id: 'card-8',

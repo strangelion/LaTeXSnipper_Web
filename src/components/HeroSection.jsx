@@ -98,7 +98,7 @@ export default function HeroSection() {
           </p>
           <div className="hero-ctas">
             <a className="btn primary" href="manual.html">阅读用户手册</a>
-            <a className="btn" href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">查看源码</a>
+            <a className="btn" href="download.html">下载软件</a>
           </div>
         </div>
       </div>

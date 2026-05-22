@@ -74,6 +74,7 @@ export default function Header() {
           <a href="index.html">LaTeXSnipper</a>
         </div>
         <nav className="main-nav">
+          <a href="download.html">下载</a>
           <a href="manual.html">用户手册</a>
           <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
           <button 

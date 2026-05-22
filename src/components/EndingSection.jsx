@@ -95,7 +95,8 @@ export default function EndingSection() {
           </div>
 
           <p className="ending-footer-note" ref={(el) => setItemRef(el, 5)}>
-            遇到问题？欢迎在 GitHub 提交 Issue 或 PR。
+            <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener" style={{color: 'var(--muted)', textDecoration: 'underline'}}>访问源代码</a>
+            &nbsp;·&nbsp; 遇到问题？欢迎在 GitHub 提交 Issue 或 PR。
           </p>
         </div>
       </div>
