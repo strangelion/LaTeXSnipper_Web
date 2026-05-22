@@ -911,6 +911,9 @@ def main():
 <title>LaTeXSnipper 用户手册 v2.3.2</title>
 {theme_script}
 <link rel="stylesheet" href="styles/styles.css">
+<style>
+@media (max-width: 600px) {{  html {{ overflow-x: hidden; }}  body.manual {{ overflow-x: hidden; width: 100%; max-width: 100vw; }}  .code-block pre {{ word-break: break-word; white-space: pre-wrap; }}  pre code {{ word-break: break-word; }}  img {{ max-width: 100% !important; height: auto; }}  .code-block {{ max-width: 100%; }} }}
+</style>
 </head>
 <body class="manual">
 <nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式">🌙</button></div></nav>
