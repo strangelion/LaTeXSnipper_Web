@@ -1153,6 +1153,12 @@ def main():
   /* ── 分卷分割线 ── */
   .toc-vol-divider, .rs-vol-divider { padding: 0.6rem 0.5rem 0.3rem; border-top: 1px solid var(--border-color); margin-top: 0.3rem; }
   .toc-vol-divider span, .rs-vol-divider span { font-size: 0.72rem; font-weight: 600; color: var(--accent); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+  /* ── 顶栏自动隐藏 ── */
+  .top-nav-trigger { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 1001; cursor: default; }
+  .top-nav { transform: translateY(-100%) !important; opacity: 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; }
+  .top-nav-trigger:hover ~ .top-nav, .top-nav:hover { transform: translateY(0) !important; opacity: 1; }
+  .spacer-top { height: 0; transition: height 0.3s ease; }
+  .top-nav-trigger:hover ~ .spacer-top, .top-nav:hover ~ .spacer-top { height: 56px; }
   /* ── 触发器区域 ── */
   .sidebar-trigger { position: fixed; top: 0; left: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }
   .right-sidebar-trigger { position: fixed; top: 0; right: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }
@@ -1187,6 +1193,7 @@ def main():
 </style>
 </head>
 <body class="manual">
+<div class="top-nav-trigger" id="topNavTrigger"></div>
 <nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="https://release.interknot.dpdns.org/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
 <div class="spacer-top"></div>
 
