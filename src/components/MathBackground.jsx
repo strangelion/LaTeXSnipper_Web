@@ -10,7 +10,14 @@ export default function MathBackground() {
   const lastMoveTimeRef = useRef(Date.now())
   const isPageVisibleRef = useRef(true)
 
-  const MATH_SYMBOLS = ['∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ', 'λ', 'θ', 'α', 'β', 'γ']
+  const MATH_SYMBOLS = [
+    '∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ',
+    'λ', 'θ', 'α', 'β', 'γ', 'δ', 'ε', 'μ', 'σ', 'τ', 'ω', 'φ', 'ψ', 'η', 'κ', 'ρ',
+    '×', '÷', '±', '∓', '∝', '∠', '⊥', '∥', '∩', '∪', '⊂', '⊃', '∈', '∉',
+    '∀', '∃', '∧', '∨', '⊕', '⊗', '∴', '∵', '∼', '≅', '≡', '≪', '≫',
+    '∏', '∐', '∛', '∜', 'ℕ', 'ℤ', 'ℚ', 'ℝ', 'ℂ', 'ℵ', 'ℶ',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  ]
   
   const FORMULAS = [
     // 数学公式
@@ -138,8 +145,8 @@ export default function MathBackground() {
         vx: spreadX,
         vy: spreadY,
       })
-      if (trailRef.current.length > 18) {
-        trailRef.current.splice(0, trailRef.current.length - 18)
+      if (trailRef.current.length > 30) {
+        trailRef.current.splice(0, trailRef.current.length - 30)
       }
       lastMoveTimeRef.current = Date.now()
     }
