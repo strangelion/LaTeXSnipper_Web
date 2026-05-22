@@ -74,16 +74,6 @@ export default function Header() {
           <a href="index.html">LaTeXSnipper</a>
         </div>
         <nav className="main-nav">
-          <select 
-            className="palette-selector" 
-            value={palette} 
-            onChange={handlePaletteChange}
-            title="选择调色板"
-          >
-            <option value="cool">冷色系</option>
-            <option value="warm">暖色系</option>
-            <option value="minimal">极简灰度</option>
-          </select>
           <a href="manual.html">用户手册</a>
           <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
           <button 

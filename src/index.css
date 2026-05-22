@@ -81,10 +81,15 @@
 
 html {
   background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
   box-sizing: border-box;
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
 }
 
 
@@ -327,7 +332,6 @@ main {
 .slide-inner {
   width: 100%;
   text-align: center;
-  will-change: transform, opacity;
 }
 
 /* Hero layout */
@@ -346,18 +350,15 @@ main {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  will-change: transform, opacity;
 }
 
 .hero-sub {
   font-size: 1.1rem;
   color: var(--muted);
   margin-bottom: 1.25rem;
-  will-change: transform, opacity;
 }
 
 .hero-ctas {
-  will-change: transform, opacity;
   display: flex;
   gap: 0.75rem;
   justify-content: center;
@@ -474,28 +475,38 @@ main {
 }
 
 .ending-features {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
   margin: 0.5rem 0;
+  width: 100%;
 }
 
 .ending-feature {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.5rem;
   border-radius: 12px;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--fg);
   backdrop-filter: blur(8px);
   transition: transform 0.2s, box-shadow 0.2s;
   will-change: transform, opacity;
+}
+
+.ending-feature .ending-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  height: 1.2em;
+  width: 1.2em;
 }
 
 .ending-feature:hover {
@@ -541,7 +552,7 @@ main {
   box-shadow: 0 0 8px var(--accent);
 }
 
-/* --- Section Indicator (side dots) --- */
+/* --- Section Indicator (side dots with icons) --- */
 .section-indicator {
   position: fixed;
   right: 1.5rem;
@@ -550,7 +561,7 @@ main {
   z-index: 100;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
@@ -565,34 +576,47 @@ main {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  background: none;
-  border: none;
+  justify-content: center;
   cursor: pointer;
-  padding: 4px;
-  outline: none;
-}
-
-.dot-circle {
-  width: 8px;
-  height: 8px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--muted);
-  opacity: 0.35;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
+  padding: 0;
+  outline: none;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--fg);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: var(--card-shadow);
 }
 
-.section-dot.active .dot-circle {
+.section-dot.active {
+  color: #fff;
   background: var(--accent);
-  opacity: 1;
-  box-shadow: 0 0 8px var(--accent);
-  transform: scale(1.35);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
 }
 
-.section-dot:hover .dot-circle {
-  opacity: 0.8;
+.section-dot:hover {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
   transform: scale(1.2);
+}
+
+.dot-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.section-dot.active .dot-icon,
+.section-dot:hover .dot-icon {
+  transform: scale(1.1);
 }
 
 .dot-label {
@@ -719,13 +743,13 @@ main {
   }
 
   .ending-features {
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
-    flex-wrap: wrap;
   }
 
   .ending-feature {
     font-size: 0.85rem;
-    padding: 0.35rem 0.7rem;
+    padding: 0.35rem 0.5rem;
   }
 
   .section-indicator {
@@ -766,11 +790,19 @@ main {
 .back-to-top .btt-icon {
   width: 18px;
   height: 18px;
-  transition: transform 0.3s ease;
 }
 
 .back-to-top:hover .btt-icon {
-  transform: translateY(-2px);
+  animation: btt-scroll 1.2s ease-in-out infinite;
+}
+
+@keyframes btt-scroll {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .back-to-top.visible {

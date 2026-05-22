@@ -58,10 +58,10 @@ export default function HeroSection() {
       } else {
         const range = section.offsetHeight
         const raw = clamp(window.scrollY / range, 0, 1)
-        // Cinematic ease — power 3 curve for smooth reveal
-        const easeZ = 1 - Math.pow(1 - raw, 3)
-        const scale = lerp(2, 1, clamp(easeZ / 0.65, 0, 1))
-        const opacity = easeZ < 0.65 ? 1 : clamp(1 - (easeZ - 0.65) / 0.35, 0, 1)
+        // Cinematic ease — power 2.5 curve for snappier reveal
+        const easeZ = 1 - Math.pow(1 - raw, 2.5)
+        const scale = lerp(2, 1, clamp(easeZ / 0.5, 0, 1))
+        const opacity = easeZ < 0.5 ? 1 : clamp(1 - (easeZ - 0.5) / 0.5, 0, 1)
 
         inner.style.transform = `scale(${scale.toFixed(4)})`
         inner.style.opacity = opacity.toFixed(4)
