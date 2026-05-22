@@ -1158,8 +1158,8 @@ def main():
   .top-nav-trigger { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 1001; cursor: default; }
   .top-nav { transform: translateY(-100%) !important; opacity: 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; }
   .top-nav-trigger:hover ~ .top-nav, .top-nav:hover { transform: translateY(0) !important; opacity: 1; }
-  .spacer-top { height: 0; transition: height 0.3s ease; }
-  .top-nav-trigger:hover ~ .spacer-top, .top-nav:hover ~ .spacer-top { height: 56px; }
+  .at-top .top-nav { transform: translateY(0) !important; opacity: 1; }
+  .spacer-top { height: 0; }
   /* ── 触发器区域 ── */
   .sidebar-trigger { position: fixed; top: 0; left: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }
   .right-sidebar-trigger { position: fixed; top: 0; right: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }
@@ -1265,6 +1265,16 @@ def main():
       updateIcon();
     }});
   }}
+}})();
+
+// 滚动到顶部时显示顶栏
+(function() {{
+  const root = document.documentElement;
+  function updateAtTop() {{
+    root.classList.toggle('at-top', window.scrollY < 10);
+  }}
+  updateAtTop();
+  window.addEventListener('scroll', updateAtTop, {{ passive: true }});
 }})();
 
 // 回到顶部按钮

@@ -293,7 +293,7 @@ main {
 /* --- Slide Sections --- */
 .slide-section {
   position: relative;
-  min-height: 180vh;
+  min-height: min(180vh, calc(100vw * 1.8));
   overflow: hidden;
   scroll-margin-top: 60px;
   contain: layout style;
@@ -301,11 +301,11 @@ main {
 }
 
 .slide-section[data-slide="hero"] {
-  min-height: 120vh;
+  min-height: min(120vh, calc(100vw * 1.2));
 }
 
 .slide-section[data-slide="ending"] {
-  min-height: 100vh;
+  min-height: min(100vh, 100vw);
 }
 
 .slide-scroll {
@@ -360,7 +360,7 @@ main {
 
 /* ===== Carousel (PPT-style horizontal slides) ===== */
 .carousel-section {
-  min-height: 120vh;
+  min-height: min(120vh, calc(100vw * 1.3));
 }
 
 .carousel-container {
@@ -723,6 +723,82 @@ main {
   font-size: 0.85rem;
   color: var(--muted);
   margin: 0.5rem 0 0;
+}
+
+/* ===== 窄屏适配 —— 动态缩小纵向间距 ===== */
+@media (max-width: 768px) {
+  .slide-section {
+    min-height: auto;
+    padding: 4rem 0;
+  }
+  .slide-section[data-slide="hero"] {
+    min-height: auto;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+  .slide-section[data-slide="ending"] {
+    min-height: auto;
+    padding: 2.5rem 0;
+  }
+  .carousel-section {
+    min-height: auto;
+    padding: 3rem 0;
+  }
+  .slide-scroll {
+    position: relative;
+    top: auto;
+    height: auto;
+  }
+  .ending-layout {
+    gap: 0.8rem;
+    padding: 1rem 0.5rem;
+  }
+  .ending-features {
+    gap: 0.4rem;
+  }
+  .ending-title {
+    font-size: 1.3rem;
+  }
+  .ending-sub {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide-section[data-slide="hero"] {
+    padding-top: 2rem;
+  }
+  .hero-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .hero-sub {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+  .hero-ctas {
+    gap: 0.5rem;
+  }
+  .hero-ctas .btn {
+    font-size: 0.78rem;
+    padding: 0.35rem 0.6rem;
+  }
+  .ending-layout {
+    gap: 0.5rem;
+  }
+  .ending-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.3rem;
+  }
+  .ending-feature {
+    font-size: 0.78rem;
+    padding: 0.3rem 0.4rem;
+  }
+  .ending-ctas {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 /* --- Scroll Progress Bar --- */
 .scroll-progress-track {

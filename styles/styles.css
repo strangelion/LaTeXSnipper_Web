@@ -308,13 +308,13 @@ code { font-family: var(--mono); font-size: .88em; }
 /* --- Slide Sections (PPT-like) --- */
 .slide-section {
   position: relative;
-  min-height: 180vh;
+  min-height: min(180vh, calc(100vw * 1.8));
   overflow: hidden;
   contain: layout style;
   content-visibility: auto;
 }
-.slide-section[data-slide="hero"] { min-height: 200vh; }
-.slide-section[data-slide="ending"] { min-height: 100vh; }
+.slide-section[data-slide="hero"] { min-height: min(200vh, calc(100vw * 2)); }
+.slide-section[data-slide="ending"] { min-height: min(100vh, 100vw); }
 
 .slide-scroll {
   position: sticky;
@@ -445,9 +445,10 @@ code { font-family: var(--mono); font-size: .88em; }
 
 /* --- Mobile: vertical card stack + fade animation --- */
 @media (max-width: 768px){
-  .slide-section { min-height: 100vh; min-height: 100dvh; }
-  .slide-section[data-slide="hero"] { min-height: 60vh; min-height: 60dvh; padding-top: 3rem; }
-  .slide-section[data-slide="ending"] { min-height: 40vh; min-height: 40dvh; }
+  .slide-section { min-height: auto; padding: 4rem 0; }
+  .slide-section[data-slide="hero"] { min-height: auto; padding-top: 3rem; padding-bottom: 2rem; }
+  .slide-section[data-slide="ending"] { min-height: auto; padding: 2.5rem 0; }
+  .carousel-section { min-height: auto; padding: 3rem 0; }
   .slide-scroll { position: relative; top: auto; height: auto; }
   .hero-title {
     font-size: 1.35rem; word-break: break-word; padding: 0 .4rem;
@@ -489,6 +490,21 @@ code { font-family: var(--mono); font-size: .88em; }
   .card-detail-inner p { font-size: .82rem; }
 
   .ending-layout { font-size: .9rem; padding: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .slide-section[data-slide="hero"] { padding-top: 2rem; }
+  .hero-title { font-size: 1.2rem; margin-bottom: .3rem; }
+  .hero-sub { font-size: .8rem; margin-bottom: .75rem; }
+  .hero-ctas { gap: .5rem; }
+  .hero-ctas .btn { font-size: .78rem; padding: .35rem .6rem; }
+  .ending-layout { gap: .5rem; }
+  .ending-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: .3rem;
+  }
+  .ending-feature { font-size: .78rem; padding: .3rem .4rem; }
+  .ending-ctas { flex-direction: column; align-items: center; gap: .5rem; }
 }
 
 /* --- 用户手册暗色模式 --- */
