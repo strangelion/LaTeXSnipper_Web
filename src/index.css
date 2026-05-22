@@ -27,58 +27,6 @@
   --formula-color: rgba(30, 41, 59, 0.9);
 }
 
-/* 暖色系 - 亲和、活泼 */
-:root[data-palette="warm"] {
-  --bg: #fff8f2;
-  --fg: #1b1b17;
-  --accent: #ff7a45;
-  --accent-hover: #ff5a1f;
-  --muted: #7a6e63;
-  --hdr-bg: rgba(255, 248, 240, 0.8);
-  --ftr-bg: rgba(255, 248, 240, 0.8);
-  --border-color: #f3e6dd;
-  --text-shadow: 0 0 16px rgba(27, 27, 23, 0.06);
-  --canvas-bg: #fff6ef;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --card-border: rgba(255, 255, 255, 0.95);
-  --card-text: #5a4e43;
-  --card-shadow: 0 8px 32px rgba(27, 27, 23, 0.06);
-  --card-shadow-hover: 0 16px 48px rgba(27, 27, 23, 0.12);
-
-  --bg1: #fff8f2;
-  --bg2: #fceede;
-  --bg3: #f5dcc8;
-  --grid-color: rgba(120, 110, 100, 0.06);
-  --symbol-color: rgba(35, 30, 25, 0.95);
-  --formula-color: rgba(35, 30, 25, 0.9);
-}
-
-/* 极简灰度 - 低干扰，突出内容 */
-:root[data-palette="minimal"] {
-  --bg: #fafafa;
-  --fg: #0b0b0b;
-  --accent: #6b7280;
-  --accent-hover: #4b5563;
-  --muted: #9aa3ad;
-  --hdr-bg: rgba(250, 250, 250, 0.9);
-  --ftr-bg: rgba(250, 250, 250, 0.9);
-  --border-color: #e9ecef;
-  --text-shadow: 0 0 16px rgba(11, 11, 11, 0.05);
-  --canvas-bg: #f5f7f9;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --card-border: rgba(255, 255, 255, 0.95);
-  --card-text: #4a5568;
-  --card-shadow: 0 8px 32px rgba(11, 11, 11, 0.05);
-  --card-shadow-hover: 0 16px 48px rgba(11, 11, 11, 0.1);
-
-  --bg1: #fafafa;
-  --bg2: #f4f6f8;
-  --bg3: #eceff1;
-  --grid-color: rgba(80, 86, 96, 0.05);
-  --symbol-color: rgba(15, 20, 25, 0.92);
-  --formula-color: rgba(15, 20, 25, 0.85);
-}
-
 html {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -493,6 +441,8 @@ main {
   color: var(--card-text);
   line-height: 1.55;
   margin: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ===== Carousel (PPT-style horizontal slides) ===== */
@@ -623,6 +573,9 @@ main {
   color: var(--card-text);
   line-height: 1.65;
   margin: 0 0 1.5rem;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Flip button */
@@ -1082,6 +1035,8 @@ main {
 
   .card-detail-inner p {
     font-size: 0.82rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .ending-layout {
@@ -1161,6 +1116,9 @@ main {
   .carousel-detail-inner p {
     font-size: 0.8rem;
     text-align: center;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .carousel-flip-btn {
@@ -1245,6 +1203,9 @@ main {
 
   .carousel-detail-inner p {
     font-size: 0.76rem;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .carousel-dot {
