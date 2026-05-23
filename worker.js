@@ -195,6 +195,23 @@ async function compressResponse(response, request) {
   });
 }
 
+// 带重试的 fetch，处理 GitHub 偶发网络错误
+async function fetchWithRetry(url, maxRetries = 2) {
+  let lastError;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fetch(url);
+    } catch (err) {
+      lastError = err;
+      if (i < maxRetries - 1) {
+        // 短暂等待后重试（指数退避）
+        await new Promise((r) => setTimeout(r, 200 * Math.pow(2, i)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 function jsonResponse(data) {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
@@ -291,7 +308,7 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
       <p>请求路径：<code>${safePath}</code></p>
       <p>时间戳：<code>${now}</code></p>
       <p>HTTP 状态码：<code>${safeCode}</code></p>
-      <p>服务：LaTeXSnipper User Manual Worker v2.3.5</p>
+      <p>服务：LaTeXSnipper User Manual Worker v2.3.6</p>
     </details>
   </div>
 </div>
@@ -307,7 +324,7 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
       ...securityHeaders(true),
     },
   });
-  return request ? compressResponse(response, request) : response;
+  return request ? compressResponse(response, request).catch(() => response) : response;
 }
 
 export default {
@@ -333,43 +350,44 @@ export default {
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.5",
+        version: "2.3.6",
         timestamp: new Date().toISOString(),
       });
     }
 
-    // 路径解析
-    let filePath;
-    if (path === "/") {
-      filePath = "dist/index.html";
-    } else {
-      const ext = path.split(".").pop() || "";
-      const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
-      const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-      if (rawPath.startsWith("assets/") || rawPath === "index.html") {
-        filePath = "dist/" + rawPath;
+    try {
+      // 路径解析
+      let filePath;
+      if (path === "/") {
+        filePath = "dist/index.html";
       } else {
-        filePath = rawPath;
+        const ext = path.split(".").pop() || "";
+        const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
+        const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
+        if (rawPath.startsWith("assets/") || rawPath === "index.html") {
+          filePath = "dist/" + rawPath;
+        } else {
+          filePath = rawPath;
+        }
       }
-    }
 
-    // 安全检查
-    if (!isSafePath(filePath)) {
-      return renderErrorPage(400, "请求无效",
-        "请求路径包含不安全的字符或模式，服务器拒绝处理。请检查 URL 是否正确，或返回首页浏览其他内容。",
-        path, request);
-    }
+      // 安全检查
+      if (!isSafePath(filePath)) {
+        return renderErrorPage(400, "请求无效",
+          "请求路径包含不安全的字符或模式，服务器拒绝处理。请检查 URL 是否正确，或返回首页浏览其他内容。",
+          path, request);
+      }
 
-    const branch = getBranch(env);
-    const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/${filePath}`;
-    const resp = await fetch(githubUrl);
+      const branch = getBranch(env);
+      const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/${filePath}`;
+      const resp = await fetchWithRetry(githubUrl);
 
-    if (!resp.ok) {
-      // favicon 回退到 icon.png
-      if (path.endsWith(".ico")) {
-        const pngUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/public/icon.png`;
-        const pngResp = await fetch(pngUrl);
-        if (pngResp.ok) {
+      if (!resp.ok) {
+        // favicon 回退到 icon.png
+        if (path.endsWith(".ico")) {
+          const pngUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/public/icon.png`;
+          const pngResp = await fetchWithRetry(pngUrl);
+          if (pngResp.ok) {
           return new Response(isHead ? null : await pngResp.arrayBuffer(), {
             headers: {
               "Content-Type": "image/png",
@@ -419,10 +437,24 @@ export default {
 </div>`;
       const modified = content.replace("<body>", `<body>${previewBanner}`);
       const previewResp = new Response(isHead ? null : modified, { headers });
-      return compressResponse(previewResp, request);
+      try {
+        return await compressResponse(previewResp, request);
+      } catch {
+        return previewResp;
+      }
     }
 
     const finalResp = new Response(isHead ? null : content, { headers });
-    return compressResponse(finalResp, request);
+    try {
+      return await compressResponse(finalResp, request);
+    } catch {
+      return finalResp;
+    }
+    } catch (err) {
+      console.error(`Worker error for path "${path}":`, err);
+      return renderErrorPage(500, "服务器内部错误",
+        "服务器暂时无法处理你的请求，请稍后重试。如果问题持续存在，请联系我们。",
+        path, request);
+    }
   },
 };
