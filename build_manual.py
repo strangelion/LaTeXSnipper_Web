@@ -1001,21 +1001,21 @@ def main():
         'function co2(){if(ls)ls.classList.remove("open")}'
         'if(ls){'
         'var h=null;'
-        'function e(){co();ls.classList.add("open");clearTimeout(h);h=null}'
+        'function e(){co();ls.style.pointerEvents="";ls.classList.add("open");clearTimeout(h);h=null}'
         'function i(){h=setTimeout(function(){ls.classList.remove("open")},300)}'
         'lt.addEventListener("mouseenter",e);'
         'ls.addEventListener("mouseenter",e);'
         'ls.addEventListener("mouseleave",i);'
-        'if(lc)lc.addEventListener("click",function(){ls.classList.remove("open");clearTimeout(h)});'
+        'if(lc)lc.addEventListener("click",function(){ls.classList.remove("open");ls.style.pointerEvents="none";clearTimeout(h)});'
         '}'
         'if(rs){'
         'var h2=null;'
-        'function e2(){co2();rs.classList.add("open");clearTimeout(h2);h2=null}'
+        'function e2(){co2();rs.style.pointerEvents="";rs.classList.add("open");clearTimeout(h2);h2=null}'
         'function i2(){h2=setTimeout(function(){rs.classList.remove("open")},300)}'
         'rt.addEventListener("mouseenter",e2);'
         'rs.addEventListener("mouseenter",e2);'
         'rs.addEventListener("mouseleave",i2);'
-        'if(rc)rc.addEventListener("click",function(){rs.classList.remove("open");clearTimeout(h2)});'
+        'if(rc)rc.addEventListener("click",function(){rs.classList.remove("open");rs.style.pointerEvents="none";clearTimeout(h2)});'
         '}'
         '}();'
         'function tb(a){var r=[];a.forEach(function(l){var i=l.getAttribute("href");if(i&&i[0]==="#"){var e=document.getElementById(i.slice(1));if(e)r.push({el:e,link:l})}});return r}'
@@ -1159,8 +1159,7 @@ def main():
   .top-nav { transform: translateY(-100%) !important; opacity: 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; }
   .top-nav-trigger:hover ~ .top-nav, .top-nav:hover { transform: translateY(0) !important; opacity: 1; }
   .at-top .top-nav { transform: translateY(0) !important; opacity: 1; }
-  .spacer-top { height: 0; }
-  .at-top .spacer-top { height: 56px; }
+  .spacer-top { height: 56px; }
   /* ── 触发器区域 ── */
   .sidebar-trigger { position: fixed; top: 0; left: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }
   .right-sidebar-trigger { position: fixed; top: 0; right: 0; width: 24px; bottom: 0; z-index: 1000; cursor: default; }

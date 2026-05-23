@@ -13,7 +13,7 @@
   --card-shadow: 0 8px 32px rgba(2,6,23,0.08);
   --card-shadow-hover: 0 16px 48px rgba(2,6,23,0.16);
 }
-html { background: var(--bg); scroll-behavior: smooth; }
+html { background: var(--bg); scroll-padding-top: 60px; }
 *{box-sizing:border-box}
 body{font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;margin:0;background:transparent;color:var(--fg);line-height:1.6;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;transition:background-color 0.4s ease,color 0.4s ease}
 body > * { transition: background-color 0.4s ease; }
