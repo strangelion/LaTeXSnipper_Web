@@ -24,6 +24,7 @@ function copy(src, dst) {
 // 静态资源文件列表
 const assets = [
   'download.html',
+  { src: 'public/error.html', dst: 'error.html' },
   'user_manual.html',
   'user_manual.typ',
   'styles/styles.css',
@@ -38,6 +39,10 @@ const assets = [
 
 console.log('复制静态资源到 dist/:');
 for (const f of assets) {
-  copy(f, f);
+  if (typeof f === 'string') {
+    copy(f, f);
+  } else {
+    copy(f.src, f.dst);
+  }
 }
 console.log('静态资源复制完成');

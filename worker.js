@@ -132,6 +132,69 @@ function corsHeaders() {
   };
 }
 
+// ── 压缩支持 ──
+// 对文本类响应启用 gzip/brotli 压缩，大幅减小传输体积
+const COMPRESSIBLE_TYPES = new Set([
+  "text/html", "text/css", "application/javascript", "application/json",
+  "image/svg+xml", "text/plain", "text/xml",
+]);
+
+function isCompressible(contentType) {
+  for (const t of COMPRESSIBLE_TYPES) {
+    if (contentType.startsWith(t)) return true;
+  }
+  return false;
+}
+
+async function compressResponse(response, request) {
+  if (response.status === 304 || response.status === 204) return response;
+  const contentType = response.headers.get("Content-Type") || "";
+  if (!isCompressible(contentType)) return response;
+  // 响应体太小不值得压缩
+  const body = await response.clone().arrayBuffer();
+  if (body.byteLength < 1024) return response;
+
+  const acceptEncoding = request.headers.get("Accept-Encoding") || "";
+  let encoding = null;
+  if (acceptEncoding.includes("br")) {
+    encoding = "br";
+  } else if (acceptEncoding.includes("gzip")) {
+    encoding = "gzip";
+  }
+  if (!encoding) return response;
+
+  const compressed = new Uint8Array(body).stream().pipeThrough(
+    encoding === "br"
+      ? new CompressionStream("br")
+      : new CompressionStream("gzip")
+  );
+
+  const reader = compressed.getReader();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+
+  const totalLen = chunks.reduce((s, c) => s + c.length, 0);
+  const compressedBody = new Uint8Array(totalLen);
+  let off = 0;
+  for (const c of chunks) { compressedBody.set(c, off); off += c.length; }
+
+  const headers = new Headers(response.headers);
+  headers.set("Content-Encoding", encoding);
+  headers.set("Vary", "Accept-Encoding");
+  // 压缩后的响应不应有 Content-Length（因为解压后长度不同）
+  headers.delete("Content-Length");
+
+  return new Response(compressedBody, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function jsonResponse(data) {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
@@ -142,6 +205,111 @@ function jsonResponse(data) {
   });
 }
 
+// ── 错误页面渲染 ──
+// 生成美观的错误页面，替代纯文本响应
+async function renderErrorPage(statusCode, title, message, requestPath, request) {
+  const safeCode = escapeHtml(String(statusCode));
+  const safeTitle = escapeHtml(title);
+  const safeMsg = escapeHtml(message);
+  const safePath = escapeHtml(requestPath || "/");
+  const now = escapeHtml(new Date().toISOString());
+
+  const html = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+<title>${safeCode} ${safeTitle} — LaTeXSnipper</title>
+<style>
+  :root {
+    --bg: #f8fafc; --fg: #0f172a; --accent: #2563eb; --accent-hover: #1d4ed8;
+    --muted: #64748b; --border-color: #e2e8f0;
+    --card-bg: rgba(255,255,255,0.78); --card-shadow: 0 8px 32px rgba(2,6,23,0.08);
+    --hdr-bg: rgba(255,255,255,0.6);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f111a; --fg: #e2e8f0; --muted: #94a3b8; --accent: #60a5fa; --accent-hover: #3b82f6;
+      --border-color: #1e293b; --card-bg: rgba(30,34,48,0.82); --card-shadow: 0 8px 32px rgba(0,0,0,0.35);
+      --hdr-bg: rgba(15,17,26,0.82);
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{font-family:"Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif;color:var(--fg);line-height:1.6;background:transparent;min-height:100vh;display:flex;flex-direction:column}
+  .top-nav{background:var(--hdr-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border-color);padding:0 1.25rem;height:48px;display:flex;align-items:center;gap:1rem}
+  .top-nav a{color:var(--fg);text-decoration:none;font-size:.9rem}
+  .top-nav a:hover{color:var(--accent)}
+  .top-nav .brand{font-weight:700;font-size:1rem}
+  .error-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1.25rem}
+  .error-card{text-align:center;max-width:560px;width:100%}
+  .error-code{font-size:7rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--accent),#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.03em;margin-bottom:.5rem}
+  .error-title{font-size:1.4rem;font-weight:700;margin-bottom:.75rem}
+  .error-desc{font-size:1.05rem;color:var(--muted);margin-bottom:2rem;line-height:1.7}
+  .error-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem}
+  .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.5rem;border-radius:12px;font-weight:600;font-size:.95rem;text-decoration:none;transition:background .2s,transform .2s}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-hover)}
+  .btn-outline{color:var(--fg);border:1px solid var(--border-color);backdrop-filter:blur(4px)}
+  .btn-outline:hover{background:rgba(128,128,128,.08);border-color:var(--accent)}
+  .debug-box{margin-top:2rem;padding:1rem 1.25rem;border-radius:12px;background:var(--card-bg);border:1px solid var(--border-color);font-size:.82rem;color:var(--muted);text-align:left}
+  .debug-box summary{cursor:pointer;font-weight:600;color:var(--fg);margin-bottom:.5rem;user-select:none}
+  .debug-box code{font-family:"SF Mono","Cascadia Code","Consolas",monospace;font-size:.78rem;word-break:break-all}
+  .footer{text-align:center;padding:1rem;color:var(--muted);font-size:.82rem;border-top:1px solid var(--border-color)}
+  @media (max-width:640px){.error-code{font-size:5rem}.error-title{font-size:1.15rem}.error-desc{font-size:.9rem}.error-actions{flex-direction:column;align-items:center}.btn{width:100%;max-width:260px;justify-content:center}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="/" class="brand">LaTeXSnipper</a>
+  <a href="/user_manual.html">用户手册</a>
+  <a href="/download.html">下载</a>
+  <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+</nav>
+<div class="error-wrap">
+  <div class="error-card">
+    <div class="error-code">${safeCode}</div>
+    <h1 class="error-title">${safeTitle}</h1>
+    <p class="error-desc">${safeMsg}</p>
+    <div class="error-actions">
+      <a href="/" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        返回首页
+      </a>
+      <a href="/user_manual.html" class="btn btn-outline">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        查看用户手册
+      </a>
+      <a href="/download.html" class="btn btn-outline">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l4 4 4-4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+        下载软件
+      </a>
+    </div>
+    <details class="debug-box">
+      <summary>技术信息（调试用）</summary>
+      <p>请求路径：<code>${safePath}</code></p>
+      <p>时间戳：<code>${now}</code></p>
+      <p>HTTP 状态码：<code>${safeCode}</code></p>
+      <p>服务：LaTeXSnipper User Manual Worker v2.3.5</p>
+    </details>
+  </div>
+</div>
+<footer class="footer">&copy; 2026 LaTeXSnipper — 开源项目</footer>
+</body>
+</html>`;
+
+  const response = new Response(html, {
+    status: statusCode,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      ...corsHeaders(),
+      ...securityHeaders(true),
+    },
+  });
+  return request ? compressResponse(response, request) : response;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -149,15 +317,9 @@ export default {
 
     // 只允许 GET 和 OPTIONS
     if (request.method !== "GET" && request.method !== "OPTIONS" && request.method !== "HEAD") {
-      return new Response("Method Not Allowed", {
-        status: 405,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          Allow: "GET, HEAD, OPTIONS",
-          ...corsHeaders(),
-          ...securityHeaders(false),
-        },
-      });
+      return renderErrorPage(405, "方法不允许",
+        "服务器不支持此 HTTP 请求方法。请使用 GET 或 HEAD 方式访问。",
+        path, request);
     }
 
     if (request.method === "OPTIONS") {
@@ -193,14 +355,9 @@ export default {
 
     // 安全检查
     if (!isSafePath(filePath)) {
-      return new Response("Bad Request", {
-        status: 400,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          ...corsHeaders(),
-          ...securityHeaders(false),
-        },
-      });
+      return renderErrorPage(400, "请求无效",
+        "请求路径包含不安全的字符或模式，服务器拒绝处理。请检查 URL 是否正确，或返回首页浏览其他内容。",
+        path, request);
     }
 
     const branch = getBranch(env);
@@ -224,14 +381,9 @@ export default {
         }
         return new Response(null, { status: 204, headers: corsHeaders() });
       }
-      return new Response("Not Found", {
-        status: 404,
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          ...corsHeaders(),
-          ...securityHeaders(false),
-        },
-      });
+      return renderErrorPage(404, "页面未找到",
+        "你访问的页面可能已被移动、删除，或者地址输入有误。请检查 URL 是否正确，或使用下方链接浏览其他内容。",
+        path, request);
     }
 
     const mimeType = getMimeType(filePath);
@@ -266,9 +418,11 @@ export default {
   <a href="/" style="color: #fff; text-decoration: underline; opacity: 0.8;">切换到正式版</a>
 </div>`;
       const modified = content.replace("<body>", `<body>${previewBanner}`);
-      return new Response(isHead ? null : modified, { headers });
+      const previewResp = new Response(isHead ? null : modified, { headers });
+      return compressResponse(previewResp, request);
     }
 
-    return new Response(isHead ? null : content, { headers });
+    const finalResp = new Response(isHead ? null : content, { headers });
+    return compressResponse(finalResp, request);
   },
 };

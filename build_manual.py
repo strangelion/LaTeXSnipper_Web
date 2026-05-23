@@ -1347,16 +1347,13 @@ function copyCode(btn) {{
 </html>
 """
 
-    # Inline PNG images as base64
-    import base64
-    def inline_base64(m):
+    # 图片作为独立文件引用（不再 base64 内联，避免 HTML 膨胀到 3.6MB）
+    # 独立图片可被浏览器和 CDN 并行缓存，HTML 本身仅 ~90KB
+    def add_lazy_loading(m):
         src = m.group(1)
-        if os.path.isfile(src) and src.lower().endswith('.png'):
-            with open(src, 'rb') as imgf:
-                b64 = base64.b64encode(imgf.read()).decode('ascii')
-            return f'<img src="data:image/png;base64,{b64}" alt="{m.group(2)}">'
-        return m.group(0)
-    html = re.sub(r'<img src="([^"]+)" alt="([^"]*)">', inline_base64, html)
+        alt = m.group(2)
+        return f'<img src="{src}" alt="{alt}" loading="lazy" decoding="async">'
+    html = re.sub(r'<img src="([^"]+)" alt="([^"]*)">', add_lazy_loading, html)
 
     with open(HTML_FILE, 'w', encoding='utf-8') as f:
         f.write(html)

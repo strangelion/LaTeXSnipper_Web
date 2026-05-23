@@ -1,5 +1,27 @@
 # 更新日志
 
+## [1.2.0] — 2026-05-24
+
+### ✨ 新增
+
+- **美观的错误页面**：Worker 中 400/404/405 错误不再显示纯文本，改为完整的中文 HTML 错误页面，包含渐变色错误码、中文描述、导航按钮和可展开的调试信息区，自动适配深色/浅色模式
+- **gzip / brotli 压缩**：Worker 对所有文本类响应（HTML、CSS、JS、SVG）启用动态压缩，优先使用 brotli，回退 gzip
+
+### ⚡ 性能优化
+
+- **图片外置**：`user_manual.html` 中的图片从 base64 内联改为独立文件引用 + 懒加载（`loading="lazy"` + `decoding="async"`），HTML 体积从 3.66 MB 降至 ~90 KB（40 倍），gzip 后约 20 KB
+
+### 🗑️ 移除
+
+- 删除 `wasm/` 目录下的 Typst WASM 二进制文件（~28 MB），减小仓库体积
+- 删除 `public/manual.html`、`js/all-in-one-lite.bundle.js` 等冗余静态文件
+- 删除 `src/utils/typstParser.js`、`src/components/TypstEditor.*` 未使用组件
+
+### 🔧 其他
+
+- 新增 `scripts/copy-assets.cjs` 构建后复制脚本，替代 `package.json` 中的内联单行命令
+- 更新 `vite.config.js`、`package.json`、`sync_manual.py` 等构建配置
+
 ## [1.1.0] — 2026-05-22
 
 ### ✨ 新增
