@@ -225,14 +225,27 @@
     }
   }
 
-  // ====== 带进度的下载 ======
+  // ====== 带缓存的下载（二次访问秒开） ======
+  const MODEL_CACHE = 'ocr-models-v1';
   async function downloadWithProgress(url, label) {
+    // 1. 先查 Cache API
+    const cache = await caches.open(MODEL_CACHE);
+    const cached = await cache.match(url);
+    if (cached) {
+      const buf = await cached.arrayBuffer();
+      const sizeMB = (buf.byteLength / 1024 / 1024).toFixed(1);
+      setStatus('loading', label + ' (已缓存 ' + sizeMB + ' MB)', true);
+      await new Promise(r => setTimeout(r, 300)); // 给用户看一眼
+      return buf;
+    }
+
+    // 2. 网络下载 + 显示进度
     progressWrap.classList.add('show');
     progressFile.textContent = label;
     progressFill.style.width = '0%';
     progressPercent.textContent = '0%';
 
-    const resp = await fetch(url);
+    const resp = await fetch(url, { cache: 'no-cache' });
     if (!resp.ok) throw new Error('下载失败: ' + url);
     const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
     const reader = resp.body.getReader();
@@ -259,6 +272,14 @@
     const blob = new Blob(chunks);
     const arrayBuffer = await blob.arrayBuffer();
     progressWrap.classList.remove('show');
+
+    // 3. 存入 Cache API
+    try {
+      await cache.put(url, new Response(arrayBuffer, {
+        headers: { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'max-age=604800' }
+      }));
+    } catch(e) { /* 存储满则跳过 */ }
+
     return arrayBuffer;
   }
 
