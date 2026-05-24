@@ -2,8 +2,11 @@ name: 同步 Release 到 R2
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # 每 6 小时检查一次
-  workflow_dispatch:        # 手动触发
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   sync:
