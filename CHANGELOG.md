@@ -1,5 +1,26 @@
 # 更新日志
 
+## [1.4.0] — 2026-05-24
+
+### ✨ 新增
+
+- **在线公式识别 Demo**：`ocr_demo.html` 独立页面，浏览器端 ONNX Runtime 推理，支持拖拽 / 点击 / `Ctrl+V` 粘贴截图，设备指纹 + 20 次/天限制 + 5 秒冷却防滥用
+- **R2 模型存储**：识别模型（编码器 84MB + 解码器 29MB）托管于 Cloudflare R2，Worker 代理加 Referrer 校验，不暴露直链
+
+### 🎨 优化
+
+- **下载页卡片**：hover 改为史莱姆果冻弹性动效（jellyBounce + jellyWobble）
+- **首页 Hero**：新增"想要看下效果？"按钮指向在线识别
+- **首页底部**：替换为 QQ 群入口（Simple Icons Tencent QQ 图标）
+- **ocr_demo 预览图居中**，底部提示"网页版为轻量演示，识别效果可能与桌面客户端存在差异"
+- **Cache API** 缓存模型文件，二次访问秒开无需重新下载
+
+### 🔧 其他
+
+- Worker 路径解析统一从 `dist/` 提供，新增页面无需改 Worker
+- CSP 放行 `blob:` / `wasm-unsafe-eval` / `cdn.jsdelivr.net`
+- `.gitignore` 移除 `dist/` 排除规则，全量跟踪构建产物
+
 ## [1.3.0] — 2026-05-24
 
 ### ✨ 新增
