@@ -2,8 +2,8 @@ name: 同步 Release 到 R2
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # 每 12 小时检查一次 API（轻量）
-  workflow_dispatch:          # 手动触发强制全量同步
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,29 +22,27 @@ jobs:
           SHOULD="false"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             SHOULD="true"
-            echo "手动触发，强制同步"
+            echo "manual trigger, force sync"
           else
             RELEASE=$(curl -sL -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable")
             PUBLISHED=$(echo "$RELEASE" | jq -r '.published_at')
             echo "Release published: $PUBLISHED"
-
             if [ -f .release_state.json ]; then
               LAST=$(jq -r '.last_sync' .release_state.json)
               echo "Last sync: $LAST"
               if [ "$PUBLISHED" != "$LAST" ]; then
                 SHOULD="true"
-                echo "检测到更新！"
+                echo "Update detected"
               else
-                echo "未变化，跳过"
+                echo "No change, skip"
               fi
             else
               SHOULD="true"
-              echo "首次运行，执行同步"
+              echo "First run, sync"
             fi
           fi
           echo "should_sync=$SHOULD" >> $GITHUB_OUTPUT
-          # 保存当前时间戳用于下次比较
           echo "$RELEASE" | jq -r '{last_sync: .published_at}' > .release_state.json
 
       - name: 保存状态文件
@@ -52,7 +50,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .release_state.json
-          git diff --staged --quiet || (git commit -m "chore: 更新同步状态" && git push)
+          git diff --staged --quiet || (git commit -m "chore: update sync state" && git push)
 
   sync:
     needs: check
@@ -75,7 +73,7 @@ jobs:
           for NAME in "${!ASSETS[@]}"; do
             R2KEY="${ASSETS[$NAME]}"
             URL="https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.3.2_Final_Stable/$NAME"
-            echo "⬇ $NAME"
+            echo "download $NAME"
             curl -sL "$URL" -o ".sync_tmp/$NAME"
             SHA=$(sha256sum ".sync_tmp/$NAME" | cut -d' ' -f1)
             echo "  SHA256: $SHA"
@@ -91,11 +89,13 @@ jobs:
           import re
           with open('download.html', 'r', encoding='utf-8') as f:
               html = f.read()
+
           sha_map = {}
           with open('/tmp/sha256.txt', 'r') as f:
               for line in f:
                   r2name, sha = line.strip().split(':')
                   sha_map[r2name] = sha
+
           pairs = [
               ('LaTeXSnipperSetup-2.3.2.exe',  sha_map.get('LaTeXSnipperSetup-2.3.2.exe', '')),
               ('latexsnipper_2.3.2_amd64.deb', sha_map.get('latexsnipper_2.3.2_amd64.deb', '')),
@@ -103,14 +103,18 @@ jobs:
           ]
           for filename, sha in pairs:
               if not sha: continue
+              escaped = re.escape(filename)
+              # Match: <a class="download-btn" href="...filename...">text</a> followed by <p class="sha256" data-sha256="...">
+              # Use [^<]* to stop at the first </a> (not greedy across cards)
               pattern = re.compile(
-                  r'(<a\s+class="download-btn"\s+href="[^"]*' + re.escape(filename) + r'"[^>]*>.*?</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
-                  re.DOTALL
+                  r'(<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
               )
               new_html = pattern.sub(r'\1' + sha + r'\2', html)
               if new_html != html:
                   html = new_html
-                  print(f"  ✓ {filename} SHA256 updated → {sha[:16]}...")
+                  print(f"  ok {filename} sha256 updated")
+              else:
+                  print(f"  no_match {filename}")
           with open('download.html', 'w', encoding='utf-8') as f:
               f.write(html)
           PYEOF
@@ -120,4 +124,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add download.html
-          git diff --staged --quiet || (git commit -m "chore: 同步 Release SHA256" && git push)
+          git diff --staged --quiet || (git commit -m "chore: sync release SHA256" && git push)
