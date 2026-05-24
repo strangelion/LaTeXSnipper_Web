@@ -153,7 +153,7 @@ const BAD_BOT_PATTERNS = [
 
 function isBadBot(userAgent) {
   if (!userAgent) return true; // 空 UA 视为可疑
-  if (userAgent.length < 30) return true; // 过短的 UA 可疑
+  if (userAgent.length < 15) return true; // 过短的 UA 可疑
   for (const pattern of BAD_BOT_PATTERNS) {
     if (pattern.test(userAgent)) return true;
   }
