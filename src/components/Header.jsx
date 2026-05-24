@@ -75,7 +75,6 @@ export default function Header() {
         </div>
         <nav className="main-nav" aria-label="主导航">
           <a href="download.html">下载</a>
-          <a href="ocr_demo.html" style={{color:'var(--accent)',fontWeight:600}}>在线识别</a>
           <a href="user_manual.html">用户手册</a>
           <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener noreferrer">GitHub</a>
           <button

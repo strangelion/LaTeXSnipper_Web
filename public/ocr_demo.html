@@ -457,6 +457,7 @@
       await loadModels();
 
       ready = true;
+      updateUsageDisplay();
       setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
     } catch(e) {
       if (!errorMsg.style.display || errorMsg.style.display === 'none') {
