@@ -461,8 +461,8 @@ export default {
     // 定期清理频率表（每 500 次请求执行一次）
     if (Math.random() < 0.002) cleanupRateLimit();
 
-    // 只允许 GET 和 OPTIONS
-    if (request.method !== "GET" && request.method !== "OPTIONS" && request.method !== "HEAD") {
+    // 只允许 GET、POST 和 OPTIONS
+    if (request.method !== "GET" && request.method !== "OPTIONS" && request.method !== "HEAD" && request.method !== "POST") {
       return renderErrorPage(405, "方法不允许",
         "服务器不支持此 HTTP 请求方法。请使用 GET 或 HEAD 方式访问。",
         path, request);

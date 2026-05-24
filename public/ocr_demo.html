@@ -553,6 +553,8 @@
     preview.style.display = 'block';
     dropContent.style.display = 'none';
     resultCard.classList.remove('show');
+    errorMsg.style.display = 'none';
+    setStatus('processing', '正在识别公式…', true);
 
     const img = new Image();
     img.onload = async function() {
