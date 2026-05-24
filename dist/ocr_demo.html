@@ -273,8 +273,7 @@
     var pct = unlocked ? 0 : Math.round(u.count / DAILY_LIMIT * 100);
     usageCounter.innerHTML =
       '<span>今日剩余 <strong>' + remaining + '</strong> / ' + DAILY_LIMIT + ' 次</span>' +
-      (unlocked ? '<span style="margin-left:.5rem;color:#22c55e;">🔓 已解锁</span>' : ''));
-    if (!unlocked && remaining <= 0) {
+      (unlocked ? '<span style="margin-left:.5rem;color:#22c55e;">🔓 已解锁</span>' : '');
     if (!unlocked && remaining <= 0) {
       dropZone.style.opacity = '0.5';
       dropZone.style.pointerEvents = 'none';
