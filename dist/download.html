@@ -71,17 +71,49 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       box-shadow: var(--card-shadow);
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      transition: box-shadow 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
       will-change: transform;
+      position: relative;
     }
 
+    /* 史莱姆果冻 — SVG 滤镜变形 */
+    .platform-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      z-index: -1;
+      transition: opacity 0.4s;
+      opacity: 0;
+      background: var(--card-bg);
+    }
+    .platform-card:hover::before {
+      opacity: 1;
+      animation: jellyWobble 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
     .platform-card:hover {
-      transform: translateY(-6px);
+      animation: jellyBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: var(--card-shadow-hover);
+    }
+
+    @keyframes jellyBounce {
+      0%   { transform: scale(1); }
+      20%  { transform: scale(1.04, 0.96); }
+      40%  { transform: scale(0.97, 1.03); }
+      60%  { transform: scale(1.02, 0.98); }
+      80%  { transform: scale(0.99, 1.01); }
+      100% { transform: scale(1); }
+    }
+    @keyframes jellyWobble {
+      0%   { transform: scale(1); border-radius: 20px; }
+      25%  { transform: scale(1.03, 0.97); border-radius: 24px 18px 22px 18px; }
+      50%  { transform: scale(0.98, 1.02); border-radius: 18px 22px 18px 22px; }
+      75%  { transform: scale(1.01, 0.99); border-radius: 22px 18px 24px 18px; }
+      100% { transform: scale(1); border-radius: 20px; }
     }
 
     .platform-icon {
