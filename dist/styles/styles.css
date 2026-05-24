@@ -202,7 +202,9 @@ code { font-family: var(--mono); font-size: .88em; }
 	font-weight: 700;
 }
 
-.cover-title   { font-size: 1.6rem; font-weight: 700; }
+.cover-title   { font-size: 2.2rem; font-weight: 700; }
+/* 封面 "LaTeXSnipper" 大标题 */
+.center > p:first-child > strong { font-size: 2.2rem; }
 .cover-sub     { font-size: 1.1rem; margin-top: .2rem; }
 .cover-ver     { font-size: .85rem; color: #888; margin: .3rem 0 .8rem; }
 .cover-hr      { width: 30%; border-top: 1px solid #ccc; margin: 0 auto; }
