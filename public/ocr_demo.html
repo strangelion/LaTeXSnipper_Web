@@ -182,13 +182,19 @@
   }
 
   // ====== TOTP 解锁（验证码发到 Worker 后端校验） ======
-  const UNLOCK_HOURS = 4;
 
   function isUnlocked() {
     try {
       const data = JSON.parse(localStorage.getItem('ocr_unlock') || '{}');
       return data.expiry && Date.now() < data.expiry;
     } catch(e) { return false; }
+  }
+
+  // 解锁有效期到今晚 23:59:59
+  function getEndOfDay() {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d.getTime();
   }
 
   window.verifyUnlock = async function() {
@@ -203,15 +209,15 @@
       });
       const data = await resp.json();
       if (data.ok) {
-        const expiry = Date.now() + UNLOCK_HOURS * 3600 * 1000;
+        const expiry = getEndOfDay();
         localStorage.setItem('ocr_unlock', JSON.stringify({ expiry: expiry }));
-        msg.textContent = '已解锁！' + UNLOCK_HOURS + ' 小时内无限使用';
+        msg.textContent = '已解锁！今天内无限使用';
         msg.style.color = '#22c55e';
         dropZone.style.opacity = '1';
         dropZone.style.pointerEvents = 'auto';
         dropZone.title = '';
         updateUsageDisplay();
-        setStatus('ready', '已解锁，无限次数使用！拖入公式图片或 Ctrl+V 粘贴截图', false);
+        setStatus('ready', '已解锁，今天内无限使用！拖入公式图片或 Ctrl+V 粘贴截图', false);
         setTimeout(function(){ document.getElementById('unlockPanel').style.display = 'none'; }, 2000);
       } else {
         msg.textContent = '验证码错误，请重试';
