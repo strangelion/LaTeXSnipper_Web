@@ -133,7 +133,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.all.min.js"></script>
 <script>
 (async function() {
   const MODEL_BASE = '/models/mathcraft-formula-rec';
@@ -352,7 +352,7 @@
       );
       setStatus('loading', '正在加载编码器到内存…', true);
       encoderSession = await ort.InferenceSession.create(encoderBuf, {
-        executionProviders: ['webgl', 'wasm'],
+        executionProviders: ['wasm'],
         graphOptimizationLevel: 'all',
       });
 
@@ -362,7 +362,7 @@
       );
       setStatus('loading', '正在加载解码器到内存…', true);
       decoderSession = await ort.InferenceSession.create(decoderBuf, {
-        executionProviders: ['webgl', 'wasm'],
+        executionProviders: ['wasm'],
         graphOptimizationLevel: 'all',
       });
     } catch(e) {
@@ -506,7 +506,7 @@
   async function init() {
     try {
       // 配置 WASM 后端
-      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
+      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
       // 优先使用 WebGL 后端，避免 WASM 兼容问题
 
       setStatus('loading', '正在加载分词器…', true);
