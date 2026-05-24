@@ -110,7 +110,7 @@ function securityHeaders(isHtml) {
     // CSP：限制脚本和样式来源
     headers["Content-Security-Policy"] = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net",
       "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
       "img-src 'self' data: https:",
       "font-src 'self'",
