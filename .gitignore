@@ -45,3 +45,4 @@ video_assets/
 # === ONNX Model files (too large for git, downloaded separately) ===
 public/models/
 dist/models/
+.sync_tmp/
