@@ -45,8 +45,9 @@
     .result-header .label { font-weight: 700; font-size: 0.95rem; color: var(--fg); }
     .confidence { font-size: 0.8rem; color: var(--muted); background: rgba(34,197,94,0.1); padding: 2px 10px; border-radius: 4px; }
     pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; border-radius: 8px; overflow: auto; font-size: 0.9rem; font-family: "SF Mono","Cascadia Code","Consolas",monospace; white-space: pre-wrap; word-break: break-all; margin: 0; }
-    .ocr-copy { display: block; width: 100%; margin-top: 0.75rem; text-align: center; background: var(--accent); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: background 0.2s; }
-    .ocr-copy:hover { background: var(--accent-hover); }
+    .ocr-copy { display: block; width: 100%; margin-top: 0.75rem; text-align: center; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: opacity 0.2s, transform 0.15s; }
+    .ocr-copy:hover { opacity: 0.9; transform: scale(1.01); }
+    .ocr-copy:active { transform: scale(0.98); }
     .ocr-copy.copied { background: #22c55e; }
 
     .progress-wrap { width: 100%; max-width: 400px; margin: 0 auto 1.5rem; display: none; }
@@ -60,9 +61,14 @@
     .usage-counter { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: -0.5rem; margin-bottom: 1rem; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    #mathBg { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+    .bg-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.04) 0%, transparent 60%); }
+    :root[data-theme="dark"] .bg-overlay { background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0.3) 0%, transparent 60%); }
 </style>
 </head>
 <body>
+<canvas id="mathBg" aria-hidden="true"></canvas>
 <nav class="top-nav">
   <div class="inner">
     <a href="index.html" class="brand-link">LaTeXSnipper</a>
@@ -644,6 +650,21 @@
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     updateThemeBtn(isDark ? 'dark' : 'light');
   })();
+
+  // 数学粒子背景
+  !function(){
+    var c=document.getElementById('mathBg'),ctx=c.getContext('2d');
+    var SYMBOLS=['∑','∫','∂','∇','√','π','∞','≈','≠','≤','≥','Δ','Σ','λ','θ','α','β','γ','δ','ε','μ','σ','τ','ω','φ','ψ','×','÷'];
+    var FORMULAS=['e^{iπ}+1=0','∫e^{-x²}dx','Σ1/n²','a²+b²=c²','sin²θ+cos²θ=1','F=ma','E=mc²'];
+    var mouse={x:-100,y:-100},trail=[],formulas=[],frame=0,lastMove=Date.now(),checkerCache=null;
+    function resize(){c.width=window.innerWidth;c.height=window.innerHeight;c.style.width=window.innerWidth+'px';c.style.height=window.innerHeight+'px';checkerCache=null;initFormulas();}
+    function buildChecker(){if(checkerCache)return;checkerCache=document.createElement('canvas');checkerCache.width=c.width;checkerCache.height=c.height;var ctx2=checkerCache.getContext('2d');var d=document.documentElement.getAttribute('data-theme')==='dark';ctx2.fillStyle=d?'#0f111a':'#f8fafc';ctx2.fillRect(0,0,c.width,c.height);}
+    function initFormulas(){formulas=[];var density=110000;var count=Math.max(8,Math.min(20,Math.floor((c.width*c.height)/density)));for(var i=0;i<count;i++){formulas.push({x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'});}}
+    function spawn(cx,cy,px,py){var dx=cx-px,dy=cy-py;var sx=(Math.sqrt(dx*dx+dy*dy)>2?dx*.15:0)+(Math.random()-.5)*1.2;var sy=(Math.sqrt(dx*dx+dy*dy)>2?dy*.15:0)+Math.random()*.5+.3;trail.push({x:cx+(Math.random()-.5)*6,y:cy+(Math.random()-.5)*6,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*7+12,vx:sx,vy:sy});if(trail.length>20)trail.splice(0,trail.length-20);}
+    function animate(){frame++;if(document.hidden){requestAnimationFrame(animate);return}buildChecker();ctx.drawImage(checkerCache,0,0);var fc='rgba(180,200,240,0.7)';if(frame%2===0){for(var i=0;i<formulas.length;i++){var f=formulas[i];f.x+=f.vx;f.y+=f.vy;f.life--;if(f.phase==='in'){f.opacity+=f.fadeSpeed;if(f.opacity>=f.targetO)f.phase='hold'}else if(f.phase==='hold'){if(f.life<60)f.phase='out'}else if(f.phase==='out'){f.opacity-=f.fadeSpeed}if(f.life<=0||f.opacity<=0||f.x<-100||f.x>c.width+100||f.y<-50||f.y>c.height+50){formulas[i]={x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'};continue}if(f.opacity<.02)continue;ctx.save();ctx.globalAlpha=f.opacity;ctx.fillStyle=fc;ctx.font=f.size+'px \"Times New Roman\",serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(f.content,f.x,f.y);ctx.restore()}}if(frame%25===0&&Date.now()-lastMove>800&&mouse.x>0){trail.push({x:mouse.x+(Math.random()-.5)*25,y:mouse.y+(Math.random()-.5)*15,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*5+10,vx:(Math.random()-.5)*.25,vy:Math.random()*.5+.3});if(trail.length>20)trail.splice(0,trail.length-20)}for(var i=trail.length-1;i>=0;i--){var p=trail[i];p.life-=.006;p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.vx*=.993;if(p.life<=0){trail.splice(i,1);continue}ctx.save();ctx.globalAlpha=p.life*.75;ctx.fillStyle='rgba(96,165,250,0.85)';ctx.font=p.size+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.s,Math.floor(p.x),Math.floor(p.y));ctx.restore()}requestAnimationFrame(animate);}
+    function onMove(e){var px=mouse.x,py=mouse.y;mouse.x=e.clientX;mouse.y=e.clientY;spawn(e.clientX,e.clientY,px,py);lastMove=Date.now();}
+    resize();initFormulas();window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(resize,150);});window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',function(e){if(!e.touches.length)return;var t=e.touches[0];var px=mouse.x,py=mouse.y;mouse.x=t.clientX;mouse.y=t.clientY;spawn(t.clientX,t.clientY,px,py);lastMove=Date.now();},{passive:true});animate();
+  }();
 })();
 </script>
 </body>
