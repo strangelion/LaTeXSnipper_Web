@@ -35,7 +35,7 @@
   .drop-zone .icon { font-size: 3rem; margin-bottom: 0.5rem; }
   .drop-zone img { max-width: 100%; max-height: 300px; border-radius: 8px; display: block; margin: 0 auto; }
 
-  .result-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: none; position: relative; }
+  .result-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: none; }
   .result-card.show { display: block; }
   .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
   .result-header .label { font-weight: 700; font-size: 0.95rem; color: var(--fg); }
@@ -121,9 +121,7 @@
       <span class="confidence" id="confidence"></span>
     </div>
     <pre class="result-code" id="resultCode"></pre>
-    <div style="position:absolute;top:0.75rem;right:0.75rem;">
-      <button class="copy-btn" id="copyBtn" onclick="copyResult()">复制</button>
-    </div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResult()" style="display:block;width:100%;margin-top:0.75rem;text-align:center;">复制 LaTeX 代码</button>
   </div>
 
   <div class="error-msg" id="errorMsg" style="display:none;"></div>
@@ -608,10 +606,10 @@
   });
 
   window.copyResult = function() {
-    navigator.clipboard.writeText(resultCode.textContent).then(() => {
-      copyBtn.textContent = '已复制';
+    navigator.clipboard.writeText('$$\n' + resultCode.textContent + '\n$$').then(() => {
+      copyBtn.textContent = '已复制 ✓';
       copyBtn.classList.add('copied');
-      setTimeout(() => { copyBtn.textContent = '复制'; copyBtn.classList.remove('copied'); }, 1500);
+      setTimeout(() => { copyBtn.textContent = '复制 LaTeX 代码'; copyBtn.classList.remove('copied'); }, 1500);
     });
   };
 
