@@ -115,13 +115,17 @@ export default function EndingSection() {
           </div>
 
           <div className="ending-ctas" ref={(el) => setItemRef(el, 4)}>
-            <a className="btn primary" href="user_manual.html">阅读用户手册</a>
-            <a className="btn" href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+            <a className="btn primary" href="https://qm.qq.com/q/ICZXXouY0A" target="_blank" rel="noopener">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"/></svg>
+              官方交流 QQ 群：419377447
+            </a>
           </div>
 
           <p className="ending-footer-note" ref={(el) => setItemRef(el, 5)}>
-            <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener" style={{color: 'var(--muted)', textDecoration: 'underline'}}>访问源代码</a>
-            &nbsp;·&nbsp; 遇到问题？欢迎在 GitHub 提交 Issue 或 PR。
+            <a href="user_manual.html" style={{color: 'var(--muted)', textDecoration: 'underline'}}>用户手册</a>
+            &nbsp;·&nbsp;
+            <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener" style={{color: 'var(--muted)', textDecoration: 'underline'}}>GitHub</a>
+            &nbsp;·&nbsp; 完全免费 · 开源 · 离线可用
           </p>
         </div>
       </div>

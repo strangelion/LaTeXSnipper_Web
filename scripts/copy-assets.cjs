@@ -26,6 +26,7 @@ const assets = [
   'download.html',
   { src: 'public/error.html', dst: 'error.html' },
   { src: 'public/robots.txt', dst: 'robots.txt' },
+  { src: 'public/scan_demo.html', dst: 'scan_demo.html' },
   'user_manual.html',
   'user_manual.typ',
   'styles/styles.css',
