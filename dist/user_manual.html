@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaTeXSnipper 用户手册 v2.3.2</title>
+<script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
+<link rel="stylesheet" href="styles/styles.css">
+<style>
+@media (max-width: 600px) {  html { overflow-x: hidden; }  body.manual { overflow-x: hidden; width: 100%; max-width: 100vw; }  .code-block pre { word-break: break-word; white-space: pre-wrap; }  pre code { word-break: break-word; }  img { max-width: 100% !important; height: auto; }  .code-block { max-width: 100%; } }
+  /* ── 左右导航栏共用 ── */
+  .sidebar, .right-sidebar { position: fixed; top: 0; bottom: 0; width: 260px; z-index: 1100; background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: var(--border-color); border-style: solid; border-width: 0; box-shadow: var(--card-shadow); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; opacity: 0; overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar { left: 0; border-right-width: 1px; transform: translateX(-100%); }
+  .right-sidebar { right: 0; border-left-width: 1px; transform: translateX(100%); }
+  .sidebar.open { transform: translateX(0); opacity: 1; }
+  .right-sidebar.open { transform: translateX(0); opacity: 1; }
+  /* 目录头和叉号 sticky 固定，不随目录滚动 */
+  .sidebar-header, .rs-header { position: sticky; top: 0; z-index: 2; background: var(--card-bg); font-weight: 700; font-size: 0.95rem; color: var(--fg); padding: 0.75rem 0.75rem; margin: 0; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; gap: 6px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  /* 叉号绝对定位在内侧：左栏叉号在右，右栏叉号在左 */
+  .sidebar-close { position: absolute; right: 0.75rem; }
+  .rs-close { position: absolute; left: 0.75rem; }
+  .sidebar-icon { flex-shrink: 0; }
+  .sidebar-inner, .rs-inner { flex: 1; overflow-y: auto; padding: 0.5rem 0.75rem 1rem; }
+  .toc-list, .rs-list { list-style: none; margin: 0; padding: 0; }
+  .toc-list li, .rs-list li { margin: 0; }
+  .toc-list a, .rs-list a { display: block; padding: 0.3rem 0.5rem; color: var(--muted); text-decoration: none; font-size: 0.82rem; border-radius: 6px; transition: background 0.15s, color 0.15s; line-height: 1.4; }
+  .toc-list a:hover, .rs-list a:hover { background: rgba(128,128,128,0.08); color: var(--fg); }
+  .toc-list a.active, .rs-list a.active { color: var(--accent); background: rgba(59,130,246,0.08); font-weight: 600; }
+  .toc-h2, .rs-h2 { padding-left: 1rem; }
+  .toc-h3, .rs-h3 { padding-left: 2rem; }
+  .toc-h2 a, .rs-h2 a { font-size: 0.8rem; }
+  .toc-h3 a, .rs-h3 a { font-size: 0.78rem; }
+  /* ── 分卷分割线 ── */
+  .toc-vol-divider, .rs-vol-divider { padding: 0.6rem 0.5rem 0.3rem; border-top: 1px solid var(--border-color); margin-top: 0.3rem; }
+  .toc-vol-divider span, .rs-vol-divider span { font-size: 0.72rem; font-weight: 600; color: var(--accent); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+  /* ── 顶栏自动隐藏 ── */
+  .top-nav-trigger { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 1001; cursor: default; }
+  .top-nav { transform: translateY(-100%) !important; opacity: 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; }
+  .top-nav-trigger:hover ~ .top-nav, .top-nav:hover { transform: translateY(0) !important; opacity: 1; }
+  .at-top .top-nav { transform: translateY(0) !important; opacity: 1; }
+  .spacer-top { height: 56px; }
+    /* ── 浮动可拖动箭头按钮 ── */
+  .float-arrow { position: fixed; z-index: 1080; width: 42px; height: 42px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 2px 16px rgba(0,0,0,0.10); cursor: grab; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; touch-action: none; transition: box-shadow 0.2s, border-color 0.2s, left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .float-arrow:active { cursor: grabbing; }
+  .float-arrow.dragging { box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-color: var(--accent); transform: scale(1.08); transition: none; }
+  .float-arrow:hover { border-color: var(--accent); }
+  .float-arrow svg { width: 20px; height: 20px; color: var(--accent); pointer-events: none; transition: transform 0.3s ease; }
+  .float-arrow.side-left svg { transform: rotate(0deg); }
+  .float-arrow.side-right svg { transform: rotate(180deg); }
+  @media (max-width: 768px) { .float-arrow { width: 38px; height: 38px; } .float-arrow svg { width: 18px; height: 18px; } }
+  /* ── 鼠标靠边悬停触发区域（隐形） ── */
+  .edge-hover-left { position: fixed; top: 0; left: 0; width: 20px; bottom: 0; z-index: 1090; cursor: default; }
+  .edge-hover-right { position: fixed; top: 0; right: 0; width: 20px; bottom: 0; z-index: 1090; cursor: default; }
+  /* ── 收起按钮 ── */
+  .sidebar-close, .rs-close { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--muted); padding: 0.2rem; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; width: 26px; height: 26px; flex-shrink: 0; }
+  .sidebar-close:hover, .rs-close:hover { background: rgba(128,128,128,0.1); color: var(--fg); }
+  /* ── PDF 下载链接 ── */
+  .download-pdf-link { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--muted); text-decoration: none; padding: 4px 10px; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+  .download-pdf-link:hover { background: rgba(128,128,128,0.08); color: var(--fg); }
+  .dl-icon { flex-shrink: 0; display: block; }
+  /* ── 分卷分隔条 ── */
+  .volume-divider { margin: 2rem 0; position: relative; }
+  .volume-divider-inner { display: flex; align-items: center; justify-content: center; position: relative; }
+  .volume-divider-inner::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), var(--accent), transparent); opacity: 0.25; }
+  .volume-label { position: relative; z-index: 1; background: var(--card-bg); padding: 0.4rem 1.5rem; font-size: 1rem; font-weight: 700; color: var(--accent); border-radius: 20px; border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  @media (max-width: 768px) { .sidebar, .right-sidebar { width: 220px; } .toc-list a, .rs-list a { font-size: 0.78rem; } }
+
+</style>
+</head>
+<body class="manual">
+<div class="top-nav-trigger" id="topNavTrigger"></div>
+<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="https://release.interknot.dpdns.org/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
+<div class="spacer-top"></div>
+
+<!-- 浮动可拖动箭头按钮 -->
+<div class="float-arrow side-left" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+</div>
+
+<!-- 鼠标靠边悬停触发区域 -->
+<div class="edge-hover-left" id="edgeHoverLeft"></div>
+<div class="edge-hover-right" id="edgeHoverRight"></div>
+
+<!-- 左侧导航栏（鼠标悬停打开） -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起">✕</button></div>
+  <div class="sidebar-inner">
+    <ul class="toc-list">
+<li class="toc-h1"><a href="#sec-quick">开始使用前（必读）</a></li>
+  <li class="toc-h2"><a href="#anzhuangyunxing">安装后第一步：运行依赖向导</a></li>
+  <li class="toc-h2"><a href="#ruanjianbenliu">软件的基本工作流</a></li>
+  <li class="toc-h2"><a href="#jianguanjian">日志文件在哪里（关键！）</a></li>
+<li class="toc-h1"><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
+  <li class="toc-h2"><a href="#zhuchuangkoufenbie">主窗口按钮分别做什么</a></li>
+  <li class="toc-h2"><a href="#shezhiqianji">设置页当前业务逻辑</a></li>
+  <li class="toc-h2"><a href="#pdf-shibieliucheng">PDF 识别流程</a></li>
+  <li class="toc-h2"><a href="#duliucheng">双语阅读流程</a></li>
+<li class="toc-h1"><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
+  <li class="toc-h2"><a href="#moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</a></li>
+  <li class="toc-h2"><a href="#onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</a></li>
+  <li class="toc-h2"><a href="#cuda-gpu-xiangguan">CUDA / GPU 相关错误</a></li>
+  <li class="toc-h2"><a href="#moxing-cheng">模型缓存损坏（下载一半断电 / 杀进程）</a></li>
+  <li class="toc-h2"><a href="#onnx-moxing">显存不足导致 ONNX 模型加载失败</a></li>
+<li class="toc-h1"><a href="#sec-external">外部模型相关问题</a></li>
+  <li class="toc-h2"><a href="#benpeizhiwaibumoxingshibie">根本没配置外部模型，直接点识别然后报错</a></li>
+  <li class="toc-h2"><a href="#moxingdongyong">模型没预热（冷启动），第一次调用巨慢或超时</a></li>
+  <li class="toc-h2"><a href="#ollama-dong-base-url">Ollama 已启动但 Base URL 填错</a></li>
+  <li class="toc-h2"><a href="#moxing">模型名拼写错误 / 大小写不对</a></li>
+  <li class="toc-h2"><a href="#api-yong-api-key">线上 API 用了但没填 API Key</a></li>
+  <li class="toc-h2"><a href="#mineru-pei">MinerU 协议选了但是服务端没配好</a></li>
+  <li class="toc-h2"><a href="#openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</a></li>
+  <li class="toc-h2"><a href="#zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</a></li>
+<li class="toc-h1"><a href="#sec-install">安装和环境问题</a></li>
+  <li class="toc-h2"><a href="#python-ben">Python 版本不对</a></li>
+  <li class="toc-h2"><a href="#pyinstaller-hekaifaxing">PyInstaller 打包版和开发版行为不同</a></li>
+  <li class="toc-h2"><a href="#linuxmacos-huanjing">Linux/macOS 依赖环境创建在哪里</a></li>
+  <li class="toc-h2"><a href="#pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</a></li>
+  <li class="toc-h2"><a href="#wentiprogram-files-mu">权限问题（Program Files / 系统目录）</a></li>
+  <li class="toc-h2"><a href="#yongte">中文路径 / 用户名包含特殊字符</a></li>
+<li class="toc-h1"><a href="#sec-network">网络与更新问题</a></li>
+  <li class="toc-h2"><a href="#windows-bendi">Windows 防火墙拦截本地服务</a></li>
+  <li class="toc-h2"><a href="#gengxinjian">更新检查失败</a></li>
+  <li class="toc-h2"><a href="#ruanjian">杀毒软件误报 / 拦截</a></li>
+<li class="toc-h1"><a href="#sec-pdf">PDF 与识别效果问题</a></li>
+  <li class="toc-h2"><a href="#pdf-shibieguo">PDF 识别结果很乱</a></li>
+  <li class="toc-h2"><a href="#moshiguo">切换了输出模式但结果没变</a></li>
+  <li class="toc-h2"><a href="#fenshibie">大图片 / 高分辨率截图识别失败</a></li>
+<li class="toc-h1"><a href="#sec-usage">使用技巧与功能问题</a></li>
+  <li class="toc-h2"><a href="#kuaijiejianxiao">截图快捷键不生效</a></li>
+  <li class="toc-h2"><a href="#gongnengyongpandoc-xiangguan">导出功能不可用（Pandoc 相关）</a></li>
+  <li class="toc-h2"><a href="#shibiefa">手写识别不触发 / 延迟太高</a></li>
+  <li class="toc-h2"><a href="#shibiezhuchuangkoushimoshi">手写识别为什么不跟随主窗口的公式/文字模式</a></li>
+  <li class="toc-h2"><a href="#zidongxing">手写自动排版后文字、中文或换行不符合预期</a></li>
+  <li class="toc-h2"><a href="#taiguo">数学工作台计算结果不对</a></li>
+  <li class="toc-h2"><a href="#zhutishichang">深色/浅色主题切换后显示异常</a></li>
+  <li class="toc-h2"><a href="#pandoc-ma">Pandoc 导出中文乱码</a></li>
+  <li class="toc-h2"><a href="#dukai-pdf-you">双语阅读打开 PDF 后没有原文或译文</a></li>
+<li class="toc-h1"><a href="#sec-platform">平台特定问题（Linux / macOS）</a></li>
+  <li class="toc-h2"><a href="#zhu">三端主要差异速查</a></li>
+  <li class="toc-h2"><a href="#linux-wayland-gongnengchang">Linux: Wayland 下截图功能异常</a></li>
+  <li class="toc-h2"><a href="#linux-wayland-dong">Linux: 虚拟机或 Wayland 下启动后直接中止</a></li>
+  <li class="toc-h2"><a href="#macos-dong">macOS: 首次启动被阻止</a></li>
+  <li class="toc-h2"><a href="#macos-chuang">macOS: 截图权限弹窗</a></li>
+  <li class="toc-h2"><a href="#macos-kuaijiejiangongneng">macOS: 全局快捷键是否需要辅助功能权限</a></li>
+  <li class="toc-h2"><a href="#macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</a></li>
+  <li class="toc-h2"><a href="#pingtaimu">各平台数据目录速查</a></li>
+<li class="toc-h1"><a href="#sec-conflict">与其他软件冲突</a></li>
+  <li class="toc-h2"><a href="#duoben-python-yong">多版本 Python 共存导致调用错误</a></li>
+  <li class="toc-h2"><a href="#ru-ruanjian">输入法 / 屏幕取词软件干扰截图</a></li>
+<li class="toc-h1"><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
+  <li class="toc-h2"><a href="#bi">必须提供的信息</a></li>
+  <li class="toc-h2"><a href="#fankui">去哪里反馈</a></li>
+<li class="toc-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
+  <li class="toc-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
+  <li class="toc-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
+  <li class="toc-h2"><a href="#kaifazhexiang">开发者验证命令注意事项</a></li>
+  <li class="toc-h2"><a href="#pyrightconfig-json">pyrightconfig.json 中的路径</a></li>
+<li class="toc-vol-divider"><span>第二卷 · MathCraft 内部模型介绍</span></li>
+  <li class="toc-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+  <li class="toc-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
+  <li class="toc-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
+    <li class="toc-h3"><a href="#abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</a></li>
+    <li class="toc-h3"><a href="#dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</a></li>
+    <li class="toc-h3"><a href="#lecture-note-p-1">中文讲义：Lecture Note (p.1)</a></li>
+    <li class="toc-h3"><a href="#yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</a></li>
+  <li class="toc-h2"><a href="#xingnengcankao">性能参考</a></li>
+  <li class="toc-h2"><a href="#sec-envvar">环境变量设置指南</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- 右侧导航栏（鼠标悬停打开） -->
+<aside class="right-sidebar" id="rightSidebar">
+    <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起">✕</button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
+  <div class="rs-inner">
+    <ul class="rs-list" id="rsList">
+<li class="rs-h1"><a href="#sec-quick">开始使用前（必读）</a></li>
+  <li class="rs-h2"><a href="#anzhuangyunxing">安装后第一步：运行依赖向导</a></li>
+  <li class="rs-h2"><a href="#ruanjianbenliu">软件的基本工作流</a></li>
+  <li class="rs-h2"><a href="#jianguanjian">日志文件在哪里（关键！）</a></li>
+<li class="rs-h1"><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
+  <li class="rs-h2"><a href="#zhuchuangkoufenbie">主窗口按钮分别做什么</a></li>
+  <li class="rs-h2"><a href="#shezhiqianji">设置页当前业务逻辑</a></li>
+  <li class="rs-h2"><a href="#pdf-shibieliucheng">PDF 识别流程</a></li>
+  <li class="rs-h2"><a href="#duliucheng">双语阅读流程</a></li>
+<li class="rs-h1"><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
+  <li class="rs-h2"><a href="#moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</a></li>
+  <li class="rs-h2"><a href="#onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</a></li>
+  <li class="rs-h2"><a href="#cuda-gpu-xiangguan">CUDA / GPU 相关错误</a></li>
+  <li class="rs-h2"><a href="#moxing-cheng">模型缓存损坏（下载一半断电 / 杀进程）</a></li>
+  <li class="rs-h2"><a href="#onnx-moxing">显存不足导致 ONNX 模型加载失败</a></li>
+<li class="rs-h1"><a href="#sec-external">外部模型相关问题</a></li>
+  <li class="rs-h2"><a href="#benpeizhiwaibumoxingshibie">根本没配置外部模型，直接点识别然后报错</a></li>
+  <li class="rs-h2"><a href="#moxingdongyong">模型没预热（冷启动），第一次调用巨慢或超时</a></li>
+  <li class="rs-h2"><a href="#ollama-dong-base-url">Ollama 已启动但 Base URL 填错</a></li>
+  <li class="rs-h2"><a href="#moxing">模型名拼写错误 / 大小写不对</a></li>
+  <li class="rs-h2"><a href="#api-yong-api-key">线上 API 用了但没填 API Key</a></li>
+  <li class="rs-h2"><a href="#mineru-pei">MinerU 协议选了但是服务端没配好</a></li>
+  <li class="rs-h2"><a href="#openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</a></li>
+  <li class="rs-h2"><a href="#zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</a></li>
+<li class="rs-h1"><a href="#sec-install">安装和环境问题</a></li>
+  <li class="rs-h2"><a href="#python-ben">Python 版本不对</a></li>
+  <li class="rs-h2"><a href="#pyinstaller-hekaifaxing">PyInstaller 打包版和开发版行为不同</a></li>
+  <li class="rs-h2"><a href="#linuxmacos-huanjing">Linux/macOS 依赖环境创建在哪里</a></li>
+  <li class="rs-h2"><a href="#pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</a></li>
+  <li class="rs-h2"><a href="#wentiprogram-files-mu">权限问题（Program Files / 系统目录）</a></li>
+  <li class="rs-h2"><a href="#yongte">中文路径 / 用户名包含特殊字符</a></li>
+<li class="rs-h1"><a href="#sec-network">网络与更新问题</a></li>
+  <li class="rs-h2"><a href="#windows-bendi">Windows 防火墙拦截本地服务</a></li>
+  <li class="rs-h2"><a href="#gengxinjian">更新检查失败</a></li>
+  <li class="rs-h2"><a href="#ruanjian">杀毒软件误报 / 拦截</a></li>
+<li class="rs-h1"><a href="#sec-pdf">PDF 与识别效果问题</a></li>
+  <li class="rs-h2"><a href="#pdf-shibieguo">PDF 识别结果很乱</a></li>
+  <li class="rs-h2"><a href="#moshiguo">切换了输出模式但结果没变</a></li>
+  <li class="rs-h2"><a href="#fenshibie">大图片 / 高分辨率截图识别失败</a></li>
+<li class="rs-h1"><a href="#sec-usage">使用技巧与功能问题</a></li>
+  <li class="rs-h2"><a href="#kuaijiejianxiao">截图快捷键不生效</a></li>
+  <li class="rs-h2"><a href="#gongnengyongpandoc-xiangguan">导出功能不可用（Pandoc 相关）</a></li>
+  <li class="rs-h2"><a href="#shibiefa">手写识别不触发 / 延迟太高</a></li>
+  <li class="rs-h2"><a href="#shibiezhuchuangkoushimoshi">手写识别为什么不跟随主窗口的公式/文字模式</a></li>
+  <li class="rs-h2"><a href="#zidongxing">手写自动排版后文字、中文或换行不符合预期</a></li>
+  <li class="rs-h2"><a href="#taiguo">数学工作台计算结果不对</a></li>
+  <li class="rs-h2"><a href="#zhutishichang">深色/浅色主题切换后显示异常</a></li>
+  <li class="rs-h2"><a href="#pandoc-ma">Pandoc 导出中文乱码</a></li>
+  <li class="rs-h2"><a href="#dukai-pdf-you">双语阅读打开 PDF 后没有原文或译文</a></li>
+<li class="rs-h1"><a href="#sec-platform">平台特定问题（Linux / macOS）</a></li>
+  <li class="rs-h2"><a href="#zhu">三端主要差异速查</a></li>
+  <li class="rs-h2"><a href="#linux-wayland-gongnengchang">Linux: Wayland 下截图功能异常</a></li>
+  <li class="rs-h2"><a href="#linux-wayland-dong">Linux: 虚拟机或 Wayland 下启动后直接中止</a></li>
+  <li class="rs-h2"><a href="#macos-dong">macOS: 首次启动被阻止</a></li>
+  <li class="rs-h2"><a href="#macos-chuang">macOS: 截图权限弹窗</a></li>
+  <li class="rs-h2"><a href="#macos-kuaijiejiangongneng">macOS: 全局快捷键是否需要辅助功能权限</a></li>
+  <li class="rs-h2"><a href="#macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</a></li>
+  <li class="rs-h2"><a href="#pingtaimu">各平台数据目录速查</a></li>
+<li class="rs-h1"><a href="#sec-conflict">与其他软件冲突</a></li>
+  <li class="rs-h2"><a href="#duoben-python-yong">多版本 Python 共存导致调用错误</a></li>
+  <li class="rs-h2"><a href="#ru-ruanjian">输入法 / 屏幕取词软件干扰截图</a></li>
+<li class="rs-h1"><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
+  <li class="rs-h2"><a href="#bi">必须提供的信息</a></li>
+  <li class="rs-h2"><a href="#fankui">去哪里反馈</a></li>
+<li class="rs-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
+  <li class="rs-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
+  <li class="rs-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
+  <li class="rs-h2"><a href="#kaifazhexiang">开发者验证命令注意事项</a></li>
+  <li class="rs-h2"><a href="#pyrightconfig-json">pyrightconfig.json 中的路径</a></li>
+<li class="rs-vol-divider"><span>第二卷 · MathCraft 内部模型介绍</span></li>
+  <li class="rs-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+  <li class="rs-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
+  <li class="rs-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
+    <li class="rs-h3"><a href="#abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</a></li>
+    <li class="rs-h3"><a href="#dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</a></li>
+    <li class="rs-h3"><a href="#lecture-note-p-1">中文讲义：Lecture Note (p.1)</a></li>
+    <li class="rs-h3"><a href="#yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</a></li>
+  <li class="rs-h2"><a href="#xingnengcankao">性能参考</a></li>
+  <li class="rs-h2"><a href="#sec-envvar">环境变量设置指南</a></li>
+    </ul>
+  </div>
+</aside>
+
+<div class="center">
+<p><strong>LaTeXSnipper</strong></p>
+<p>用户手册</p>
+<p>适用于 v2.3.2_Final_Stable | 最终稳定版</p>
+
+</div>
+<div class="center">
+<div class="center"><img src="assets/images/LaTeXSnipper.png" alt="" loading="lazy" decoding="async"></div>
+
+</div>
+<div class="block block-gray">
+<p><strong>目录</strong></p>
+<p><strong>第一卷 · LaTeXSnipper 用户指南</strong></p>
+<ul>
+<li><a href="#sec-quick">开始使用前（必读）</a></li>
+<li><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
+<li><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
+<li><a href="#sec-external">外部模型相关问题</a></li>
+<li><a href="#sec-install">安装和环境问题</a></li>
+<li><a href="#sec-network">网络与更新问题</a></li>
+<li><a href="#sec-pdf">PDF 与识别效果问题</a></li>
+<li><a href="#sec-usage">使用技巧与功能问题</a></li>
+<li><a href="#sec-platform">平台特定问题（Linux / macOS）</a></li>
+<li><a href="#sec-conflict">与其他软件冲突</a></li>
+<li><a href="#sec-source">从源码运行与开发者常见问题</a></li>
+<li><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
+</ul>
+<p><strong>第二卷 · MathCraft 内部模型介绍</strong></p>
+<ul>
+<li><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+<li><a href="#sec-envvar">环境变量设置指南</a></li>
+</ul>
+
+</div>
+<div class="spacer-lg"></div>
+<div class="center">
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label">第一卷 · LaTeXSnipper 用户指南</span></div></div>
+
+</div>
+<h1 id="sec-quick">开始使用前（必读）</h1>
+<h2 id="anzhuangyunxing">安装后第一步：运行依赖向导</h2>
+<p>LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导"。这不是可有可无的步骤——向导负责安装和配置内置 MathCraft OCR、PDF/Pandoc 等运行依赖层；外部模型服务本身仍需要用户另行部署或配置。</p>
+<div class="callout warn">
+<div class="callout-title">常见错误：跳过向导后直接使用内置识别</div>
+<div class="callout-body"><p>如果依赖层未完整安装，内置 MathCraft 截图识别、PDF 识别、手写识别和 Pandoc 导出可能不可用，或在首次调用时进入修复流程。</p>
+<p>如果只使用外部模型，可以跳过安装并进入应用，但仍需要在设置页完成外部服务配置并通过连接测试。</p>
+<p>向导只管理 Python 依赖层，不会安装或卸载系统软件包（如 apt/brew 等）。</p>
+</div>
+</div>
+<p>如果向导本身运行失败：</p>
+<ul>
+<li>Windows：确保以普通用户（非管理员）运行，且杀毒软件未拦截</li>
+<li>Linux：确保 <code>python3 -m venv</code> 可用（Debian/Ubuntu 通常需要 <code>python3-venv</code>）</li>
+<li>macOS：确保有可用的 Python 3.10+，推荐 Homebrew Python 或 python.org 官方安装包</li>
+</ul>
+<h2 id="ruanjianbenliu">软件的基本工作流</h2>
+<div class="callout info">
+<div class="callout-title">了解这个流程可以避免 80% 的困惑</div>
+<div class="callout-body"><p><strong>截图 → 识别 → 编辑/预览 → 导出</strong>，具体来说：</p>
+<ul>
+<li><strong>主窗口截图：</strong> 按下截图快捷键（默认见设置），框选公式区域</li>
+<li><strong>识别结果：</strong> 自动出现在主窗口列表，双击可查看 LaTeX 源码和渲染预览</li>
+<li><strong>编辑区：</strong> 主窗口右侧是 LaTeX 编辑器，支持实时预览渲染</li>
+<li><strong>数学工作台：</strong> 点击"数学工作台"按钮打开独立窗口，会自动载入主编辑器中的公式。在工作台中可以编辑公式、进行数值计算或表达式化简，完成后可写回主编辑器</li>
+<li><strong>手写识别：</strong> 从主窗口打开手写窗口，内置识别固定使用 MathCraft 混合模式，手写文字和公式会一起识别</li>
+<li><strong>导出：</strong> 右键或菜单可选择 30+种格式导出（部分需要 Pandoc）</li>
+</ul>
+</div>
+</div>
+<h2 id="jianguanjian">日志文件在哪里（关键！）</h2>
+<p>遇到任何问题时，第一步永远是 <strong>查看日志</strong>：</p>
+<ul>
+<li><strong>Windows：</strong> <code>%USERPROFILE%\.latexsnipper\logs\</code> 或 <code>%LOCALAPPDATA%\LaTeXSnipper\logs\</code></li>
+<li><strong>Linux：</strong> <code>~/.latexsnipper/logs/</code></li>
+<li><strong>macOS：</strong> <code>~/.latexsnipper/logs/</code></li>
+<li><strong>崩溃日志：</strong> 同目录下的 <code>crash-native.log</code></li>
+</ul>
+<div class="callout tip">
+<div class="callout-title">建议</div>
+<div class="callout-body"><p>反馈 Bug 时把整个 logs 目录打包发过来，不要只截图报错弹窗。</p>
+</div>
+</div>
+<div class="spacer-lg"></div>
+<h1 id="sec-workflows">主窗口功能入口与识别流程</h1>
+<h2 id="zhuchuangkoufenbie">主窗口按钮分别做什么</h2>
+<p>当前主窗口左侧是截图和历史区，右侧是 LaTeX 编辑、预览和工具入口：</p>
+<ul>
+<li><strong>截图识别：</strong> 使用全局快捷键或按钮进入框选截图识别。默认快捷键是 <code>Ctrl+F</code>，可在主窗口"快捷键"按钮中修改。</li>
+<li><strong>图片识别：</strong> 选择本地图片文件并走当前识别模型。</li>
+<li><strong>PDF识别：</strong> 选择 PDF 后按页渲染识别，可输出 Markdown 或 LaTeX 文档。</li>
+<li><strong>手写识别：</strong> 打开独立手写画布，写完后自动触发识别，结果可复制或写回主编辑器。</li>
+<li><strong>双语阅读：</strong> 打开 PDF 阅读/翻译窗口，左侧查看 PDF，右侧显示当前页原文与中文。</li>
+<li><strong>数学工作台：</strong> 将主编辑器中的公式载入 MathLive 工作台，进行计算、化简、展开、因式分解、求解等操作。</li>
+<li><strong>复制 / 导出：</strong> 复制当前编辑器内容，或通过统一导出菜单导出为 LaTeX、Markdown、MathML、HTML、OMML、SVG 以及 Pandoc 扩展格式。</li>
+<li><strong>收藏夹 / 历史记录：</strong> 历史项和收藏项都支持复制、编辑、导出、重命名和删除。</li>
+</ul>
+<p>托盘或菜单栏状态菜单还提供 <strong>截图屏幕模式</strong>：自动模式会按鼠标释放点选择屏幕，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。</p>
+<h2 id="shezhiqianji">设置页当前业务逻辑</h2>
+<p>设置页的"选择识别模型"只有两类入口：</p>
+<ul>
+<li><strong>内置模型：</strong> 使用 MathCraft OCR。本地识别类型可选 <strong>公式</strong>、<strong>混合（文字+公式）</strong>、<strong>纯文字</strong>。</li>
+<li><strong>外部模型：</strong> 连接 OpenAI-compatible、Ollama 或 MinerU 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL、Qwen2.5/Qwen3-VL、Ollama Vision 和 MinerU Native。</li>
+</ul>
+<p>外部模型的 <strong>输出偏好</strong> 只影响普通图片、截图和手写识别；PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认模板。</p>
+<p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示日志窗口、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
+<h2 id="pdf-shibieliucheng">PDF 识别流程</h2>
+<p>点击 <strong>PDF识别</strong> 后，程序会按当前模型执行：</p>
+<ul>
+<li>当前为 <strong>内置模型</strong> 且不是混合模式时，会提示切换到 MathCraft 混合识别后继续。PDF 文档识别需要混合模式做文本和公式整理。</li>
+<li>当前为 <strong>外部模型</strong> 时，必须先在设置中完成外部模型配置并通过连接测试。</li>
+<li>MinerU 原生协议会走文档解析模式，输出固定为 Markdown；其他模型会先询问输出 Markdown 还是 LaTeX。</li>
+<li>程序会询问识别页数，默认最多先识别 5 页，避免大 PDF 一次性耗时过长。</li>
+<li>程序会询问 PDF 渲染 DPI，范围为 90-300。外部模型默认 150 DPI，内置模型默认 200 DPI。</li>
+<li>识别结果会打开独立的 PDF 结果窗口，可编辑、复制或保存。Markdown 文档保存时，如果结构化结果包含图片资源，程序会尽量把相关 assets 一起复制到保存目录。</li>
+</ul>
+<h2 id="duliucheng">双语阅读流程</h2>
+<p><strong>双语阅读</strong> 是阅读与翻译工具，不等同于 PDF OCR：</p>
+<ul>
+<li>打开 PDF 后，左侧显示 PDF 预览，右侧按当前页显示原文和中文。</li>
+<li>原文来自 PyMuPDF 对 PDF 文本层的提取；扫描件或没有文本层的 PDF 需要先走 OCR 识别。</li>
+<li>PDF 预览后端可选 <strong>自动</strong>、<strong>Poppler</strong>、<strong>Fitz</strong>。自动模式优先使用可用的 Poppler，否则回退 Fitz。</li>
+<li>翻译引擎可选 <strong>仅显示原文</strong>、<strong>Argos Translate</strong>、<strong>Azure Translator</strong>、<strong>Google Cloud Translation</strong>、<strong>DeepL API Free</strong>。</li>
+<li>Argos 是可选本地翻译组件，会创建独立翻译环境并安装英译中模型；它不影响主依赖环境是否完整。</li>
+<li>Azure、Google、DeepL 的接口配置只对双语阅读功能生效，保存后写入本地配置。</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-local">本地模型（MathCraft ONNX）相关问题</h1>
+<div class="callout tip">
+<div class="callout-title">MathCraft ONNX 用户提示</div>
+<div class="callout-body"><p>应用会自动下载并 <code>warmup()</code>，如果 warmup 失败会尝试重新下载。但如果网络慢，下载模型可能很久。</p>
+<p>可以先用 <code>python -m mathcraft_ocr models check</code> 检查缓存状态。</p>
+</div>
+</div>
+<h2 id="moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</h2>
+<p><strong>现象：</strong> 启动或首次使用时卡在 "model xxx downloading"，然后失败。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>模型托管在 GitHub Releases 等境外服务器，国内用户可能无法直接访问</li>
+<li>公司/学校网络有防火墙拦截</li>
+<li>代理设置不正确导致 <code>urllib</code> 无法连接</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>检查网络是否能访问 GitHub</li>
+<li>设置环境变量 <code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code>（如果使用代理）</li>
+<li>尝试切换网络（如手机热点）</li>
+<li>删除 MathCraft 模型缓存目录下残留的不完整下载后重试：</li>
+<li>Windows：<code>%APPDATA%\MathCraft\models\</code></li>
+<li>Linux/macOS：<code>~/.mathcraft/models/</code></li>
+</ul>
+<div class="callout tip">
+<div class="callout-title">命令行诊断</div>
+<div class="callout-body"><p>运行 <code>python -m mathcraft_ocr models check</code> 可以查看模型缓存状态。</p>
+<p>运行 <code>python -m mathcraft_ocr warmup --profile mixed --provider auto</code> 可以预热混合识别链路；如果模型缺失或损坏，运行时会自动下载或修复缓存。</p>
+</div>
+</div>
+<h2 id="onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</h2>
+<p><strong>现象：</strong> 启动报 <code>failed to import onnxruntime</code> 或 <code>missing get_available_providers</code>。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>可能安装了 <code>onnxruntime</code> 的命名空间包而非完整包</li>
+<li>pip 安装时网络中断导致包不完整</li>
+<li>CPU 版和 GPU 版冲突</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li><code>pip uninstall onnxruntime onnxruntime-gpu</code> 全部卸载后重新安装</li>
+<li>如需 GPU 加速：<code>pip install onnxruntime-gpu</code></li>
+<li>仅 CPU：<code>pip install onnxruntime</code></li>
+</ul>
+<h2 id="cuda-gpu-xiangguan">CUDA / GPU 相关错误</h2>
+<p><strong>现象：</strong> warmup 时报 CUDA 相关错误，如 <code>cuda wasn't able to be loaded</code>、<code>cublas</code> 错误等。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>安装了 <code>onnxruntime-gpu</code> 但没装 CUDA / cuDNN</li>
+<li>CUDA 版本与 onnxruntime-gpu 不匹配</li>
+<li>显卡驱动太旧</li>
+<li>多 GPU 环境下默认选错了设备</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li><strong>如果不需要 GPU：</strong> 设置环境变量 <code>MATHCRAFT_FORCE_ORT_CPU=1</code> 强制 CPU 模式</li>
+<li><strong>如果需要 GPU：</strong> 确认 CUDA Toolkit 和 cuDNN 版本与 onnxruntime-gpu 匹配（查 onnxruntime 官方兼容表）</li>
+<li>更新显卡驱动</li>
+</ul>
+<h2 id="moxing-cheng">模型缓存损坏（下载一半断电 / 杀进程）</h2>
+<p><strong>现象：</strong> warmup 报 <code>invalid protobuf</code>、<code>failed to load model</code>、<code>sha256 mismatch</code>。</p>
+<p><strong>原因：</strong> 下载过程中断导致模型文件不完整；或者磁盘故障导致文件损坏。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>删除对应模型目录：Windows 为 <code>%APPDATA%\MathCraft\models\&lt;model_id&gt;\</code>，Linux/macOS 为 <code>~/.mathcraft/models/&lt;model_id&gt;/</code></li>
+<li>重启应用，会自动重新下载</li>
+<li>或用命令行：<code>python -m mathcraft_ocr models check</code> 检查缓存状态</li>
+</ul>
+<h2 id="onnx-moxing">显存不足导致 ONNX 模型加载失败</h2>
+<p><strong>现象：</strong> warmup 报 CUDA out of memory 或直接崩溃。</p>
+<p><strong>原因：</strong> GPU 显存不够。应用会根据显存选择批大小，但如果其他程序（浏览器、游戏）占了显存，剩余不够。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>关闭其他占用 GPU 的程序</li>
+<li>设置 <code>MATHCRAFT_FORCE_ORT_CPU=1</code> 强制使用 CPU</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-external">外部模型相关问题</h1>
+<h2 id="benpeizhiwaibumoxingshibie">根本没配置外部模型，直接点识别然后报错</h2>
+<p><strong>现象：</strong> 截图后识别失败，提示"模型名为空"或"外部模型地址为空"。</p>
+<div class="callout error">
+<div class="callout-title">错误原因</div>
+<div class="callout-body"><p>外部模型客户端 <code>_validate_config()</code> 要求 provider 非 mineru 时 <code>model_name</code> 和 <code>base_url</code> 不能为空。</p>
+<p>默认 <code>model_name</code> 就是空字符串，你需要手动填写。</p>
+</div>
+</div>
+<p><strong>解决：</strong> 先去 <strong>设置 → 外部模型</strong>，至少填上 Base URL 和模型名（或选择预设），点"测试连接"通过后再使用。</p>
+<h2 id="moxingdongyong">模型没预热（冷启动），第一次调用巨慢或超时</h2>
+<p><strong>现象：</strong> 首次 OCR 识别等待很久（可能超过 60 秒），然后报超时。</p>
+<p><strong>原因：</strong> vLLM / Ollama / 本地 ONNX 模型首次加载需要将模型读入内存/显存，尤其是大模型（7B+）。默认超时仅 60 秒。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li><strong>方案 A：</strong> 首次使用前先手动调用一次预热（用 curl 或 Ollama 的 API 测试页面）</li>
+<li><strong>方案 B：</strong> 在设置里把超时提高到 120-180 秒</li>
+<li><strong>方案 C：</strong> Ollama 用户可以先 <code>ollama run &lt;model_name&gt;</code> 确保模型已在内存中</li>
+</ul>
+<h2 id="ollama-dong-base-url">Ollama 已启动但 Base URL 填错</h2>
+<p><strong>现象：</strong> 测试连接报"无法连接到 127.0.0.1:11434"。</p>
+<p><strong>常犯错误：</strong></p>
+<ul>
+<li>填了 <code>http://localhost:11434/v1</code>（Ollama <strong>不需要</strong> <code>/v1</code> 后缀）</li>
+<li>填了 <code>https://</code> 而不是 <code>http://</code>（本地 Ollama 默认不开 HTTPS）</li>
+<li>Ollama 服务实际监听在其他端口，但用户没改端口号</li>
+<li>Ollama 根本没启动（<code>ollama serve</code> 没运行）</li>
+</ul>
+<div class="callout tip">
+<div class="callout-title">快速验证</div>
+<div class="callout-body"><p>先在浏览器访问 <code>http://127.0.0.1:11434/api/tags</code>，如果返回 JSON 就说明正常。</p>
+</div>
+</div>
+<h2 id="moxing">模型名拼写错误 / 大小写不对</h2>
+<p><strong>现象：</strong> 测试连接提示"模型名不存在: xxx"，然后列出可用模型。</p>
+<p><strong>原因：</strong> 模型名必须完全一致，包括大小写。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>Ollama 用户执行 <code>ollama list</code> 查看确切模型名</li>
+<li>OpenAI-compatible 用户查服务文档或 <code>/v1/models</code> 接口返回值</li>
+</ul>
+<h2 id="api-yong-api-key">线上 API 用了但没填 API Key</h2>
+<p><strong>现象：</strong> 测试连接或识别时报 401 "接口认证失败"。</p>
+<p><strong>原因：</strong> 线上服务（硅基流动、DeepSeek、OpenAI 等）必须提供 API Key。本地 Ollama 通常不需要。</p>
+<p><strong>解决：</strong> 在设置的 API Key 栏填入正确的密钥。</p>
+<div class="callout warn">
+<div class="callout-title">安全提醒</div>
+<div class="callout-body"><p>API Key 是敏感信息，请勿分享给他人或上传到公开仓库。</p>
+<p>LaTeXSnipper 不会将你的 API Key 发送到除你指定的 Base URL 以外的任何地方。</p>
+</div>
+</div>
+<h2 id="mineru-pei">MinerU 协议选了但是服务端没配好</h2>
+<p><strong>现象：</strong> 测试连接报 404 或 409。</p>
+<p><strong>原因：</strong> MinerU 的默认测试端点是 <code>/health</code>，默认解析端点是 <code>/file_parse</code>。不同版本可能用不同路径。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>先确认 MinerU 服务是否在运行：浏览器访问 <code>http://127.0.0.1:8000/health</code></li>
+<li>如果路径不对，在设置中修改"解析接口路径"和"健康检查路径"</li>
+<li>MinerU 409 错误通常表示解析任务失败，查看 MinerU 服务端日志</li>
+</ul>
+<h2 id="openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</h2>
+<p><strong>现象：</strong> 测试连接时访问 <code>/v1/models</code> 返回 404。</p>
+<p><strong>原因：</strong> Ollama 的模型列表接口是 <code>/api/tags</code>，不是 <code>/v1/models</code>。</p>
+<p><strong>解决：</strong> 把协议从 "OpenAI-compatible"改成 "Ollama"。</p>
+<div class="callout info">
+<div class="callout-title">协议选择速查</div>
+<div class="callout-body"><ul>
+<li>Ollama 服务 → 选 <strong>Ollama</strong></li>
+<li>硅基流动 / DeepSeek / OpenAI / Groq 等 → 选 <strong>OpenAI-compatible</strong></li>
+<li>MinerU 服务 → 选 <strong>MinerU</strong></li>
+<li>本地 MathCraft ONNX → 在"选择识别模型"中选 <strong>内置模型</strong></li>
+</ul>
+</div>
+</div>
+<h2 id="zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</h2>
+<p><strong>现象：</strong> 填写了自定义提示词后，输出变成了自然语言解释而不是 LaTeX 代码。</p>
+<p><strong>原因：</strong> 自定义提示词优先级最高，会完全覆盖模板提示词。如果你写的提示词没有强调"只输出 LaTeX"，模型可能会自由发挥。</p>
+<p><strong>解决：</strong> 如果不确定怎么写，清空自定义提示词，只用模板。</p>
+<div class="spacer-lg"></div>
+<h1 id="sec-install">安装和环境问题</h1>
+<h2 id="python-ben">Python 版本不对</h2>
+<p><strong>现象：</strong> 安装或运行时出现语法错误或不兼容提示。</p>
+<p><strong>原因：</strong> 不同场景的 Python 要求不同，不能混用。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li><strong>普通 Windows 安装包用户：</strong> 不需要单独安装 Python，安装包自带规范化的 Python 3.11 模板环境。</li>
+<li><strong>Linux/macOS 安装包用户：</strong> 需要系统中有可用 Python 3.10+，仅用于创建用户目录下的隔离依赖环境。</li>
+<li><strong>源码运行/开发者：</strong> 推荐 Python 3.11，与当前 Windows 打包环境保持一致。</li>
+</ul>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#Python 3.11 创建虚拟环境
+python3.11 -m venv .venv
+
+#Windows 激活
+.\.venv\Scripts\activate
+
+#Linux/macOS 激活
+source .venv/bin/activate
+
+#Windows 安装公共依赖
+pip install -r requirements.txt
+
+#Linux 安装公共依赖和 Linux 快捷键依赖
+pip install -r requirements-linux.txt
+
+#macOS 安装公共依赖
+pip install -r requirements-macos.txt</code></pre></div>
+<h2 id="pyinstaller-hekaifaxing">PyInstaller 打包版和开发版行为不同</h2>
+<p><strong>现象：</strong> 从 GitHub Release 下载的 exe 能跑，但 <code>git clone</code> 后用源码跑不了。</p>
+<p><strong>原因：</strong> 打包版和源码版的环境边界不同。Windows 安装包包含规范化的 Python 3.11 模板环境；Linux/macOS 安装包只包含 PyInstaller 应用本体，Python 依赖层会在用户目录中创建。源码运行则完全依赖你自己的开发环境。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li><strong>如果是用户：</strong> 优先使用 Release 版本，不要自己从源码跑</li>
+<li><strong>如果是开发者：</strong> Windows 使用 <code>requirements.txt</code>；Linux/macOS 分别使用 <code>requirements-linux.txt</code> / <code>requirements-macos.txt</code>；需要打包或构建资源时再安装 <code>requirements-build.txt</code></li>
+</ul>
+<h2 id="linuxmacos-huanjing">Linux/macOS 依赖环境创建在哪里</h2>
+<p>Linux/macOS 安装包不会把构建机的 <code>tools/deps/python311</code> 或任意虚拟环境打进安装包。首次需要 MathCraft、Pandoc 等 Python 依赖层时，会在用户可写目录创建：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>~/.latexsnipper/deps/python311</code></pre></div>
+<div class="callout info">
+<div class="callout-title">为什么这样设计</div>
+<div class="callout-body"><p>Linux/macOS 的安装目录通常位于 <code>/usr/lib/latexsnipper</code> 或 <code>.app</code> 包内部，普通用户没有写权限。</p>
+<p>将依赖层放在 <code>~/.latexsnipper/deps/python311</code> 可以避免权限错误，也避免把开发者机器上的 venv、<code>pyvenv.cfg</code>、CI 路径打进安装包。</p>
+</div>
+</div>
+<p>Linux <code>.deb</code> 会声明 <code>python3</code> 和 <code>python3-venv</code> 依赖；macOS 没有 <code>.deb</code> 这种系统依赖声明机制，如果找不到可用 <code>python3</code>，请先安装：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#Homebrew
+brew install python
+
+#或使用 python.org 官方 macOS 安装包
+https://www.python.org/downloads/macos/</code></pre></div>
+<h2 id="pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</h2>
+<p><strong>现象：</strong> <code>pip install -r requirements.txt</code> 报错。</p>
+<p>依赖向导会先显示 UI；<code>ensurepip</code>、<code>pip</code> 升级以及 <code>setuptools</code> / <code>wheel</code> 修复只会在点击下载/安装后执行。若所选目录已有可用 Python 环境，向导会直接使用该环境；若没有可用 Python，Windows 会调用本地 <code>python-3.11.0-amd64.exe</code> 初始化模板环境，Linux/macOS 会使用系统 Python 3.10</p>
+<ol>
+<li>创建隔离环境。</li>
+</ol>
+<p><strong>原因：</strong></p>
+<ul>
+<li><code>pywin32</code> 需要编译或特定 wheel</li>
+<li><code>PyQt6</code> 体积大约束多</li>
+<li>某些包在国内 PyPI 镜像可能没有及时同步</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>使用清华/阿里云 PyPI 镜像：</li>
+</ul>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt</code></pre></div>
+<ul>
+<li>Linux/macOS 源码运行请改用对应平台文件：<code>requirements-linux.txt</code> 或 <code>requirements-macos.txt</code></li>
+<li><code>pywin32</code> 只在 Windows 平台安装；如果 Windows pip 装不上，去 PyPI 手动下载匹配 Python 版本的 wheel 安装</li>
+</ul>
+<h2 id="wentiprogram-files-mu">权限问题（Program Files / 系统目录）</h2>
+<p><strong>现象：</strong> 安装在 <code>C:\Program Files\</code> 下运行报权限错误。</p>
+<p><strong>原因：</strong> 应用需要在用户目录（<code>%APPDATA%</code>、<code>~/.latexsnipper/</code>）写入日志、配置、模型缓存。如果应用本身放在受保护目录，某些操作可能被 UAC 拦截。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>GitHub 安装包默认安装到 <code>%LOCALAPPDATA%\LaTeXSnipper</code>，普通用户权限即可运行</li>
+<li>如果手动放入 <code>C:\Program Files\</code> 等受保护目录，不要把依赖目录、模型缓存或日志目录指向安装目录；保持默认用户目录通常没有问题</li>
+</ul>
+<h2 id="yongte">中文路径 / 用户名包含特殊字符</h2>
+<p><strong>现象：</strong> 启动崩溃或模型加载失败。</p>
+<p><strong>原因：</strong> Windows 用户名含中文、空格、特殊符号时，<code>%APPDATA%</code> 路径可能包含非 ASCII 字符，某些 C 库或 ONNX 底层可能无法正确处理。</p>
+<p><strong>解决：</strong> 设置环境变量 <code>MATHCRAFT_HOME</code> 指向一个纯 ASCII 路径，例如 <code>C:\mathcraft_data</code>。</p>
+<div class="spacer-lg"></div>
+<h1 id="sec-network">网络与更新问题</h1>
+<h2 id="windows-bendi">Windows 防火墙拦截本地服务</h2>
+<p><strong>现象：</strong> Ollama / MinerU 等服务已启动，但 LaTeXSnipper 连不上。</p>
+<p><strong>原因：</strong> Windows Defender 防火墙可能拦截了本地回环连接。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>检查防火墙设置，允许 Python / Ollama 通过</li>
+<li>临时关闭防火墙测试（仅用于排查）</li>
+<li>确认 Ollama 监听在 <code>0.0.0.0</code> 还是 <code>127.0.0.1</code></li>
+</ul>
+<h2 id="gengxinjian">更新检查失败</h2>
+<p><strong>现象：</strong> 检查更新时一直转圈或报错。</p>
+<p><strong>原因：</strong> 更新检查访问 <code>api.github.com</code>，国内可能被墙或很慢。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>设置代理后重试</li>
+<li>直接去 GitHub Releases 手动下载最新版</li>
+<li>查看 <code>%USERPROFILE%/.latexsnipper/logs/</code> 下的日志了解具体错误</li>
+</ul>
+<h2 id="ruanjian">杀毒软件误报 / 拦截</h2>
+<p><strong>现象：</strong> exe 被删除、隔离或阻止运行。</p>
+<p><strong>原因：</strong> PyInstaller 打包的 exe 有时被误报为木马。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>将安装目录加入杀毒软件白名单</li>
+<li><strong>确保从 GitHub Releases 下载</strong>（优先使用 SignPath 签名安装包；签名不可用时官方 Release 可能提供同名未签名回退包）</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-pdf">PDF 与识别效果问题</h1>
+<h2 id="pdf-shibieguo">PDF 识别结果很乱</h2>
+<p><strong>现象：</strong> 用内置模型或外部模型识别 PDF 效果很差。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>DPI 设得太低（&lt; 100）或太高（&gt; 200）</li>
+<li>扫描件与文字型 PDF 处理方式不同</li>
+<li>提示词模板不匹配（用了公式模板去识别文档）</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>文字型 PDF：尝试 140-170 DPI</li>
+<li>扫描件：尝试 200-300 DPI</li>
+<li>外部模型普通图片/手写识别：确认设置中"输出偏好"和提示词模板与任务匹配</li>
+<li>PDF 识别：在 PDF 入口单独选择 Markdown/LaTeX 与 DPI；MinerU 文档解析固定输出 Markdown</li>
+</ul>
+<h2 id="moshiguo">切换了输出模式但结果没变</h2>
+<p><strong>现象：</strong> 设置里选了 LaTeX 输出，但返回的还是 Markdown。</p>
+<p><strong>原因：</strong> 自定义提示词会覆盖输出模式设置；PDF 入口的格式选择独立于外部模型设置页的"输出偏好"；MinerU 协议走原生接口，不受输出偏好影响。</p>
+<p><strong>解决：</strong> 清空自定义提示词、确认协议类型；如果是 PDF，请重新从 PDF 入口选择导出格式。</p>
+<h2 id="fenshibie">大图片 / 高分辨率截图识别失败</h2>
+<p><strong>现象：</strong> 截了 4K 屏幕的图，识别直接报错或超时。</p>
+<p><strong>原因：</strong> 图片太大，Base64 编码后体积膨胀约 33%，可能超过服务端请求体大小限制，或传输太慢导致超时。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>缩小截图范围</li>
+<li>降低截图分辨率</li>
+<li>提高超时时间</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-usage">使用技巧与功能问题</h1>
+<h2 id="kuaijiejianxiao">截图快捷键不生效</h2>
+<p><strong>现象：</strong> 按下截图快捷键后没有任何反应。</p>
+<p><strong>可能原因与解决：</strong></p>
+<ul>
+<li><strong>快捷键被其他软件占用：</strong> 输入法、词典取词、录屏软件可能占用全局快捷键。暂时关闭这些软件，或在设置中更换截图快捷键</li>
+<li><strong>权限不足（Linux/macOS）：</strong> Linux Wayland 可能限制全局快捷键或截图；macOS 截图需要屏幕录制权限，参阅平台特定章节</li>
+<li><strong>应用在后台运行？</strong> Windows 和有托盘的 Linux 会隐藏到系统托盘；macOS 会保持应用运行，可从 Dock 或菜单栏状态项重新打开</li>
+</ul>
+<h2 id="gongnengyongpandoc-xiangguan">导出功能不可用（Pandoc 相关）</h2>
+<p><strong>现象：</strong> 导出 Word / EPUB / Typst 等格式时报错或选项灰色。</p>
+<p><strong>原因：</strong> 这些格式依赖 Pandoc。Pandoc 是可选的外部工具。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>打开依赖向导，安装 "PANDOC"层</li>
+<li>或手动安装 Pandoc（https://pandoc.org）并确保在 PATH 中</li>
+<li>核心功能（LaTeX / Markdown / MathML / HTML 导出）不需要 Pandoc</li>
+</ul>
+<h2 id="shibiefa">手写识别不触发 / 延迟太高</h2>
+<p><strong>现象：</strong> 在手写窗口写完公式后没反应，或延迟很长才识别。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>OCR 服务未就绪（内置 MathCraft 混合模式未加载，或外部模型未连接）</li>
+<li>网络延迟（使用远程外部模型时）</li>
+<li>触控笔驱动问题</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>打开手写窗口后，程序会后台预热 MathCraft 混合模式；首次使用可能需要等待模型加载</li>
+<li>手写窗口右下角有状态指示，确认显示"就绪"</li>
+<li>如果使用远程模型，检查网络延迟</li>
+</ul>
+<h2 id="shibiezhuchuangkoushimoshi">手写识别为什么不跟随主窗口的公式/文字模式</h2>
+<p><strong>说明：</strong> 手写窗口的内置识别固定使用 MathCraft 混合模式。这样可以同时保留普通文字、中文/英文标签和公式，后续"自动排版"生成文档时不会因为只走公式模式而丢失文字。</p>
+<p><strong>影响：</strong></p>
+<ul>
+<li>主窗口截图识别仍然可以选择公式、文字、混合或外部模型</li>
+<li>手写窗口使用内置模型时固定为混合模式，并会按混合模式预热</li>
+<li>如果主窗口选择了外部模型，手写窗口仍会使用外部模型，但默认采用手写混合 OCR 提示词，以 Markdown</li>
+</ul>
+<ol>
+<li>LaTeX 形式保留文字和公式</li>
+</ol>
+<h2 id="zidongxing">手写自动排版后文字、中文或换行不符合预期</h2>
+<p><strong>现象：</strong> 自动排版后普通文字被省略，中文编译异常，或多行文字在 PDF 中挤到同一行。</p>
+<p><strong>当前策略：</strong></p>
+<ul>
+<li>自动排版会生成完整 XeLaTeX 文档，并使用 <code>ctexart</code> 文档类</li>
+<li>导言区会补齐常用数学和表格宏包，如 <code>amsmath</code>、<code>amssymb</code>、<code>mathtools</code>、<code>geometry</code> 等</li>
+<li>普通文字行会按段落保留，连续文字行会自动分段，避免 PDF 中被合并到同一行</li>
+<li>如果外部模型排版时吞掉了识别草稿里的普通文字，程序会尝试把这些文字合并回文档正文</li>
+</ul>
+<h2 id="taiguo">数学工作台计算结果不对</h2>
+<p><strong>现象：</strong> 输入表达式后计算返回错误结果或超时。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>表达式语法问题（如隐式乘法未加 <code>*</code>）</li>
+<li>Compute Engine 无法处理的复杂表达式</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>检查表达式语法：<code>2x</code> 需要写成 <code>2*x</code></li>
+<li>应用会自动回退到 SymPy/mpmath 引擎处理复杂情况</li>
+<li>对于超长运行的计算，耐心等待回退引擎结果</li>
+</ul>
+<h2 id="zhutishichang">深色/浅色主题切换后显示异常</h2>
+<p><strong>现象：</strong> 切换主题后某些窗口颜色错乱或文字不可见。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>重启应用确保所有窗口正确应用主题</li>
+<li>如果问题持续，在设置中明确选择"浅色"或"深色"而非"跟随系统"</li>
+</ul>
+<h2 id="pandoc-ma">Pandoc 导出中文乱码</h2>
+<p><strong>现象：</strong> 导出 <code>.docx</code> 或 <code>.epub</code> 后中文显示为乱码。</p>
+<p><strong>原因：</strong> Pandoc 默认可能使用非 UTF-8 编码，或缺少中文字体。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>确保 Pandoc 版本 ≥ 3.0</li>
+<li>导出 LaTeX PDF 时确保安装了 <code>ctex</code> 宏包或中文字体</li>
+<li>Word 导出后在 Word 中手动设置字体</li>
+</ul>
+<h2 id="dukai-pdf-you">双语阅读打开 PDF 后没有原文或译文</h2>
+<p><strong>现象：</strong> 双语阅读窗口能打开 PDF，但右侧原文为空，或译文一直为空。</p>
+<p><strong>原因：</strong></p>
+<ul>
+<li>双语阅读读取的是 PDF 文本层，不会对扫描页自动 OCR</li>
+<li>当前翻译引擎是"仅显示原文"，不会生成中文译文</li>
+<li>Argos 本地翻译未部署完整，或远程翻译引擎没有配置 API Key</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>扫描件先使用 <strong>PDF识别</strong> 做 OCR，或换用带文本层的 PDF</li>
+<li>如果需要离线英译中，选择 Argos Translate 并点击"部署 Argos 本地翻译"</li>
+<li>如果使用 Azure、Google 或 DeepL，先点"接口配置"填写密钥</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-platform">平台特定问题（Linux / macOS）</h1>
+<h2 id="zhu">三端主要差异速查</h2>
+<p>LaTeXSnipper 的主流程在 Windows、Linux、macOS 上保持一致：截图识别、图片识别、PDF 识别、手写识别、双语阅读、导出、历史记录、收藏夹和数学工作台使用同一套业务逻辑。</p>
+<p><strong>主要差异集中在系统集成层：</strong></p>
+<ul>
+<li><strong>截图快捷键：</strong> Windows 使用 Win32 原生全局快捷键；Linux 使用 <code>pynput</code> 全局快捷键，X11 最稳定，Wayland 可能受桌面环境策略限制；macOS 使用 Carbon 原生全局快捷键。</li>
+<li><strong>可设置快捷键：</strong> 三端统一限制为 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>。</li>
+<li><strong>默认快捷键：</strong> 三端都是 <code>Ctrl+F</code>。</li>
+<li><strong>截图实现：</strong> Windows 使用 Qt 框选截图；Linux 先走 Qt，失败后可尝试 <code>grim</code>、<code>maim</code>、<code>gnome-screenshot</code> 等系统工具或 portal 回退；macOS 先走 Qt，可回退到系统 <code>screencapture</code>，首次使用可能弹出屏幕录制权限。</li>
+<li><strong>关闭窗口 / 后台常驻：</strong> Windows 关闭主窗口会隐藏到系统托盘，托盘菜单"退出"才真正退出；Linux 有系统托盘时关闭主窗口会隐藏到托盘，没有托盘时会询问是否退出；macOS 关闭主窗口会最小化并保持应用运行，Dock 或菜单栏"退出"才真正退出。</li>
+<li><strong>权限要求：</strong> Windows 普通截图路径不需要额外系统权限；Linux Wayland 可能限制截图和全局快捷键；macOS 截图需要屏幕录制权限，Carbon 全局快捷键通常不需要辅助功能权限。</li>
+<li><strong>依赖环境：</strong> Windows GitHub 安装包内置规范化依赖环境，Store 包内置 CPU 运行时和模型；Linux/macOS 运行时在 <code>~/.latexsnipper/deps/python311</code> 创建依赖环境，需要系统 Python 3.10+。</li>
+<li><strong>安装包：</strong> Windows 使用 Inno 安装包或 Store MSIX，GitHub Release 优先发布签名安装包，签名不可用时发布同名未签名回退包；Linux 使用 Debian/Ubuntu <code>.deb</code>；macOS 使用 <code>.dmg</code> 或 <code>.app.zip</code>。</li>
+</ul>
+<div class="callout info">
+<div class="callout-title">快捷键兼容性</div>
+<div class="callout-body"><p>当前快捷键设置入口只接受 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>，因此默认快捷键和用户可设置快捷键都落在三端共同支持范围内。</p>
+<p>若 Linux Wayland 环境下快捷键或截图无响应，通常是桌面环境权限或全局快捷键策略限制，优先参考下方 Wayland 说明。</p>
+<p>macOS 使用 Carbon 注册全局快捷键，通常不需要开启"辅助功能"权限；截图失败时应优先检查"屏幕录制"权限。</p>
+</div>
+</div>
+<h2 id="linux-wayland-gongnengchang">Linux: Wayland 下截图功能异常</h2>
+<p><strong>现象：</strong> 在 Wayland 会话下截图黑屏、部分窗口无法截取或快捷键无响应。</p>
+<p><strong>原因：</strong> Wayland 的安全模型限制了应用间的屏幕捕获，Qt 的截图机制可能需要额外配置。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>尝试安装并配置 <code>grim</code></li>
+</ul>
+<ol>
+<li><code>slurp</code>（wlroots 系）或 <code>gnome-screenshot</code>（GNOME）</li>
+</ol>
+<ul>
+<li>应用会自动检测这些工具作为回退方案</li>
+<li>某些发行版需要在设置中允许屏幕共享权限</li>
+</ul>
+<div class="callout info">
+<div class="callout-title">Linux 依赖提示</div>
+<div class="callout-body"><p>依赖向导只管理 Python 依赖层。<code>grim</code>、<code>maim</code>、<code>gnome-screenshot</code> 等系统工具需要用户自行通过包管理器安装。</p>
+<p>这些工具是可选的回退方案——应用在 Qt 原生截图失败时自动尝试它们。</p>
+</div>
+</div>
+<h2 id="linux-wayland-dong">Linux: 虚拟机或 Wayland 下启动后直接中止</h2>
+<p><strong>现象：</strong> 命令行出现 <code>EGL not available</code>、<code>No physical devices</code>、<code>GLOzone not found</code>、<code>Failed to get system egl display</code>，随后程序中止。</p>
+<p><strong>原因：</strong> 这通常不是 MathCraft GPU 推理问题，而是 Qt WebEngine / Chromium 在 Wayland、虚拟机、WSL 或没有可用 DRI render 节点时无法初始化 EGL/GPU 图形后端。</p>
+<p><strong>当前策略：</strong> LaTeXSnipper 会在高风险 Linux 图形环境中自动启用软件渲染兜底。正常 X11</p>
+<ol>
+<li>真实 GPU</li>
+<li>可用 <code>/dev/dri/renderD*</code> 的用户仍走原生路径，不会被强制降级。</li>
+</ol>
+<p><strong>手动开关：</strong></p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#强制启用 Linux 图形兜底
+LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS=1 latexsnipper
+
+#禁用 Linux 图形兜底，尝试原生 Qt/GPU 路径
+LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS=1 latexsnipper</code></pre></div>
+<p>如果仍然无法启动，通常是系统缺少 XWayland/XCB/QtWebEngine 运行库。Debian/Ubuntu 用户可先确认这些包是否存在：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>sudo apt install xwayland libxcb-cursor0 libxcb-icccm4 libxcb-image0 
+libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0</code></pre></div>
+<h2 id="macos-dong">macOS: 首次启动被阻止</h2>
+<p><strong>现象：</strong> macOS 提示"无法验证开发者"或"已损坏"。</p>
+<p><strong>原因：</strong> 应用未经过 Apple 公证（notarization）。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>前往 系统设置 → 隐私与安全性 → 点击"仍要打开"</li>
+<li>或终端执行：<code>xattr -cr /Applications/LaTeXSnipper.app</code></li>
+</ul>
+<h2 id="macos-chuang">macOS: 截图权限弹窗</h2>
+<p><strong>现象：</strong> 首次截图时系统弹窗要求授予屏幕录制权限。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li>在系统设置 → 隐私与安全性 → 屏幕录制中勾选 LaTeXSnipper</li>
+<li>授权后如果仍无法截图，请完全退出并重新打开应用</li>
+</ul>
+<h2 id="macos-kuaijiejiangongneng">macOS: 全局快捷键是否需要辅助功能权限</h2>
+<p><strong>结论：</strong> 通常不需要。</p>
+<p>LaTeXSnipper 在 macOS 上使用 Carbon 原生全局快捷键注册，不使用 pynput 或键盘事件监听线程。截图快捷键不生效时，优先检查快捷键是否被系统或其他软件占用，以及应用是否仍在运行。只有涉及低层键盘监听、模拟键鼠控制或其他辅助控制能力的软件通常才需要"辅助功能"权限。</p>
+<h2 id="macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</h2>
+<p><strong>现象：</strong> 依赖向导提示找不到 <code>pip</code>，或安装依赖时出现 <code>pip</code> / <code>setuptools</code> / <code>wheel</code> 版本过低。</p>
+<p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python 3.10</p>
+<ol>
+<li>创建 <code>~/.latexsnipper/deps/python311</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</li>
+</ol>
+<p><strong>解决：</strong></p>
+<ul>
+<li>推荐安装 Homebrew Python：<code>brew install python</code></li>
+<li>或安装 python.org 官方 macOS Python 包</li>
+<li>重新启动 LaTeXSnipper 后再运行依赖向导</li>
+</ul>
+<h2 id="pingtaimu">各平台数据目录速查</h2>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>配置文件 &amp; 日志：
+Windows:  %USERPROFILE%\.latexsnipper
+Linux:    ~/.latexsnipper/
+macOS:    ~/.latexsnipper/
+
+Linux/macOS Python 依赖环境：
+Linux:    ~/.latexsnipper/deps/python311
+macOS:    ~/.latexsnipper/deps/python311
+
+模型缓存（MathCraft ONNX）：
+Windows:  %APPDATA%\MathCraft\models
+Linux:    ~/.mathcraft/models/
+macOS:    ~/.mathcraft/models/</code></pre></div>
+<div class="spacer-lg"></div>
+<h1 id="sec-conflict">与其他软件冲突</h1>
+<h2 id="duoben-python-yong">多版本 Python 共存导致调用错误</h2>
+<p><strong>现象：</strong> 命令行能跑但 GUI 跑不了，或反之。</p>
+<p><strong>原因：</strong> 系统中安装了多个 Python 版本，PATH 中执行的是错误的 Python。</p>
+<p><strong>解决：</strong></p>
+<ul>
+<li><code>where python</code>（Windows）/ <code>which python</code>（Linux/macOS）检查当前使用的 Python 路径</li>
+<li>确保虚拟环境已激活</li>
+<li>使用绝对路径运行</li>
+</ul>
+<h2 id="ru-ruanjian">输入法 / 屏幕取词软件干扰截图</h2>
+<p><strong>现象：</strong> 截图快捷键无效或截到的画面不对。</p>
+<p><strong>原因：</strong> 某些输入法、词典取词、录屏软件占用全局快捷键或 hook 了屏幕捕获。</p>
+<p><strong>解决：</strong> 暂时关闭冲突软件的屏幕相关功能，或在 LaTeXSnipper 设置中修改截图快捷键。</p>
+<div class="spacer-lg"></div>
+<h1 id="sec-bugreport">如何有效反馈 Bug</h1>
+<div class="callout error">
+<div class="callout-title">先说最重要的</div>
+<div class="callout-body"><p><strong>只说"报错了""用不了""闪退"而不提供日志的 issue，不会被处理。</strong></p>
+<p>没有日志 =无法定位 =无法修复。</p>
+</div>
+</div>
+<p>反馈 Bug 时请务必附带以下 <strong>全部</strong> 信息：</p>
+<h2 id="bi">必须提供的信息</h2>
+<div class="block block-orange">
+<p><strong>1. 日志文件</strong></p>
+<p>位于 <code>%USERPROFILE%\.latexsnipper\logs\</code> 或 <code>%LOCALAPPDATA%\LaTeXSnipper\logs\</code>，</p>
+<p>把 <strong>整个 logs 目录打包</strong> 发过来。</p>
+<p>命令行运行时 stderr 的输出也要一并附上。</p>
+<p><strong>2. 崩溃日志</strong></p>
+<p><code>crash-native.log</code>（在日志目录下），如果有的话。</p>
+<p><strong>3. 运行环境</strong></p>
+<p>操作系统版本、安装方式（exe 还是源码）、Python 版本（源码运行时）。</p>
+<p><strong>4. 外部模型配置</strong></p>
+<p>协议类型、模型名、是否本地部署、是否使用代理。</p>
+<p><strong>5. 复现步骤</strong></p>
+<p>你点了什么、填了什么配置、什么时候报的错。越详细越好。</p>
+<p><strong>6. 截图</strong></p>
+<p>错误提示的 <strong>完整截图</strong>（不要裁剪，要包含窗口标题栏）。</p>
+
+</div>
+<h2 id="fankui">去哪里反馈</h2>
+<ul>
+<li><strong>GitHub Issues：</strong> https://github.com/SakuraMathcraft/LaTeXSnipper/issues</li>
+<li><strong>GitHub Discussions：</strong> https://github.com/SakuraMathcraft/LaTeXSnipper/discussions （一般使用问题请发这里）</li>
+</ul>
+<div class="spacer-lg"></div>
+<h1 id="sec-source">从源码运行与开发者常见问题</h1>
+<h2 id="readme-quick-start">README Quick Start 步骤验证</h2>
+<p>README 中提供了三种平台的源码运行步骤，经验证均正确可行：</p>
+<div class="callout tip">
+<div class="callout-title">已验证的步骤</div>
+<div class="callout-body"><ul>
+<li><strong>Windows：</strong> <code>python -m venv .venv</code> → <code>pip install -r requirements.txt</code> → <code>python src/main.py</code></li>
+<li><strong>Linux：</strong> <code>python3 -m venv .venv</code> → <code>pip install -r requirements-linux.txt</code> → <code>python src/main.py</code></li>
+<li><strong>macOS：</strong> <code>python3 -m venv .venv</code> → <code>pip install -r requirements-macos.txt</code> → <code>python src/main.py</code></li>
+<li><code>requirements-linux.txt</code> 和 <code>requirements-macos.txt</code> 通过 <code>-r requirements.txt</code> 自动包含公共依赖；Linux 额外使用 <code>pynput</code> 支持全局快捷键，macOS 使用原生全局快捷键实现。</li>
+</ul>
+</div>
+</div>
+<h2 id="kaifahuanjingyong">开发环境路径不要混用</h2>
+<p><strong>现象：</strong> 本地存在 <code>python311/</code> 和 <code>tools/deps/python311/</code> 两套 Python，不确定应该用哪一个。</p>
+<p><strong>规则：</strong></p>
+<ul>
+<li><code>python311/</code> 是 Windows 安装包的内置 Python 模板，只用于打包复制，不要安装开发依赖，不要执行 ruff/pyright/pytest。</li>
+<li><code>tools/deps/python311/</code> 是 IDE、开发检查和 Actions 打包使用的项目环境，可以安装 <code>requirements*.txt</code>、<code>ruff</code>、<code>pytest</code>、<code>pyright</code>。</li>
+<li>Linux/macOS 安装包运行时不会携带 <code>tools/deps/python311</code>，用户运行时依赖环境位于 <code>~/.latexsnipper/deps/python311</code>。</li>
+</ul>
+<p><strong>Windows 开发者初始化示例：</strong></p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>py -3.11 -m venv tools\deps\python311
+.\tools\deps\python311\python.exe -m pip install --upgrade pip wheel setuptools
+.\tools\deps\python311\python.exe -m pip install -r requirements.txt
+.\tools\deps\python311\python.exe -m pip install -r requirements-build.txt
+.\tools\deps\python311\python.exe -m pip install ruff pytest pyright</code></pre></div>
+<div class="callout info">
+<div class="callout-title">路径速查</div>
+<div class="callout-body"><ul>
+<li>仓库根目录 <code>python311/</code> — Windows 模板环境，不要污染。</li>
+<li><code>tools/deps/python311/</code> — 开发、检查、构建环境。</li>
+<li><code>~/.latexsnipper/deps/python311</code> — Linux/macOS 用户运行时依赖环境。</li>
+</ul>
+</div>
+</div>
+<h2 id="kaifazhexiang">开发者验证命令注意事项</h2>
+<p>开发者文档 <code>docs/developer_code_standards.md</code> 中列出的验证命令：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>.\tools\deps\python311\python.exe -m ruff check .
+.\tools\deps\python311\python.exe -m pytest test
+.\tools\deps\python311\python.exe -m pyright
+.\tools\deps\python311\python.exe -m compileall -q src mathcraft_ocr test</code></pre></div>
+<div class="callout warn">
+<div class="callout-title">运行前必做</div>
+<div class="callout-body"><p><code>ruff</code>、<code>pytest</code>、<code>pyright</code> 不在任何 <code>requirements*.txt</code> 中。</p>
+<p>首次运行验证前需要手动安装：</p>
+<div class="code-block"><pre class="language-text"><button class="copy-btn" onclick="copyCode(this)">复制</button><code>.\tools\deps\python311\python.exe -m pip install ruff pytest pyright</code></pre></div>
+</div>
+</div>
+<h2 id="pyrightconfig-json"><code>pyrightconfig.json</code> 中的路径</h2>
+<p>类型检查应使用 <code>tools/deps/python311</code> 的第三方包解析环境，根目录 <code>python311/</code> 只作为 Windows 模板排除在检查外。不要为了让 pyright 通过而向根目录模板安装开发包。</p>
+<div class="callout tip">
+<div class="callout-title">提示</div>
+<div class="callout-body"><p>如果 <code>tools/deps/python311</code> 不存在，先创建开发环境；不要改用根目录 <code>python311</code> 作为替代。</p>
+</div>
+</div>
+<div class="spacer-lg"></div>
+<div class="center">
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label">第二卷 · MathCraft 内部模型介绍</span></div></div>
+
+</div>
+<h2 id="sec-mathcraft-intro">MathCraft OCR 项目介绍</h2>
+<p>MathCraft OCR 是 LaTeXSnipper 内置的本地公式、文本与混合文档识别引擎，基于 ONNX Runtime 实现本地推理。模型缓存完整后，截图、图片和 PDF 页面识别都可以离线完成。</p>
+<p><strong>项目地址：</strong></p>
+<ul>
+<li>GitHub：https://github.com/SakuraMathcraft/MathCraft-Models</li>
+<li>PyPI：https://pypi.org/project/mathcraft-ocr/</li>
+</ul>
+<p><strong>主要特点：</strong></p>
+<ul>
+<li><strong>本地离线识别：</strong> 模型安装完成后无需网络连接，识别在本地完成</li>
+<li><strong>ONNX 运行时：</strong> 基于 ONNX Runtime，支持 CPU 与 CUDA GPU 路径</li>
+<li><strong>多任务识别：</strong> 支持公式、纯文字、混合文档与 PDF 文档识别</li>
+<li><strong>自动缓存修复：</strong> 模型文件首次使用时自动下载并缓存；缺失或损坏时会按需修复</li>
+</ul>
+<p><strong>安装方式：</strong></p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>pip install "mathcraft-ocr[cpu]"
+#或 GPU 环境：
+pip install "mathcraft-ocr[gpu]"</code></pre></div>
+<p>单独使用 PyPI 包时，请在干净环境中只选择一种 ONNX Runtime 后端；不要同时安装 <code>onnxruntime</code> 和 <code>onnxruntime-gpu</code>。在 LaTeXSnipper 中使用时，通常通过依赖向导自动安装。</p>
+<p><strong>命令行使用：</strong></p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#检查模型缓存状态
+python -m mathcraft_ocr models check
+
+#检查运行环境并预热模型
+python -m mathcraft_ocr doctor --provider auto
+python -m mathcraft_ocr warmup --profile mixed --provider auto
+
+#识别图片中的公式
+python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
+
+#混合文档识别并输出 Markdown
+python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
+<p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
+<h2 id="moxingjiyushibiepeizhi">模型集与识别配置</h2>
+<p>当前 <code>mathcraft-ocr</code> PyPI 包版本线为 <code>0.2.x</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<div class="block">
+<ul>
+<li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
+<li><code>mathcraft-formula-rec</code> — 公式到 LaTeX 识别（Formula Recognition）</li>
+<li><code>mathcraft-text-det</code> — 快速多语言文本检测（Text Detection）</li>
+<li><code>mathcraft-text-rec</code> — 快速多语言文本识别（Text Recognition）</li>
+</ul>
+
+</div>
+<div class="callout info">
+<div class="callout-title">识别流程</div>
+<div class="callout-body"><p>MathCraft 采用 <strong>先检测后识别</strong> 的流水线架构：</p>
+<p>图片输入 → 公式区域检测 → 公式识别 +文本检测 → 文本识别 → 结构化输出。</p>
+<p>这种设计确保公式区域的识别优先级高于普通文本，避免公式被误判为正文。</p>
+</div>
+</div>
+<p><strong>三种识别模式（Profiles）：</strong></p>
+<div class="block block-gray">
+<ul>
+<li><strong><code>formula</code></strong> — 公式截图 → LaTeX 公式文本</li>
+<li><strong><code>text</code></strong> — 纯文本 OCR → 文本</li>
+<li><strong><code>mixed</code></strong> — 文本+公式混合文档 → Markdown 结构化文本</li>
+</ul>
+
+</div>
+<h2 id="shibiexiaoguozhanshi">识别效果展示</h2>
+<p>以下示例来自 MathCraft 的结构化块输出。彩色框标注了检测到的角色、顺序、分栏信息和置信度分数。</p>
+<h3 id="abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</h3>
+<p>公式密集的英文数学论文页面，包含大量行内公式和展示公式。</p>
+<div class="center"><img src="assets/images/mathcraft_abstract_algebra.png" alt="" loading="lazy" decoding="async"></div>
+<h3 id="dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</h3>
+<p>以展示公式为主的期刊页面，包含公式编号、标签、页眉和页码。</p>
+<div class="center"><img src="assets/images/mathcraft_dynamics_journal.png" alt="" loading="lazy" decoding="async"></div>
+<h3 id="lecture-note-p-1">中文讲义：Lecture Note (p.1)</h3>
+<p>中文数学文档页面，包含文本与公式混合排版。</p>
+<div class="center"><img src="assets/images/mathcraft_chinese_lecture.png" alt="" loading="lazy" decoding="async"></div>
+<h3 id="yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</h3>
+<p>稀疏的标题/封面式页面，用于验证版面分析稳定性。</p>
+<div class="center"><img src="assets/images/mathcraft_limits_series.png" alt="" loading="lazy" decoding="async"></div>
+<h2 id="xingnengcankao">性能参考</h2>
+<p>以下为本地 <code>block_layout_regression_v4</code> 基准测试数据（CUDA 环境）：</p>
+<div class="block block-gray">
+<ul>
+<li>测试页数：10</li>
+<li>总块数：495</li>
+<li>总字符数：21,417</li>
+<li>Markdown 行数：304</li>
+<li><strong>平均每页耗时：8.34 秒</strong></li>
+<li>最快页面：1.33 秒</li>
+<li>最慢页面：18.53 秒</li>
+</ul>
+
+</div>
+<div class="callout info">
+<div class="callout-title">稳定性保障</div>
+<div class="callout-body"><p>MathCraft OCR 的设计原则：</p>
+<ul>
+<li>仅依赖 ONNX Runtime，无 PyTorch 推理依赖</li>
+<li>基于清单（manifest）的文件校验与缓存修复</li>
+<li>断点续传支持（适用于慢速/不稳定网络）</li>
+<li>公式检测优先于文本 OCR</li>
+<li>结构化块输出：标题、段落、展示公式、页眉、页码、分栏</li>
+</ul>
+</div>
+</div>
+<h2 id="sec-envvar">环境变量设置指南</h2>
+<p>许多解决方案需要设置环境变量（如 <code>MATHCRAFT_FORCE_ORT_CPU</code>、<code>MATHCRAFT_HOME</code> 等）：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Windows（永久生效）：
+1. Win+R → 输入 sysdm.cpl → 高级 → 环境变量
+2. 在"用户变量"中新建，变量名填入上面给出的名称，值填入 1 或路径
+
+Windows（仅当前终端）：
+在 PowerShell 中执行：$env:MATHCRAFT_FORCE_ORT_CPU ="1"
+
+Linux / macOS（永久生效）：
+在 ~/.bashrc 或 ~/.zshrc 末尾添加：
+export MATHCRAFT_FORCE_ORT_CPU=1
+然后执行 source ~/.bashrc
+
+Linux / macOS（仅当前终端）：
+export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
+<p><strong>常用环境变量一览：</strong></p>
+<div class="block">
+<ul>
+<li><code>MATHCRAFT_FORCE_ORT_CPU</code> — 设为 <code>1</code> 强制使用 CPU 推理（禁用 GPU）</li>
+<li><code>MATHCRAFT_HOME</code> — 指定 MathCraft 数据目录（模型缓存、配置等）</li>
+<li><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> — 设置代理服务器地址（用于模型下载）</li>
+<li><code>MATHCRAFT_LOG_LEVEL</code> — 日志级别（DEBUG / INFO / WARNING / ERROR）</li>
+<li><code>LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下强制启用 Qt/WebEngine 软件渲染兜底</li>
+<li><code>LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下禁用图形兜底，尝试原生 Qt/GPU 路径</li>
+<li><code>LATEXSNIPPER_SHOW_CONSOLE</code> — Windows 打包版调试时显示或隐藏运行日志窗口</li>
+</ul>
+
+</div>
+<div class="center">
+<p>LaTeXSnipper FAQ · 版本 v2.3.2_Final_Stable · https://github.com/SakuraMathcraft/LaTeXSnipper</p>
+
+</div>
+
+
+<button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部">
+    <svg class="btt-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 19V5" />
+      <path d="M5 12l7-7 7 7" />
+    </svg>
+  </button>
+<script>
+// 主题切换
+(function() {
+  const toggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const STORAGE_KEY = 'latexSnipper-theme';
+  
+  function lsGet() {
+    try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+  }
+  function lsSet(v) {
+    try { if (v) localStorage.setItem(STORAGE_KEY, v); else localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  }
+  
+  function loadTheme() {
+    const saved = lsGet();
+    if (saved === 'dark' || saved === 'light') {
+      root.setAttribute('data-theme', saved);
+    } else {
+      root.removeAttribute('data-theme');
+    }
+  }
+  
+  function isDark() {
+    const attr = root.getAttribute('data-theme');
+    if (attr === 'dark') return true;
+    if (attr === 'light') return false;
+    return matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  
+  if (toggle) {
+    function updateIcon() {
+      toggle.innerHTML = isDark() ? '<svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span class="theme-label">白天</span>' : '<svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span>';
+    }
+    loadTheme();
+    updateIcon();
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      loadTheme();
+      updateIcon();
+    });
+    
+    toggle.addEventListener('click', () => {
+      if (isDark()) {
+        root.setAttribute('data-theme', 'light');
+      } else {
+        root.setAttribute('data-theme', 'dark');
+      }
+      lsSet(root.getAttribute('data-theme'));
+      updateIcon();
+    });
+  }
+})();
+
+// 滚动到顶部时显示顶栏
+(function() {
+  const root = document.documentElement;
+  function updateAtTop() {
+    root.classList.toggle('at-top', window.scrollY < 10);
+  }
+  updateAtTop();
+  window.addEventListener('scroll', updateAtTop, { passive: true });
+})();
+
+// 回到顶部按钮
+(function() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  let fadeTimer = null;
+  const FADE_DELAY = 4000;
+  
+  function toggle() {
+    if (window.scrollY > 400) {
+      btn.classList.add('visible');
+      startFadeTimer();
+    } else {
+      btn.classList.remove('visible');
+      btn.classList.remove('faded');
+      clearFadeTimer();
+    }
+  }
+  
+  function startFadeTimer() {
+    clearFadeTimer();
+    fadeTimer = setTimeout(() => { btn.classList.add('faded'); }, FADE_DELAY);
+  }
+  
+  function clearFadeTimer() {
+    if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
+  }
+  
+  window.addEventListener('scroll', toggle, { passive: true });
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  btn.addEventListener('mouseenter', () => {
+    btn.classList.remove('faded');
+    clearFadeTimer();
+  });
+  btn.addEventListener('mouseleave', () => {
+    startFadeTimer();
+  });
+  toggle();
+})();
+
+// 复制代码
+function copyCode(btn) {
+  const code = btn.nextElementSibling.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.classList.add('copied-fade');
+      setTimeout(() => {
+        btn.textContent = '复制';
+        btn.classList.remove('copied', 'copied-fade');
+      }, 600);
+    }, 800);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = code; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = '已复制';
+    setTimeout(() => { btn.textContent = '复制'; }, 1500);
+  });
+}
+</script>
+<script>!function(){var ls=document.getElementById("sidebar"),lc=document.getElementById("sidebarClose");var rs=document.getElementById("rightSidebar"),rc=document.getElementById("rightSidebarClose");var fa=document.getElementById("floatArrow");var el=document.getElementById("edgeHoverLeft"),er=document.getElementById("edgeHoverRight");function openLS(){if(rs)rs.classList.remove("open");if(ls){ls.style.pointerEvents="";ls.classList.add("open")}}function openRS(){if(ls)ls.classList.remove("open");if(rs){rs.style.pointerEvents="";rs.classList.add("open")}}function closeAll(){if(ls){ls.classList.remove("open");ls.style.pointerEvents="none"}if(rs){rs.classList.remove("open");rs.style.pointerEvents="none"}}if(el){el.addEventListener("mouseenter",function(){openLS()})}if(er){er.addEventListener("mouseenter",function(){openRS()})}if(ls){var h=null;ls.addEventListener("mouseenter",function(){openLS();clearTimeout(h);h=null});ls.addEventListener("mouseleave",function(){h=setTimeout(function(){ls.classList.remove("open")},300)});if(lc)lc.addEventListener("click",function(ev){ev.stopPropagation();ls.classList.remove("open");ls.style.pointerEvents="none";clearTimeout(h)});}if(rs){var h2=null;rs.addEventListener("mouseenter",function(){openRS();clearTimeout(h2);h2=null});rs.addEventListener("mouseleave",function(){h2=setTimeout(function(){rs.classList.remove("open")},300)});if(rc)rc.addEventListener("click",function(ev){ev.stopPropagation();rs.classList.remove("open");rs.style.pointerEvents="none";clearTimeout(h2)});}if(fa){var side="left",arrowY=window.innerHeight*0.5;var dragging=false,startX=0,startY=0,startArrowY=0,hasMoved=false;var saved=null;try{saved=JSON.parse(localStorage.getItem("latexSnipper-floatArrow"))}catch(e){}if(saved){side=saved.side||"left";arrowY=saved.y||arrowY;arrowY=Math.max(60,Math.min(window.innerHeight-60,arrowY))}function updateArrow(){fa.classList.remove("side-left","side-right");fa.classList.add("side-"+side);if(side==="left"){fa.style.left="6px";fa.style.right="auto"}else{fa.style.right="6px";fa.style.left="auto"}fa.style.top=arrowY+"px";}function savePos(){try{localStorage.setItem("latexSnipper-floatArrow",JSON.stringify({side:side,y:arrowY}))}catch(e){}}function onDown(e){e.preventDefault();dragging=true;hasMoved=false;var cx=e.touches?e.touches[0].clientX:e.clientX;var cy=e.touches?e.touches[0].clientY:e.clientY;startX=cx;startY=cy;startArrowY=arrowY;fa.classList.add("dragging");}function onMove(e){if(!dragging)return;var cx=e.touches?e.touches[0].clientX:e.clientX;var cy=e.touches?e.touches[0].clientY:e.clientY;var dx=cx-startX,dy=cy-startY;if(Math.abs(dx)>3||Math.abs(dy)>3)hasMoved=true;arrowY=Math.max(40,Math.min(window.innerHeight-40,startArrowY+dy));fa.style.top=arrowY+"px";if(cx<window.innerWidth*0.5){fa.classList.remove("side-right");fa.classList.add("side-left")}else{fa.classList.remove("side-left");fa.classList.add("side-right")}fa.style.left=(cx<window.innerWidth*0.5)?"6px":"auto";fa.style.right=(cx>=window.innerWidth*0.5)?"6px":"auto";}function onUp(e){if(!dragging)return;dragging=false;fa.classList.remove("dragging");var cx;if(e.changedTouches)cx=e.changedTouches[0].clientX;else cx=e.clientX;side=cx<window.innerWidth*0.5?"left":"right";updateArrow();savePos();if(!hasMoved){if(side==="left"){if(ls&&ls.classList.contains("open"))closeAll();else openLS()}else{if(rs&&rs.classList.contains("open"))closeAll();else openRS()}}}fa.addEventListener("touchstart",onDown,{passive:false});fa.addEventListener("touchmove",onMove,{passive:false});fa.addEventListener("touchend",onUp);fa.addEventListener("mousedown",onDown);window.addEventListener("mousemove",function(e){if(dragging)onMove(e)});window.addEventListener("mouseup",function(e){if(dragging)onUp(e)});updateArrow();}document.addEventListener("click",function(e){if(ls&&ls.classList.contains("open")&&!ls.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();if(rs&&rs.classList.contains("open")&&!rs.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();});}();function tb(a){var r=[];a.forEach(function(l){var i=l.getAttribute("href");if(i&&i[0]==="#"){var e=document.getElementById(i.slice(1));if(e)r.push({el:e,link:l})}});return r}function hu(h,a){var t=window.scrollY+120;var c=null;for(var i=0;i<h.length;i++){var o=h[i];if(o.el.offsetTop<=t)c=o;else break}a.forEach(function(l){l.classList.remove("active")});if(c)c.link.classList.add("active")}!function(){var s=document.getElementById("sidebar");if(!s)return;var a=s.querySelectorAll(".toc-list a,.toc-list span");a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);function u(){hu(h,a)}window.addEventListener("scroll",u,{passive:true});u()}();!function(){var s=document.getElementById("rightSidebar");if(!s)return;var a=s.querySelectorAll(".rs-list a,.rs-list span");a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);function u(){hu(h,a)}window.addEventListener("scroll",u,{passive:true});u()}();!function(){var s=document.getElementById("sidebar");if(!s)return;s.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}s.classList.remove("open")}})}();!function(){var s=document.getElementById("rightSidebar");if(!s)return;s.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}s.classList.remove("open")}})}();</script>
+</body>
+</html>

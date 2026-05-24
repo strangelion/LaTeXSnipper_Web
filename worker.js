@@ -452,11 +452,7 @@ export default {
         const ext = path.split(".").pop() || "";
         const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
         const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-        if (rawPath.startsWith("assets/") || rawPath === "index.html") {
-          filePath = "dist/" + rawPath;
-        } else {
-          filePath = rawPath;
-        }
+        filePath = "dist/" + rawPath;
       }
 
       // 安全检查

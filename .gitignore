@@ -2,11 +2,8 @@
 node_modules/
 
 # === Build Output ===
-# 忽略 dist 中从 repo 根目录复制过来的副本文件（build:manual 脚本复制）
-# 但保留 Vite 构建产物（dist/index.html 和 dist/assets/），Worker 需要从 GitHub 获取
-dist/*
-!dist/index.html
-!dist/assets/
+# dist/ 作为 Worker 静态文件源，全部跟踪
+
 *.svg
 user_manual.md
 user_manual.pdf

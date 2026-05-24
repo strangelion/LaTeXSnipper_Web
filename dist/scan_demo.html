@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>识别过程动画 — 视频素材</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f111a; font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 5rem; }
+
+  .slide { width: 100%; max-width: 1200px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; padding: 5rem 2rem; margin: 0 auto; }
+  .slide > * { flex-shrink: 0; }
+  .phase-source { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .demo-title { color: #64748b; font-size: 1.2rem; margin-bottom: 2rem; text-align: center; }
+  .demo-category { color: #475569; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px; }
+
+  .source-card { background: #fff; padding: 2.5rem 3rem; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); position: relative; overflow: hidden; text-align: center; display: flex; align-items: center; justify-content: center; max-width: 100%; }
+  .source-card .formula { font-size: 2.2rem; color: #0f172a; display: flex; align-items: center; justify-content: center; }
+  .source-card .formula .katex { font-size: 2.2rem; }
+  .source-label { color: #94a3b8; font-size: 1rem; margin-top: 1.2rem; text-align: center; }
+  kbd { background: #334155; color: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.9rem; }
+
+  .scan-line { position: absolute; left: 0; right: 0; height: 3px; background: #2563eb; box-shadow: 0 0 20px #2563eb, 0 0 60px #2563eb; z-index: 2; animation: scanDown 1.5s ease-in-out; pointer-events: none; }
+  @keyframes scanDown {
+    0% { top: 0; opacity: 1; }
+    70% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  .result-area { margin-top: 1.8rem; opacity: 0; display: flex; flex-direction: column; align-items: center; }
+  .result-area.show { animation: slideUp 0.5s ease forwards; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 代码块：扫描后自动展开 */
+  .result-code { font-family: "SF Mono","Cascadia Code","Consolas",monospace; font-size: 0.95rem; color: #94a3b8; background: #1e293b; border-radius: 10px; border: 1px solid #334155; text-align: left; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.4s ease, opacity 0.35s ease, padding 0.3s ease; padding: 0 2rem; white-space: pre-wrap; word-break: break-all; }
+  .result-code.expand { max-height: 600px; opacity: 1; padding: 1.25rem 2rem; overflow-y: auto; }
+
+  .hint { position: absolute; bottom: 3rem; color: #475569; font-size: 0.9rem; }
+  .hint span { color: #60a5fa; }
+
+  .nav { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; z-index: 100; flex-wrap: wrap; justify-content: center; }
+  .nav button { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 0.4rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.82rem; transition: all 0.2s; white-space: nowrap; }
+  .nav button:hover { background: #334155; color: #e2e8f0; }
+  .nav button.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .nav .nav-cat { color: #475569; padding: 0.4rem 0.5rem; font-size: 0.75rem; pointer-events: none; }
+  .counter { position: fixed; top: 1.5rem; right: 2rem; color: #475569; font-size: 0.9rem; z-index: 100; }
+
+  @media (max-width: 768px) {
+    .slide { padding: 3rem 1rem; }
+    .source-card { padding: 1.5rem 1.5rem; }
+    .source-card .formula { font-size: 1.4rem; }
+    .source-card .formula .katex { font-size: 1.4rem; }
+    .result-code { font-size: 0.75rem; }
+    .result-code.expand { padding: 0.75rem 1rem; }
+    .demo-title { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="counter" id="counter">1 / 22</div>
+<div id="slides"></div>
+<div class="nav" id="nav"></div>
+
+<script>
+// 全部公式按类别组织
+var demos = [
+  // ======== 一、经典公式 ========
+  { cat:'经典公式', title:'欧拉恒等式', hint:'按 Ctrl+F 框选公式', source:'e^{i\\pi} + 1 = 0', code:'e^{i\\pi} + 1 = 0' },
+  { cat:'经典公式', title:'质能方程', hint:'最著名的物理公式之一', source:'E = mc^{2}', code:'E = mc^{2}' },
+  { cat:'经典公式', title:'勾股定理', hint:'教科书中最常见的公式', source:'a^{2} + b^{2} = c^{2}', code:'a^{2} + b^{2} = c^{2}' },
+
+  // ======== 二、论文级公式 ========
+  { cat:'论文级', title:'傅里叶变换', hint:'含积分上下限和虚数单位', source:'F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) \\, e^{-i\\omega t} \\, dt', code:'F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) \\, e^{-i\\omega t} \\, dt' },
+  { cat:'论文级', title:'黎曼 Zeta 函数', hint:'级数+连乘积+条件下标', source:'\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^{s}} = \\prod_{p\\ \\text{prime}} \\frac{1}{1 - p^{-s}}', code:'\\zeta(s) = \\sum_{n=1}^{\\infty} \\frac{1}{n^{s}} = \\prod_{p\\ \\text{prime}} \\frac{1}{1 - p^{-s}}' },
+  { cat:'论文级', title:'贝塞尔方程', hint:'二阶微分方程', source:'x^{2}\\frac{d^{2}y}{dx^{2}} + x\\frac{dy}{dx} + (x^{2} - n^{2})y = 0', code:'x^{2}\\frac{d^{2}y}{dx^{2}} + x\\frac{dy}{dx} + (x^{2} - n^{2})y = 0' },
+  { cat:'论文级', title:'斯托克斯定理', hint:'曲面积分与曲线积分', source:'\\oint_{\\partial \\Sigma} \\mathbf{F} \\cdot d\\mathbf{r} = \\iint_{\\Sigma} (\\nabla \\times \\mathbf{F}) \\cdot d\\mathbf{S}', code:'\\oint_{\\partial \\Sigma} \\mathbf{F} \\cdot d\\mathbf{r} = \\iint_{\\Sigma} (\\nabla \\times \\mathbf{F}) \\cdot d\\mathbf{S}' },
+
+  // ======== 三、多行/矩阵 ========
+  { cat:'多行对齐', title:'麦克斯韦方程组', hint:'四行 aligned 环境', source:'\\begin{aligned} \\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\varepsilon_0} \\\\ \\nabla \\cdot \\mathbf{B} &= 0 \\\\ \\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t} \\\\ \\nabla \\times \\mathbf{B} &= \\mu_0 \\mathbf{J} + \\mu_0\\varepsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t} \\end{aligned}', code:'\\begin{aligned}\n\\nabla \\cdot \\mathbf{E} &= \\frac{\\rho}{\\varepsilon_0} \\\\\n\\nabla \\cdot \\mathbf{B} &= 0 \\\\\n\\nabla \\times \\mathbf{E} &= -\\frac{\\partial \\mathbf{B}}{\\partial t} \\\\\n\\nabla \\times \\mathbf{B} &= \\mu_0 \\mathbf{J} + \\mu_0\\varepsilon_0\\frac{\\partial \\mathbf{E}}{\\partial t}\n\\end{aligned}' },
+  { cat:'多行对齐', title:'矩阵方程组', hint:'pmatrix + 向量', source:'\\begin{pmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{n1} & a_{n2} & \\cdots & a_{nn} \\end{pmatrix} \\begin{pmatrix} x_1 \\\\ \\vdots \\\\ x_n \\end{pmatrix} = \\begin{pmatrix} b_1 \\\\ \\vdots \\\\ b_n \\end{pmatrix}', code:'\\begin{pmatrix}\na_{11} & \\cdots & a_{1n} \\\\\n\\vdots & \\ddots & \\vdots \\\\\na_{n1} & \\cdots & a_{nn}\n\\end{pmatrix}\n\\begin{pmatrix} x_1 \\\\ \\vdots \\\\ x_n \\end{pmatrix}\n= \\begin{pmatrix} b_1 \\\\ \\vdots \\\\ b_n \\end{pmatrix}' },
+  { cat:'多行对齐', title:'多行推导', hint:'多项式因式分解过程', source:'\\begin{aligned} f(x) &= x^4 - 4x^3 + 6x^2 - 4x + 1 \\\\ &= (x^2 - 2x + 1)^2 \\\\ &= (x - 1)^4 \\end{aligned}', code:'\\begin{aligned}\nf(x) &= x^4 - 4x^3 + 6x^2 - 4x + 1 \\\\\n     &= (x^2 - 2x + 1)^2 \\\\\n     &= (x - 1)^4\n\\end{aligned}' },
+
+  // ======== 四、混合识别 ========
+  { cat:'中文混排', title:'教科书题目', hint:'中文+公式混合识别', source:'\\text{已知 } f(x) = x^{3} - 3x^{2} + 2x - 5\\text{，求 }f\'(x)\\text{ 并判断极值点。}', code:'\\text{已知 } f(x) = x^{3} - 3x^{2} + 2x - 5\\text{，}\\\\\\text{求 }f\'(x)\\text{ 并判断极值点。}' },
+  { cat:'中文混排', title:'导数求解', hint:'混合识别后自动分离公式', source:'f\'(x) = 3x^{2} - 6x + 2 \\quad \\Rightarrow \\quad x = 1 \\pm \\frac{\\sqrt{3}}{3}', code:'f\'(x) = 3x^{2} - 6x + 2 \\\\\nx = 1 \\pm \\frac{\\sqrt{3}}{3}' },
+
+  // ======== 五、手写识别 ========
+  { cat:'手写识别', title:'高斯积分', hint:'手写后停笔自动识别', source:'\\int_{0}^{\\infty} e^{-x^{2}} \\, dx = \\frac{\\sqrt{\\pi}}{2}', code:'\\int_{0}^{\\infty} e^{-x^{2}} \\, dx = \\frac{\\sqrt{\\pi}}{2}' },
+  { cat:'手写识别', title:'极限定义', hint:'自然常数 e 的经典定义', source:'\\lim_{n \\to \\infty} \\left(1 + \\frac{1}{n}\\right)^{n} = e', code:'\\lim_{n \\to \\infty} \\left(1 + \\frac{1}{n}\\right)^{n} = e' },
+  { cat:'手写识别', title:'三角函数导数', hint:'基础微积分公式', source:'\\frac{d}{dx}\\sin x = \\cos x', code:'\\frac{d}{dx}\\sin x = \\cos x' },
+  { cat:'手写识别', title:'等差数列求和', hint:'高斯童年的发现', source:'\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}', code:'\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}' },
+
+  // ======== 六、数学工作台 ========
+  { cat:'数学工作台', title:'化简 Simplify', hint:'分式化简', source:'\\frac{x^{2} - 1}{x - 1}', code:'\\frac{x^{2} - 1}{x - 1} \\quad\\rightarrow\\quad x + 1\\ (x \\neq 1)' },
+  { cat:'数学工作台', title:'展开 Expand', hint:'三项和的立方', source:'(x + y + z)^{3}', code:'(x + y + z)^{3} \\\\= x^3+3x^2y+3x^2z+3xy^2+6xyz+3xz^2+y^3+3y^2z+3yz^2+z^3' },
+  { cat:'数学工作台', title:'因式分解 Factor', hint:'四次方差', source:'x^{4} - 16', code:'x^{4} - 16 = (x-2)(x+2)(x^{2}+4)' },
+  { cat:'数学工作台', title:'解方程 Solve', hint:'一元二次方程求根', source:'x^{2} - 5x + 6 = 0', code:'x^{2} - 5x + 6 = 0 \\quad\\rightarrow\\quad x = 2,\\ x = 3' },
+  { cat:'数学工作台', title:'定积分 Integrate', hint:'SymPy 回退计算', source:'\\int_{0}^{1} \\frac{1}{1 + x^{2}} \\, dx', code:'\\int_{0}^{1} \\frac{1}{1 + x^{2}} \\, dx = \\frac{\\pi}{4}' },
+  { cat:'数学工作台', title:'级数求和 Sum', hint:'巴塞尔问题', source:'\\sum_{n=1}^{\\infty} \\frac{1}{n^{2}}', code:'\\sum_{n=1}^{\\infty} \\frac{1}{n^{2}} = \\frac{\\pi^{2}}{6}' },
+];
+
+var current = 0;
+
+function buildSlide(i) {
+  var d = demos[i];
+  var el = document.createElement('div');
+  el.className = 'slide phase-source';
+  el.id = 'slide-' + i;
+  el.innerHTML =
+    '<div class="demo-category">' + d.cat + '</div>' +
+    '<div class="demo-title">' + d.title + '</div>' +
+    '<div class="source-card" id="sourceCard-' + i + '">' +
+      '<div id="sourceForm-' + i + '" class="formula"></div>' +
+      '<div id="scanLine-' + i + '" class="scan-line" style="display:none;"></div>' +
+    '</div>' +
+    '<div class="source-label" id="hint-' + i + '">' + d.hint + ' <span style="color:#60a5fa;cursor:pointer;text-decoration:underline;" onclick="triggerScan(' + i + ')">[扫描识别]</span></div>' +
+    '<div class="result-area" id="result-' + i + '">' +
+      '<div class="result-code" id="rcode-' + i + '"><code>' + d.code.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code></div>' +
+    '</div>' +
+    '<div class="hint">按 <span>空格键</span> 扫描 · <span>← →</span> 切换演示 · <span>A 键</span> 自动播放</div>';
+  return el;
+}
+
+function renderFormula(id, latex) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  try { katex.render(latex, el, { displayMode: true, throwOnError: false }); }
+  catch(e) { el.textContent = latex; }
+}
+
+function triggerScan(i) {
+  current = i;
+  var scanLine = document.getElementById('scanLine-' + i);
+  if (scanLine.dataset.done === '1') return;
+  scanLine.dataset.done = '1';
+  scanLine.style.display = 'block';
+
+  var hint = document.getElementById('hint-' + i);
+  if (hint) hint.style.opacity = '0.4';
+
+  setTimeout(function() {
+    scanLine.style.display = 'none';
+    var result = document.getElementById('result-' + i);
+    result.classList.add('show');
+    var code = document.getElementById('rcode-' + i);
+    if (code) code.classList.add('expand');
+  }, 1500);
+}
+
+function goTo(i) {
+  if (i < 0 || i >= demos.length) return;
+  current = i;
+  document.querySelectorAll('.scan-line').forEach(function(el) { el.style.display = 'none'; el.dataset.done = '0'; });
+  document.querySelectorAll('.result-area').forEach(function(el) { el.classList.remove('show'); });
+  document.querySelectorAll('.source-label').forEach(function(el) { el.style.opacity = '1'; });
+  document.querySelectorAll('.result-code').forEach(function(el) { el.classList.remove('expand'); });
+
+  var container = document.getElementById('slides');
+  container.innerHTML = '';
+  container.appendChild(buildSlide(i));
+  renderFormula('sourceForm-' + i, demos[i].source);
+  document.getElementById('counter').textContent = (i + 1) + ' / ' + demos.length;
+  updateNav();
+}
+
+function updateNav() {
+  var nav = document.getElementById('nav');
+  var html = '<button onclick="goTo(' + (current - 1) + ')"' + (current === 0 ? ' disabled' : '') + '>←</button>';
+  var lastCat = '';
+  for (var i = 0; i < demos.length; i++) {
+    if (demos[i].cat !== lastCat) {
+      html += '<span class="nav-cat">|</span>';
+      lastCat = demos[i].cat;
+    }
+    html += '<button class="' + (i === current ? 'active' : '') + '" onclick="goTo(' + i + ')">' + (i + 1) + '</button>';
+  }
+  html += '<button onclick="goTo(' + (current + 1) + ')"' + (current === demos.length - 1 ? ' disabled' : '') + '>→</button>';
+  html += '<button onclick="autoPlay()" style="border-color:#22c55e;color:#22c55e;">▶ 自动</button>';
+  nav.innerHTML = html;
+}
+
+function autoPlay() {
+  current = 0;
+  goTo(0);
+  var delay = 4000;
+  function next() {
+    triggerScan(current);
+    current++;
+    if (current < demos.length) {
+      setTimeout(function() {
+        goTo(current);
+        setTimeout(next, 600);
+      }, delay);
+    }
+  }
+  setTimeout(next, 600);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+  else if (e.key === ' ') { e.preventDefault(); triggerScan(current); }
+  else if (e.key === 'a' || e.key === 'A') { e.preventDefault(); autoPlay(); }
+});
+
+goTo(0);
+</script>
+</body>
+</html>
