@@ -285,34 +285,61 @@ function quotaBanner(type, pct) {
 }
 
 // ── 页面访问统计 ──
-// 按月份和页面路径统计 PV，数据持久化到 KV
-function trackPageView(env, ctx, path) {
-  if (!env.USAGE_KV) return;
-  var month = quotaGetMonth();
-  var key = 'pv:' + month + ':' + (path || '/');
-  var p = env.USAGE_KV.get(key, 'json').then(function(old) {
-    var count = (old && typeof old.c === 'number') ? old.c + 1 : 1;
-    return env.USAGE_KV.put(key, JSON.stringify({ c: count, t: Date.now() }), { expirationTtl: 100 * 86400 });
-  }).catch(function() {});
-  if (ctx) ctx.waitUntil(p);
-}
+// 内存计数 + 使用与配额相同的刷入策略（每1000次/每1小时）
 
-async function getPageViewStats(env, month) {
-  if (!env.USAGE_KV) return { total: 0, pages: {} };
-  month = month || quotaGetMonth();
-  var total = 0, pages = {};
+let pvMemory = {};              // { "/": 10, "/ocr_demo": 5, ... }
+let pvMonth = '';               // 当前月份
+let pvLastFlush = 0;            // 上次刷入时间戳
+let pvFlushMark = 0;            // 上次刷入时的总计数
+
+function pvTotal() { var t = 0; for (var k in pvMemory) t += pvMemory[k]; return t; }
+
+async function pvLoadFromKV(env) {
+  if (!env.USAGE_KV) return {};
+  var pages = {}, month = quotaGetMonth();
   try {
     var list = await env.USAGE_KV.list({ prefix: 'pv:' + month + ':' });
     for (var i = 0; i < (list.keys || []).length; i++) {
-      var key = list.keys[i].name;
-      var data = await env.USAGE_KV.get(key, 'json');
-      if (data && data.c) {
-        var page = key.slice(('pv:' + month + ':').length) || '/';
-        pages[page] = data.c;
-        total += data.c;
-      }
+      var key = list.keys[i].name, data = await env.USAGE_KV.get(key, 'json');
+      if (data && typeof data.c === 'number') pages[key.slice(('pv:' + month + ':').length) || '/'] = data.c;
     }
   } catch(e) {}
+  return pages;
+}
+
+function pvFlushToKV(env, ctx) {
+  if (!env.USAGE_KV) return;
+  var month = quotaGetMonth(), keys = Object.keys(pvMemory);
+  for (var i = 0; i < keys.length; i++) {
+    var k = 'pv:' + month + ':' + (keys[i] || '/');
+    var p = env.USAGE_KV.put(k, JSON.stringify({ c: pvMemory[keys[i]], t: Date.now() }), { expirationTtl: 100 * 86400 });
+    if (ctx) ctx.waitUntil(p);
+  }
+  pvLastFlush = Date.now();
+  pvFlushMark = pvTotal();
+}
+
+async function pvEnsureLoaded(env) {
+  var month = quotaGetMonth();
+  if (month !== pvMonth) { pvMonth = month; pvMemory = {}; pvLastFlush = 0; pvFlushMark = 0; }
+  if (Object.keys(pvMemory).length === 0) { pvMemory = await pvLoadFromKV(env); pvLastFlush = Date.now(); pvFlushMark = pvTotal(); }
+}
+
+function trackPageView(env, ctx, path) {
+  if (!env.USAGE_KV) return;
+  var page = (path || '/');
+  pvMemory[page] = (pvMemory[page] || 0) + 1;
+  var total = pvTotal(), changed = total !== pvFlushMark;
+  var now = Date.now();
+  if (changed && (total - pvFlushMark >= 100 || now - pvLastFlush >= 3600000)) {
+    pvFlushToKV(env, ctx);
+  }
+}
+
+async function getPageViewStats(env, month) {
+  await pvEnsureLoaded(env);
+  var total = 0, pages = {};
+  for (var k in pvMemory) { pages[k] = pvMemory[k]; total += pvMemory[k]; }
   return { total: total, pages: pages };
 }
 
