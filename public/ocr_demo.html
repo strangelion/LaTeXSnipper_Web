@@ -77,6 +77,24 @@
     .cam-btn:active { transform: scale(0.96); }
     .cam-capture { background: var(--accent); color: #fff; }
     .cam-close { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* 模式切换 */
+    .mode-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
+    .mode-tab { padding: 8px 24px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--muted); cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
+    .mode-tab:first-child { border-radius: 10px 0 0 10px; }
+    .mode-tab:last-child { border-radius: 0 10px 10px 0; }
+    .mode-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* 手写板 */
+    .hw-panel { display: none; }
+    .hw-panel.show { display: block; }
+    .hw-canvas-wrap { background: #fff; border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none; }
+    .hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+    .hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+    .hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
+    .hw-tool-btn:hover { border-color: var(--accent); }
+    .hw-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .hw-recognize-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-left: auto; }
 </style>
 </head>
 <body>
@@ -126,6 +144,11 @@
     </div>
   </div>
 
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabImage">图片识别</button>
+    <button class="mode-tab" id="tabHandwrite">手写识别</button>
+  </div>
+
   <div class="drop-zone" id="dropZone">
     <input type="file" id="fileInput" accept="image/*,.pdf">
     <div id="dropContent">
@@ -145,6 +168,19 @@
     <div class="cam-actions">
       <button class="cam-btn cam-capture" id="camCapture">拍照识别</button>
       <button class="cam-btn cam-close" id="camClose">关闭</button>
+    </div>
+  </div>
+
+  <div class="hw-panel" id="hwPanel">
+    <div class="hw-canvas-wrap">
+      <canvas id="hwCanvas" width="800" height="500"></canvas>
+    </div>
+    <div class="hw-toolbar">
+      <button class="hw-tool-btn active" id="hwPen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>笔</button>
+      <button class="hw-tool-btn" id="hwEraser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/><line x1="6" y1="20" x2="10" y2="20"/></svg>橡皮</button>
+      <button class="hw-tool-btn" id="hwUndo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>撤销</button>
+      <button class="hw-tool-btn" id="hwClear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>清空</button>
+      <button class="hw-recognize-btn" id="hwRecognize">识别</button>
     </div>
   </div>
 
@@ -200,6 +236,91 @@
   const camCapture = document.getElementById('camCapture');
   const camClose = document.getElementById('camClose');
   let camStream = null;
+
+  // Handwriting refs
+  const tabImage = document.getElementById('tabImage');
+  const tabHandwrite = document.getElementById('tabHandwrite');
+  const hwPanel = document.getElementById('hwPanel');
+  const hwCanvas = document.getElementById('hwCanvas');
+  const hwCtx = hwCanvas.getContext('2d');
+  const hwPenBtn = document.getElementById('hwPen');
+  const hwEraserBtn = document.getElementById('hwEraser');
+  let hwTool = 'pen';
+  let hwDrawing = false;
+  let hwStrokes = [];       // saved ImageData snapshots for undo
+  const HW_MAX_STROKES = 60;
+
+  function hwSaveState() {
+    hwStrokes.push(hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
+    if (hwStrokes.length > HW_MAX_STROKES) hwStrokes.shift();
+  }
+
+  function hwSetTool(tool) {
+    hwTool = tool;
+    hwPenBtn.classList.toggle('active', tool === 'pen');
+    hwEraserBtn.classList.toggle('active', tool === 'eraser');
+  }
+
+  function hwGetPos(e) {
+    var rect = hwCanvas.getBoundingClientRect();
+    var scaleX = hwCanvas.width / rect.width;
+    var scaleY = hwCanvas.height / rect.height;
+    var clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+
+  hwCanvas.addEventListener('mousedown', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+  hwCanvas.addEventListener('touchstart', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+  hwCanvas.addEventListener('mousemove', function(e) { if (!hwDrawing) return; var p = hwGetPos(e); hwCtx.lineTo(p.x, p.y); hwCtx.strokeStyle = hwTool === 'eraser' ? '#ffffff' : '#1e293b'; hwCtx.lineWidth = hwTool === 'eraser' ? 24 : 3; hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round'; hwCtx.stroke(); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); });
+  hwCanvas.addEventListener('touchmove', function(e) { if (!hwDrawing) return; var p = hwGetPos(e); hwCtx.lineTo(p.x, p.y); hwCtx.strokeStyle = hwTool === 'eraser' ? '#ffffff' : '#1e293b'; hwCtx.lineWidth = hwTool === 'eraser' ? 24 : 3; hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round'; hwCtx.stroke(); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+  hwCanvas.addEventListener('mouseup', function() { hwDrawing = false; });
+  hwCanvas.addEventListener('touchend', function() { hwDrawing = false; });
+  hwCanvas.addEventListener('mouseleave', function() { hwDrawing = false; });
+
+  function hwUndo() { if (hwStrokes.length > 0) { hwCtx.putImageData(hwStrokes.pop(), 0, 0); } }
+  function hwClear() { hwSaveState(); hwCtx.fillStyle = '#ffffff'; hwCtx.fillRect(0, 0, hwCanvas.width, hwCanvas.height); }
+
+  function hwRecognize() {
+    if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
+    hwCanvas.toBlob(function(blob) {
+      var file = new File([blob], 'handwrite.png', { type: 'image/png' });
+      processImage(file);
+    }, 'image/png');
+  }
+
+  hwPenBtn.addEventListener('click', function() { hwSetTool('pen'); });
+  hwEraserBtn.addEventListener('click', function() { hwSetTool('eraser'); });
+  document.getElementById('hwUndo').addEventListener('click', hwUndo);
+  document.getElementById('hwClear').addEventListener('click', hwClear);
+  document.getElementById('hwRecognize').addEventListener('click', hwRecognize);
+
+  // Mode switching
+  function switchMode(mode) {
+    if (mode === 'handwrite') {
+      tabImage.classList.remove('active');
+      tabHandwrite.classList.add('active');
+      dropZone.style.display = 'none';
+      hwPanel.classList.add('show');
+      // Init canvas with white background
+      hwCtx.fillStyle = '#ffffff';
+      hwCtx.fillRect(0, 0, hwCanvas.width, hwCanvas.height);
+      hwStrokes = [];
+    } else {
+      tabHandwrite.classList.remove('active');
+      tabImage.classList.add('active');
+      dropZone.style.display = '';
+      hwPanel.classList.remove('show');
+    }
+  }
+  tabImage.addEventListener('click', function() { switchMode('image'); });
+  tabHandwrite.addEventListener('click', function() { switchMode('handwrite'); });
 
   const ICONS = {
     loading: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
