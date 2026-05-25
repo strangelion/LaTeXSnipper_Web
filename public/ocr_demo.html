@@ -928,6 +928,8 @@
     }
     // 强制页面背景立即切换
     document.documentElement.style.backgroundColor = theme === 'dark' ? '#0f111a' : '#f8fafc';
+    // 重建数学粒子背景
+    window.dispatchEvent(new Event('resize'));
   }
   (function () {
     var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
