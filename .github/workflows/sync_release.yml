@@ -118,7 +118,7 @@ jobs:
               pattern = re.compile(
                   r'(<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
               )
-              new_html = pattern.sub(r'\1' + sha + r'\2', html)
+              new_html = pattern.sub(r'\g<1>' + sha + r'\g<2>', html)
               if new_html != html:
                   html = new_html
                   print(f"  ok {filename} sha256 updated")
