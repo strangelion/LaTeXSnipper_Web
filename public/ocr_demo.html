@@ -770,7 +770,10 @@
   }
 
   // ====== UI 事件 ======
-  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('click', function(e) {
+    if (e.target.closest('#camTrigger')) return;
+    fileInput.click();
+  });
 
   dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
