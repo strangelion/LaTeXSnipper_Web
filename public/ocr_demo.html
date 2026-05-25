@@ -508,6 +508,8 @@ MathJax = {
     var tokenIds = [], tokenProbs = [];
 
     for (var step = 0; step < maxTokens; step++) {
+      // 每 8 步让出主线程，保持页面响应
+      if (step % 8 === 0) await new Promise(function(r) { setTimeout(r, 0); });
       var decOut = await decoderSession.run({ [decName0]: inputIds, [decName1]: hiddenStates });
       var logits = decOut[decoderSession.outputNames[0]];
       var seqLen = logits.dims[1], vocabSize = logits.dims[2];
