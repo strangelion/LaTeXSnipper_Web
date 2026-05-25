@@ -1,6 +1,6 @@
-# LaTeXSnipper 用户手册
+# LaTeXSnipper 官方网站
 
-LaTeXSnipper 用户手册的交互式网站，包含 React 主页、下载页和自动生成的用户手册，部署于 Cloudflare Workers。
+LaTeXSnipper 的官方网站，包含产品主页、下载页、OCR 公式识别 Demo 和用户手册，部署于 Cloudflare Workers。
 
 ## 功能特性
 
@@ -11,9 +11,21 @@ LaTeXSnipper 用户手册的交互式网站，包含 React 主页、下载页和
 - 暗色/亮色主题切换，跟随系统偏好
 - 响应式设计，桌面端 / 平板 / 手机三档适配
 
+### OCR 公式识别 Demo (`ocr_demo.html`)
+- **浏览器端 ONNX Runtime 推理**，图片全程不上传
+- 支持 图片拖拽/点击/Ctrl+V 粘贴 / PDF 上传（≤100 页）
+- **拍照识别**：调用后置摄像头，拍完直接识别
+- **手写识别**：Canvas 画板，笔/橡皮/撤销/清空，方格底纹跟随主题
+- MathCraft OCR 模型（DeiT 编码器 + TrOCR 解码器），Cache API 缓存
+- MathJax SVG 实时渲染识别结果
+- WebGPU 优先（GPU 加速），WASM 兜底，`crossOriginIsolated` 时 4 线程 + SIMD
+- LaTeX 自动修复（括号/分式/环境/left-right 补全）
+- PDF.js 渲染，自适应分辨率，逐页文本提取 + OCR
+
 ### 下载页 (`download.html`)
 - Windows / Linux / macOS 三平台下载卡片
-- SHA256 一键复制
+- SHA256 一键复制，GitHub Actions 自动同步
+- `/dl/` 代理路径，R2 域名不暴露在源码中
 
 ### 用户手册 (`user_manual.html`)
 - 由 `build_manual.py` 从 `user_manual.typ` 自动生成
@@ -24,11 +36,12 @@ LaTeXSnipper 用户手册的交互式网站，包含 React 主页、下载页和
 
 ### Cloudflare Worker (`worker.js`)
 - 从 GitHub 仓库动态拉取静态文件并智能缓存
-- gzip / brotli 动态压缩
-- 美观的中文错误页面（400/404/405）
-- 反爬虫检测（恶意 UA 拦截 + 频率限制）
-- 路径安全校验、安全头（CSP、X-Frame-Options 等）
-- 预览分支部署支持
+- `/models/*` 和 `/dl/*` R2 代理，Referer 校验
+- **R2 配额管理**：追踪 B 类操作次数，95% 限制模型下载，98% 下载链接切 GitHub
+- **页面访问统计**：按月份/路径记录 PV，`/ping` 端点可查
+- TOTP 验证 API (`/api/unlock`)，gzip/brotli 压缩
+- CSP/COOP/COEP 安全头，反爬虫检测，频率限制
+- 美观的中文错误页面，预览分支部署支持
 
 ## 项目结构
 
