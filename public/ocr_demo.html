@@ -107,6 +107,10 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
   background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
 }
 .hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+.hw-canvas-wrap { position: relative; }
+.hw-resize-handle { position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; cursor: nwse-resize; opacity: 0.4; transition: opacity 0.2s; z-index: 5; }
+.hw-resize-handle:hover { opacity: 0.8; }
+.hw-resize-handle::after { content: ''; position: absolute; right: 4px; bottom: 4px; width: 10px; height: 10px; border-right: 2px solid var(--fg); border-bottom: 2px solid var(--fg); }
 .hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
 .hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
 .hw-tool-btn:hover { border-color: var(--accent); }
@@ -212,15 +216,15 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 
   <!-- ═══ 手写识别模式 ═══ -->
   <div class="hw-panel" id="hwPanel">
-    <div class="hw-canvas-wrap">
+    <div class="hw-canvas-wrap" id="hwWrap">
       <canvas id="hwCanvas" width="800" height="500"></canvas>
+      <div class="hw-resize-handle" id="hwResizeHandle"></div>
     </div>
     <div class="hw-toolbar">
       <button class="hw-tool-btn active" id="hwPen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>笔</button>
       <button class="hw-tool-btn" id="hwEraser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/><line x1="6" y1="20" x2="10" y2="20"/></svg>橡皮</button>
       <button class="hw-tool-btn" id="hwUndo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>撤销</button>
       <button class="hw-tool-btn" id="hwClear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>清空</button>
-      <button class="hw-expand-btn" id="hwExpand" title="拉大画板"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
       <button class="hw-recognize-btn" id="hwRecognize">识别</button>
     </div>
   </div>
@@ -246,17 +250,17 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 <!-- ═══ CDN 依赖 ═══ -->
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-
-<!-- ═══ 主逻辑 ═══ -->
 <script>
-// MathJax 全局配置
+// MathJax 全局配置（必须在脚本加载前设置）
 MathJax = {
   tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
   svg: { fontCache: 'global' },
   options: { enableMenu: false }
 };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+
+<!-- ═══ 主逻辑 ═══ -->
 <script>
 /* ============================================================
    JS 目录
@@ -326,7 +330,7 @@ MathJax = {
   const hwCtx = hwCanvas.getContext('2d');
   const hwPenBtn = document.getElementById('hwPen');
   const hwEraserBtn = document.getElementById('hwEraser');
-  let hwTool = 'pen', hwDrawing = false, hwExpanded = false;
+  let hwTool = 'pen', hwDrawing = false;
   let hwStrokes = [];
   const HW_MAX_STROKES = 60;
 
@@ -772,9 +776,17 @@ MathJax = {
     tmp.toBlob(function(blob) { processImage(new File([blob], 'handwrite.png', { type: 'image/png' })); }, 'image/png');
   }
 
-  document.getElementById('hwExpand').addEventListener('click', function() {
-    hwExpanded = !hwExpanded; hwCanvas.style.height = hwExpanded ? '70vh' : ''; this.textContent = hwExpanded ? '缩回' : '⤢';
-  });
+  // 自由拖拽缩放画布（右下角手柄）
+  var hwWrap = document.getElementById('hwWrap');
+  var hwResizeHandle = document.getElementById('hwResizeHandle');
+  var hwResizing = false, hwRX, hwRY, hwRW, hwRH;
+
+  hwResizeHandle.addEventListener('mousedown', function(e) { e.preventDefault(); e.stopPropagation(); hwResizing = true; hwRX = e.clientX; hwRY = e.clientY; hwRW = hwCanvas.offsetWidth; hwRH = hwCanvas.offsetHeight; });
+  hwResizeHandle.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); hwResizing = true; hwRX = e.touches[0].clientX; hwRY = e.touches[0].clientY; hwRW = hwCanvas.offsetWidth; hwRH = hwCanvas.offsetHeight; });
+  document.addEventListener('mousemove', function(e) { if (!hwResizing) return; hwCanvas.style.width = Math.max(280, hwRW + e.clientX - hwRX) + 'px'; hwCanvas.style.height = Math.max(200, hwRH + e.clientY - hwRY) + 'px'; });
+  document.addEventListener('touchmove', function(e) { if (!hwResizing) return; hwCanvas.style.width = Math.max(280, hwRW + e.touches[0].clientX - hwRX) + 'px'; hwCanvas.style.height = Math.max(200, hwRH + e.touches[0].clientY - hwRY) + 'px'; }, { passive: false });
+  document.addEventListener('mouseup', function() { hwResizing = false; });
+  document.addEventListener('touchend', function() { hwResizing = false; });
 
   // MathJax SVG 渲染
   function renderMathPreview(latex) {
