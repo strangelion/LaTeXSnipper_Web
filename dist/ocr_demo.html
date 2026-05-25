@@ -88,7 +88,16 @@
     /* 手写板 */
     .hw-panel { display: none; }
     .hw-panel.show { display: block; }
-    .hw-canvas-wrap { background: #fff; border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none; }
+    .hw-canvas-wrap {
+      border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none;
+      background-color: #ffffff;
+      background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    :root[data-theme="dark"] .hw-canvas-wrap {
+      background-color: #1e293b;
+      background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+    }
     .hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
     .hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
     .hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
@@ -127,21 +136,6 @@
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-label"><span id="progressFile"></span><span id="progressPercent">0%</span></div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  </div>
-
-  <div class="usage-counter" id="usageCounter"></div>
-
-  <div style="display:none;" id="unlockPanel">
-    <div style="max-width:360px;margin:0 auto 1rem;padding:1rem;border-radius:12px;border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.06);text-align:center;">
-      <div style="font-size:.8rem;color:#f59e0b;font-weight:700;margin-bottom:.5rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>开发者专属 · 解锁无限次数</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;">
-        <input type="text" id="unlockCode" placeholder="6位验证码" maxlength="6" autocomplete="off"
-          style="width:110px;padding:.4rem .5rem;border-radius:8px;border:1px solid rgba(245,158,11,.3);background:rgba(0,0,0,.2);color:var(--fg);font-size:1rem;text-align:center;letter-spacing:.35em;font-family:monospace;">
-        <button onclick="verifyUnlock()" style="background:#f59e0b;color:#000;border:none;padding:.4rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;">验证</button>
-        <button onclick="document.getElementById('unlockPanel').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:0;line-height:1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-      </div>
-      <div id="unlockMsg" style="margin-top:.5rem;font-size:.8rem;"></div>
-    </div>
   </div>
 
   <div class="mode-tabs">
@@ -229,7 +223,6 @@
   const progressFill = document.getElementById('progressFill');
   const progressFile = document.getElementById('progressFile');
   const progressPercent = document.getElementById('progressPercent');
-  const usageCounter = document.getElementById('usageCounter');
   const camModal = document.getElementById('camModal');
   const camVideo = document.getElementById('camVideo');
   const camTrigger = document.getElementById('camTrigger');
@@ -285,11 +278,18 @@
   hwCanvas.addEventListener('mouseleave', function() { hwDrawing = false; });
 
   function hwUndo() { if (hwStrokes.length > 0) { hwCtx.putImageData(hwStrokes.pop(), 0, 0); } }
-  function hwClear() { hwSaveState(); hwCtx.fillStyle = '#ffffff'; hwCtx.fillRect(0, 0, hwCanvas.width, hwCanvas.height); }
+  function hwClear() { hwSaveState(); hwCtx.clearRect(0, 0, hwCanvas.width, hwCanvas.height); }
 
   function hwRecognize() {
     if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
-    hwCanvas.toBlob(function(blob) {
+    // 导出时加白底（方格不参与识别）
+    var tmp = document.createElement('canvas');
+    tmp.width = hwCanvas.width; tmp.height = hwCanvas.height;
+    var tctx = tmp.getContext('2d');
+    tctx.fillStyle = '#ffffff';
+    tctx.fillRect(0, 0, tmp.width, tmp.height);
+    tctx.drawImage(hwCanvas, 0, 0);
+    tmp.toBlob(function(blob) {
       var file = new File([blob], 'handwrite.png', { type: 'image/png' });
       processImage(file);
     }, 'image/png');
@@ -308,9 +308,6 @@
       tabHandwrite.classList.add('active');
       dropZone.style.display = 'none';
       hwPanel.classList.add('show');
-      // Init canvas with white background
-      hwCtx.fillStyle = '#ffffff';
-      hwCtx.fillRect(0, 0, hwCanvas.width, hwCanvas.height);
       hwStrokes = [];
     } else {
       tabHandwrite.classList.remove('active');
@@ -348,106 +345,9 @@
     setStatus('error', '加载失败', false);
   }
 
-  // ====== TOTP 解锁（验证码发到 Worker 后端校验） ======
-
-  function isUnlocked() {
-    try {
-      const data = JSON.parse(localStorage.getItem('ocr_unlock') || '{}');
-      return data.expiry && Date.now() < data.expiry;
-    } catch(e) { return false; }
-  }
-
-  // 解锁有效期到今晚 23:59:59
-  function getEndOfDay() {
-    const d = new Date();
-    d.setHours(23, 59, 59, 999);
-    return d.getTime();
-  }
-
-  window.verifyUnlock = async function() {
-    const code = document.getElementById('unlockCode').value.trim();
-    const msg = document.getElementById('unlockMsg');
-    if (!/^\d{6}$/.test(code)) { msg.textContent = '请输入 6 位数字验证码'; msg.style.color = '#ef4444'; return; }
-    try {
-      const resp = await fetch('/api/unlock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
-      });
-      const data = await resp.json();
-      if (data.ok) {
-        const expiry = getEndOfDay();
-        localStorage.setItem('ocr_unlock', JSON.stringify({ expiry: expiry }));
-        msg.textContent = '已解锁！今天内无限使用';
-        msg.style.color = '#22c55e';
-        dropZone.style.opacity = '1';
-        dropZone.style.pointerEvents = 'auto';
-        dropZone.title = '';
-        updateUsageDisplay();
-        setStatus('ready', '已解锁，今天内无限使用！拖入公式图片或 Ctrl+V 粘贴截图', false);
-        setTimeout(function(){ document.getElementById('unlockPanel').style.display = 'none'; }, 2000);
-      } else {
-        msg.textContent = '验证码错误，请重试';
-        msg.style.color = '#ef4444';
-      }
-    } catch(e) {
-      msg.textContent = '网络错误，请重试';
-      msg.style.color = '#ef4444';
-    }
-  };
-  const DAILY_LIMIT = 20;
-  const COOLDOWN_MS = 5000; // 两次识别之间至少间隔 5 秒
+  // 简单防滥用冷却（避免短时间内重复提交）
+  const COOLDOWN_MS = 2000;
   let lastRecognitionTime = 0;
-  function deviceFingerprint() {
-    // 组合设备特征生成指纹，防止清 localStorage 绕过限制
-    const parts = [
-      navigator.hardwareConcurrency || 0,
-      navigator.deviceMemory || 0,
-      screen.width, screen.height, screen.colorDepth,
-      navigator.language,
-      navigator.platform,
-    ];
-    // 简单 hash
-    let hash = 0;
-    const str = parts.join('|');
-    for (let i = 0; i < str.length; i++) {
-      const c = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + c;
-      hash = hash | 0;
-    }
-    return 'dev_' + Math.abs(hash).toString(36);
-  }
-  function getUsage() {
-    try {
-      const key = 'ocr_usage_' + deviceFingerprint();
-      const data = JSON.parse(localStorage.getItem(key) || '{}');
-      const today = new Date().toDateString();
-      if (data.date !== today) return { date: today, count: 0, device: deviceFingerprint() };
-      return data;
-    } catch(e) { return { date: new Date().toDateString(), count: 0 }; }
-  }
-  function incrementUsage() {
-    const data = getUsage();
-    data.count++;
-    const key = 'ocr_usage_' + deviceFingerprint();
-    localStorage.setItem(key, JSON.stringify(data));
-    updateUsageDisplay();
-  }
-  function updateUsageDisplay() {
-    var unlocked = isUnlocked();
-    var u = getUsage();
-    var remaining = unlocked ? '∞' : Math.max(0, DAILY_LIMIT - u.count);
-    var pct = unlocked ? 0 : Math.round(u.count / DAILY_LIMIT * 100);
-    usageCounter.innerHTML =
-      '<span>今日剩余 <strong>' + remaining + '</strong> / ' + DAILY_LIMIT + ' 次</span>' +
-      (unlocked ? '<span style="margin-left:.5rem;color:#22c55e;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> 已解锁</span>' : '');
-    if (!unlocked && remaining <= 0) {
-      dropZone.style.opacity = '0.5';
-      dropZone.style.pointerEvents = 'none';
-      dropZone.title = '今日识别次数已用完，请明天再来或使用验证码解锁';
-      setStatus('error', '今日识别次数已用完，请明天再来', false);
-    }
-  }
 
   // ====== 带缓存的下载（二次访问秒开） ======
   const MODEL_CACHE = 'ocr-models-v1';
@@ -680,7 +580,6 @@
       await loadModels();
 
       ready = true;
-      updateUsageDisplay();
       setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
     } catch(e) {
       if (!errorMsg.style.display || errorMsg.style.display === 'none') {
@@ -832,15 +731,6 @@
       return;
     }
 
-    // 次数检查（已解锁则跳过）
-    if (!isUnlocked()) {
-      const u = getUsage();
-      if (u.count >= DAILY_LIMIT) {
-        showError('今日识别次数已用完（' + DAILY_LIMIT + '次/天），请明天再来');
-        return;
-      }
-    }
-
     if (file.size < 1024) { showError('文件太小，请上传至少 1KB 的文件'); return; }
 
     // PDF handling
@@ -853,7 +743,6 @@
       if (!result) return;
 
       lastRecognitionTime = Date.now();
-      if (!isUnlocked()) incrementUsage();
       resultCode.textContent = result.latex;
       confidence.textContent = '置信度 ' + (result.confidence * 100).toFixed(1) + '% | ' + result.pageCount + ' 页';
       resultCard.classList.add('show');
@@ -876,7 +765,6 @@
       try {
         const result = await recognize(img);
         lastRecognitionTime = Date.now();
-        if (!isUnlocked()) incrementUsage();
         resultCode.textContent = result.latex;
         confidence.textContent = '置信度 ' + (result.confidence * 100).toFixed(1) + '%';
         resultCard.classList.add('show');
@@ -982,11 +870,6 @@
       setTimeout(() => { copyBtn.textContent = '复制 LaTeX 代码'; copyBtn.classList.remove('copied'); }, 1500);
     });
   };
-
-  // 开发者入口：URL 加 ?dev 显示解锁面板
-  if (/[?&]dev(&|$)/.test(location.search)) {
-    document.getElementById('unlockPanel').style.display = 'block';
-  }
 
   // 启动
   init();
