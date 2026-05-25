@@ -189,6 +189,91 @@ function cleanupRateLimit() {
   }
 }
 
+// ── R2 配额管理 ──
+// 跟踪 /models/* 带宽用量，接近 R2 免费额度时逐步限制服务
+// 用量持久化到 KV（如已配置），否则退化到内存模式（部署/重启时重置）
+
+const QUOTA_GB_DEFAULT = 10;             // 默认月度限额 (GB)
+const QUOTA_WARN_PCT = 95;               // 95%：限制 OCR Demo 模型下载
+const QUOTA_BLOCK_PCT = 98;              // 98%：下载页链接重定向至 GitHub
+const QUOTA_KV_FLUSH_STEP = 10 * 1024 * 1024; // 每增 10MB 刷入 KV
+
+let quotaBytes = 0;                      // 当月已用字节数（内存）
+let quotaMonth = '';                     // 当前月份 "YYYY-MM"
+let quotaFlushMark = 0;                  // 上次刷入 KV 时的字节数
+let quotaKVLoaded = false;               // 是否已从 KV 加载过
+
+function quotaGetMonth() {
+  const d = new Date();
+  return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+}
+
+async function quotaLoadFromKV(env) {
+  if (!env.USAGE_KV) return 0;
+  try {
+    const data = await env.USAGE_KV.get('quota:' + quotaGetMonth(), 'json');
+    return (data && typeof data.bytes === 'number') ? data.bytes : 0;
+  } catch (e) { return 0; }
+}
+
+function quotaSaveToKV(env, bytes) {
+  if (!env.USAGE_KV) return;
+  const month = quotaGetMonth();
+  return env.USAGE_KV.put('quota:' + month, JSON.stringify({
+    bytes: bytes,
+    updated: Date.now(),
+  }), { expirationTtl: 50 * 86400 });
+}
+
+async function quotaEnsureLoaded(env) {
+  const month = quotaGetMonth();
+  if (month !== quotaMonth) {
+    quotaMonth = month;
+    quotaBytes = 0;
+    quotaFlushMark = 0;
+    quotaKVLoaded = false;
+  }
+  if (!quotaKVLoaded) {
+    quotaBytes = await quotaLoadFromKV(env);
+    quotaFlushMark = quotaBytes;
+    quotaKVLoaded = true;
+  }
+}
+
+async function quotaGetStatus(env) {
+  await quotaEnsureLoaded(env);
+  const limitGB = parseFloat(env.QUOTA_LIMIT_GB) || QUOTA_GB_DEFAULT;
+  const limitBytes = limitGB * 1024 * 1024 * 1024;
+  const pct = limitBytes > 0 ? (quotaBytes / limitBytes) * 100 : 0;
+  return {
+    bytesUsed: quotaBytes,
+    limitBytes: limitBytes,
+    limitGB: limitGB,
+    pctUsed: pct,
+    isWarn: pct >= QUOTA_WARN_PCT,
+    isBlock: pct >= QUOTA_BLOCK_PCT,
+  };
+}
+
+function quotaTrackBytes(bytes, env, ctx) {
+  quotaBytes += bytes;
+  if (env && env.USAGE_KV && (quotaBytes - quotaFlushMark >= QUOTA_KV_FLUSH_STEP)) {
+    quotaFlushMark = quotaBytes;
+    var p = quotaSaveToKV(env, quotaBytes);
+    if (ctx && p) ctx.waitUntil(p);
+  }
+}
+
+function quotaBanner(type, pct) {
+  var pctStr = pct.toFixed(1);
+  if (type === 'warn') {
+    return '<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;text-align:center;padding:8px 12px;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.2);">' +
+      'R2 流量已使用 ' + pctStr + '%，在线识别功能暂时受限。请稍后再来或使用桌面客户端。</div>';
+  }
+  return '<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;text-align:center;padding:8px 12px;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.2);">' +
+    'R2 流量已使用 ' + pctStr + '%，下载链接已临时切换至 <a href="https://github.com/SakuraMathcraft/LaTeXSnipper/releases" style="color:#fff;text-decoration:underline;">GitHub Releases</a>。</div>';
+}
+
 // ── TOTP 验证（RFC 6238, SHA-1, 30s, 6 digits） ──
 async function verifyTOTP(secret, token) {
   try {
@@ -530,6 +615,20 @@ export default {
           });
         }
 
+        // R2 配额检查：接近免费额度上限时限制模型下载
+        const quota = await quotaGetStatus(env);
+        if (quota.isWarn) {
+          return new Response("Service Temporarily Unavailable — Monthly bandwidth quota reached " + quota.pctUsed.toFixed(1) + "%. Please try again later or use the desktop client.", {
+            status: 503,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Retry-After": "3600",
+              ...corsHeaders(),
+              ...securityHeaders(false),
+            },
+          });
+        }
+
         // R2 模型存储 URL（从环境变量或使用默认值）
         const R2_MODEL_BASE = env.R2_MODEL_BASE || "https://release.interknot.dpdns.org";
         const modelUrl = R2_MODEL_BASE + path;
@@ -542,6 +641,10 @@ export default {
         }
 
         const modelContent = await modelResp.arrayBuffer();
+
+        // 追踪带宽用量（用于 R2 配额管理）
+        quotaTrackBytes(modelContent.byteLength, env, ctx);
+
         return new Response(modelContent, {
           headers: {
             "Content-Type": "application/octet-stream",
@@ -599,7 +702,26 @@ export default {
     const mimeType = getMimeType(filePath);
     const isHtml = filePath.endsWith(".html");
     const isBinary = /\.(png|jpe?g|gif|svg|ico|otf|ttf|woff2|wasm|pdf)$/i.test(filePath);
-    const content = isBinary ? await resp.arrayBuffer() : await resp.text();
+    let content = isBinary ? await resp.arrayBuffer() : await resp.text();
+
+    // R2 配额页面变换
+    let pageQuota;
+    if (isHtml && typeof content === 'string') {
+      if (filePath.endsWith('download.html') || filePath === 'dist/download.html') {
+        pageQuota = await quotaGetStatus(env);
+        if (pageQuota.isBlock) {
+          // 替换 R2 下载链接为 GitHub Releases
+          content = content.replace(/https?:\/\/release\.interknot\.dpdns\.org\/[^"'\s><]+/g,
+            'https://github.com/SakuraMathcraft/LaTeXSnipper/releases');
+          content = content.replace('<body>', '<body>' + quotaBanner('block', pageQuota.pctUsed));
+        }
+      } else if (filePath.endsWith('ocr_demo.html') || filePath === 'dist/ocr_demo.html') {
+        pageQuota = await quotaGetStatus(env);
+        if (pageQuota.isWarn) {
+          content = content.replace('<body>', '<body>' + quotaBanner('warn', pageQuota.pctUsed));
+        }
+      }
+    }
 
     const headers = {
       "Content-Type": mimeType,

@@ -578,56 +578,58 @@
 
         const page = await pdf.getPage(pageNum);
 
-        // Extract native text content from PDF (preserves typesetting)
-        let pageText = '';
-        try {
-          const textContent = await page.getTextContent();
-          const items = textContent.items;
-          if (items.length) {
-            const lineMap = {};
-            for (const item of items) {
-              const y = Math.round(item.transform[5] * 10) / 10;
-              let key = null;
-              for (const k of Object.keys(lineMap)) {
-                if (Math.abs(parseFloat(k) - y) < 4) { key = k; break; }
-              }
-              if (!key) key = String(y);
-              if (!lineMap[key]) lineMap[key] = [];
-              lineMap[key].push(item);
-            }
-            const sortedYs = Object.keys(lineMap).sort(function(a, b) { return parseFloat(b) - parseFloat(a); });
-            const lines = [];
-            for (const y of sortedYs) {
-              lineMap[y].sort(function(a, b) { return a.transform[4] - b.transform[4]; });
-              const lineText = lineMap[y].map(function(it) { return it.str; }).join(' ');
-              if (lineText.trim()) lines.push(lineText.trim());
-            }
-            pageText = lines.join('\n');
-          }
-        } catch(e) { /* text extraction failure is non-fatal */ }
-
-        // Render page to image for formula OCR
-        const viewport = page.getViewport({ scale: 2.0 });
+        // Adaptive render scale: target 768px max dim for OCR quality, cap [1.0, 2.0]
+        const baseVp = page.getViewport({ scale: 1.0 });
+        const maxDim = Math.max(baseVp.width, baseVp.height);
+        const renderScale = Math.max(1.0, Math.min(2.0, 768 / maxDim));
+        const viewport = page.getViewport({ scale: renderScale });
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        await page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
 
-        const blob = await new Promise(function(resolve) { canvas.toBlob(resolve, 'image/png'); });
-        const img = new Image();
-        img.src = URL.createObjectURL(blob);
-        await new Promise(function(r) { img.onload = r; });
+        // Extract text and render to canvas in parallel
+        const textPromise = page.getTextContent().catch(function() { return { items: [] }; });
+        const renderPromise = page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+        const [textContent] = await Promise.all([textPromise, renderPromise]);
 
+        // Parse extracted text preserving reading order
+        let pageText = '';
+        const items = textContent.items;
+        if (items && items.length) {
+          const lineMap = {};
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const y = Math.round(item.transform[5] * 10) / 10;
+            let key = null;
+            const keys = Object.keys(lineMap);
+            for (let k = 0; k < keys.length; k++) {
+              if (Math.abs(parseFloat(keys[k]) - y) < 4) { key = keys[k]; break; }
+            }
+            if (!key) key = String(y);
+            if (!lineMap[key]) lineMap[key] = [];
+            lineMap[key].push(item);
+          }
+          const sortedYs = Object.keys(lineMap).sort(function(a, b) { return parseFloat(b) - parseFloat(a); });
+          const lines = [];
+          for (let yi = 0; yi < sortedYs.length; yi++) {
+            const y = sortedYs[yi];
+            lineMap[y].sort(function(a, b) { return a.transform[4] - b.transform[4]; });
+            const lineText = lineMap[y].map(function(it) { return it.str; }).join(' ');
+            if (lineText.trim()) lines.push(lineText.trim());
+          }
+          pageText = lines.join('\n');
+        }
+
+        // Pass canvas directly to OCR — skips toBlob/URL/Image roundtrip
         let formulaLatex = '';
         let formulaConf = 0;
         try {
-          const result = await recognize(img);
+          const result = await recognize(canvas);
           formulaLatex = result.latex;
           formulaConf = result.confidence;
         } catch(e) {
           formulaLatex = '% [Error] ' + (e.message || e);
         }
-        URL.revokeObjectURL(img.src);
 
         allResults.push({
           page: pageNum,
