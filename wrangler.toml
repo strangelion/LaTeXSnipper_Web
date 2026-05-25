@@ -16,9 +16,12 @@ workers_dev = true
 # 然后设置 R2 Bucket 为公开，或使用 R2 自定义域名
 # 将下面 vars 中的 R2_MODEL_BASE 替换为你的 R2 公开 URL
 
-# ── KV 命名空间绑定 ──
-# USAGE_KV 通过下对应 env 配置
 # 将下面 vars 中的 R2_MODEL_BASE 替换为你的 R2 公开 URL
+
+# ── KV 命名空间绑定 ──
+[[kv_namespaces]]
+binding = "USAGE_KV"
+id = "1afdc87d24624a80aa99722ebf7e1ec6"
 
 # ── 分支部署 ──
 # 非 master 分支自动部署为预览版本
@@ -34,9 +37,9 @@ workers_dev = false
 # ]
 vars = { GITHUB_BRANCH = "master", DEPLOY_ENV = "production" }
 # R2_MODEL_BASE 通过 wrangler secret put R2_MODEL_BASE 设置，不写在源码中
-kv_namespaces = [
-  { binding = "USAGE_KV", id = "1afdc87d24624a80aa99722ebf7e1ec6" }
-]
+[[env.production.kv_namespaces]]
+binding = "USAGE_KV"
+id = "1afdc87d24624a80aa99722ebf7e1ec6"
 
 # ── 预览环境 ──
 [env.preview]
