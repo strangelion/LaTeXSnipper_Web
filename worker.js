@@ -675,6 +675,41 @@ export default {
         });
       }
 
+      // ── 下载代理（R2）──
+      // /dl/xxx → R2 release/xxx，追踪带宽，98% 时重定向 GitHub
+      if (path.startsWith("/dl/")) {
+        const R2_BASE = env.R2_MODEL_BASE || "https://release.interknot.dpdns.org";
+        const dlUrl = R2_BASE + "/release/" + path.slice(4); // /dl/foo → /release/foo
+
+        // 配额阻断：重定向到 GitHub Releases
+        const relQuota = await quotaGetStatus(env);
+        if (relQuota.isBlock) {
+          return Response.redirect("https://github.com/SakuraMathcraft/LaTeXSnipper/releases", 302);
+        }
+
+        const relResp = await fetch(dlUrl);
+        if (!relResp.ok) {
+          return renderErrorPage(404, "文件未找到",
+            "请求的发布文件不存在，请访问 GitHub Releases 页面下载。",
+            path, request);
+        }
+
+        // 追踪带宽
+        const cl = relResp.headers.get("Content-Length");
+        if (cl) quotaTrackBytes(parseInt(cl, 10), env, ctx);
+
+        return new Response(relResp.body, {
+          status: relResp.status,
+          headers: {
+            "Content-Type": relResp.headers.get("Content-Type") || "application/octet-stream",
+            "Content-Disposition": relResp.headers.get("Content-Disposition") || "attachment",
+            "Cache-Control": "public, max-age=86400, s-maxage=604800",
+            ...corsHeaders(),
+            ...securityHeaders(false),
+          },
+        });
+      }
+
       // 路径解析
       let filePath;
       if (path === "/") {
@@ -730,8 +765,8 @@ export default {
       if (filePath.endsWith('download.html') || filePath === 'dist/download.html') {
         pageQuota = await quotaGetStatus(env);
         if (pageQuota.isBlock) {
-          // 替换 R2 下载链接为 GitHub Releases
-          content = content.replace(/https?:\/\/release\.interknot\.dpdns\.org\/[^"'\s><]+/g,
+          // 98%：下载链接切到 GitHub + 横幅
+          content = content.replace(/\/dl\/[^"'\s><]+/g,
             'https://github.com/SakuraMathcraft/LaTeXSnipper/releases');
           content = content.replace('<body>', '<body>' + quotaBanner('block', pageQuota.pctUsed));
         }

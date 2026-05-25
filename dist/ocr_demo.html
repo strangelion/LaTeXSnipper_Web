@@ -65,6 +65,18 @@
     #mathBg { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
     .bg-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.04) 0%, transparent 60%); }
     :root[data-theme="dark"] .bg-overlay { background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0.3) 0%, transparent 60%); }
+
+    /* 相机 */
+    .cam-trigger-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.75rem; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+    .cam-trigger-btn:hover { border-color: var(--accent); background: rgba(37,99,235,0.06); }
+    .cam-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; }
+    .cam-modal.show { display: flex; }
+    .cam-modal video { max-width: 95vw; max-height: 70vh; border-radius: 12px; background: #000; }
+    .cam-actions { display: flex; gap: 1rem; }
+    .cam-btn { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; transition: transform 0.15s; }
+    .cam-btn:active { transform: scale(0.96); }
+    .cam-capture { background: var(--accent); color: #fff; }
+    .cam-close { background: rgba(255,255,255,0.12); color: #fff; }
 </style>
 </head>
 <body>
@@ -122,6 +134,18 @@
       <div style="font-size:0.8rem;opacity:0.6;margin-top:0.5rem;">Win+Shift+S 截图后在此页面按 Ctrl+V 即可识别<br>也可上传 PDF（最多100页），逐页识别公式<br>网页版提供基础识别效果，桌面客户端内置专属优化引擎</div>
     </div>
     <img id="preview" style="display:none;" alt="预览">
+    <button class="cam-trigger-btn" id="camTrigger" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      拍照识别
+    </button>
+  </div>
+
+  <div class="cam-modal" id="camModal">
+    <video id="camVideo" autoplay playsinline></video>
+    <div class="cam-actions">
+      <button class="cam-btn cam-capture" id="camCapture">拍照识别</button>
+      <button class="cam-btn cam-close" id="camClose">关闭</button>
+    </div>
   </div>
 
   <div class="result-card" id="resultCard">
@@ -170,6 +194,12 @@
   const progressFile = document.getElementById('progressFile');
   const progressPercent = document.getElementById('progressPercent');
   const usageCounter = document.getElementById('usageCounter');
+  const camModal = document.getElementById('camModal');
+  const camVideo = document.getElementById('camVideo');
+  const camTrigger = document.getElementById('camTrigger');
+  const camCapture = document.getElementById('camCapture');
+  const camClose = document.getElementById('camClose');
+  let camStream = null;
 
   const ICONS = {
     loading: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
@@ -769,6 +799,45 @@
       }
     }
   });
+
+  // 相机拍照
+  async function openCamera() {
+    try {
+      camStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+      });
+      camVideo.srcObject = camStream;
+      camModal.classList.add('show');
+    } catch(e) {
+      showError('无法访问摄像头：' + (e.message || e) + '。请确认已授予相机权限。');
+    }
+  }
+
+  function closeCamera() {
+    if (camStream) {
+      camStream.getTracks().forEach(function(t) { t.stop(); });
+      camStream = null;
+    }
+    camVideo.srcObject = null;
+    camModal.classList.remove('show');
+  }
+
+  function capturePhoto() {
+    if (!camStream) return;
+    var canvas = document.createElement('canvas');
+    canvas.width = camVideo.videoWidth;
+    canvas.height = camVideo.videoHeight;
+    canvas.getContext('2d').drawImage(camVideo, 0, 0);
+    closeCamera();
+    canvas.toBlob(function(blob) {
+      var file = new File([blob], 'camera.jpg', { type: 'image/jpeg' });
+      processImage(file);
+    }, 'image/jpeg', 0.92);
+  }
+
+  camTrigger.addEventListener('click', openCamera);
+  camCapture.addEventListener('click', capturePhoto);
+  camClose.addEventListener('click', closeCamera);
 
   window.copyResult = function() {
     navigator.clipboard.writeText('$$\n' + resultCode.textContent + '\n$$').then(() => {
