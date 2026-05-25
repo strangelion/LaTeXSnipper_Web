@@ -240,8 +240,12 @@
   const hwEraserBtn = document.getElementById('hwEraser');
   let hwTool = 'pen';
   let hwDrawing = false;
-  let hwStrokes = [];       // saved ImageData snapshots for undo
+  let hwStrokes = [];
   const HW_MAX_STROKES = 60;
+
+  function hwPenColor() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#1e293b';
+  }
 
   function hwSaveState() {
     hwStrokes.push(hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
@@ -271,8 +275,22 @@
 
   hwCanvas.addEventListener('mousedown', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
   hwCanvas.addEventListener('touchstart', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
-  hwCanvas.addEventListener('mousemove', function(e) { if (!hwDrawing) return; var p = hwGetPos(e); hwCtx.lineTo(p.x, p.y); hwCtx.strokeStyle = hwTool === 'eraser' ? '#ffffff' : '#1e293b'; hwCtx.lineWidth = hwTool === 'eraser' ? 24 : 3; hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round'; hwCtx.stroke(); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); });
-  hwCanvas.addEventListener('touchmove', function(e) { if (!hwDrawing) return; var p = hwGetPos(e); hwCtx.lineTo(p.x, p.y); hwCtx.strokeStyle = hwTool === 'eraser' ? '#ffffff' : '#1e293b'; hwCtx.lineWidth = hwTool === 'eraser' ? 24 : 3; hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round'; hwCtx.stroke(); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+  function hwDraw(p) {
+    if (hwTool === 'eraser') {
+      hwCtx.globalCompositeOperation = 'destination-out';
+      hwCtx.strokeStyle = 'rgba(0,0,0,1)';
+      hwCtx.lineWidth = 24;
+    } else {
+      hwCtx.globalCompositeOperation = 'source-over';
+      hwCtx.strokeStyle = hwPenColor();
+      hwCtx.lineWidth = 3;
+    }
+    hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round';
+    hwCtx.lineTo(p.x, p.y); hwCtx.stroke();
+    hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y);
+  }
+  hwCanvas.addEventListener('mousemove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); });
+  hwCanvas.addEventListener('touchmove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); e.preventDefault(); });
   hwCanvas.addEventListener('mouseup', function() { hwDrawing = false; });
   hwCanvas.addEventListener('touchend', function() { hwDrawing = false; });
   hwCanvas.addEventListener('mouseleave', function() { hwDrawing = false; });
