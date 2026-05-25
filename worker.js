@@ -200,7 +200,6 @@ function cleanupRateLimit() {
 const QUOTA_OPS_DEFAULT = 10000000;      // 默认月度限额（R2 免费 B 类操作）
 const QUOTA_WARN_PCT = 95;               // 95%：限制 OCR Demo 模型下载
 const QUOTA_BLOCK_PCT = 98;              // 98%：下载页链接重定向至 GitHub
-const QUOTA_KV_FLUSH_STEP = 1000;        // 每 1000 次操作刷入 KV
 
 let quotaOps = 0;                        // 当月操作次数（内存）
 let quotaMonth = '';                     // 当前月份 "YYYY-MM"
@@ -259,8 +258,8 @@ async function quotaGetStatus(env) {
 
 function quotaTrackOp(env, ctx) {
   quotaOps += 1;
-  if (env && env.USAGE_KV && (quotaOps - quotaFlushMark >= QUOTA_KV_FLUSH_STEP)) {
-    quotaFlushMark = quotaOps;
+  // 每次操作都刷入 KV，防止部署重启丢数据
+  if (env && env.USAGE_KV) {
     var p = quotaSaveToKV(env, quotaOps);
     if (ctx && p) ctx.waitUntil(p);
   }
