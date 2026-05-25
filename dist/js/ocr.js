@@ -542,12 +542,13 @@
 
   function hwRecognize() {
     if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
-    var bounds = hwGetContentBounds();
-    var sx = bounds ? bounds.x : 0, sy = bounds ? bounds.y : 0, sw = bounds ? bounds.w : hwCanvas.width, sh = bounds ? bounds.h : hwCanvas.height;
-    var tmp = document.createElement('canvas'); tmp.width = sw; tmp.height = sh;
+    // 白底 + 全画布直出（不裁剪，避免小图放大失真）
+    var tmp = document.createElement('canvas');
+    tmp.width = hwCanvas.width; tmp.height = hwCanvas.height;
     var tctx = tmp.getContext('2d');
-    tctx.fillStyle = '#ffffff'; tctx.fillRect(0, 0, sw, sh);
-    tctx.drawImage(hwCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+    tctx.fillStyle = '#ffffff';
+    tctx.fillRect(0, 0, tmp.width, tmp.height);
+    tctx.drawImage(hwCanvas, 0, 0);
     tmp.toBlob(function(blob) { processImage(new File([blob], 'handwrite.png', { type: 'image/png' })); }, 'image/png');
   }
 
