@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaTeXSnipper</title>
+<!-- Office.js (required for Word API) -->
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<!-- MathLive: dynamic import, same as main LaTeXSnipper workbench -->
+<script type="module">
+import { MathfieldElement } from 'https://esm.run/mathlive';
+MathfieldElement.fontsDirectory = 'https://cdn.jsdelivr.net/npm/mathlive/fonts';
+// Chinese context menu translations
+try { MathfieldElement.strings = { 'zh-CN': {
+  'menu.insert matrix':'插入矩阵','menu.insert':'插入','menu.mode':'模式','menu.mode-math':'数学','menu.mode-text':'文本','menu.mode-latex':'LaTeX',
+  'menu.font-style':'字体风格','menu.color':'颜色','menu.background-color':'背景','menu.accent':'重音修饰','menu.decoration':'装饰',
+  'menu.evaluate':'计算','menu.simplify':'化简','menu.solve':'求解',
+  'menu.cut':'剪切','menu.copy':'复制','menu.copy-as-latex':'复制为 LaTeX','menu.copy-as-typst':'复制为 Typst','menu.copy-as-ascii-math':'复制为 ASCII Math','menu.copy-as-mathml':'复制为 MathML','menu.paste':'粘贴','menu.select-all':'全选',
+  'tooltip.copy to clipboard':'复制到剪贴板','tooltip.cut to clipboard':'剪切到剪贴板','tooltip.paste from clipboard':'从剪贴板粘贴','tooltip.redo':'重做','tooltip.undo':'撤销',
+  'tooltip.blackboard':'黑板粗体','tooltip.bold':'粗体','tooltip.italic':'斜体','tooltip.fraktur':'哥特体','tooltip.script':'手写体','tooltip.caligraphic':'书法体','tooltip.typewriter':'等宽','tooltip.roman-upright':'罗马正体',
+  'menu.array.add row above':'上方添加行','menu.array.add row below':'下方添加行','menu.array.add column after':'右侧添加列','menu.array.add column before':'左侧添加列','menu.array.delete row':'删除行','menu.array.delete column':'删除列',
+  'menu.borders':'矩阵边框','menu.insert.abs':'绝对值','menu.insert.nth-root':'n次根号','menu.insert.log-base':'对数','menu.insert.derivative':'导数','menu.insert.integral':'积分','menu.insert.sum':'求和','menu.insert.product':'乘积','menu.insert.conjugate':'共轭',
+  'color.red':'红','color.orange':'橙','color.yellow':'黄','color.green':'绿','color.blue':'蓝','color.purple':'紫','color.black':'黑','color.white':'白','color.grey':'灰',
+}}; } catch(_) {}
+window.MathfieldElement = MathfieldElement;
+</script>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo">LaTeX<b>Snipper</b></span>
+  <nav class="topbar-nav">
+    <button class="tb-btn active" data-tab="editor">公式编辑器</button>
+    <button class="tb-btn" data-tab="ocr">截图识别</button>
+    <button class="tb-btn" data-tab="templates">公式模板</button>
+  </nav>
+  <div class="topbar-right">
+    <button id="themeBtn" class="icon-only">暗色模式</button>
+  </div>
+</div>
+
+<section class="tab active" id="tab-editor">
+  <div class="panel">
+    <div class="panel-head">公式编辑器 <kbd>Ctrl+Enter</kbd></div>
+    <div id="mathfield-host"><div class="loading-overlay"><div class="loading-bar"><div class="loading-fill" id="loadBar"></div></div><div class="loading-text" id="loadMsg">正在加载编辑器…</div></div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><span id="previewLabel">预览</span><span class="perf" id="renderTime"></span></div>
+    <div id="preview-out"><div class="hint">在上方输入 LaTeX 公式即可预览</div></div>
+  </div>
+  <div class="actions">
+    <button id="insertBtn" class="btn primary lg">插入 Word</button>
+    <button id="copyLatexBtn" class="btn">复制 LaTeX</button>
+    <button id="copyTypstBtn" class="btn" style="display:none">复制 Typst</button>
+  </div>
+</section>
+
+<section class="tab" id="tab-ocr">
+  <div class="panel drop-zone" id="dropZone">
+    <div class="dz-icon">&#128247;</div>
+    <div class="dz-title">点击、拖放 或 Ctrl+V 粘贴图片</div>
+    <div class="dz-hint">按 <b>Win+Shift+S</b> 截图后在下方 Ctrl+V 粘贴</div>
+    <img id="previewImg" style="display:none;max-width:100%;max-height:200px;border-radius:8px;" />
+    <input type="file" id="fileInput" accept="image/*" hidden />
+  </div>
+  <div class="ocr-result" id="ocrResult" style="display:none">
+    <div class="panel"><div class="panel-head">识别结果</div><pre id="ocrOutput" class="src-code"></pre></div>
+    <div class="panel"><div class="panel-head">公式预览</div><div id="ocrPreview"></div></div>
+    <div class="actions">
+      <button id="ocrInsertBtn" class="btn primary lg">插入 Word</button>
+      <button id="ocrCopyBtn" class="btn">复制</button>
+      <button id="ocrEditBtn" class="btn">在编辑器中打开</button>
+    </div>
+  </div>
+  <div class="ocr-status" id="ocrStatus">MathCraft OCR · 浏览器端 ONNX Runtime 推理 · 首次加载约 113MB</div>
+</section>
+
+<section class="tab" id="tab-templates">
+  <div class="tpl-grid" id="tplGrid"></div>
+</section>
+
+<div class="mode-bar">
+  <button class="mode-btn active" data-mode="latex">LaTeX 模式</button>
+  <button class="mode-btn" data-mode="typst">Typst 预览</button>
+</div>
+<div id="toast" class="toast"></div>
+
+<!-- Debug log panel (Ctrl+Shift+D to toggle) -->
+<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;max-height:200px;overflow-y:auto;background:var(--surface);border-top:1px solid var(--border);padding:8px 12px;font-family:monospace;font-size:10px;color:var(--muted);z-index:1000;white-space:pre-wrap;word-break:break-all"></div>
+</body>
+</html>

@@ -87,8 +87,6 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import re
-          with open('download.html', 'r', encoding='utf-8') as f:
-              html = f.read()
 
           sha_map = {}
           with open('/tmp/sha256.txt', 'r') as f:
@@ -101,36 +99,43 @@ jobs:
               ('latexsnipper_2.3.2_amd64.deb', sha_map.get('latexsnipper_2.3.2_amd64.deb', '')),
               ('LaTeXSnipper_2.3.2_arm64.dmg', sha_map.get('LaTeXSnipper_2.3.2_arm64.dmg', '')),
           ]
-          for filename, sha in pairs:
-              if not sha: continue
-              escaped = re.escape(filename)
-              # Match: <a class="download-btn" href="...filename...">text</a> followed by <p class="sha256" data-sha256="...">
-              # Use [^<]* to stop at the first </a> (not greedy across cards)
-              # 先检查当前值是否已正确
-              cur_match = re.search(
-                  r'<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256="([^"]*)"',
-                  html
-              )
-              if cur_match and cur_match.group(1) == sha:
-                  print(f"  - {filename} already correct")
-                  continue
-              # 需要更新
-              pattern = re.compile(
-                  r'(<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
-              )
-              new_html = pattern.sub(r'\g<1>' + sha + r'\g<2>', html)
-              if new_html != html:
-                  html = new_html
-                  print(f"  ok {filename} sha256 updated")
-              else:
-                  print(f"  no_match {filename}")
-          with open('download.html', 'w', encoding='utf-8') as f:
-              f.write(html)
+
+          def update_file(filepath):
+              with open(filepath, 'r', encoding='utf-8') as f:
+                  html = f.read()
+              changed = False
+              for filename, sha in pairs:
+                  if not sha: continue
+                  escaped = re.escape(filename)
+                  cur_match = re.search(
+                      r'<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256="([^"]*)"',
+                      html
+                  )
+                  if cur_match and cur_match.group(1) == sha:
+                      print(f"  {filepath}: {filename} already correct")
+                      continue
+                  pattern = re.compile(
+                      r'(<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
+                  )
+                  new_html = pattern.sub(r'\g<1>' + sha + r'\g<2>', html)
+                  if new_html != html:
+                      html = new_html
+                      changed = True
+                      print(f"  {filepath}: {filename} sha256 updated")
+                  else:
+                      print(f"  {filepath}: {filename} no_match")
+              if changed:
+                  with open(filepath, 'w', encoding='utf-8') as f:
+                      f.write(html)
+              return changed
+
+          c1 = update_file('download.html')
+          c2 = update_file('dist/download.html')
           PYEOF
 
       - name: 提交更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add download.html
+          git add download.html dist/download.html
           git diff --staged --quiet || (git commit -m "chore: sync release SHA256" && git pull --rebase && git push)
