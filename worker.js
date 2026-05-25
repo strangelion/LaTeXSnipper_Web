@@ -561,11 +561,31 @@ export default {
     const isHead = request.method === "HEAD";
 
     if (path === "/ping") {
+      const diag = await quotaEnsureLoaded(env);
+      const qs = await quotaGetStatus(env);
+      // force re-read from KV to confirm binding works
+      let kvReadback = null;
+      if (env.USAGE_KV) {
+        try {
+          kvReadback = await env.USAGE_KV.get('quota:' + quotaGetMonth(), 'json');
+        } catch (e) { kvReadback = { error: e.message }; }
+      }
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.6",
+        version: "2.3.7",
         timestamp: new Date().toISOString(),
+        kv: {
+          bound: !!env.USAGE_KV,
+          loaded: quotaKVLoaded,
+          readback: kvReadback,
+        },
+        quota: {
+          bytesUsed: qs.bytesUsed,
+          limitGB: qs.limitGB,
+          pctUsed: qs.pctUsed.toFixed(2) + '%',
+          level: qs.isBlock ? 'block' : qs.isWarn ? 'warn' : 'normal',
+        },
       });
     }
 
