@@ -10,104 +10,145 @@
 </script>
 <link rel="stylesheet" href="styles/styles.css" media="all">
 <style>
-    html { background: var(--bg); }
-    body { background: transparent; font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif; }
+/* ============================================================
+   CSS 目录
+   1. 基础布局 (html, body, nav, demo-page)
+   2. 状态栏 & 进度条
+   3. 拖拽区 (drop-zone)
+   4. 结果卡片 & 复制按钮
+   5. 相机 (trigger, modal)
+   6. 模式切换标签
+   7. 手写板 (canvas, toolbar)
+   8. MathJax 预览
+   9. 粒子背景
+   10. 手机端适配 (@media)
+   ============================================================ */
 
-    .spacer-top { height: 56px; }
-    .top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--hdr-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color); }
-    .top-nav .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.25rem; height: 48px; display: flex; align-items: center; gap: 1rem; }
-    .top-nav a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
-    .top-nav a:hover { color: var(--accent); }
-    .top-nav .brand-link { font-weight: 700; font-size: 1rem; }
-    .top-nav .active-link { color: var(--accent); font-weight: 600; }
-    .theme-toggle { margin-left: auto; background: none; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--fg); transition: background 0.2s, border-color 0.2s; backdrop-filter: blur(4px); }
-    .theme-toggle:hover { background: rgba(128,128,128,0.1); border-color: var(--accent); }
-    .theme-icon { flex-shrink: 0; display: block; }
-    .theme-label { line-height: 1; white-space: nowrap; }
+/* ── 1. 基础布局 ── */
+html { background: var(--bg); }
+body { background: transparent; font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif; }
+.spacer-top { height: 56px; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--hdr-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color); }
+.top-nav .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.25rem; height: 48px; display: flex; align-items: center; gap: 1rem; }
+.top-nav a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
+.top-nav a:hover { color: var(--accent); }
+.top-nav .brand-link { font-weight: 700; font-size: 1rem; }
+.top-nav .active-link { color: var(--accent); font-weight: 600; }
+.theme-toggle { margin-left: auto; background: none; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--fg); transition: background 0.2s, border-color 0.2s; backdrop-filter: blur(4px); }
+.theme-toggle:hover { background: rgba(128,128,128,0.1); border-color: var(--accent); }
+.theme-icon { flex-shrink: 0; display: block; }
+.theme-label { line-height: 1; white-space: nowrap; }
+.demo-page { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+.demo-title { font-size: 2rem; font-weight: 800; text-align: center; margin: 0 0 0.5rem; background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.demo-sub { text-align: center; color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
 
-    .demo-page { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
-    .demo-title { font-size: 2rem; font-weight: 800; text-align: center; margin: 0 0 0.5rem; background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .demo-sub { text-align: center; color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+/* ── 2. 状态栏 & 进度条 ── */
+.status-bar { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted); }
+.spinner { width: 22px; height: 22px; border: 3px solid var(--border-color); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; flex-shrink: 0; }
+.spinner.show { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress-wrap { width: 100%; max-width: 400px; margin: 0 auto 1.5rem; display: none; }
+.progress-wrap.show { display: block; }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+.progress-track { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+.error-msg { color: #ef4444; font-size: 0.9rem; text-align: center; padding: 1rem; }
+.info-note { margin-top: 2rem; padding: 1rem; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
 
-    .status-bar { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted); }
-    .spinner { width: 22px; height: 22px; border: 3px solid var(--border-color); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; flex-shrink: 0; }
-    .spinner.show { display: block; }
+/* ── 3. 拖拽区 ── */
+.drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card-bg); margin-bottom: 1.5rem; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(37,99,235,0.04); }
+.drop-zone input { display: none; }
+.drop-zone .icon { margin-bottom: 0.5rem; color: var(--muted); }
+.drop-zone img { max-width: 100%; max-height: 300px; border-radius: 8px; display: block; margin: 0 auto; }
 
-    .drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card-bg); margin-bottom: 1.5rem; }
-    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(37,99,235,0.04); }
-    .drop-zone input { display: none; }
-    .drop-zone .icon { margin-bottom: 0.5rem; color: var(--muted); }
-    .drop-zone img { max-width: 100%; max-height: 300px; border-radius: 8px; display: block; margin: 0 auto; }
+/* ── 4. 结果卡片 ── */
+.result-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: none; }
+.result-card.show { display: block; }
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+.result-header .label { font-weight: 700; font-size: 0.95rem; color: var(--fg); }
+.confidence { font-size: 0.8rem; color: var(--muted); background: rgba(34,197,94,0.1); padding: 2px 10px; border-radius: 4px; }
+pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; border-radius: 8px; overflow: auto; font-size: 0.9rem; font-family: "SF Mono","Cascadia Code","Consolas",monospace; white-space: pre-wrap; word-break: break-all; margin: 0; }
+.ocr-copy { display: block; width: 100%; margin-top: 0.75rem; text-align: center; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: opacity 0.2s, transform 0.15s; }
+.ocr-copy:hover { opacity: 0.9; transform: scale(1.01); }
+.ocr-copy:active { transform: scale(0.98); }
+.ocr-copy.copied { background: #22c55e; }
 
-    .result-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: none; }
-    .result-card.show { display: block; }
-    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
-    .result-header .label { font-weight: 700; font-size: 0.95rem; color: var(--fg); }
-    .confidence { font-size: 0.8rem; color: var(--muted); background: rgba(34,197,94,0.1); padding: 2px 10px; border-radius: 4px; }
-    pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; border-radius: 8px; overflow: auto; font-size: 0.9rem; font-family: "SF Mono","Cascadia Code","Consolas",monospace; white-space: pre-wrap; word-break: break-all; margin: 0; }
-    .ocr-copy { display: block; width: 100%; margin-top: 0.75rem; text-align: center; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: opacity 0.2s, transform 0.15s; }
-    .ocr-copy:hover { opacity: 0.9; transform: scale(1.01); }
-    .ocr-copy:active { transform: scale(0.98); }
-    .ocr-copy.copied { background: #22c55e; }
+/* ── 5. 相机 ── */
+.cam-trigger-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.75rem; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+.cam-trigger-btn:hover { border-color: var(--accent); background: rgba(37,99,235,0.06); }
+.cam-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; }
+.cam-modal.show { display: flex; }
+.cam-modal video { max-width: 95vw; max-height: 70vh; border-radius: 12px; background: #000; }
+.cam-actions { display: flex; gap: 1rem; }
+.cam-btn { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; transition: transform 0.15s; }
+.cam-btn:active { transform: scale(0.96); }
+.cam-capture { background: var(--accent); color: #fff; }
+.cam-close { background: rgba(255,255,255,0.12); color: #fff; }
 
-    .progress-wrap { width: 100%; max-width: 400px; margin: 0 auto 1.5rem; display: none; }
-    .progress-wrap.show { display: block; }
-    .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
-    .progress-track { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+/* ── 6. 模式切换标签 ── */
+.mode-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
+.mode-tab { padding: 8px 24px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--muted); cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
+.mode-tab:first-child { border-radius: 10px 0 0 10px; }
+.mode-tab:last-child { border-radius: 0 10px 10px 0; }
+.mode-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    .error-msg { color: #ef4444; font-size: 0.9rem; text-align: center; padding: 1rem; }
-    .info-note { margin-top: 2rem; padding: 1rem; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
-    .usage-counter { text-align: center; font-size: 0.8rem; color: var(--muted); margin-top: -0.5rem; margin-bottom: 1rem; }
+/* ── 7. 手写板 ── */
+.hw-panel { display: none; }
+.hw-panel.show { display: block; }
+.hw-canvas-wrap {
+  border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none;
+  background-color: #ffffff;
+  background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+:root[data-theme="dark"] .hw-canvas-wrap {
+  background-color: #1e293b;
+  background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+}
+.hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+.hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+.hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
+.hw-tool-btn:hover { border-color: var(--accent); }
+.hw-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.hw-recognize-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-left: auto; }
+.hw-expand-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; }
+.hw-expand-btn:hover { border-color: var(--accent); }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* ── 8. MathJax SVG 预览 ── */
+.math-preview { display: none; margin-top: 1rem; padding: 1.25rem; background: #fff; border-radius: 10px; border: 1px solid var(--border-color); overflow-x: auto; text-align: center; min-height: 48px; }
+.math-preview.show { display: block; }
+:root[data-theme="dark"] .math-preview { background: #1a1d28; }
 
-    #mathBg { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
-    .bg-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.04) 0%, transparent 60%); }
-    :root[data-theme="dark"] .bg-overlay { background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0.3) 0%, transparent 60%); }
+/* ── 9. 粒子背景 ── */
+#mathBg { position: fixed; inset: 0; z-index: -2; pointer-events: none; }
+.bg-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.04) 0%, transparent 60%); }
+:root[data-theme="dark"] .bg-overlay { background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,0.3) 0%, transparent 60%); }
 
-    /* 相机 */
-    .cam-trigger-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.75rem; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
-    .cam-trigger-btn:hover { border-color: var(--accent); background: rgba(37,99,235,0.06); }
-    .cam-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; }
-    .cam-modal.show { display: flex; }
-    .cam-modal video { max-width: 95vw; max-height: 70vh; border-radius: 12px; background: #000; }
-    .cam-actions { display: flex; gap: 1rem; }
-    .cam-btn { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; transition: transform 0.15s; }
-    .cam-btn:active { transform: scale(0.96); }
-    .cam-capture { background: var(--accent); color: #fff; }
-    .cam-close { background: rgba(255,255,255,0.12); color: #fff; }
-
-    /* 模式切换 */
-    .mode-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
-    .mode-tab { padding: 8px 24px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--muted); cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
-    .mode-tab:first-child { border-radius: 10px 0 0 10px; }
-    .mode-tab:last-child { border-radius: 0 10px 10px 0; }
-    .mode-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-    /* 手写板 */
-    .hw-panel { display: none; }
-    .hw-panel.show { display: block; }
-    .hw-canvas-wrap {
-      border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none;
-      background-color: #ffffff;
-      background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-    :root[data-theme="dark"] .hw-canvas-wrap {
-      background-color: #1e293b;
-      background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
-    }
-    .hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
-    .hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
-    .hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
-    .hw-tool-btn:hover { border-color: var(--accent); }
-    .hw-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .hw-recognize-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-left: auto; }
+/* ── 10. 手机端适配 ── */
+@media (max-width: 640px) {
+  .demo-page { padding: 1rem 0.5rem 3rem; }
+  .demo-title { font-size: 1.4rem; }
+  .mode-tab { padding: 6px 14px; font-size: 0.82rem; }
+  .drop-zone { padding: 2rem 1rem; }
+  .hw-canvas-wrap canvas { width: 100%; height: auto; }
+  .hw-toolbar { gap: 0.3rem; }
+  .hw-tool-btn { padding: 5px 8px; font-size: 0.75rem; }
+  .hw-tool-btn svg { width: 14px; height: 14px; }
+  .hw-recognize-btn { padding: 6px 14px; font-size: 0.82rem; }
+  .hw-expand-btn { padding: 5px 8px; font-size: 0.75rem; }
+  .result-card { padding: 1rem; }
+  pre.result-code { font-size: 0.78rem; padding: 0.75rem; }
+  .cam-modal video { max-width: 100vw; max-height: 60vh; }
+  .cam-btn { padding: 10px 20px; font-size: 0.9rem; }
+  .math-preview { padding: 0.75rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
 </style>
 </head>
 <body>
 <canvas id="mathBg" aria-hidden="true"></canvas>
+
+<!-- ═══ 顶栏导航 ═══ -->
 <nav class="top-nav">
   <div class="inner">
     <a href="index.html" class="brand-link">LaTeXSnipper</a>
@@ -116,7 +157,6 @@
     <a href="ocr_demo.html" class="active-link">在线识别</a>
     <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
     <button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button>
-    <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
   </div>
 </nav>
 
@@ -126,6 +166,7 @@
   <h1 class="demo-title">在线公式识别</h1>
   <p class="demo-sub">基于 MathCraft OCR · 浏览器端 ONNX Runtime 推理 · 全程本地运算</p>
 
+  <!-- ═══ 状态栏 ═══ -->
   <div class="status-bar" id="statusBar">
     <span id="statusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
     <span id="statusText">正在加载识别引擎…</span>
@@ -133,16 +174,19 @@
     <div id="modelProgress" style="font-size:0.8rem;opacity:0.7;"></div>
   </div>
 
+  <!-- ═══ 下载进度 ═══ -->
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-label"><span id="progressFile"></span><span id="progressPercent">0%</span></div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
+  <!-- ═══ 模式切换 ═══ -->
   <div class="mode-tabs">
     <button class="mode-tab active" id="tabImage">图片识别</button>
     <button class="mode-tab" id="tabHandwrite">手写识别</button>
   </div>
 
+  <!-- ═══ 图片识别模式：拖拽区 + 拍照 ═══ -->
   <div class="drop-zone" id="dropZone">
     <input type="file" id="fileInput" accept="image/*,.pdf">
     <div id="dropContent">
@@ -157,6 +201,7 @@
     </button>
   </div>
 
+  <!-- ═══ 相机 Modal ═══ -->
   <div class="cam-modal" id="camModal">
     <video id="camVideo" autoplay playsinline></video>
     <div class="cam-actions">
@@ -165,6 +210,7 @@
     </div>
   </div>
 
+  <!-- ═══ 手写识别模式 ═══ -->
   <div class="hw-panel" id="hwPanel">
     <div class="hw-canvas-wrap">
       <canvas id="hwCanvas" width="800" height="500"></canvas>
@@ -174,16 +220,19 @@
       <button class="hw-tool-btn" id="hwEraser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/><line x1="6" y1="20" x2="10" y2="20"/></svg>橡皮</button>
       <button class="hw-tool-btn" id="hwUndo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>撤销</button>
       <button class="hw-tool-btn" id="hwClear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>清空</button>
+      <button class="hw-expand-btn" id="hwExpand" title="拉大画板"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
       <button class="hw-recognize-btn" id="hwRecognize">识别</button>
     </div>
   </div>
 
+  <!-- ═══ 识别结果 ═══ -->
   <div class="result-card" id="resultCard">
     <div class="result-header">
       <span class="label">识别结果</span>
       <span class="confidence" id="confidence"></span>
     </div>
     <pre class="result-code" id="resultCode"></pre>
+    <div class="math-preview" id="mathPreview"></div>
   </div>
   <button class="ocr-copy" id="copyBtn" onclick="copyResult()" style="display:none;width:100%;margin-top:0.75rem;text-align:center;">复制 LaTeX 代码</button>
 
@@ -194,35 +243,74 @@
   </div>
 </div>
 
+<!-- ═══ CDN 依赖 ═══ -->
 <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+<!-- ═══ 主逻辑 ═══ -->
 <script>
-(async function() {
+// MathJax 全局配置
+MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script>
+/* ============================================================
+   JS 目录
+   1. 初始化 & DOM 引用
+   2. 状态 & 工具函数
+   3. 模型下载与加载
+   4. 分词器 & 配置加载
+   5. 图像预处理 & 识别 (preprocessImage, recognize)
+   6. LaTeX 修复 (repairLatex)
+   7. PDF 处理 (processPDF)
+   8. 图片处理入口 (processImage)
+   9. 手写板 (canvas, tools, crop, recognize)
+   10. 相机 (open/close/capture)
+   11. 模式切换 (image <-> handwrite)
+   12. UI 事件 (drop, paste, copy, theme)
+   13. 主题切换
+   14. 粒子背景动画
+   ============================================================ */
+(function() {
+  'use strict';
+
+  // ═══════════════════════════════════════════════
+  // 1. 初始化 & DOM 引用
+  // ═══════════════════════════════════════════════
   const MODEL_BASE = '/models/mathcraft-formula-rec';
 
-  // PDF.js worker config
   if (typeof pdfjsLib !== 'undefined') {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
   }
 
-  // DOM refs
+  // -- 状态/进度 DOM --
   const statusIcon = document.getElementById('statusIcon');
   const statusText = document.getElementById('statusText');
   const spinner = document.getElementById('spinner');
-  const modelProgress = document.getElementById('modelProgress');
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const preview = document.getElementById('preview');
-  const dropContent = document.getElementById('dropContent');
-  const resultCard = document.getElementById('resultCard');
-  const resultCode = document.getElementById('resultCode');
-  const confidence = document.getElementById('confidence');
-  const copyBtn = document.getElementById('copyBtn');
   const errorMsg = document.getElementById('errorMsg');
   const progressWrap = document.getElementById('progressWrap');
   const progressFill = document.getElementById('progressFill');
   const progressFile = document.getElementById('progressFile');
   const progressPercent = document.getElementById('progressPercent');
+
+  // -- 图片模式 DOM --
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const preview = document.getElementById('preview');
+  const dropContent = document.getElementById('dropContent');
+
+  // -- 结果 DOM --
+  const resultCard = document.getElementById('resultCard');
+  const resultCode = document.getElementById('resultCode');
+  const confidence = document.getElementById('confidence');
+  const copyBtn = document.getElementById('copyBtn');
+  const mathPreview = document.getElementById('mathPreview');
+
+  // -- 相机 DOM --
   const camModal = document.getElementById('camModal');
   const camVideo = document.getElementById('camVideo');
   const camTrigger = document.getElementById('camTrigger');
@@ -230,7 +318,7 @@
   const camClose = document.getElementById('camClose');
   let camStream = null;
 
-  // Handwriting refs
+  // -- 手写板 DOM --
   const tabImage = document.getElementById('tabImage');
   const tabHandwrite = document.getElementById('tabHandwrite');
   const hwPanel = document.getElementById('hwPanel');
@@ -238,105 +326,11 @@
   const hwCtx = hwCanvas.getContext('2d');
   const hwPenBtn = document.getElementById('hwPen');
   const hwEraserBtn = document.getElementById('hwEraser');
-  let hwTool = 'pen';
-  let hwDrawing = false;
+  let hwTool = 'pen', hwDrawing = false, hwExpanded = false;
   let hwStrokes = [];
   const HW_MAX_STROKES = 60;
 
-  function hwPenColor() {
-    return document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#1e293b';
-  }
-
-  function hwSaveState() {
-    hwStrokes.push(hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
-    if (hwStrokes.length > HW_MAX_STROKES) hwStrokes.shift();
-  }
-
-  function hwSetTool(tool) {
-    hwTool = tool;
-    hwPenBtn.classList.toggle('active', tool === 'pen');
-    hwEraserBtn.classList.toggle('active', tool === 'eraser');
-  }
-
-  function hwGetPos(e) {
-    var rect = hwCanvas.getBoundingClientRect();
-    var scaleX = hwCanvas.width / rect.width;
-    var scaleY = hwCanvas.height / rect.height;
-    var clientX, clientY;
-    if (e.touches) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-  }
-
-  hwCanvas.addEventListener('mousedown', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
-  hwCanvas.addEventListener('touchstart', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
-  function hwDraw(p) {
-    if (hwTool === 'eraser') {
-      hwCtx.globalCompositeOperation = 'destination-out';
-      hwCtx.strokeStyle = 'rgba(0,0,0,1)';
-      hwCtx.lineWidth = 24;
-    } else {
-      hwCtx.globalCompositeOperation = 'source-over';
-      hwCtx.strokeStyle = hwPenColor();
-      hwCtx.lineWidth = 3;
-    }
-    hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round';
-    hwCtx.lineTo(p.x, p.y); hwCtx.stroke();
-    hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y);
-  }
-  hwCanvas.addEventListener('mousemove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); });
-  hwCanvas.addEventListener('touchmove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); e.preventDefault(); });
-  hwCanvas.addEventListener('mouseup', function() { hwDrawing = false; });
-  hwCanvas.addEventListener('touchend', function() { hwDrawing = false; });
-  hwCanvas.addEventListener('mouseleave', function() { hwDrawing = false; });
-
-  function hwUndo() { if (hwStrokes.length > 0) { hwCtx.putImageData(hwStrokes.pop(), 0, 0); } }
-  function hwClear() { hwSaveState(); hwCtx.clearRect(0, 0, hwCanvas.width, hwCanvas.height); }
-
-  function hwRecognize() {
-    if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
-    // 导出时加白底（方格不参与识别）
-    var tmp = document.createElement('canvas');
-    tmp.width = hwCanvas.width; tmp.height = hwCanvas.height;
-    var tctx = tmp.getContext('2d');
-    tctx.fillStyle = '#ffffff';
-    tctx.fillRect(0, 0, tmp.width, tmp.height);
-    tctx.drawImage(hwCanvas, 0, 0);
-    tmp.toBlob(function(blob) {
-      var file = new File([blob], 'handwrite.png', { type: 'image/png' });
-      processImage(file);
-    }, 'image/png');
-  }
-
-  hwPenBtn.addEventListener('click', function() { hwSetTool('pen'); });
-  hwEraserBtn.addEventListener('click', function() { hwSetTool('eraser'); });
-  document.getElementById('hwUndo').addEventListener('click', hwUndo);
-  document.getElementById('hwClear').addEventListener('click', hwClear);
-  document.getElementById('hwRecognize').addEventListener('click', hwRecognize);
-
-  // Mode switching
-  function switchMode(mode) {
-    if (mode === 'handwrite') {
-      tabImage.classList.remove('active');
-      tabHandwrite.classList.add('active');
-      dropZone.style.display = 'none';
-      hwPanel.classList.add('show');
-      hwStrokes = [];
-    } else {
-      tabHandwrite.classList.remove('active');
-      tabImage.classList.add('active');
-      dropZone.style.display = '';
-      hwPanel.classList.remove('show');
-    }
-  }
-  tabImage.addEventListener('click', function() { switchMode('image'); });
-  tabHandwrite.addEventListener('click', function() { switchMode('handwrite'); });
-
+  // -- 状态 --
   const ICONS = {
     loading: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
     ready: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
@@ -344,148 +338,191 @@
     done: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
     error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
   };
+  let encoderSession = null, decoderSession = null, tokenizerVocab = null;
+  let decoderStartId = 2, eosId = 2, padId = 0, ready = false;
 
-  let encoderSession = null;
-  let decoderSession = null;
-  let tokenizerVocab = null;
-  let decoderStartId = 2, eosId = 2, padId = 0;
-  let ready = false;
-
+  // ═══════════════════════════════════════════════
+  // 2. 状态 & 工具函数
+  // ═══════════════════════════════════════════════
   function setStatus(type, text, showSpin) {
     statusIcon.innerHTML = ICONS[type] || ICONS.loading;
     statusText.textContent = text;
     spinner.classList.toggle('show', showSpin);
   }
-
   function showError(msg) {
     errorMsg.style.display = 'block';
     errorMsg.textContent = msg;
     setStatus('error', '加载失败', false);
   }
-
-  // 简单防滥用冷却（避免短时间内重复提交）
   const COOLDOWN_MS = 2000;
   let lastRecognitionTime = 0;
 
-  // ====== 带缓存的下载（二次访问秒开） ======
+  // ═══════════════════════════════════════════════
+  // 3. 模型下载 (Cache API 缓存)
+  // ═══════════════════════════════════════════════
   const MODEL_CACHE = 'ocr-models-v1';
   async function downloadWithProgress(url, label) {
-    // 1. 先查 Cache API
     const cache = await caches.open(MODEL_CACHE);
     const cached = await cache.match(url);
     if (cached) {
       const buf = await cached.arrayBuffer();
-      const sizeMB = (buf.byteLength / 1024 / 1024).toFixed(1);
-      setStatus('loading', label + ' (已缓存 ' + sizeMB + ' MB)', true);
-      await new Promise(r => setTimeout(r, 300)); // 给用户看一眼
+      setStatus('loading', label + ' (已缓存 ' + (buf.byteLength/1024/1024).toFixed(1) + ' MB)', true);
+      await new Promise(function(r) { setTimeout(r, 300); });
       return buf;
     }
-
-    // 2. 网络下载 + 显示进度
     progressWrap.classList.add('show');
     progressFile.textContent = label;
     progressFill.style.width = '0%';
     progressPercent.textContent = '0%';
-
     const resp = await fetch(url, { cache: 'no-cache' });
     if (!resp.ok) throw new Error('下载失败: ' + url);
     const contentLength = parseInt(resp.headers.get('content-length') || '0', 10);
     const reader = resp.body.getReader();
     const chunks = [];
     let loaded = 0;
-
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      loaded += value.length;
+      const result = await reader.read();
+      if (result.done) break;
+      chunks.push(result.value);
+      loaded += result.value.length;
       if (contentLength > 0) {
-        const pct = Math.round(loaded / contentLength * 100);
+        var pct = Math.round(loaded / contentLength * 100);
         progressFill.style.width = pct + '%';
         progressPercent.textContent = pct + '%';
-        if (contentLength > 1024 * 1024) {
-          progressFile.textContent = label + ' (' + (loaded / 1024 / 1024).toFixed(1) + ' / ' + (contentLength / 1024 / 1024).toFixed(1) + ' MB)';
-        }
+        progressFile.textContent = label + ' (' + (loaded/1024/1024).toFixed(1) + ' / ' + (contentLength/1024/1024).toFixed(1) + ' MB)';
       } else {
-        progressFile.textContent = label + ' (' + (loaded / 1024 / 1024).toFixed(1) + ' MB)';
+        progressFile.textContent = label + ' (' + (loaded/1024/1024).toFixed(1) + ' MB)';
       }
     }
-
     const blob = new Blob(chunks);
     const arrayBuffer = await blob.arrayBuffer();
     progressWrap.classList.remove('show');
-
-    // 3. 存入 Cache API
-    try {
-      await cache.put(url, new Response(arrayBuffer, {
-        headers: { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'max-age=604800' }
-      }));
-    } catch(e) { /* 存储满则跳过 */ }
-
+    try { await cache.put(url, new Response(arrayBuffer, { headers: { 'Content-Type': 'application/octet-stream', 'Cache-Control': 'max-age=604800' } })); } catch(e) {}
     return arrayBuffer;
   }
 
-  // ====== 加载模型（带进度条） ======
+  // ═══════════════════════════════════════════════
+  // 4. 分词器 & 生成配置
+  // ═══════════════════════════════════════════════
   async function loadModels() {
-    try {
-      // 下载编码器
-      const encoderBuf = await downloadWithProgress(
-        MODEL_BASE + '/encoder_model.onnx', '编码器模型'
-      );
-      setStatus('loading', '正在加载编码器到内存…', true);
-      encoderSession = await ort.InferenceSession.create(encoderBuf, {
-        executionProviders: ['webgpu', 'wasm'],
-        graphOptimizationLevel: 'all',
-      });
+    const encoderBuf = await downloadWithProgress(MODEL_BASE + '/encoder_model.onnx', '编码器模型');
+    setStatus('loading', '正在加载编码器到内存…', true);
+    encoderSession = await ort.InferenceSession.create(encoderBuf, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' });
 
-      // 下载解码器
-      const decoderBuf = await downloadWithProgress(
-        MODEL_BASE + '/decoder_model.onnx', '解码器模型'
-      );
-      setStatus('loading', '正在加载解码器到内存…', true);
-      decoderSession = await ort.InferenceSession.create(decoderBuf, {
-        executionProviders: ['webgpu', 'wasm'],
-        graphOptimizationLevel: 'all',
-      });
-    } catch(e) {
-      showError('模型加载失败: ' + (e.message || e));
-      throw e;
-    }
+    const decoderBuf = await downloadWithProgress(MODEL_BASE + '/decoder_model.onnx', '解码器模型');
+    setStatus('loading', '正在加载解码器到内存…', true);
+    decoderSession = await ort.InferenceSession.create(decoderBuf, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' });
   }
 
-  // ====== 加载分词器 ======
   async function loadTokenizer() {
+    setStatus('loading', '正在加载分词器…', true);
+    const resp = await fetch(MODEL_BASE + '/tokenizer.json');
+    const data = await resp.json();
+    const vocab = data.model.vocab;
+    tokenizerVocab = {};
+    for (const [token, id] of Object.entries(vocab)) { tokenizerVocab[id] = token; }
     try {
-      setStatus('loading', '正在加载分词器…', true);
-      const resp = await fetch(MODEL_BASE + '/tokenizer.json');
-      const data = await resp.json();
-      const vocab = data.model.vocab;
-      tokenizerVocab = {};
-      for (const [token, id] of Object.entries(vocab)) {
-        tokenizerVocab[id] = token;
-      }
-
-      try {
-        const genResp = await fetch(MODEL_BASE + '/generation_config.json');
-        const genData = await genResp.json();
-        decoderStartId = genData.decoder_start_token_id || 2;
-        eosId = genData.eos_token_id || 2;
-        padId = genData.pad_token_id || 0;
-      } catch(e) {}
-    } catch(e) {
-      showError('分词器加载失败: ' + (e.message || e));
-      throw e;
-    }
+      const genResp = await fetch(MODEL_BASE + '/generation_config.json');
+      const genData = await genResp.json();
+      decoderStartId = genData.decoder_start_token_id || 2;
+      eosId = genData.eos_token_id || 2;
+      padId = genData.pad_token_id || 0;
+    } catch(e) {}
   }
 
-  // ====== LaTeX 修复 ======
+  // ═══════════════════════════════════════════════
+  // 5. 图像预处理 & 识别
+  // ═══════════════════════════════════════════════
+  function preprocessImage(img) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 384; canvas.height = 384;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, 384, 384);
+    var pixels = ctx.getImageData(0, 0, 384, 384).data;
+    var floatData = new Float32Array(3 * 384 * 384);
+    var hw = 384 * 384, scale = 2.0 / 255.0;
+    for (var i = 0; i < hw; i++) {
+      var s = i * 4;
+      floatData[i] = pixels[s] * scale - 1.0;
+      floatData[hw + i] = pixels[s + 1] * scale - 1.0;
+      floatData[2 * hw + i] = pixels[s + 2] * scale - 1.0;
+    }
+    return floatData;
+  }
+
+  function softmax(arr) {
+    var max = Math.max.apply(null, arr);
+    var exp = arr.map(function(x) { return Math.exp(x - max); });
+    var sum = exp.reduce(function(a, b) { return a + b; }, 0);
+    return exp.map(function(x) { return x / sum; });
+  }
+
+  function greedyDecode(logits) {
+    var probs = softmax(logits);
+    var maxIdx = 0, maxVal = probs[0];
+    for (var i = 1; i < probs.length; i++) { if (probs[i] > maxVal) { maxVal = probs[i]; maxIdx = i; } }
+    return { tokenId: maxIdx, prob: maxVal };
+  }
+
+  function decodeTokens(tokenIds) {
+    if (!tokenizerVocab) return tokenIds.join(', ');
+    var text = '';
+    for (var i = 0; i < tokenIds.length; i++) {
+      var token = tokenizerVocab[tokenIds[i]];
+      if (!token) continue;
+      if (token.startsWith('<') && token.endsWith('>')) continue;
+      if (token.startsWith('Ġ')) { text += ' ' + token.slice(1); }
+      else if (token.startsWith('▁')) { text += ' ' + token.slice(1); }
+      else { text += token; }
+    }
+    return text.trim();
+  }
+
+  async function recognize(img) {
+    if (!ready) throw new Error('模型尚未就绪');
+    setStatus('processing', '正在识别…', true);
+    errorMsg.style.display = 'none';
+
+    var pixelValues = preprocessImage(img);
+    var inputTensor = new ort.Tensor('float32', pixelValues, [1, 3, 384, 384]);
+
+    var encName = encoderSession.inputNames[0];
+    var encOut = await encoderSession.run({ [encName]: inputTensor });
+    var hiddenStates = encOut[encoderSession.outputNames[0]];
+
+    var decName0 = decoderSession.inputNames[0], decName1 = decoderSession.inputNames[1];
+    var maxTokens = 512;
+    var inputIds = new ort.Tensor('int64', BigInt64Array.from([BigInt(decoderStartId)]), [1, 1]);
+    var tokenIds = [], tokenProbs = [];
+
+    for (var step = 0; step < maxTokens; step++) {
+      var decOut = await decoderSession.run({ [decName0]: inputIds, [decName1]: hiddenStates });
+      var logits = decOut[decoderSession.outputNames[0]];
+      var seqLen = logits.dims[1], vocabSize = logits.dims[2];
+      var offset = (seqLen - 1) * vocabSize;
+      var lastLogits = Array.from(logits.data.slice(offset, offset + vocabSize));
+      var res = greedyDecode(lastLogits);
+      if (res.tokenId === eosId || res.tokenId === padId) break;
+      tokenIds.push(res.tokenId);
+      tokenProbs.push(res.prob);
+      inputIds = new ort.Tensor('int64', BigInt64Array.from([].concat(Array.from(inputIds.data), [BigInt(res.tokenId)])), [1, seqLen + 1]);
+    }
+
+    var latex = repairLatex(decodeTokens(tokenIds));
+    var avgConf = tokenProbs.length > 0 ? tokenProbs.reduce(function(a, b) { return a + b; }, 0) / tokenProbs.length : 0;
+    return { latex: latex, confidence: avgConf };
+  }
+
+  // ═══════════════════════════════════════════════
+  // 6. LaTeX 修复 (参考桌面版 mathcraft_tex_exporter.py)
+  // ═══════════════════════════════════════════════
   function repairLatex(tex) {
     var s = tex.replace(/\r\n/g, '\n').trim();
     if (!s) return s;
-    // 1. 去除末尾孤立反斜杠
+    // 去末尾孤立反斜杠
     s = s.replace(/(?:\\\\\s*)+$/g, '').trim();
     while (s.endsWith('\\') && !s.endsWith('\\\\')) s = s.slice(0, -1).trim();
-    // 2. 去除多余的 }
+    // 去多余 }
     var depth = 0, cleaned = '';
     for (var i = 0; i < s.length; i++) {
       var ch = s[i];
@@ -494,7 +531,7 @@
       else { cleaned += ch; }
     }
     s = cleaned;
-    // 3. 补全不完整的 \frac \binom \dfrac \tfrac
+    // 补全 \frac \binom \dfrac \tfrac 缺参数
     var cmdRe = /\\(?:dfrac|tfrac|frac|binom)\b/g, m, edits = [];
     while ((m = cmdRe.exec(s)) !== null) {
       var pos = m.index + m[0].length;
@@ -506,10 +543,10 @@
       }
       if (end < 0) { edits.push({p: pos, t: ' {}'}); continue; }
       pos = end; while (pos < s.length && s[pos] === ' ') pos++;
-      if (pos >= s.length || s[pos] !== '{') { edits.push({p: end, t: ' {}'}); }
+      if (pos >= s.length || s[pos] !== '{') edits.push({p: end, t: ' {}'});
     }
-    for (var ei = edits.length - 1; ei >= 0; ei--) { s = s.slice(0, edits[ei].p) + edits[ei].t + s.slice(edits[ei].p); }
-    // 4. 补全未闭合的 \left 和 \begin 环境
+    for (var ei = edits.length - 1; ei >= 0; ei--) s = s.slice(0, edits[ei].p) + edits[ei].t + s.slice(edits[ei].p);
+    // 补全 \left / \begin 环境
     var leftStack = [], beginStack = [];
     var re2 = /\\(left|right)\b|\\(begin|end)\s*\{([A-Za-z*]+)\s*\}/g, m2;
     while ((m2 = re2.exec(s)) !== null) {
@@ -522,442 +559,292 @@
     }
     var suffix = '';
     while (leftStack.length) { suffix += ' \\right.'; leftStack.pop(); }
-    while (depth > 0) { suffix += '}'; depth--; }
     for (var bi2 = beginStack.length - 1; bi2 >= 0; bi2--) { suffix += '\n\\end{' + beginStack[bi2] + '}'; }
-    // 5. 补全末尾 }
     while (depth > 0) { s += '}'; depth--; }
     return (s + suffix).trim();
   }
 
-  // ====== 图像预处理 ======
-  function preprocessImage(img) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 384;
-    canvas.height = 384;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, 384, 384);
-    const pixels = ctx.getImageData(0, 0, 384, 384).data;
-
-    const floatData = new Float32Array(1 * 3 * 384 * 384);
-    const hw = 384 * 384;
-    const scale = 2.0 / 255.0;
-    for (let i = 0; i < hw; i++) {
-      const src = i * 4;
-      floatData[i] = pixels[src] * scale - 1.0;
-      floatData[hw + i] = pixels[src + 1] * scale - 1.0;
-      floatData[2 * hw + i] = pixels[src + 2] * scale - 1.0;
-    }
-    return floatData;
-  }
-
-  // ====== Softmax ======
-  function softmax(arr) {
-    const max = Math.max(...arr);
-    const exp = arr.map(x => Math.exp(x - max));
-    const sum = exp.reduce((a, b) => a + b, 0);
-    return exp.map(x => x / sum);
-  }
-
-  // ====== 贪婪解码 ======
-  function greedyDecode(logits) {
-    const probs = softmax(logits);
-    let maxIdx = 0, maxVal = probs[0];
-    for (let i = 1; i < probs.length; i++) {
-      if (probs[i] > maxVal) { maxVal = probs[i]; maxIdx = i; }
-    }
-    return { tokenId: maxIdx, prob: maxVal };
-  }
-
-  // ====== tokenizer 解码 ======
-  function decodeTokens(tokenIds) {
-    if (!tokenizerVocab) return tokenIds.join(', ');
-    let text = '';
-    for (const id of tokenIds) {
-      const token = tokenizerVocab[id];
-      if (!token) continue;
-      if (token.startsWith('<') && token.endsWith('>')) continue;
-      if (token.startsWith('Ġ')) { text += ' ' + token.slice(1); }
-      else if (token.startsWith('▁')) { text += ' ' + token.slice(1); }
-      else { text += token; }
-    }
-    return text.trim();
-  }
-
-  // ====== 识别 ======
-  async function recognize(img) {
-    if (!ready) throw new Error('模型尚未就绪');
-
-    setStatus('processing', '正在识别公式…', true);
-    errorMsg.style.display = 'none';
-
-    const pixelValues = preprocessImage(img);
-    const inputTensor = new ort.Tensor('float32', pixelValues, [1, 3, 384, 384]);
-
-    const encName = encoderSession.inputNames[0];
-    const encOut = await encoderSession.run({ [encName]: inputTensor });
-    const hiddenStates = encOut[encoderSession.outputNames[0]];
-
-    const decName0 = decoderSession.inputNames[0];
-    const decName1 = decoderSession.inputNames[1];
-    const maxTokens = 512;
-
-    let inputIds = new ort.Tensor('int64', BigInt64Array.from([BigInt(decoderStartId)]), [1, 1]);
-    const tokenIds = [];
-    const tokenProbs = [];
-
-    for (let step = 0; step < maxTokens; step++) {
-      const decOut = await decoderSession.run({
-        [decName0]: inputIds,
-        [decName1]: hiddenStates,
-      });
-
-      const logits = decOut[decoderSession.outputNames[0]];
-      const seqLen = logits.dims[1];
-      const vocabSize = logits.dims[2];
-      const offset = (seqLen - 1) * vocabSize;
-      const lastLogits = Array.from(logits.data.slice(offset, offset + vocabSize));
-      const res = greedyDecode(lastLogits);
-
-      if (res.tokenId === eosId || res.tokenId === padId) break;
-      tokenIds.push(res.tokenId);
-      tokenProbs.push(res.prob);
-
-      inputIds = new ort.Tensor('int64',
-        BigInt64Array.from([...Array.from(inputIds.data), BigInt(res.tokenId)]),
-        [1, seqLen + 1]
-      );
-    }
-
-    const latex = repairLatex(decodeTokens(tokenIds));
-    const avgConf = tokenProbs.length > 0
-      ? tokenProbs.reduce((a, b) => a + b, 0) / tokenProbs.length : 0;
-
-    return { latex, confidence: avgConf };
-  }
-
-  // ====== 初始化 ======
-  async function init() {
-    try {
-      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
-      // 仅 crossOriginIsolated 环境可用多线程 + SIMD
-      if (crossOriginIsolated) {
-        ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4);
-        ort.env.wasm.simd = true;
-      } else {
-        ort.env.wasm.numThreads = 1;
-      }
-
-      setStatus('loading', '正在加载分词器…', true);
-      await loadTokenizer();
-
-      setStatus('loading', '正在下载编码器模型 (84MB)…', true);
-      await loadModels();
-
-      ready = true;
-      setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
-    } catch(e) {
-      if (!errorMsg.style.display || errorMsg.style.display === 'none') {
-        showError('初始化失败: ' + (e.message || e));
-      }
-    }
-  }
-
-  // ====== PDF 处理 ======
+  // ═══════════════════════════════════════════════
+  // 7. PDF 处理
+  // ═══════════════════════════════════════════════
   async function processPDF(file) {
-    const MAX_PAGES = 100;
-
+    var MAX_PAGES = 100;
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const totalPages = pdf.numPages;
+      var arrayBuffer = await file.arrayBuffer();
+      var pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      var totalPages = pdf.numPages;
+      if (totalPages > MAX_PAGES) { showError('PDF 页数 (' + totalPages + ') 超过 ' + MAX_PAGES + ' 页限制，请分割后重试'); return null; }
 
-      if (totalPages > MAX_PAGES) {
-        showError('PDF 页数 (' + totalPages + ') 超过 ' + MAX_PAGES + ' 页限制，请分割后重试');
-        return null;
-      }
-
-      // Render first page as preview
+      // 首页预览
       try {
-        const firstPage = await pdf.getPage(1);
-        const pv = firstPage.getViewport({ scale: 0.5 });
-        const pvCanvas = document.createElement('canvas');
-        pvCanvas.width = pv.width;
-        pvCanvas.height = pv.height;
+        var firstPage = await pdf.getPage(1);
+        var pv = firstPage.getViewport({ scale: 0.5 });
+        var pvCanvas = document.createElement('canvas');
+        pvCanvas.width = pv.width; pvCanvas.height = pv.height;
         await firstPage.render({ canvasContext: pvCanvas.getContext('2d'), viewport: pv }).promise;
         preview.src = pvCanvas.toDataURL();
         preview.style.display = 'block';
         dropContent.style.display = 'none';
-      } catch(e) { /* preview failure is non-fatal */ }
+      } catch(e) {}
 
-      // Process each page: extract text + OCR formulas
-      const allResults = [];
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      // 逐页处理: 提取文本 + OCR
+      var allResults = [];
+      for (var pageNum = 1; pageNum <= totalPages; pageNum++) {
         setStatus('processing', '正在处理第 ' + pageNum + ' / ' + totalPages + ' 页…', true);
-
-        const pct = Math.round((pageNum - 1) / totalPages * 100);
+        var pct = Math.round((pageNum - 1) / totalPages * 100);
         progressWrap.classList.add('show');
         progressFile.textContent = 'PDF ' + totalPages + ' 页';
         progressFill.style.width = pct + '%';
         progressPercent.textContent = pct + '%';
 
-        const page = await pdf.getPage(pageNum);
+        var page = await pdf.getPage(pageNum);
 
-        // Adaptive render scale: target 768px max dim for OCR quality, cap [1.0, 2.0]
-        const baseVp = page.getViewport({ scale: 1.0 });
-        const maxDim = Math.max(baseVp.width, baseVp.height);
-        const renderScale = Math.max(1.0, Math.min(2.0, 768 / maxDim));
-        const viewport = page.getViewport({ scale: renderScale });
-        const canvas = document.createElement('canvas');
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+        // 自适应分辨率 (目标 768px)
+        var baseVp = page.getViewport({ scale: 1.0 });
+        var maxDim = Math.max(baseVp.width, baseVp.height);
+        var renderScale = Math.max(1.0, Math.min(2.0, 768 / maxDim));
+        var viewport = page.getViewport({ scale: renderScale });
+        var canvas = document.createElement('canvas');
+        canvas.width = viewport.width; canvas.height = viewport.height;
 
-        // Extract text and render to canvas in parallel
-        const textPromise = page.getTextContent().catch(function() { return { items: [] }; });
-        const renderPromise = page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
-        const [textContent] = await Promise.all([textPromise, renderPromise]);
+        // 并行: 提取文本 + 渲染
+        var textPromise = page.getTextContent().catch(function() { return { items: [] }; });
+        var renderPromise = page.render({ canvasContext: canvas.getContext('2d'), viewport: viewport }).promise;
+        var textResult = await Promise.all([textPromise, renderPromise]);
+        var textContent = textResult[0];
 
-        // Parse extracted text preserving reading order
-        let pageText = '';
-        const items = textContent.items;
+        // 文本按行分组
+        var pageText = '';
+        var items = textContent.items;
         if (items && items.length) {
-          const lineMap = {};
-          for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            const y = Math.round(item.transform[5] * 10) / 10;
-            let key = null;
-            const keys = Object.keys(lineMap);
-            for (let k = 0; k < keys.length; k++) {
-              if (Math.abs(parseFloat(keys[k]) - y) < 4) { key = keys[k]; break; }
-            }
+          var lineMap = {};
+          for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var y = Math.round(item.transform[5] * 10) / 10;
+            var key = null, keys = Object.keys(lineMap);
+            for (var k = 0; k < keys.length; k++) { if (Math.abs(parseFloat(keys[k]) - y) < 4) { key = keys[k]; break; } }
             if (!key) key = String(y);
             if (!lineMap[key]) lineMap[key] = [];
             lineMap[key].push(item);
           }
-          const sortedYs = Object.keys(lineMap).sort(function(a, b) { return parseFloat(b) - parseFloat(a); });
-          const lines = [];
-          for (let yi = 0; yi < sortedYs.length; yi++) {
-            const y = sortedYs[yi];
-            lineMap[y].sort(function(a, b) { return a.transform[4] - b.transform[4]; });
-            const lineText = lineMap[y].map(function(it) { return it.str; }).join(' ');
+          var sortedYs = Object.keys(lineMap).sort(function(a, b) { return parseFloat(b) - parseFloat(a); });
+          var lines = [];
+          for (var yi = 0; yi < sortedYs.length; yi++) {
+            var ly = sortedYs[yi];
+            lineMap[ly].sort(function(a, b) { return a.transform[4] - b.transform[4]; });
+            var lineText = lineMap[ly].map(function(it) { return it.str; }).join(' ');
             if (lineText.trim()) lines.push(lineText.trim());
           }
           pageText = lines.join('\n');
         }
 
-        // Pass canvas directly to OCR — skips toBlob/URL/Image roundtrip
-        let formulaLatex = '';
-        let formulaConf = 0;
-        try {
-          const result = await recognize(canvas);
-          formulaLatex = result.latex;
-          formulaConf = result.confidence;
-        } catch(e) {
-          formulaLatex = '% [Error] ' + (e.message || e);
-        }
-
-        allResults.push({
-          page: pageNum,
-          text: pageText,
-          latex: formulaLatex,
-          confidence: formulaConf
-        });
+        // Canvas 直传 OCR (跳过 PNG 编码)
+        var formulaLatex = '', formulaConf = 0;
+        try { var recResult = await recognize(canvas); formulaLatex = recResult.latex; formulaConf = recResult.confidence; }
+        catch(e) { formulaLatex = '% [Error] ' + (e.message || e); }
+        allResults.push({ page: pageNum, text: pageText, latex: formulaLatex, confidence: formulaConf });
       }
-
       progressWrap.classList.remove('show');
+      if (allResults.length === 0) { showError('PDF 识别失败：未能提取内容'); return null; }
 
-      if (allResults.length === 0) {
-        showError('PDF 识别失败：未能从任何页面提取内容');
-        return null;
-      }
-
-      // Combine text + formulas per page, preserving original PDF structure
-      const combined = allResults.map(function(r) {
+      // 合并输出
+      var combined = allResults.map(function(r) {
         var parts = ['% === Page ' + r.page + ' ==='];
-        if (r.text) {
-          parts.push('% --- Text ---');
-          parts.push(r.text);
-        }
-        if (r.latex && r.latex.trim()) {
-          parts.push('% --- Formulas ---');
-          parts.push(r.latex);
-        }
+        if (r.text) { parts.push('% --- Text ---'); parts.push(r.text); }
+        if (r.latex && r.latex.trim()) { parts.push('% --- Formulas ---'); parts.push(r.latex); }
         return parts.join('\n');
       }).join('\n\n');
-
-      const avgConf = allResults.reduce(function(s, r) { return s + r.confidence; }, 0) / allResults.length;
-
+      var avgConf = allResults.reduce(function(s, r) { return s + r.confidence; }, 0) / allResults.length;
       return { latex: combined, confidence: avgConf, pageCount: totalPages };
-    } catch(e) {
-      showError('PDF 处理失败: ' + (e.message || e));
-      return null;
-    }
+    } catch(e) { showError('PDF 处理失败: ' + (e.message || e)); return null; }
   }
 
-  // ====== 处理图片 ======
+  // ═══════════════════════════════════════════════
+  // 8. 图片处理入口 (图片 / PDF / 相机 / 手写)
+  // ═══════════════════════════════════════════════
   async function processImage(file) {
     if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
 
-    // 冷却检查
-    const now = Date.now();
+    var now = Date.now();
     if (now - lastRecognitionTime < COOLDOWN_MS) {
-      const wait = Math.ceil((COOLDOWN_MS - (now - lastRecognitionTime)) / 1000);
-      showError('请等待 ' + wait + ' 秒后再识别（防止资源滥用）');
+      showError('请等待 ' + Math.ceil((COOLDOWN_MS - (now - lastRecognitionTime)) / 1000) + ' 秒后再识别');
       return;
     }
-
     if (file.size < 1024) { showError('文件太小，请上传至少 1KB 的文件'); return; }
 
-    // PDF handling
+    // PDF 分流
     if (file.type === 'application/pdf') {
-      resultCard.classList.remove('show');
-      errorMsg.style.display = 'none';
+      resultCard.classList.remove('show'); errorMsg.style.display = 'none';
       setStatus('processing', '正在解析 PDF…', true);
-
-      const result = await processPDF(file);
-      if (!result) return;
-
+      var pdfResult = await processPDF(file);
+      if (!pdfResult) return;
       lastRecognitionTime = Date.now();
-      resultCode.textContent = result.latex;
-      confidence.textContent = '置信度 ' + (result.confidence * 100).toFixed(1) + '% | ' + result.pageCount + ' 页';
-      resultCard.classList.add('show');
-      copyBtn.style.display = 'block';
-      setStatus('done', '识别完成（' + result.pageCount + ' 页）', false);
+      resultCode.textContent = pdfResult.latex;
+      renderMathPreview(pdfResult.latex);
+      confidence.textContent = '置信度 ' + (pdfResult.confidence * 100).toFixed(1) + '% | ' + pdfResult.pageCount + ' 页';
+      resultCard.classList.add('show'); copyBtn.style.display = 'block';
+      setStatus('done', '识别完成（' + pdfResult.pageCount + ' 页）', false);
       return;
     }
 
-    // 预览
-    const url = URL.createObjectURL(file);
+    // 图片: 预览 → 识别
+    var url = URL.createObjectURL(file);
     preview.src = url;
     preview.style.display = 'block';
     dropContent.style.display = 'none';
-    resultCard.classList.remove('show');
-    errorMsg.style.display = 'none';
-    setStatus('processing', '正在识别公式…', true);
+    resultCard.classList.remove('show'); errorMsg.style.display = 'none';
+    setStatus('processing', '正在识别…', true);
 
-    const img = new Image();
+    var img = new Image();
     img.onload = async function() {
       try {
-        const result = await recognize(img);
+        var result = await recognize(img);
         lastRecognitionTime = Date.now();
         resultCode.textContent = result.latex;
+        renderMathPreview(result.latex);
         confidence.textContent = '置信度 ' + (result.confidence * 100).toFixed(1) + '%';
-        resultCard.classList.add('show');
-        copyBtn.style.display = 'block';
+        resultCard.classList.add('show'); copyBtn.style.display = 'block';
         setStatus('done', '识别完成', false);
-      } catch(e) {
-        showError('识别失败: ' + (e.message || e));
-        setStatus('ready', '模型就绪！拖入公式图片开始识别', false);
-      }
+      } catch(e) { showError('识别失败: ' + (e.message || e)); setStatus('ready', '模型就绪！拖入公式图片开始识别', false); }
     };
     img.src = url;
   }
 
-  // ====== UI 事件 ======
-  dropZone.addEventListener('click', function(e) {
-    if (e.target.closest('#camTrigger')) return;
-    fileInput.click();
-  });
+  // ═══════════════════════════════════════════════
+  // 9. 手写板
+  // ═══════════════════════════════════════════════
+  function hwPenColor() { return document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#1e293b'; }
 
-  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && (file.type.startsWith('image/') || file.type === 'application/pdf')) processImage(file);
-  });
+  function hwSaveState() {
+    hwStrokes.push(hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
+    if (hwStrokes.length > HW_MAX_STROKES) hwStrokes.shift();
+  }
 
-  fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) processImage(file);
-  });
+  function hwSetTool(tool) { hwTool = tool; hwPenBtn.classList.toggle('active', tool === 'pen'); hwEraserBtn.classList.toggle('active', tool === 'eraser'); }
 
-  // 粘贴截图：Win+Shift+S / Cmd+Shift+4 截图后 Ctrl+V 直接识别
-  document.addEventListener('paste', (e) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) processImage(file);
-        return;
+  function hwGetPos(e) {
+    var rect = hwCanvas.getBoundingClientRect();
+    var scaleX = hwCanvas.width / rect.width, scaleY = hwCanvas.height / rect.height;
+    var cx = e.touches ? e.touches[0].clientX : e.clientX;
+    var cy = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+  }
+
+  hwCanvas.addEventListener('mousedown', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+  hwCanvas.addEventListener('touchstart', function(e) { hwSaveState(); hwDrawing = true; var p = hwGetPos(e); hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y); e.preventDefault(); });
+
+  function hwDraw(p) {
+    if (hwTool === 'eraser') { hwCtx.globalCompositeOperation = 'destination-out'; hwCtx.strokeStyle = 'rgba(0,0,0,1)'; hwCtx.lineWidth = 24; }
+    else { hwCtx.globalCompositeOperation = 'source-over'; hwCtx.strokeStyle = hwPenColor(); hwCtx.lineWidth = 3; }
+    hwCtx.lineCap = 'round'; hwCtx.lineJoin = 'round';
+    hwCtx.lineTo(p.x, p.y); hwCtx.stroke();
+    hwCtx.beginPath(); hwCtx.moveTo(p.x, p.y);
+  }
+  hwCanvas.addEventListener('mousemove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); });
+  hwCanvas.addEventListener('touchmove', function(e) { if (!hwDrawing) return; hwDraw(hwGetPos(e)); e.preventDefault(); });
+  ['mouseup','touchend','mouseleave'].forEach(function(ev) { hwCanvas.addEventListener(ev, function() { hwDrawing = false; }); });
+
+  function hwUndo() { if (hwStrokes.length > 0) hwCtx.putImageData(hwStrokes.pop(), 0, 0); }
+  function hwClear() { hwSaveState(); hwCtx.clearRect(0, 0, hwCanvas.width, hwCanvas.height); }
+
+  function hwGetContentBounds() {
+    var data = hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height).data;
+    var minX = hwCanvas.width, minY = hwCanvas.height, maxX = 0, maxY = 0;
+    for (var y = 0; y < hwCanvas.height; y++) {
+      for (var x = 0; x < hwCanvas.width; x++) {
+        var alpha = data[(y * hwCanvas.width + x) * 4 + 3];
+        if (alpha > 0) { if (x < minX) minX = x; if (y < minY) minY = y; if (x > maxX) maxX = x; if (y > maxY) maxY = y; }
       }
     }
+    if (minX > maxX) return null;
+    var pad = 20;
+    return { x: Math.max(0, minX - pad), y: Math.max(0, minY - pad), w: Math.min(hwCanvas.width, maxX - minX + pad * 2), h: Math.min(hwCanvas.height, maxY - minY + pad * 2) };
+  }
+
+  function hwRecognize() {
+    if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
+    var bounds = hwGetContentBounds();
+    var sx = bounds ? bounds.x : 0, sy = bounds ? bounds.y : 0, sw = bounds ? bounds.w : hwCanvas.width, sh = bounds ? bounds.h : hwCanvas.height;
+    var tmp = document.createElement('canvas'); tmp.width = sw; tmp.height = sh;
+    var tctx = tmp.getContext('2d');
+    tctx.fillStyle = '#ffffff'; tctx.fillRect(0, 0, sw, sh);
+    tctx.drawImage(hwCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+    tmp.toBlob(function(blob) { processImage(new File([blob], 'handwrite.png', { type: 'image/png' })); }, 'image/png');
+  }
+
+  document.getElementById('hwExpand').addEventListener('click', function() {
+    hwExpanded = !hwExpanded; hwCanvas.style.height = hwExpanded ? '70vh' : ''; this.textContent = hwExpanded ? '缩回' : '⤢';
   });
 
-  // 相机拍照
-  async function openCamera(e) {
-    if (e) { e.preventDefault(); e.stopPropagation(); }
-    try {
-      camStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
-      });
-      camVideo.srcObject = camStream;
-      camModal.classList.add('show');
-    } catch(e) {
-      showError('无法访问摄像头：' + (e.message || e) + '。请确认已授予相机权限。');
-    }
+  // MathJax SVG 渲染
+  function renderMathPreview(latex) {
+    if (!latex || typeof MathJax === 'undefined' || !MathJax.tex2svgPromise) { mathPreview.classList.remove('show'); return; }
+    var tex = latex.replace(/\n/g, ' ').trim();
+    if (!tex) { mathPreview.classList.remove('show'); return; }
+    MathJax.tex2svgPromise(tex).then(function(node) {
+      mathPreview.innerHTML = ''; mathPreview.appendChild(node); mathPreview.classList.add('show');
+    }).catch(function() { mathPreview.classList.remove('show'); });
   }
 
-  function closeCamera() {
-    if (camStream) {
-      camStream.getTracks().forEach(function(t) { t.stop(); });
-      camStream = null;
-    }
-    camVideo.srcObject = null;
-    camModal.classList.remove('show');
-  }
+  hwPenBtn.addEventListener('click', function() { hwSetTool('pen'); });
+  hwEraserBtn.addEventListener('click', function() { hwSetTool('eraser'); });
+  document.getElementById('hwUndo').addEventListener('click', hwUndo);
+  document.getElementById('hwClear').addEventListener('click', hwClear);
+  document.getElementById('hwRecognize').addEventListener('click', hwRecognize);
 
-  function capturePhoto() {
-    if (!camStream) return;
-    var canvas = document.createElement('canvas');
-    canvas.width = camVideo.videoWidth;
-    canvas.height = camVideo.videoHeight;
-    canvas.getContext('2d').drawImage(camVideo, 0, 0);
-    closeCamera();
-    canvas.toBlob(function(blob) {
-      var file = new File([blob], 'camera.jpg', { type: 'image/jpeg' });
-      processImage(file);
-    }, 'image/jpeg', 0.92);
+  // ═══════════════════════════════════════════════
+  // 10. 相机
+  // ═══════════════════════════════════════════════
+  async function openCamera(e) { if (e) { e.preventDefault(); e.stopPropagation(); }
+    try { camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } }); camVideo.srcObject = camStream; camModal.classList.add('show'); }
+    catch(e) { showError('无法访问摄像头：' + (e.message || e) + '。请确认已授予相机权限。'); }
   }
-
+  function closeCamera() { if (camStream) { camStream.getTracks().forEach(function(t) { t.stop(); }); camStream = null; } camVideo.srcObject = null; camModal.classList.remove('show'); }
+  function capturePhoto() { if (!camStream) return;
+    var canvas = document.createElement('canvas'); canvas.width = camVideo.videoWidth; canvas.height = camVideo.videoHeight;
+    canvas.getContext('2d').drawImage(camVideo, 0, 0); closeCamera();
+    canvas.toBlob(function(blob) { processImage(new File([blob], 'camera.jpg', { type: 'image/jpeg' })); }, 'image/jpeg', 0.92);
+  }
   camTrigger.addEventListener('click', openCamera);
   camCapture.addEventListener('click', capturePhoto);
   camClose.addEventListener('click', closeCamera);
+  camModal.addEventListener('click', function(e) { if (e.target === camModal) closeCamera(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && camModal.classList.contains('show')) closeCamera(); });
+  document.addEventListener('visibilitychange', function() { if (document.hidden && camStream) closeCamera(); });
 
-  // 点击遮罩关闭 + Esc 关闭 + 页面切走关闭
-  camModal.addEventListener('click', function(e) {
-    if (e.target === camModal) closeCamera();
+  // ═══════════════════════════════════════════════
+  // 11. 模式切换
+  // ═══════════════════════════════════════════════
+  function switchMode(mode) {
+    if (mode === 'handwrite') { tabImage.classList.remove('active'); tabHandwrite.classList.add('active'); dropZone.style.display = 'none'; hwPanel.classList.add('show'); hwStrokes = []; }
+    else { tabHandwrite.classList.remove('active'); tabImage.classList.add('active'); dropZone.style.display = ''; hwPanel.classList.remove('show'); }
+  }
+  tabImage.addEventListener('click', function() { switchMode('image'); });
+  tabHandwrite.addEventListener('click', function() { switchMode('handwrite'); });
+
+  // ═══════════════════════════════════════════════
+  // 12. UI 事件 (drop, paste, copy)
+  // ═══════════════════════════════════════════════
+  dropZone.addEventListener('click', function(e) { if (e.target.closest('#camTrigger')) return; fileInput.click(); });
+  dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('drag-over'); });
+  dropZone.addEventListener('drop', function(e) { e.preventDefault(); dropZone.classList.remove('drag-over'); var f = e.dataTransfer.files[0]; if (f && (f.type.startsWith('image/') || f.type === 'application/pdf')) processImage(f); });
+  fileInput.addEventListener('change', function(e) { var f = e.target.files[0]; if (f) processImage(f); });
+  document.addEventListener('paste', function(e) { var items = e.clipboardData && e.clipboardData.items; if (!items) return;
+    for (var i = 0; i < items.length; i++) { if (items[i].type.startsWith('image/')) { e.preventDefault(); var f = items[i].getAsFile(); if (f) processImage(f); return; } }
   });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && camModal.classList.contains('show')) closeCamera();
-  });
-  document.addEventListener('visibilitychange', function() {
-    if (document.hidden && camStream) closeCamera();
-  });
+  window.copyResult = function() { navigator.clipboard.writeText('$$\n' + resultCode.textContent + '\n$$').then(function() { copyBtn.textContent = '已复制 ✓'; copyBtn.classList.add('copied'); setTimeout(function() { copyBtn.textContent = '复制 LaTeX 代码'; copyBtn.classList.remove('copied'); }, 1500); }); };
 
-  window.copyResult = function() {
-    navigator.clipboard.writeText('$$\n' + resultCode.textContent + '\n$$').then(() => {
-      copyBtn.textContent = '已复制 ✓';
-      copyBtn.classList.add('copied');
-      setTimeout(() => { copyBtn.textContent = '复制 LaTeX 代码'; copyBtn.classList.remove('copied'); }, 1500);
-    });
-  };
-
-  // 启动
-  init();
-
-  // 主题切换
+  // ═══════════════════════════════════════════════
+  // 13. 主题切换
+  // ═══════════════════════════════════════════════
   var themeBtn = document.getElementById('themeToggle');
-  themeBtn.addEventListener('click', function () {
+  themeBtn.addEventListener('click', function() {
     var root = document.documentElement;
-    var curr = root.getAttribute('data-theme');
-    var next = curr === 'dark' ? 'light' : 'dark';
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
-    try { localStorage.setItem('latexSnipper-theme', next); } catch (e) {}
-    updateThemeBtn(next);
-    updateHwTheme(next);
+    try { localStorage.setItem('latexSnipper-theme', next); } catch(e) {}
+    updateThemeBtn(next); updateHwTheme(next);
   });
   function updateThemeBtn(theme) {
     var sun = '<svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
@@ -967,41 +854,37 @@
   function updateHwTheme(theme) {
     var wrap = document.querySelector('.hw-canvas-wrap');
     if (wrap) {
-      if (theme === 'dark') {
-        wrap.style.backgroundColor = '#1e293b';
-        wrap.style.backgroundImage = 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)';
-        wrap.style.backgroundSize = '20px 20px';
-      } else {
-        wrap.style.backgroundColor = '#ffffff';
-        wrap.style.backgroundImage = 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)';
-        wrap.style.backgroundSize = '20px 20px';
-      }
+      wrap.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#ffffff';
+      wrap.style.backgroundImage = theme === 'dark'
+        ? 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)'
+        : 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)';
+      wrap.style.backgroundSize = '20px 20px';
     }
-    // 强制页面背景立即切换
     document.documentElement.style.backgroundColor = theme === 'dark' ? '#0f111a' : '#f8fafc';
-    // 重建数学粒子背景
     window.dispatchEvent(new Event('resize'));
   }
-  (function () {
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    updateThemeBtn(isDark ? 'dark' : 'light');
-    updateHwTheme(isDark ? 'dark' : 'light');
-  })();
+  (function() { var isDark = document.documentElement.getAttribute('data-theme') === 'dark'; updateThemeBtn(isDark ? 'dark' : 'light'); updateHwTheme(isDark ? 'dark' : 'light'); })();
 
-  // 数学粒子背景
-  !function(){
-    var c=document.getElementById('mathBg'),ctx=c.getContext('2d');
-    var SYMBOLS=['∑','∫','∂','∇','√','π','∞','≈','≠','≤','≥','Δ','Σ','λ','θ','α','β','γ','δ','ε','μ','σ','τ','ω','φ','ψ','×','÷'];
-    var FORMULAS=['e^{iπ}+1=0','∫e^{-x²}dx','Σ1/n²','a²+b²=c²','sin²θ+cos²θ=1','F=ma','E=mc²'];
-    var mouse={x:-100,y:-100},trail=[],formulas=[],frame=0,lastMove=Date.now(),checkerCache=null;
-    function resize(){c.width=window.innerWidth;c.height=window.innerHeight;c.style.width=window.innerWidth+'px';c.style.height=window.innerHeight+'px';checkerCache=null;initFormulas();}
-    function buildChecker(){if(checkerCache)return;checkerCache=document.createElement('canvas');checkerCache.width=c.width;checkerCache.height=c.height;var ctx2=checkerCache.getContext('2d');var d=document.documentElement.getAttribute('data-theme')==='dark';ctx2.fillStyle=d?'#0f111a':'#f8fafc';ctx2.fillRect(0,0,c.width,c.height);}
-    function initFormulas(){formulas=[];var density=110000;var count=Math.max(8,Math.min(20,Math.floor((c.width*c.height)/density)));for(var i=0;i<count;i++){formulas.push({x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'});}}
-    function spawn(cx,cy,px,py){var dx=cx-px,dy=cy-py;var sx=(Math.sqrt(dx*dx+dy*dy)>2?dx*.15:0)+(Math.random()-.5)*1.2;var sy=(Math.sqrt(dx*dx+dy*dy)>2?dy*.15:0)+Math.random()*.5+.3;trail.push({x:cx+(Math.random()-.5)*6,y:cy+(Math.random()-.5)*6,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*7+12,vx:sx,vy:sy});if(trail.length>20)trail.splice(0,trail.length-20);}
-    function animate(){frame++;if(document.hidden){requestAnimationFrame(animate);return}buildChecker();ctx.drawImage(checkerCache,0,0);var fc='rgba(180,200,240,0.7)';if(frame%2===0){for(var i=0;i<formulas.length;i++){var f=formulas[i];f.x+=f.vx;f.y+=f.vy;f.life--;if(f.phase==='in'){f.opacity+=f.fadeSpeed;if(f.opacity>=f.targetO)f.phase='hold'}else if(f.phase==='hold'){if(f.life<60)f.phase='out'}else if(f.phase==='out'){f.opacity-=f.fadeSpeed}if(f.life<=0||f.opacity<=0||f.x<-100||f.x>c.width+100||f.y<-50||f.y>c.height+50){formulas[i]={x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'};continue}if(f.opacity<.02)continue;ctx.save();ctx.globalAlpha=f.opacity;ctx.fillStyle=fc;ctx.font=f.size+'px \"Times New Roman\",serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(f.content,f.x,f.y);ctx.restore()}}if(frame%25===0&&Date.now()-lastMove>800&&mouse.x>0){trail.push({x:mouse.x+(Math.random()-.5)*25,y:mouse.y+(Math.random()-.5)*15,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*5+10,vx:(Math.random()-.5)*.25,vy:Math.random()*.5+.3});if(trail.length>20)trail.splice(0,trail.length-20)}for(var i=trail.length-1;i>=0;i--){var p=trail[i];p.life-=.006;p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.vx*=.993;if(p.life<=0){trail.splice(i,1);continue}ctx.save();ctx.globalAlpha=p.life*.75;ctx.fillStyle='rgba(96,165,250,0.85)';ctx.font=p.size+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.s,Math.floor(p.x),Math.floor(p.y));ctx.restore()}requestAnimationFrame(animate);}
-    function onMove(e){var px=mouse.x,py=mouse.y;mouse.x=e.clientX;mouse.y=e.clientY;spawn(e.clientX,e.clientY,px,py);lastMove=Date.now();}
-    resize();initFormulas();window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(resize,150);});window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',function(e){if(!e.touches.length)return;var t=e.touches[0];var px=mouse.x,py=mouse.y;mouse.x=t.clientX;mouse.y=t.clientY;spawn(t.clientX,t.clientY,px,py);lastMove=Date.now();},{passive:true});animate();
-  }();
+  // ═══════════════════════════════════════════════
+  // 14. 粒子背景动画
+  // ═══════════════════════════════════════════════
+  !function(){var c=document.getElementById('mathBg'),ctx=c.getContext('2d');var SYMBOLS=['∑','∫','∂','∇','√','π','∞','≈','≠','≤','≥','Δ','Σ','λ','θ','α','β','γ','δ','ε','μ','σ','τ','ω','φ','ψ','×','÷'];var FORMULAS=['e^{iπ}+1=0','∫e^{-x²}dx','Σ1/n²','a²+b²=c²','sin²θ+cos²θ=1','F=ma','E=mc²'];var mouse={x:-100,y:-100},trail=[],formulas=[],frame=0,lastMove=Date.now(),checkerCache=null;function resize(){c.width=window.innerWidth;c.height=window.innerHeight;c.style.width=window.innerWidth+'px';c.style.height=window.innerHeight+'px';checkerCache=null;initFormulas()}function buildChecker(){if(checkerCache)return;checkerCache=document.createElement('canvas');checkerCache.width=c.width;checkerCache.height=c.height;var ctx2=checkerCache.getContext('2d');var d=document.documentElement.getAttribute('data-theme')==='dark';ctx2.fillStyle=d?'#0f111a':'#f8fafc';ctx2.fillRect(0,0,c.width,c.height)}function initFormulas(){formulas=[];var density=110000;var count=Math.max(8,Math.min(20,Math.floor((c.width*c.height)/density)));for(var i=0;i<count;i++){formulas.push({x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'})}}function spawn(cx,cy,px,py){var dx=cx-px,dy=cy-py;var sx=(Math.sqrt(dx*dx+dy*dy)>2?dx*.15:0)+(Math.random()-.5)*1.2;var sy=(Math.sqrt(dx*dx+dy*dy)>2?dy*.15:0)+Math.random()*.5+.3;trail.push({x:cx+(Math.random()-.5)*6,y:cy+(Math.random()-.5)*6,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*7+12,vx:sx,vy:sy});if(trail.length>20)trail.splice(0,trail.length-20)}function animate(){frame++;if(document.hidden){requestAnimationFrame(animate);return}buildChecker();ctx.drawImage(checkerCache,0,0);var fc='rgba(180,200,240,0.7)';if(frame%2===0){for(var i=0;i<formulas.length;i++){var f=formulas[i];f.x+=f.vx;f.y+=f.vy;f.life--;if(f.phase==='in'){f.opacity+=f.fadeSpeed;if(f.opacity>=f.targetO)f.phase='hold'}else if(f.phase==='hold'){if(f.life<60)f.phase='out'}else if(f.phase==='out'){f.opacity-=f.fadeSpeed}if(f.life<=0||f.opacity<=0||f.x<-100||f.x>c.width+100||f.y<-50||f.y>c.height+50){formulas[i]={x:Math.random()*c.width,y:Math.random()*c.height,content:FORMULAS[Math.floor(Math.random()*FORMULAS.length)],size:Math.random()*12+14,opacity:0,targetO:Math.random()*.2+.15,fadeSpeed:Math.random()*.006+.002,life:Math.random()*500+250,vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,phase:'in'};continue}if(f.opacity<.02)continue;ctx.save();ctx.globalAlpha=f.opacity;ctx.fillStyle=fc;ctx.font=f.size+'px "Times New Roman",serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(f.content,f.x,f.y);ctx.restore()}}if(frame%25===0&&Date.now()-lastMove>800&&mouse.x>0){trail.push({x:mouse.x+(Math.random()-.5)*25,y:mouse.y+(Math.random()-.5)*15,s:SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)],life:1,size:Math.random()*5+10,vx:(Math.random()-.5)*.25,vy:Math.random()*.5+.3});if(trail.length>20)trail.splice(0,trail.length-20)}for(var i=trail.length-1;i>=0;i--){var p=trail[i];p.life-=.006;p.x+=p.vx;p.y+=p.vy;p.vy+=.05;p.vx*=.993;if(p.life<=0){trail.splice(i,1);continue}ctx.save();ctx.globalAlpha=p.life*.75;ctx.fillStyle='rgba(96,165,250,0.85)';ctx.font=p.size+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.s,Math.floor(p.x),Math.floor(p.y));ctx.restore()}requestAnimationFrame(animate)}function onMove(e){var px=mouse.x,py=mouse.y;mouse.x=e.clientX;mouse.y=e.clientY;spawn(e.clientX,e.clientY,px,py);lastMove=Date.now()}resize();initFormulas();window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(resize,150)});window.addEventListener('mousemove',onMove);window.addEventListener('touchmove',function(e){if(!e.touches.length)return;var t=e.touches[0];var px=mouse.x,py=mouse.y;mouse.x=t.clientX;mouse.y=t.clientY;spawn(t.clientX,t.clientY,px,py);lastMove=Date.now()},{passive:true});animate()}();
+
+  // ═══════════════════════════════════════════════
+  // 启动
+  // ═══════════════════════════════════════════════
+  async function init() {
+    try {
+      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
+      if (crossOriginIsolated) { ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4); ort.env.wasm.simd = true; }
+      else { ort.env.wasm.numThreads = 1; }
+      setStatus('loading', '正在加载分词器…', true); await loadTokenizer();
+      setStatus('loading', '正在下载编码器模型 (84MB)…', true); await loadModels();
+      ready = true;
+      setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
+    } catch(e) { if (!errorMsg.style.display || errorMsg.style.display === 'none') showError('初始化失败: ' + (e.message || e)); }
+  }
+  init();
 })();
 </script>
 </body>

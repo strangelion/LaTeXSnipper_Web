@@ -6,11 +6,18 @@ description: |
   当需要修改此项目任何文件、排查部署问题、调整配额、或理解项目结构时使用。
 metadata:
   type: project
-  paths:
-    - C:\Users\strangelion\Documents\GitHub\LaTeXSnipper_user_manual
 ---
 
 # LaTeXSnipper 用户手册 — 完整项目文件地图
+
+## 代码规范（重要）
+- **保持代码结构清晰**：每个文件分区块注释，CSS/JS/HTML 各归其位
+- **修改后整理**：新增功能不要东插一段西塞一段，归到所属区块
+- **区块命名**：用 `/* ── 区块名 ── */` 风格标注 CSS 分区，用 `// ═══ 区块名 ═══` 标注 JS 分区
+- **public/ 与 dist/ 同步**：修改 `public/` 下任何文件必须同步到 `dist/`
+- **download.html 与 dist/download.html 同步**
+- **提交前检查**：代码是否清晰可维护，注释是否齐全
+- **避免技术债务**：不要留下临时方案，每个修改都要考虑长期维护
 
 ---
 

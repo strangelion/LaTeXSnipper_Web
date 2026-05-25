@@ -284,6 +284,38 @@ function quotaBanner(type, pct) {
     '本月免费额度已使用 ' + pctStr + '%，下载链接已临时切换至 <a href="https://github.com/SakuraMathcraft/LaTeXSnipper/releases" style="color:#fff;text-decoration:underline;">GitHub Releases</a>。</div>';
 }
 
+// ── 页面访问统计 ──
+// 按月份和页面路径统计 PV，数据持久化到 KV
+function trackPageView(env, ctx, path) {
+  if (!env.USAGE_KV) return;
+  var month = quotaGetMonth();
+  var key = 'pv:' + month + ':' + (path || '/');
+  var p = env.USAGE_KV.get(key, 'json').then(function(old) {
+    var count = (old && typeof old.c === 'number') ? old.c + 1 : 1;
+    return env.USAGE_KV.put(key, JSON.stringify({ c: count, t: Date.now() }), { expirationTtl: 100 * 86400 });
+  }).catch(function() {});
+  if (ctx) ctx.waitUntil(p);
+}
+
+async function getPageViewStats(env, month) {
+  if (!env.USAGE_KV) return { total: 0, pages: {} };
+  month = month || quotaGetMonth();
+  var total = 0, pages = {};
+  try {
+    var list = await env.USAGE_KV.list({ prefix: 'pv:' + month + ':' });
+    for (var i = 0; i < (list.keys || []).length; i++) {
+      var key = list.keys[i].name;
+      var data = await env.USAGE_KV.get(key, 'json');
+      if (data && data.c) {
+        var page = key.slice(('pv:' + month + ':').length) || '/';
+        pages[page] = data.c;
+        total += data.c;
+      }
+    }
+  } catch(e) {}
+  return { total: total, pages: pages };
+}
+
 // ── TOTP 验证（RFC 6238, SHA-1, 30s, 6 digits） ──
 async function verifyTOTP(secret, token) {
   try {
@@ -596,6 +628,7 @@ export default {
           pctUsed: qs.pctUsed.toFixed(2) + '%',
           level: qs.isBlock ? 'block' : qs.isWarn ? 'warn' : 'normal',
         },
+        pv: await getPageViewStats(env),
       });
     }
 
@@ -767,6 +800,9 @@ export default {
     const isHtml = filePath.endsWith(".html");
     const isBinary = /\.(png|jpe?g|gif|svg|ico|otf|ttf|woff2|wasm|pdf)$/i.test(filePath);
     let content = isBinary ? await resp.arrayBuffer() : await resp.text();
+
+    // 页面访问统计
+    if (isHtml) trackPageView(env, ctx, path);
 
     // R2 配额页面变换
     let pageQuota;
