@@ -434,7 +434,7 @@
       );
       setStatus('loading', '正在加载编码器到内存…', true);
       encoderSession = await ort.InferenceSession.create(encoderBuf, {
-        executionProviders: ['webgl', 'wasm'],
+        executionProviders: ['webgpu', 'wasm'],
         graphOptimizationLevel: 'all',
       });
 
@@ -444,7 +444,7 @@
       );
       setStatus('loading', '正在加载解码器到内存…', true);
       decoderSession = await ort.InferenceSession.create(decoderBuf, {
-        executionProviders: ['webgl', 'wasm'],
+        executionProviders: ['webgpu', 'wasm'],
         graphOptimizationLevel: 'all',
       });
     } catch(e) {
@@ -588,8 +588,15 @@
   async function init() {
     try {
       ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
-      // WebGL 后端优先（更快），WASM 兜底
-      ort.env.webgl.pack = true;
+      // 检测 SharedArrayBuffer 是否可用，可用则多线程加速
+      try {
+        new SharedArrayBuffer(1);
+        ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4);
+        ort.env.wasm.simd = true;
+      } catch(e) {
+        ort.env.wasm.numThreads = 1;
+      }
+      ort.env.wasm.proxy = true;
 
       setStatus('loading', '正在加载分词器…', true);
       await loadTokenizer();
