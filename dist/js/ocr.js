@@ -653,7 +653,7 @@
   function drawCropOverlay() {
     if (!camCropImg || !camCropCanvas) return;
     camCropCtx.drawImage(camCropImg, 0, 0);
-    if (!camCropRect) {
+    if (!camCropRect && (!camCropPath || camCropPath.length < 2)) {
       // 波浪呼吸动画
       var t = Date.now() / 1000;
       var wave = 0.75 + 0.25 * Math.sin(t * 1.8);
@@ -680,6 +680,12 @@
     // 边框 + 四角圆点
     camCropCtx.strokeStyle = '#60a5fa'; camCropCtx.lineWidth = 2;
     camCropCtx.strokeRect(r.x, r.y, r.w, r.h);
+    if (camCropPath && camCropPath.length > 1) {
+      camCropCtx.beginPath(); camCropCtx.strokeStyle = '#f97316'; camCropCtx.lineWidth = 2;
+      camCropCtx.moveTo(camCropPath[0].x, camCropPath[0].y);
+      for (var li = 1; li < camCropPath.length; li++) camCropCtx.lineTo(camCropPath[li].x, camCropPath[li].y);
+      camCropCtx.stroke();
+    }
     // 四角拖拽手柄
     var corners = [[r.x, r.y], [r.x + r.w, r.y], [r.x, r.y + r.h], [r.x + r.w, r.y + r.h]];
     var handleR = Math.max(6, Math.min(14, r.w / 20, r.h / 20));
@@ -725,7 +731,7 @@
   }
 
   var camCropAction = ''; // '', 'drawing', 'moving', 'resizing'
-  var camCropCorner = -1; // which corner being resized (0=TL,1=TR,2=BL,3=BR)
+  var camCropCorner = -1; var camCropEdge = -1;
   var camCropMoveBase = null; // base rect before move/resize
   var camCropMoveOff = null; // offset from click to rect corner
 
