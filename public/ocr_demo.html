@@ -72,7 +72,6 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 .ocr-copy:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.35); }
 .ocr-copy:active { transform: translateY(0); box-shadow: 0 1px 4px rgba(124,58,237,0.2); }
 .ocr-copy.copied { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 2px 8px rgba(34,197,94,0.25); }
-.ocr-copy.copied { background: #22c55e; }
 
 /* ── 5. 相机 ── */
 .cam-trigger-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.75rem; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
@@ -207,6 +206,7 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
       <button class="cam-btn cam-close" id="camClose">关闭</button>
     </div>
     <div class="cam-actions" id="camCropActions" style="display:none;">
+      <button class="cam-btn" id="camCropMode" style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;padding:8px 14px;">矩形框选</button>
       <button class="cam-btn cam-capture" id="camCropConfirm">确认识别</button>
       <button class="cam-btn cam-close" id="camCropRetake">重拍</button>
     </div>

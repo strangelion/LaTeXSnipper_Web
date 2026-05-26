@@ -672,29 +672,31 @@
     return { x: (cx - rect.left) * sx, y: (cy - rect.top) * sy };
   }
 
-  camCropCanvas.addEventListener('mousedown', function(e) { var p = camCropGetPos(e); camCropStart = {x: p.x, y: p.y}; camCropDragging = true; });
-  camCropCanvas.addEventListener('touchstart', function(e) { var p = camCropGetPos(e); camCropStart = {x: p.x, y: p.y}; camCropDragging = true; e.preventDefault(); });
+  camCropCanvas.addEventListener('mousedown', function(e) { var p = camCropGetPos(e); camCropStart = {x: p.x, y: p.y}; camCropDragging = true; camCropPath = [p]; });
+  camCropCanvas.addEventListener('touchstart', function(e) { var p = camCropGetPos(e); camCropStart = {x: p.x, y: p.y}; camCropDragging = true; camCropPath = [p]; e.preventDefault(); });
   camCropCanvas.addEventListener('mousemove', function(e) {
     if (!camCropDragging) return;
     var p = camCropGetPos(e);
-    camCropRect = { x: Math.min(camCropStart.x, p.x), y: Math.min(camCropStart.y, p.y), w: Math.abs(p.x - camCropStart.x), h: Math.abs(p.y - camCropStart.y) };
+    if (camCropMode === 'lasso') { camCropPath.push(p); camCropRect = null; }
+    else { camCropRect = { x: Math.min(camCropStart.x, p.x), y: Math.min(camCropStart.y, p.y), w: Math.abs(p.x - camCropStart.x), h: Math.abs(p.y - camCropStart.y) }; camCropPath = []; }
     drawCropOverlay();
   });
   camCropCanvas.addEventListener('touchmove', function(e) {
     if (!camCropDragging) return;
     var p = camCropGetPos(e);
-    camCropRect = { x: Math.min(camCropStart.x, p.x), y: Math.min(camCropStart.y, p.y), w: Math.abs(p.x - camCropStart.x), h: Math.abs(p.y - camCropStart.y) };
+    if (camCropMode === 'lasso') { camCropPath.push(p); camCropRect = null; }
+    else { camCropRect = { x: Math.min(camCropStart.x, p.x), y: Math.min(camCropStart.y, p.y), w: Math.abs(p.x - camCropStart.x), h: Math.abs(p.y - camCropStart.y) }; camCropPath = []; }
     drawCropOverlay(); e.preventDefault();
   }, { passive: false });
   camCropCanvas.addEventListener('mouseup', function() { camCropDragging = false; });
   camCropCanvas.addEventListener('touchend', function() { camCropDragging = false; });
 
   document.getElementById('camCropConfirm').addEventListener('click', function() {
-    var src = camCropRect ? camCropImg : null;
-    var sx = src && camCropRect.w > 10 ? camCropRect.x : 0;
-    var sy = src && camCropRect.h > 10 ? camCropRect.y : 0;
-    var sw = src && camCropRect.w > 10 ? camCropRect.w : camCropImg.width;
-    var sh = src && camCropRect.h > 10 ? camCropRect.h : camCropImg.height;
+    var rect = camCropRect || camCropPathBounds();
+    var sx = rect && rect.w > 10 ? rect.x : 0;
+    var sy = rect && rect.h > 10 ? rect.y : 0;
+    var sw = rect && rect.w > 10 ? rect.w : camCropImg.width;
+    var sh = rect && rect.h > 10 ? rect.h : camCropImg.height;
     var out = document.createElement('canvas'); out.width = sw; out.height = sh;
     out.getContext('2d').drawImage(camCropImg, sx, sy, sw, sh, 0, 0, sw, sh);
     camCropCanvas.style.display = 'none'; camCropActions.style.display = 'none'; camModal.classList.remove('show');
