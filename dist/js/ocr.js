@@ -81,6 +81,7 @@
   let encoderSession = null, decoderSession = null, tokenizerVocab = null;
   let decoderStartId = 2, eosId = 2, padId = 0, ready = false;
   let recognizing = false; // 防并发锁
+  let ppocrSession = null, ppocrDict = null, ppocrReady = false;
 
   // ═══════════════════════════════════════════════
   // 2. 状态 & 工具函数
@@ -482,6 +483,15 @@
       try {
         var result = await recognize(img);
         lastRecognitionTime = Date.now();
+        // 混合模式：公式失败时尝试文字识别
+        if (!result.latex && ppocrReady) {
+          var textResult = await recognizeText(img);
+          if (textResult) {
+            result.latex = textResult;
+            result.confidence = 0.5; // 文字模型不返回置信度，给个默认值
+            confidence.textContent = '文字识别';
+          }
+        }
         if (!result.latex) {
           showError('未识别到公式（置信度 ' + (result.confidence * 100).toFixed(1) + '% 过低）。请确保图片中有清晰的公式。');
           setStatus('ready', '模型就绪！请重新上传公式图片', false);
@@ -949,7 +959,7 @@
       else { ort.env.wasm.numThreads = 1; }
       setStatus('loading', '正在加载分词器…', true); await loadTokenizer();
       setStatus('loading', '正在下载编码器模型 (84MB)…', true); await loadModels();
-      ready = true;
+      ready = true; loadPPOCR().catch(function(){});
       setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
     } catch(e) { if (!errorMsg.style.display || errorMsg.style.display === 'none') showError('初始化失败: ' + (e.message || e)); }
   }
