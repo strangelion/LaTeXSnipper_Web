@@ -639,6 +639,17 @@
     camCropActions.style.display = 'flex';
   }
 
+
+  function camCropPathBounds() {
+    if (!camCropPath || camCropPath.length < 2) return null;
+    var minX = camCropPath[0].x, minY = camCropPath[0].y, maxX = minX, maxY = minY;
+    for (var i = 1; i < camCropPath.length; i++) {
+      var p = camCropPath[i];
+      if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+      if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+    }
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  }
   function drawCropOverlay() {
     camCropCtx.drawImage(camCropImg, 0, 0);
     if (!camCropRect) {
