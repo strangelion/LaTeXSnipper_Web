@@ -611,22 +611,33 @@
     camCropImg = document.createElement('canvas');
     camCropImg.width = camVideo.videoWidth; camCropImg.height = camVideo.videoHeight;
     camCropImg.getContext('2d').drawImage(camVideo, 0, 0);
-    // 手动停流不调 closeCamera（会清空 camCropImg）
     if (camStream) { camStream.getTracks().forEach(function(t) { t.stop(); }); camStream = null; }
     camVideo.srcObject = null;
-    // 显示裁剪画布
     camVideo.style.display = 'none';
     camCropCanvas.style.display = 'block';
     camCropCanvas.width = camCropImg.width; camCropCanvas.height = camCropImg.height;
     camCropCtx.drawImage(camCropImg, 0, 0);
-    camCropRect = null; drawCropOverlay();
+    camCropRect = null; camCropDragging = false; drawCropOverlay();
     camActions.style.display = 'none';
     camCropActions.style.display = 'flex';
   }
 
   function drawCropOverlay() {
     camCropCtx.drawImage(camCropImg, 0, 0);
-    if (!camCropRect) return;
+    if (!camCropRect) {
+      // 未框选时显示提示文字
+      camCropCtx.fillStyle = 'rgba(0,0,0,0.25)';
+      camCropCtx.fillRect(0, 0, camCropCanvas.width, camCropCanvas.height);
+      camCropCtx.fillStyle = 'rgba(255,255,255,0.9)';
+      var fs = Math.max(14, Math.min(24, camCropCanvas.width / 20));
+      camCropCtx.font = fs + 'px "Segoe UI","Microsoft YaHei",sans-serif';
+      camCropCtx.textAlign = 'center'; camCropCtx.textBaseline = 'middle';
+      camCropCtx.fillText('拖拽框选要识别的区域', camCropCanvas.width/2, camCropCanvas.height/2);
+      camCropCtx.fillStyle = 'rgba(255,255,255,0.5)';
+      camCropCtx.font = (fs * 0.6) + 'px "Segoe UI","Microsoft YaHei",sans-serif';
+      camCropCtx.fillText('不框选则识别整张图片', camCropCanvas.width/2, camCropCanvas.height/2 + fs * 1.4);
+      return;
+    }
     // 暗色遮罩
     var r = camCropRect;
     camCropCtx.fillStyle = 'rgba(0,0,0,0.35)';
