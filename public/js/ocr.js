@@ -609,8 +609,20 @@
   var camCropCanvas = document.getElementById('camCropCanvas');
   var camCropCtx = camCropCanvas.getContext('2d');
   var camCropImg = null, camCropRect = null, camCropDragging = false, camCropStart = null, camCropPath = [];
+  var camCropMode = 'rect';
   var camActions = document.getElementById('camActions');
   var camCropActions = document.getElementById('camCropActions');
+  var camCropModeRectBtn = document.getElementById('camCropModeRect');
+  var camCropModeLassoBtn = document.getElementById('camCropModeLasso');
+
+  function setCropMode(mode) {
+    camCropMode = mode;
+    camCropModeRectBtn.style.background = mode === 'rect' ? 'linear-gradient(135deg, #7c3aed, #a78bfa)' : 'rgba(255,255,255,0.1)';
+    camCropModeLassoBtn.style.background = mode === 'lasso' ? 'linear-gradient(135deg, #f59e0b, #f97316)' : 'rgba(255,255,255,0.1)';
+    camCropRect = null; camCropPath = []; drawCropOverlay();
+  }
+  camCropModeRectBtn.addEventListener('click', function() { setCropMode('rect'); });
+  camCropModeLassoBtn.addEventListener('click', function() { setCropMode('lasso'); });
 
   function capturePhoto() { if (!camStream) return;
     camCropImg = document.createElement('canvas');
@@ -630,17 +642,20 @@
   function drawCropOverlay() {
     camCropCtx.drawImage(camCropImg, 0, 0);
     if (!camCropRect) {
-      // 未框选时显示提示文字
+      // 波浪呼吸动画
+      var t = Date.now() / 1000;
+      var wave = 0.75 + 0.25 * Math.sin(t * 1.8);
       camCropCtx.fillStyle = 'rgba(0,0,0,0.25)';
       camCropCtx.fillRect(0, 0, camCropCanvas.width, camCropCanvas.height);
-      camCropCtx.fillStyle = 'rgba(255,255,255,0.9)';
+      camCropCtx.fillStyle = 'rgba(255,255,255,' + wave.toFixed(2) + ')';
       var fs = Math.max(20, Math.min(48, camCropCanvas.width / 15));
       camCropCtx.font = fs + 'px "Segoe UI","Microsoft YaHei",sans-serif';
       camCropCtx.textAlign = 'center'; camCropCtx.textBaseline = 'middle';
       camCropCtx.fillText('拖拽框选要识别的区域', camCropCanvas.width/2, camCropCanvas.height/2);
-      camCropCtx.fillStyle = 'rgba(255,255,255,0.5)';
+      camCropCtx.fillStyle = 'rgba(255,255,255,' + (wave * 0.55).toFixed(2) + ')';
       camCropCtx.font = (fs * 0.6) + 'px "Segoe UI","Microsoft YaHei",sans-serif';
       camCropCtx.fillText('不框选则识别整张图片', camCropCanvas.width/2, camCropCanvas.height/2 + fs * 1.4);
+      if (!camCropRect && camCropCanvas.style.display !== 'none') requestAnimationFrame(drawCropOverlay);
       return;
     }
     // 暗色遮罩

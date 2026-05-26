@@ -84,6 +84,8 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 .cam-btn:active { transform: scale(0.96); }
 .cam-capture { background: var(--accent); color: #fff; }
 .cam-close { background: rgba(255,255,255,0.12); color: #fff; }
+.cam-crop-hint { animation: hintWave 2.5s ease-in-out infinite; }
+@keyframes hintWave { 0%,100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
 
 /* ── 6. 模式切换标签 ── */
 .mode-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
@@ -206,7 +208,8 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
       <button class="cam-btn cam-close" id="camClose">关闭</button>
     </div>
     <div class="cam-actions" id="camCropActions" style="display:none;">
-      <button class="cam-btn" id="camCropMode" style="background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;padding:8px 14px;">矩形框选</button>
+      <button class="cam-btn" id="camCropModeRect" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;font-size:0.82rem;padding:8px 14px;">矩形框选</button>
+      <button class="cam-btn" id="camCropModeLasso" style="background:rgba(255,255,255,0.1);color:#fff;font-size:0.82rem;padding:8px 14px;">自由绘制</button>
       <button class="cam-btn cam-capture" id="camCropConfirm">确认识别</button>
       <button class="cam-btn cam-close" id="camCropRetake">重拍</button>
     </div>
