@@ -738,6 +738,8 @@
     var ci = camCropCornerHit(p, r);
     if (ci >= 0) {
       camCropAction = 'resizing'; camCropCorner = ci; camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropDragging = true;
+    } else if (camCropEdgeHit(p, r) >= 0) {
+      camCropAction = "edge-resizing"; camCropEdge = camCropEdgeHit(p, r); camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropDragging = true;
     } else if (camCropInsideRect(p, r)) {
       camCropAction = 'moving'; camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropMoveOff = {x: p.x - r.x, y: p.y - r.y}; camCropDragging = true;
     } else {
@@ -755,6 +757,8 @@
     var ci = camCropCornerHit(p, r);
     if (ci >= 0) {
       camCropAction = 'resizing'; camCropCorner = ci; camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropDragging = true;
+    } else if (camCropEdgeHit(p, r) >= 0) {
+      camCropAction = "edge-resizing"; camCropEdge = camCropEdgeHit(p, r); camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropDragging = true;
     } else if (camCropInsideRect(p, r)) {
       camCropAction = 'moving'; camCropMoveBase = {x: r.x, y: r.y, w: r.w, h: r.h}; camCropMoveOff = {x: p.x - r.x, y: p.y - r.y}; camCropDragging = true;
     } else {
@@ -784,6 +788,13 @@
       var x2 = ci2 === 1 || ci2 === 3 ? p.x : rb.x + rb.w;
       var y2 = ci2 === 2 || ci2 === 3 ? p.y : rb.y + rb.h;
       camCropRect = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
+      drawCropOverlay();
+    } else if (camCropAction === 'edge-resizing') {
+      var eb = camCropMoveBase, ei2 = camCropEdge;
+      if (ei2 === 0) { camCropRect = { x: eb.x, y: Math.min(p.y, eb.y + eb.h - 30), w: eb.w, h: Math.max(30, eb.y + eb.h - p.y) }; }
+      else if (ei2 === 1) { camCropRect = { x: eb.x, y: eb.y, w: Math.max(30, p.x - eb.x), h: eb.h }; }
+      else if (ei2 === 2) { camCropRect = { x: eb.x, y: eb.y, w: eb.w, h: Math.max(30, p.y - eb.y) }; }
+      else if (ei2 === 3) { camCropRect = { x: Math.min(p.x, eb.x + eb.w - 30), y: eb.y, w: Math.max(30, eb.x + eb.w - p.x), h: eb.h }; }
       drawCropOverlay();
     }
   });
