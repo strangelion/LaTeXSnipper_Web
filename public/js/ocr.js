@@ -962,11 +962,11 @@
   // 模型选择胶囊
   document.querySelectorAll('.model-tab').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      document.querySelectorAll('.model-tab').forEach(function(b) { b.classList.remove('active','text-mode','mixed-mode'); });
+      document.querySelectorAll('.model-tab').forEach(function(b) { b.classList.remove('active'); });
       ocrMode = this.dataset.mode;
       this.classList.add('active');
-      if (ocrMode === 'text') this.classList.add('text-mode');
-      if (ocrMode === 'mixed') this.classList.add('mixed-mode');
+      if (ocrMode === 'text')  
+       
     });
   });
 
