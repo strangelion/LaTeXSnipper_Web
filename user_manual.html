@@ -264,7 +264,7 @@
 
 </div>
 <div class="center">
-<div class="center"><img src="assets/images/LaTeXSnipper.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/LaTeXSnipper.png" alt=""></div>
 
 </div>
 <div class="block block-gray">
@@ -404,9 +404,8 @@
 <li>设置环境变量 <code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code>（如果使用代理）</li>
 <li>尝试切换网络（如手机热点）</li>
 <li>删除 MathCraft 模型缓存目录下残留的不完整下载后重试：</li>
-<li>Windows：<code>%APPDATA%\MathCraft\models\</code></li>
-<li>Linux/macOS：<code>~/.mathcraft/models/</code></li>
 </ul>
+<p>-Windows：<code>%APPDATA%\MathCraft\models\</code>-Linux/macOS：<code>~/.mathcraft/models/</code></p>
 <div class="callout tip">
 <div class="callout-title">命令行诊断</div>
 <div class="callout-body"><p>运行 <code>python -m mathcraft_ocr models check</code> 可以查看模型缓存状态。</p>
@@ -591,10 +590,7 @@ brew install python
 https://www.python.org/downloads/macos/</code></pre></div>
 <h2 id="pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</h2>
 <p><strong>现象：</strong> <code>pip install -r requirements.txt</code> 报错。</p>
-<p>依赖向导会先显示 UI；<code>ensurepip</code>、<code>pip</code> 升级以及 <code>setuptools</code> / <code>wheel</code> 修复只会在点击下载/安装后执行。若所选目录已有可用 Python 环境，向导会直接使用该环境；若没有可用 Python，Windows 会调用本地 <code>python-3.11.0-amd64.exe</code> 初始化模板环境，Linux/macOS 会使用系统 Python 3.10</p>
-<ol>
-<li>创建隔离环境。</li>
-</ol>
+<p>依赖向导会先显示 UI；<code>ensurepip</code>、<code>pip</code> 升级以及 <code>setuptools</code> / <code>wheel</code> 修复只会在点击下载/安装后执行。若所选目录已有可用 Python 环境，向导会直接使用该环境；若没有可用 Python，Windows 会调用本地 <code>python-3.11.0-amd64.exe</code> 初始化模板环境，Linux/macOS 会使用系统 Python 3.10+创建隔离环境。</p>
 <p><strong>原因：</strong></p>
 <ul>
 <li><code>pywin32</code> 需要编译或特定 wheel</li>
@@ -719,11 +715,8 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <ul>
 <li>主窗口截图识别仍然可以选择公式、文字、混合或外部模型</li>
 <li>手写窗口使用内置模型时固定为混合模式，并会按混合模式预热</li>
-<li>如果主窗口选择了外部模型，手写窗口仍会使用外部模型，但默认采用手写混合 OCR 提示词，以 Markdown</li>
+<li>如果主窗口选择了外部模型，手写窗口仍会使用外部模型，但默认采用手写混合 OCR 提示词，以 Markdown +LaTeX 形式保留文字和公式</li>
 </ul>
-<ol>
-<li>LaTeX 形式保留文字和公式</li>
-</ol>
 <h2 id="zidongxing">手写自动排版后文字、中文或换行不符合预期</h2>
 <p><strong>现象：</strong> 自动排版后普通文字被省略，中文编译异常，或多行文字在 PDF 中挤到同一行。</p>
 <p><strong>当前策略：</strong></p>
@@ -803,12 +796,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <p><strong>原因：</strong> Wayland 的安全模型限制了应用间的屏幕捕获，Qt 的截图机制可能需要额外配置。</p>
 <p><strong>解决：</strong></p>
 <ul>
-<li>尝试安装并配置 <code>grim</code></li>
-</ul>
-<ol>
-<li><code>slurp</code>（wlroots 系）或 <code>gnome-screenshot</code>（GNOME）</li>
-</ol>
-<ul>
+<li>尝试安装并配置 <code>grim</code> +<code>slurp</code>（wlroots 系）或 <code>gnome-screenshot</code>（GNOME）</li>
 <li>应用会自动检测这些工具作为回退方案</li>
 <li>某些发行版需要在设置中允许屏幕共享权限</li>
 </ul>
@@ -821,11 +809,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <h2 id="linux-wayland-dong">Linux: 虚拟机或 Wayland 下启动后直接中止</h2>
 <p><strong>现象：</strong> 命令行出现 <code>EGL not available</code>、<code>No physical devices</code>、<code>GLOzone not found</code>、<code>Failed to get system egl display</code>，随后程序中止。</p>
 <p><strong>原因：</strong> 这通常不是 MathCraft GPU 推理问题，而是 Qt WebEngine / Chromium 在 Wayland、虚拟机、WSL 或没有可用 DRI render 节点时无法初始化 EGL/GPU 图形后端。</p>
-<p><strong>当前策略：</strong> LaTeXSnipper 会在高风险 Linux 图形环境中自动启用软件渲染兜底。正常 X11</p>
-<ol>
-<li>真实 GPU</li>
-<li>可用 <code>/dev/dri/renderD*</code> 的用户仍走原生路径，不会被强制降级。</li>
-</ol>
+<p><strong>当前策略：</strong> LaTeXSnipper 会在高风险 Linux 图形环境中自动启用软件渲染兜底。正常 X11 +真实 GPU +可用 <code>/dev/dri/renderD*</code> 的用户仍走原生路径，不会被强制降级。</p>
 <p><strong>手动开关：</strong></p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#强制启用 Linux 图形兜底
 LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS=1 latexsnipper
@@ -855,10 +839,7 @@ libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0</code></
 <p>LaTeXSnipper 在 macOS 上使用 Carbon 原生全局快捷键注册，不使用 pynput 或键盘事件监听线程。截图快捷键不生效时，优先检查快捷键是否被系统或其他软件占用，以及应用是否仍在运行。只有涉及低层键盘监听、模拟键鼠控制或其他辅助控制能力的软件通常才需要"辅助功能"权限。</p>
 <h2 id="macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</h2>
 <p><strong>现象：</strong> 依赖向导提示找不到 <code>pip</code>，或安装依赖时出现 <code>pip</code> / <code>setuptools</code> / <code>wheel</code> 版本过低。</p>
-<p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python 3.10</p>
-<ol>
-<li>创建 <code>~/.latexsnipper/deps/python311</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</li>
-</ol>
+<p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python 3.10+创建 <code>~/.latexsnipper/deps/python311</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</p>
 <p><strong>解决：</strong></p>
 <ul>
 <li>推荐安装 Homebrew Python：<code>brew install python</code></li>
@@ -1052,16 +1033,16 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 <p>以下示例来自 MathCraft 的结构化块输出。彩色框标注了检测到的角色、顺序、分栏信息和置信度分数。</p>
 <h3 id="abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</h3>
 <p>公式密集的英文数学论文页面，包含大量行内公式和展示公式。</p>
-<div class="center"><img src="assets/images/mathcraft_abstract_algebra.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/mathcraft_abstract_algebra.png" alt=""></div>
 <h3 id="dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</h3>
 <p>以展示公式为主的期刊页面，包含公式编号、标签、页眉和页码。</p>
-<div class="center"><img src="assets/images/mathcraft_dynamics_journal.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/mathcraft_dynamics_journal.png" alt=""></div>
 <h3 id="lecture-note-p-1">中文讲义：Lecture Note (p.1)</h3>
 <p>中文数学文档页面，包含文本与公式混合排版。</p>
-<div class="center"><img src="assets/images/mathcraft_chinese_lecture.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/mathcraft_chinese_lecture.png" alt=""></div>
 <h3 id="yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</h3>
 <p>稀疏的标题/封面式页面，用于验证版面分析稳定性。</p>
-<div class="center"><img src="assets/images/mathcraft_limits_series.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/mathcraft_limits_series.png" alt=""></div>
 <h2 id="xingnengcankao">性能参考</h2>
 <p>以下为本地 <code>block_layout_regression_v4</code> 基准测试数据（CUDA 环境）：</p>
 <div class="block block-gray">

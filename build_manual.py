@@ -188,11 +188,12 @@ def tokenise(text):
                 yield ('HEADING_MARKER', text[i:j])
                 i = j
                 continue
-        # list markers
+        # list markers (only at line start, not mid-paragraph like "X11 + GPU")
         if ch in '-+' and (i+1 < n and text[i+1] == ' '):
-            yield ('LIST', ch)
-            i += 2
-            continue
+            if i == 0 or (i > 0 and text[i-1] == '\n'):
+                yield ('LIST', ch)
+                i += 2
+                continue
         # newline
         if ch == '\n':
             yield ('NEWLINE', '\n')
@@ -520,7 +521,6 @@ def parse_typ(source):
             args = skip_callout_args()
             m = re.search(r'"([^"]+)"', args)
             src = m.group(1) if m else ''
-            # check for width in remaining tokens
             w = ''
             out.append(f'<div class="center"><img src="{esc(src)}" alt=""{w}></div>\n')
             continue
@@ -1421,13 +1421,19 @@ function copyCode(btn) {{
 </html>
 """
 
-    # 图片作为独立文件引用（不再 base64 内联，避免 HTML 膨胀到 3.6MB）
-    # 独立图片可被浏览器和 CDN 并行缓存，HTML 本身仅 ~90KB
-    def add_lazy_loading(m):
+    # Add assets/images/ prefix to all local image paths
+    def fix_image_path(m):
         src = m.group(1)
         alt = m.group(2)
-        return f'<img src="{src}" alt="{alt}" loading="lazy" decoding="async">'
-    html = re.sub(r'<img src="([^"]+)" alt="([^"]*)">', add_lazy_loading, html)
+        rest = m.group(3) or ''
+        # Don't rewrite external URLs
+        if src.startswith('http://') or src.startswith('https://'):
+            return m.group(0)
+        # Don't double-prefix
+        if src.startswith('assets/'):
+            return m.group(0)
+        return f'<img src="assets/images/{src}" alt="{alt}"{rest} loading="lazy" decoding="async">'
+    html = re.sub(r'<img src="([^"]+)" alt="([^"]*)"(.*?)>', fix_image_path, html)
 
     with open(HTML_FILE, 'w', encoding='utf-8') as f:
         f.write(html)

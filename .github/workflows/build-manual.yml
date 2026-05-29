@@ -1,0 +1,57 @@
+name: Build User Manual
+
+on:
+  schedule:
+    - cron: '37 3 * * *'  # daily check
+  repository_dispatch:
+    types: [build-user-manual]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Sync all files from upstream LaTeXSnipper
+        run: |
+          echo "Syncing user_manual/ from SakuraMathcraft/LaTeXSnipper..."
+          FILES=$(curl -sL "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual" | python3 -c "
+          import json,sys
+          for f in json.load(sys.stdin):
+              if f['type'] == 'file': print(f['name'])
+          ")
+          for f in $FILES; do
+            curl -sL "https://raw.githubusercontent.com/SakuraMathcraft/LaTeXSnipper/main/user_manual/$f" -o "$f"
+            echo "  $f"
+          done
+          # Move images to assets/images/
+          mkdir -p assets/images
+          for png in *.png; do
+            [ -f "$png" ] && cp "$png" assets/images/ && echo "  $png -> assets/images/"
+          done
+          echo "Sync done."
+
+      - name: Build manual
+        run: python3 build_manual.py
+
+      - name: Copy to dist
+        run: |
+          cp user_manual.html dist/user_manual.html
+          mkdir -p dist/assets/images
+          cp assets/images/*.png dist/assets/images/ 2>/dev/null || true
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add user_manual.typ user_manual.html dist/user_manual.html assets/images/*.png dist/assets/images/*.png
+          if git diff --staged --quiet; then
+            echo "No changes."
+          else
+            git commit -m "docs: auto-sync user manual from upstream"
+            git push
+          fi
