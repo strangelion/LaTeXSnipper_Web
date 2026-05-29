@@ -113,7 +113,6 @@ jobs:
             ["LaTeXSnipperSetup-2.3.2.exe"]="LaTeXSnipperSetup-2.3.2.exe"
             ["latexsnipper_2.3.2_amd64.deb"]="latexsnipper_2.3.2_amd64.deb"
             ["LaTeXSnipper_2.3.2_arm64.dmg"]="LaTeXSnipper_2.3.2_arm64.dmg"
-            ["LaTeXSnipper_User_Manual.pdf"]="LaTeXSnipper_Manual.pdf"
           )
           for NAME in "${!ASSETS[@]}"; do
             R2KEY="${ASSETS[$NAME]}"
