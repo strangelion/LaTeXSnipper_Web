@@ -746,12 +746,6 @@ export default {
 
         const dlUrl = R2_BASE + "/" + path.slice(4); // /dl/foo → /foo
 
-        // 配额阻断：重定向
-        const relQuota = await quotaGetStatus(env);
-        if (relQuota.isBlock) {
-          return Response.redirect("https://github.com/SakuraMathcraft/LaTeXSnipper/releases", 302);
-        }
-
         const relResp = await fetch(dlUrl);
         if (!relResp.ok) {
           return renderErrorPage(404, "文件未找到",
