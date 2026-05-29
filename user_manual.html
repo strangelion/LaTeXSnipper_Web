@@ -69,7 +69,7 @@
 </head>
 <body class="manual">
 <div class="top-nav-trigger" id="topNavTrigger"></div>
-<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="https://release.interknot.dpdns.org/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
+<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
 <div class="spacer-top"></div>
 
 <!-- 浮动可拖动箭头按钮 -->
@@ -191,6 +191,7 @@
   <li class="toc-h2"><a href="#ocr-shizheng">截图 OCR 提示"正忙"</a></li>
   <li class="toc-h2"><a href="#xiang-office-yong">加载项被 Office 禁用</a></li>
   <li class="toc-h2"><a href="#anzhuangchengmu">安装后出现两个无图标程序条目</a></li>
+<li class="toc-vol-divider"><span>第三卷 · MathCraft 内部模型介绍</span></li>
   <li class="toc-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
   <li class="toc-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
   <li class="toc-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
@@ -314,6 +315,7 @@
   <li class="rs-h2"><a href="#ocr-shizheng">截图 OCR 提示"正忙"</a></li>
   <li class="rs-h2"><a href="#xiang-office-yong">加载项被 Office 禁用</a></li>
   <li class="rs-h2"><a href="#anzhuangchengmu">安装后出现两个无图标程序条目</a></li>
+<li class="rs-vol-divider"><span>第三卷 · MathCraft 内部模型介绍</span></li>
   <li class="rs-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
   <li class="rs-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
   <li class="rs-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
@@ -1142,9 +1144,9 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <h2 id="rumoshi">三种插入模式</h2>
 <div class="block">
 <ul>
-<li><strong>行内公式（Ctrl+Shift+I）：</strong> 插入正文中的行内公式，跟随文字排版</li>
-<li><strong>行间公式（Ctrl+Shift+D）：</strong> 插入居中显示的独立公式</li>
-<li><strong>带编号公式（Ctrl+Shift+N）：</strong> 插入自动编号的行间公式，公式与编号使用表格布局对齐</li>
+<li><strong>行内公式：</strong> 插入正文中的行内公式，跟随文字排版</li>
+<li><strong>行间公式：</strong> 插入居中显示的独立公式</li>
+<li><strong>带编号公式：</strong> 插入自动编号的行间公式，公式与编号使用表格布局对齐</li>
 </ul>
 
 </div>
@@ -1326,7 +1328,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p><strong>说明：</strong> 这些是 VSTO ClickOnce 部署的注册痕迹，属于正常现象。加载项安装程序已将其标记为系统组件，通常不会在用户界面上显示。如果仍然可见，不影响加载项的正常使用。</p>
 <div class="spacer-lg"></div>
 <div class="center">
-<p><strong>第三卷 · MathCraft 内部模型介绍</strong></p>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label">第三卷 · MathCraft 内部模型介绍</span></div></div>
 
 </div>
 <h2 id="sec-mathcraft-intro">MathCraft OCR 项目介绍</h2>
