@@ -39,6 +39,9 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk
           python3 -c "
           from weasyprint import HTML
+          html = open('user_manual.html', encoding='utf-8').read()
+          html = html.replace('</style>', 'body { font-family: \"Noto Sans CJK SC\", \"Noto Sans SC\", sans-serif !important; } code, pre { font-family: \"Cascadia Code\", monospace; }</style>')
+          with open('user_manual.html', 'w', encoding='utf-8') as f: f.write(html)
           HTML('user_manual.html').write_pdf('LaTeXSnipper_User_Manual.pdf')
           "
           ls -lh LaTeXSnipper_User_Manual.pdf
