@@ -47,5 +47,5 @@ workers_dev = true
 vars = { DEPLOY_ENV = "preview" }
 
 [observability.logs]
-enabled = true
+enabled = false
 invocation_logs = true
