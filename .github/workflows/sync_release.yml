@@ -107,16 +107,7 @@ jobs:
               if [ "$UPSTREAM_SHA" != "$LAST_SHA" ] && [ "$UPSTREAM_SHA" != "null" ] && [ -n "$UPSTREAM_SHA" ]; then
                   MANUAL_UPDATED=true
                   echo "Manual updated: $LAST_SHA -> $UPSTREAM_SHA"
-                  python3 -c "
-import json
-with open('.release_state.json') as f:
-    state = json.load(f)
-state['last_manual_sha'] = '$UPSTREAM_SHA'
-with open('.release_state.json', 'w') as f:
-    json.dump(state, f, indent=2)
-    f.write('\n')
-print('Manual SHA written to state')
-"
+                  jq --arg sha "$UPSTREAM_SHA" '.last_manual_sha = $sha' .release_state.json > .release_state.tmp && mv .release_state.tmp .release_state.json
               else
                   echo "Manual unchanged"
               fi
