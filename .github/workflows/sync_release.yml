@@ -113,6 +113,7 @@ jobs:
             ["LaTeXSnipperSetup-2.3.2.exe"]="LaTeXSnipperSetup-2.3.2.exe"
             ["latexsnipper_2.3.2_amd64.deb"]="latexsnipper_2.3.2_amd64.deb"
             ["LaTeXSnipper_2.3.2_arm64.dmg"]="LaTeXSnipper_2.3.2_arm64.dmg"
+            ["OfficePluginSetup-2.3.2_Final_Stable.exe"]="OfficePluginSetup-2.3.2_Final_Stable.exe"
           )
           for NAME in "${!ASSETS[@]}"; do
             R2KEY="${ASSETS[$NAME]}"
@@ -142,6 +143,7 @@ jobs:
               ('LaTeXSnipperSetup-2.3.2.exe',  sha_map.get('LaTeXSnipperSetup-2.3.2.exe', '')),
               ('latexsnipper_2.3.2_amd64.deb', sha_map.get('latexsnipper_2.3.2_amd64.deb', '')),
               ('LaTeXSnipper_2.3.2_arm64.dmg', sha_map.get('LaTeXSnipper_2.3.2_arm64.dmg', '')),
+              ('OfficePluginSetup-2.3.2_Final_Stable.exe', sha_map.get('OfficePluginSetup-2.3.2_Final_Stable.exe', '')),
           ]
 
           def update_file(filepath):

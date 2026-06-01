@@ -567,7 +567,7 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
       <p>请求路径：<code>${safePath}</code></p>
       <p>时间戳：<code>${now}</code></p>
       <p>HTTP 状态码：<code>${safeCode}</code></p>
-      <p>服务：LaTeXSnipper User Manual Worker v2.3.6</p>
+      <p>服务：LaTeXSnipper User Manual Worker v2.3.8</p>
     </details>
   </div>
 </div>
@@ -641,7 +641,7 @@ export default {
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.7",
+        version: "2.3.8",
         timestamp: new Date().toISOString(),
         tip: "Download stats: Cloudflare Dashboard > Analytics & Logs > filter by /dl/*",
       });

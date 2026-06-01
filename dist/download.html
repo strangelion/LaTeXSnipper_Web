@@ -57,7 +57,7 @@
 
     .platform-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 1.5rem;
       margin-bottom: 2.5rem;
     }
@@ -257,6 +257,15 @@
         <p class="platform-desc">手机端 OCR · 离线可用 · APK 直装</p>
         <a class="download-btn" href="https://github.com/strangelion/LaTeXSnipper_mobile/releases/latest" target="_blank" rel="noopener">下载 Android 版</a>
         <p style="font-size:0.75rem;color:var(--muted);margin-top:0.25rem;">前往 GitHub Releases 下载最新 APK</p>
+      </div>
+
+      <!-- Office 插件 -->
+      <div class="platform-card">
+        <div class="platform-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M11.5 1L3 4.5v15L11.5 23 21 19.5v-15L11.5 1zm0 2.08l7 2.6v11.64l-7 2.6-7-2.6V5.68l7-2.6z"/><path d="M11.5 4.09l5 1.86v10.1l-5 1.86-5-1.86V5.95l5-1.86z" opacity=".5"/><path d="M8.5 10.5l2 1.5 2.5-3 2 2.5 2-3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2 class="platform-name">Office 插件</h2>
+        <p class="platform-desc">Word / PowerPoint · 公式编辑 · 一键插入</p>
+        <a class="download-btn" href="/dl/OfficePluginSetup-2.3.2_Final_Stable.exe">下载 Office 插件</a>
+        <p class="sha256" data-sha256="0000000000000000000000000000000000000000000000000000000000000000">点击复制 SHA256</p>
       </div>
     </div>
 
