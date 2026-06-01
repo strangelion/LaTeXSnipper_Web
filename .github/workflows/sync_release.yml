@@ -162,8 +162,6 @@ jobs:
 
           subprocess.run(['rm', '-rf', '.sync_tmp'])
           PYEOF
-        env:
-          CHANGED: ${{ needs.check.outputs.changed_assets }}
 
       - name: 更新 download.html SHA256
         run: |
