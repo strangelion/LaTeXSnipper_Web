@@ -1,1 +1,10 @@
-{"last_sync": "2026-05-31T16:14:03Z"}
+{
+  "last_sync": "2026-05-31T16:14:03Z",
+  "assets": {
+    "LaTeXSnipperSetup-2.3.2.exe": "",
+    "LaTeXSnipper_2.3.2_amd64.deb": "",
+    "LaTeXSnipper_2.3.2_arm64.dmg": "",
+    "OfficePluginSetup-2.3.2_Final_Stable.exe": ""
+  },
+  "last_manual_sha": ""
+}

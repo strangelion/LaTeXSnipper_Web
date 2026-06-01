@@ -16,84 +16,119 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     outputs:
       should_sync: ${{ steps.decide.outputs.should_sync }}
+      changed_assets: ${{ steps.decide.outputs.changed_assets }}
       should_build_manual: ${{ steps.check_manual.outputs.manual_updated }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: 检查是否需要同步 Release
+      - name: 检查各 Release 文件时间戳
         id: decide
         run: |
-          SHOULD="false"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            SHOULD="true"
-            echo "manual trigger, force sync"
-            RELEASE=$(curl -sL --retry 2 -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable")
-            LATEST_ASSET=$(echo "$RELEASE" | jq -r '[.assets[].updated_at] | sort | last')
-          else
-            RELEASE=$(curl -sL --retry 2 -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable")
-            LATEST_ASSET=$(echo "$RELEASE" | jq -r '[.assets[].updated_at] | sort | last')
-            if [ "$LATEST_ASSET" = "null" ] || [ -z "$LATEST_ASSET" ]; then
-              echo "API response invalid, skip sync"
-              LATEST_ASSET=""
-            else
-              echo "Latest asset: $LATEST_ASSET"
-              if [ -f .release_state.json ]; then
-                LAST=$(jq -r '.last_sync // empty' .release_state.json)
-                echo "Last sync: $LAST"
-                if [ "$LATEST_ASSET" != "$LAST" ]; then
-                  SHOULD="true"
-                  echo "Update detected"
-                else
-                  echo "No change, skip"
-                fi
-              else
-                SHOULD="true"
-                echo "First run, sync"
-              fi
-            fi
-          fi
-          echo "should_sync=$SHOULD" >> $GITHUB_OUTPUT
-          if [ "$SHOULD" = "true" ] && [ -n "$LATEST_ASSET" ]; then
-            echo "{\"last_sync\": \"$LATEST_ASSET\"}" > .release_state.json
-          fi
+          python3 << 'PYEOF'
+          import json, os, subprocess
 
-      - name: 检查上游用户手册是否更新
+          ASSETS = [
+              "LaTeXSnipperSetup-2.3.2.exe",
+              "LaTeXSnipper_2.3.2_amd64.deb",
+              "LaTeXSnipper_2.3.2_arm64.dmg",
+              "OfficePluginSetup-2.3.2_Final_Stable.exe",
+          ]
+
+          # Fetch release assets information
+          url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable"
+          result = subprocess.run(
+              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", url],
+              capture_output=True, text=True
+          )
+          release = json.loads(result.stdout)
+          api_assets = {a["name"]: a["updated_at"] for a in release.get("assets", []) if a.get("name") in ASSETS}
+          print("API asset timestamps:", json.dumps(api_assets, indent=2))
+
+          # Read stored state (single file, merged with manual state)
+          state = {}
+          if os.path.exists(".release_state.json"):
+              with open(".release_state.json") as f:
+                  state = json.load(f)
+
+          stored = state.get("assets", {})
+          is_manual = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+
+          # Determine changed assets by comparing timestamps per-file
+          changed = []
+          for name in ASSETS:
+              api_ts = api_assets.get(name)
+              if not api_ts or api_ts == "null":
+                  print(f"  {name}: no timestamp in API, skip")
+                  continue
+              stored_ts = stored.get(name)
+              if is_manual or api_ts != stored_ts:
+                  print(f"  {name}: changed  {stored_ts or '(none)'}  ->  {api_ts}")
+                  changed.append(name)
+              else:
+                  print(f"  {name}: unchanged  ({api_ts})")
+
+          should_sync = "true" if (changed or is_manual) else "false"
+
+          # Write outputs for subsequent jobs
+          github_output = os.environ.get("GITHUB_OUTPUT")
+          if github_output:
+              with open(github_output, "a") as f:
+                  f.write(f"should_sync={should_sync}\n")
+                  f.write(f"changed_assets={json.dumps(changed)}\n")
+
+          # Update state file with new timestamps (only when something changed)
+          if changed:
+              for name in changed:
+                  stored[name] = api_assets.get(name, "")
+              state["assets"] = stored
+              all_ts = [v for v in stored.values() if v]
+              state["last_sync"] = max(all_ts) if all_ts else ""
+              with open(".release_state.json", "w") as f:
+                  json.dump(state, f, indent=2)
+                  f.write("\n")
+              print("State updated with new timestamps")
+
+          print(f"should_sync={should_sync}")
+          print(f"changed_assets={json.dumps(changed)}")
+          PYEOF
+
+      - name: 检查上游用户手册是否更新（写入同一个状态文件）
         id: check_manual
         if: github.event_name == 'schedule'
         run: |
-          echo "manual_updated=false" >> $GITHUB_OUTPUT
           UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
             | jq -r '.sha')
           echo "Upstream SHA: $UPSTREAM_SHA"
 
-          if [ -f .manual_state.json ]; then
-            LAST_SHA=$(jq -r '.last_manual_sha // empty' .manual_state.json)
-            echo "Last SHA: $LAST_SHA"
-            if [ "$UPSTREAM_SHA" != "$LAST_SHA" ] && [ "$UPSTREAM_SHA" != "null" ]; then
-              echo "manual_updated=true" >> $GITHUB_OUTPUT
-              echo "Manual updated!"
-            fi
+          MANUAL_UPDATED=false
+          if [ -f .release_state.json ]; then
+              LAST_SHA=$(jq -r '.last_manual_sha // empty' .release_state.json)
+              if [ "$UPSTREAM_SHA" != "$LAST_SHA" ] && [ "$UPSTREAM_SHA" != "null" ] && [ -n "$UPSTREAM_SHA" ]; then
+                  MANUAL_UPDATED=true
+                  echo "Manual updated: $LAST_SHA -> $UPSTREAM_SHA"
+                  python3 -c "
+import json
+with open('.release_state.json') as f:
+    state = json.load(f)
+state['last_manual_sha'] = '$UPSTREAM_SHA'
+with open('.release_state.json', 'w') as f:
+    json.dump(state, f, indent=2)
+    f.write('\n')
+print('Manual SHA written to state')
+"
+              else
+                  echo "Manual unchanged"
+              fi
           fi
+          echo "manual_updated=$MANUAL_UPDATED" >> $GITHUB_OUTPUT
 
-          if [ "$UPSTREAM_SHA" != "null" ] && [ -n "$UPSTREAM_SHA" ]; then
-            echo "{\"last_manual_sha\": \"$UPSTREAM_SHA\"}" > .manual_state.json
-          fi
-
-      - name: 保存状态文件
+      - name: 保存状态文件（仅当有变动时提交）
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          CHANGED=false
           git add .release_state.json 2>/dev/null || true
-          git add .manual_state.json 2>/dev/null || true
-          git diff --staged --quiet || CHANGED=true
-          if [ "$CHANGED" = "true" ]; then
-            git commit -m "chore: update sync state"
-            git pull --rebase && git push
-          fi
+          git diff --staged --quiet && echo "No state change" || (echo "Committing state update" && git commit -m "chore: update sync state" && git pull --rebase && git push)
 
   sync:
     needs: check
@@ -104,29 +139,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 下载并上传 R2
+      - name: 下载并上传变更文件到 R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          mkdir -p .sync_tmp
-          declare -A ASSETS=(
-            ["LaTeXSnipperSetup-2.3.2.exe"]="LaTeXSnipperSetup-2.3.2.exe"
-            ["latexsnipper_2.3.2_amd64.deb"]="latexsnipper_2.3.2_amd64.deb"
-            ["LaTeXSnipper_2.3.2_arm64.dmg"]="LaTeXSnipper_2.3.2_arm64.dmg"
-            ["OfficePluginSetup-2.3.2_Final_Stable.exe"]="OfficePluginSetup-2.3.2_Final_Stable.exe"
-          )
-          for NAME in "${!ASSETS[@]}"; do
-            R2KEY="${ASSETS[$NAME]}"
-            URL="https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.3.2_Final_Stable/$NAME"
-            echo "download $NAME"
-            curl -sL "$URL" -o ".sync_tmp/$NAME"
-            SHA=$(sha256sum ".sync_tmp/$NAME" | cut -d' ' -f1)
-            echo "  SHA256: $SHA"
-            npx wrangler r2 object delete "release/$R2KEY" --remote 2>/dev/null || true
-            npx wrangler r2 object put "release/$R2KEY" --file ".sync_tmp/$NAME" --remote
-            echo "$R2KEY:$SHA" >> /tmp/sha256.txt
-          done
-          rm -rf .sync_tmp
+          CHANGED='${{ needs.check.outputs.changed_assets }}'
+          python3 << PYEOF
+          import json, os, subprocess, hashlib, sys
+
+          changed = json.loads(os.environ.get('CHANGED', '[]'))
+          if not changed:
+              print('No changed files to sync, exiting')
+              sys.exit(0)
+
+          os.makedirs('.sync_tmp', exist_ok=True)
+          for name in changed:
+              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.3.2_Final_Stable/{name}'
+              out = f'.sync_tmp/{name}'
+              print(f'Downloading {name}...')
+              subprocess.run(['curl', '-sL', '--retry', '2', url, '-o', out], check=True)
+              sha = hashlib.sha256(open(out, 'rb').read()).hexdigest()
+              print(f'  SHA256: {sha}')
+
+              subprocess.run(['npx', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
+                          capture_output=True, timeout=60000)
+              subprocess.run(['npx', 'wrangler', 'r2', 'object', 'put', f'release/{name}', '--file', out, '--remote'],
+                          check=True, timeout=120000)
+              print(f'  Uploaded release/{name}')
+              with open('/tmp/sha256.txt', 'a') as f:
+                  f.write(f'{name}:{sha}\n')
+
+          subprocess.run(['rm', '-rf', '.sync_tmp'])
+          PYEOF
+        env:
+          CHANGED: ${{ needs.check.outputs.changed_assets }}
 
       - name: 更新 download.html SHA256
         run: |
@@ -134,14 +180,19 @@ jobs:
           import re
 
           sha_map = {}
-          with open('/tmp/sha256.txt', 'r') as f:
-              for line in f:
-                  r2name, sha = line.strip().split(':')
-                  sha_map[r2name] = sha
+          try:
+              with open('/tmp/sha256.txt') as f:
+                  for line in f:
+                      parts = line.strip().split(':')
+                      if len(parts) >= 2:
+                          sha_map[parts[0]] = parts[1]
+          except FileNotFoundError:
+              print("No sha256.txt found, nothing to update")
+              exit(0)
 
           pairs = [
-              ('LaTeXSnipperSetup-2.3.2.exe',  sha_map.get('LaTeXSnipperSetup-2.3.2.exe', '')),
-              ('latexsnipper_2.3.2_amd64.deb', sha_map.get('latexsnipper_2.3.2_amd64.deb', '')),
+              ('LaTeXSnipperSetup-2.3.2.exe', sha_map.get('LaTeXSnipperSetup-2.3.2.exe', '')),
+              ('LaTeXSnipper_2.3.2_amd64.deb', sha_map.get('LaTeXSnipper_2.3.2_amd64.deb', '')),
               ('LaTeXSnipper_2.3.2_arm64.dmg', sha_map.get('LaTeXSnipper_2.3.2_arm64.dmg', '')),
               ('OfficePluginSetup-2.3.2_Final_Stable.exe', sha_map.get('OfficePluginSetup-2.3.2_Final_Stable.exe', '')),
           ]
@@ -171,7 +222,7 @@ jobs:
                   else:
                       print(f"  {filepath}: {filename} no_match")
               if changed:
-                  with open(filepath, 'w', encoding='utf-8') as f:
+                  with open(filepath, 'w') as f:
                       f.write(html)
               return changed
 
@@ -179,12 +230,12 @@ jobs:
           c2 = update_file('dist/download.html')
           PYEOF
 
-      - name: 提交更新
+      - name: 提交 SHA256 更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add download.html dist/download.html
-          git diff --staged --quiet || (git commit -m "chore: sync release SHA256" && git pull --rebase && git push)
+          git diff --staged --quiet && echo "No SHA256 changes" || (git commit -m "chore: sync release SHA256" && git pull --rebase && git push)
 
   build-manual:
     needs: check
