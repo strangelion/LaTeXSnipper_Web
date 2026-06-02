@@ -69,7 +69,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 </head>
 <body class="manual">
 <div class="top-nav-trigger" id="topNavTrigger"></div>
-<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="/dl/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
+<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
 <div class="spacer-top"></div>
 
 <!-- 浮动可拖动箭头按钮 -->
@@ -1167,12 +1167,12 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </div>
 </div>
 <h2 id="zidongbianyubian">自动编号与重编号</h2>
-<p>带编号公式支持 Word 风格的自动编号管理：</p>
+<p>Word 支持将未编号的 LaTeXSnipper 公式转换为自动编号公式，并按文档顺序维护自动编号：</p>
 <div class="block">
 <ul>
 <li><strong>自动编号：</strong> 为选中的公式添加自动编号。如果公式已有编号，不会重复添加</li>
 <li><strong>重编号全部：</strong> 按文档顺序更新所有自动编号公式的编号文本和元数据，不重新渲染公式内容</li>
-<li><strong>编号位置：</strong> 设置中可选择右编号或左编号</li>
+<li><strong>编号位置：</strong> 设置中可选择右编号或左编号；该设置只影响新插入的编号公式和之后被自动编号的普通公式，不改变已有公式的编号属性</li>
 </ul>
 
 </div>
@@ -1250,7 +1250,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </div>
 </div>
 <h2 id="pingtai">平台界面差异</h2>
-<p>Word 侧边栏包含"行间公式""自动编号""重编号"等 Word 专属控件。PowerPoint 侧边栏会隐藏这些 PPT 不适用的选项，界面更简洁。</p>
+<p>Word 侧边栏包含"行间公式""自动编号""重编号"等 Word 专属控件。PowerPoint 侧边栏不包含这些 Word 专属选项，界面更简洁。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-settings">设置与帮助</h1>
 <h2 id="shezhichuangkou">设置窗口</h2>
