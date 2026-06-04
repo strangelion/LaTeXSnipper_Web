@@ -167,7 +167,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#xinganzhuang">命令行静默安装</a></li>
 <li class="toc-h1"><a href="#sec-office-word">Word 功能详解</a></li>
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="toc-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
+  <li class="toc-h2"><a href="#rushi">插入公式</a></li>
   <li class="toc-h2"><a href="#rumoshi">三种插入模式</a></li>
   <li class="toc-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
   <li class="toc-h2"><a href="#zidongbianyubian">自动编号与重编号</a></li>
@@ -291,7 +291,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#xinganzhuang">命令行静默安装</a></li>
 <li class="rs-h1"><a href="#sec-office-word">Word 功能详解</a></li>
   <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="rs-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
+  <li class="rs-h2"><a href="#rushi">插入公式</a></li>
   <li class="rs-h2"><a href="#rumoshi">三种插入模式</a></li>
   <li class="rs-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
   <li class="rs-h2"><a href="#zidongbianyubian">自动编号与重编号</a></li>
@@ -1053,11 +1053,11 @@ macOS:    ~/.mathcraft/models/</code></pre></div>
 </div>
 <h1 id="sec-office-intro">加载项介绍与系统要求</h1>
 <h2 id="office-xiang">什么是 Office 加载项</h2>
-<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。加载项通过本机 Bridge 与 LaTeXSnipper 桌面端通信，实现 LaTeX 公式的转换、识别与插入。</p>
+<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象渲染由本机 OLE 服务器独立完成，截图 OCR 和 OMML 转换通过 Bridge 与 LaTeXSnipper 桌面端通信。</p>
 <div class="callout info">
 <div class="callout-title">与桌面端的关系</div>
-<div class="callout-body"><p>加载项本身不包含 LaTeX 渲染引擎。所有公式转换（LaTeX → OMML / PNG）和截图 OCR 均由本机运行的 LaTeXSnipper 桌面端完成。</p>
-<p>使用加载项前，请确保桌面端已启动并开启了 Office 插件功能。</p>
+<div class="callout-body"><p>OLE 公式对象渲染（默认方式）由本机 OLE 服务器独立完成，不依赖桌面端。截图 OCR 和传统 OMML 转换需要通过 Bridge 与本机运行的 LaTeXSnipper 桌面端通信。</p>
+<p>使用截图识别或 OMML 公式插入前，请确保桌面端已启动并开启了 Office 插件功能。</p>
 </div>
 </div>
 <h2 id="heading">系统要求</h2>
@@ -1067,7 +1067,7 @@ macOS:    ~/.mathcraft/models/</code></pre></div>
 <li><strong>Office 版本：</strong> Microsoft 365 应用（当前通道或月度企业通道）、Office 2024 / 2021 / 2019 零售版或批量许可版、Office LTSC 2024 / 2021</li>
 <li><strong>运行时：</strong> .NET Framework 4.8；Microsoft Edge WebView2 Runtime（Windows 11 已内置；M365 会自动安装）</li>
 <li><strong>Office 体系：</strong> 仅支持 32 位和 64 位桌面版 Office；不支持网页版、移动版和 macOS 版 Office</li>
-<li><strong>LaTeXSnipper 桌面端：</strong> 需在本机运行并开启 Office 插件功能，插件通过 <code>127.0.0.1:28765</code> 与本机 Bridge 通信</li>
+<li><strong>LaTeXSnipper 桌面端：</strong> OLE 公式对象渲染不依赖桌面端；截图 OCR 和 OMML 公式转换需桌面端运行并开启 Office 插件功能，插件通过 <code>127.0.0.1:28765</code> 与本机 Bridge 通信</li>
 </ul>
 
 </div>
@@ -1121,42 +1121,42 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
-<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含三组按钮：</p>
+<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含四组按钮：</p>
 <div class="block">
 <ul>
 <li><strong>公式组：</strong> 行内公式、行间公式、带编号公式、截图识别</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
+<li><strong>编号组：</strong> 自动编号、重编号全部</li>
 <li><strong>工具组：</strong> 状态窗格、设置、帮助</li>
 </ul>
 
 </div>
-<h2 id="ru-omml-shi">插入 OMML 公式</h2>
-<p>Word 加载项通过本机 Bridge 将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）公式。OMML 公式是 Word 原生格式，可以像手动插入的公式一样编辑。</p>
-<div class="callout info">
-<div class="callout-title">OMML 与普通公式的区别</div>
-<div class="callout-body"><ul>
-<li>OMML 公式是 Word 原生格式，卸载加载项后公式仍然可以正常显示和编辑</li>
-<li>加载项插入的公式会附带 LaTeXSnipper 管理元数据（LaTeX 源码、显示模式、编号模式），用于后续加载、更新和重编号</li>
-<li>普通 Word 公式没有 LaTeXSnipper 元数据，插件不会猜测其 LaTeX 来源</li>
+<h2 id="rushi">插入公式</h2>
+<p>Word 加载项支持两种渲染方式：</p>
+<div class="block">
+<ul>
+<li><strong>OLE 公式对象（默认）：</strong> 将 LaTeX 交由本机 OLE 公式对象处理器（<code>LaTeXSnipper.Formula</code>）直接渲染，以 OLE 对象形式嵌入文档。数学渲染保真度高，保留原始版式和字体，不受 Word 版本或数学字体差异影响。渲染过程不依赖 Bridge</li>
+<li><strong>OMML 公式：</strong> 通过本机 Bridge 将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）。OMML 公式是 Word 原生格式，可像手动插入的公式一样在 Word 中直接编辑</li>
 </ul>
+
 </div>
-</div>
+<p>加载项插入的公式均附带 LaTeXSnipper 管理元数据（LaTeX 源码、显示模式、编号模式），用于后续加载、更新和重编号。</p>
 <h2 id="rumoshi">三种插入模式</h2>
 <div class="block">
 <ul>
-<li><strong>行内公式：</strong> 插入正文中的行内公式，跟随文字排版</li>
+<li><strong>行内公式：</strong> 插入正文中的行内公式（行内 OLE 对象），跟随文字排版</li>
 <li><strong>行间公式：</strong> 插入居中显示的独立公式</li>
-<li><strong>带编号公式：</strong> 插入自动编号的行间公式，公式与编号使用表格布局对齐</li>
+<li><strong>带编号公式：</strong> 插入带编号的行间公式。公式与编号使用 1×3 表格布局，公式居中显示，编号位于左侧或右侧，编号文本存储在富文本内容控件中</li>
 </ul>
 
 </div>
 <h2 id="gengxinhe">加载、更新和删除</h2>
-<p>选中由 LaTeXSnipper 插入的公式后：</p>
+<p>选中由 LaTeXSnipper 插入的公式（点击公式本体、编号文本或所在表格均可）后：</p>
 <div class="block">
 <ul>
-<li><strong>加载所选：</strong> 将公式的 LaTeX 源码加载到公式编辑器，可以修改后重新插入</li>
-<li><strong>更新：</strong> 在编辑器中修改后点击更新，新公式会替换原公式，保留元数据</li>
-<li><strong>删除所选：</strong> 删除公式及对应的元数据</li>
+<li><strong>加载所选：</strong> 将公式的 LaTeX 源码加载到独立数学编辑器，可以修改后重新插入。更新后的公式会替换原位置的原公式</li>
+<li><strong>更新：</strong> 在编辑器中修改后点击更新，显示为"更新"按钮，新公式会替换原公式，保留元数据和用户缩放比例</li>
+<li><strong>删除所选：</strong> 删除公式、编号控件及对应的元数据。带编号公式的整个表格块会被一并删除</li>
 </ul>
 
 </div>
@@ -1167,17 +1167,17 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </div>
 </div>
 <h2 id="zidongbianyubian">自动编号与重编号</h2>
-<p>Word 支持将未编号的 LaTeXSnipper 公式转换为自动编号公式，并按文档顺序维护自动编号：</p>
+<p>Word 支持将未编号的 LaTeXSnipper 公式转换为自动编号公式，并按文档顺序维护自动编号。编号文本存储在独立的富文本内容控件中，与公式本体分离：</p>
 <div class="block">
 <ul>
-<li><strong>自动编号：</strong> 为选中的公式添加自动编号。如果公式已有编号，不会重复添加</li>
-<li><strong>重编号全部：</strong> 按文档顺序更新所有自动编号公式的编号文本和元数据，不重新渲染公式内容</li>
+<li><strong>自动编号：</strong> 为选中的公式添加自动编号。如果公式已有编号，不会重复添加。新编号遵循设置中指定的编号位置（右侧或左侧）</li>
+<li><strong>重编号全部：</strong> 按文档顺序重新排列所有自动编号公式的编号，更新元数据。不重新渲染公式内容，仅调整编号。编号格式（阿拉伯数字/罗马数字/字母）和括号样式（圆括号/方括号/花括号/无）可在设置中自定义</li>
 <li><strong>编号位置：</strong> 设置中可选择右编号或左编号；该设置只影响新插入的编号公式和之后被自动编号的普通公式，不改变已有公式的编号属性</li>
 </ul>
 
 </div>
 <h2 id="shibie">截图识别</h2>
-<p>点击截图识别后，加载项等待桌面端完成下一次截图 OCR。在等待过程中再次点击截图识别会取消当前请求。OCR 识别结果会自动填入公式编辑器。</p>
+<p>点击"截图识别"后，加载项等待桌面端完成下一次截图 OCR。若需取消，可点击功能区"取消识别"按钮或在等待过程中再次点击"截图识别"按钮。OCR 识别结果会自动填入公式编辑器。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-ppt">PowerPoint 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -1191,11 +1191,11 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h2 id="rushi">插入公式图片</h2>
-<p>PowerPoint 加载项将 LaTeX 渲染为高 DPI PNG 图片插入当前幻灯片。图片会自动去除透明边距，元数据保存在形状标签（<code>shape.Tags</code>）中。</p>
+<p>PowerPoint 加载项通过本机 Bridge 将 LaTeX 编译渲染，以高 DPI PNG 图片的形式插入当前幻灯片。</p>
 <div class="callout info">
 <div class="callout-title">与 Word 的区别</div>
 <div class="callout-body"><ul>
-<li>PowerPoint 所有公式均以图片形式插入，不是原生 OMML</li>
+<li>PowerPoint 所有公式均以高 DPI PNG 图片形式插入，不是 OLE 对象或 OMML 公式</li>
 <li>没有行内/行间区别——PowerPoint 幻灯片上的公式始终是独立图片</li>
 <li>不支持自动编号和重编号（这些是 Word 文档专属功能）</li>
 </ul>
@@ -1219,47 +1219,65 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-editor">公式编辑器与侧边栏</h1>
 <h2 id="chuang">侧边栏（任务窗格）</h2>
-<p>侧边栏是加载项的常驻面板，通过功能区"状态窗格"按钮或自动弹出显示：</p>
+<p>侧边栏是加载项的常驻面板，通过功能区"状态窗格"按钮或自动弹出显示，包含公式编辑和状态管理功能：</p>
 <div class="block">
 <ul>
-<li><strong>MathLive 编辑器：</strong> 侧边栏顶部是可视化公式编辑器，支持所见即所得的公式编辑</li>
-<li><strong>LaTeX 源码：</strong> 编辑器下方是 LaTeX 源码输入区，编辑器和源码区双向同步</li>
-<li><strong>连接按钮：</strong> 测试与桌面端 Bridge 的连通性</li>
-<li><strong>截图识别按钮：</strong> 触发截图 OCR 等待状态</li>
-<li><strong>插入按钮：</strong> 将当前侧边栏公式直接插入文档/幻灯片</li>
+<li><strong>MathLive 编辑器：</strong> 侧边栏顶部是 MathLive 可视化公式编辑器，支持所见即所得的公式编辑，与下方的 LaTeX 源码区双向同步</li>
+<li><strong>LaTeX 源码：</strong> 编辑器下方的 LaTeX 源码输入区，可直接粘贴或输入 LaTeX 代码，与可视化编辑区实时同步</li>
+<li><strong>连接状态：</strong> 显示与桌面端 Bridge 的通信状态及公式转换状态文字</li>
+<li><strong>截图识别按钮：</strong> 触发截图 OCR 等待状态，完成后结果自动填入编辑器</li>
+<li><strong>插入/更新按钮：</strong> 根据当前操作模式显示对应按钮，将公式插入文档或替换选中公式</li>
+<li><strong>Word 专属控件：</strong> 行间/行内模式切换、自动编号、重编号按钮，仅在 Word 侧边栏显示</li>
 </ul>
 
 </div>
 <h2 id="shibianjiqi">独立公式编辑器</h2>
-<p>通过功能区"插入公式"按钮或"加载所选"打开的独立公式编辑器窗口：</p>
+<p>通过功能区"行内公式""行间公式""带编号公式"按钮或"加载所选"打开的独立公式编辑器窗口，搭载 MathLive 可视化公式引擎和完整数学符号系统。</p>
 <div class="block">
 <ul>
-<li><strong>数学编辑区：</strong> 全尺寸 MathLive 编辑器，支持键盘和符号面板输入</li>
-<li><strong>符号面板：</strong> 左侧面板提供希腊字母、结构模板、微积分、线性代数、关系符、运算符号、箭头、集合、函数、概率统计、化学、物理公式等 16 类符号库</li>
+<li><strong>数学编辑区：</strong> 全尺寸 MathLive 所见即所得编辑区，支持键盘快捷键（如 <code>+</code> <code>_</code> <code>/</code> <code>sqrt</code> 等标准 LaTeX 缩写自动识别）、光标导航和即时预览</li>
+<li><strong>LaTeX 源码区：</strong> 编辑区下方的 LaTeX 源码输入区，与可视化编辑区实时双向同步，可直接粘贴或编辑 LaTeX 代码</li>
+<li><strong>符号面板（右侧）：</strong> 内置 <strong>*18 分类、1153 个数学符号与公式模板</strong>*，覆盖从基础算术到前沿研究的全部符号体系：</li>
+</ul>
+<ul>
+<li><strong>基础（4 类 137 条）：</strong> 希腊字母（含变体和希伯来字母）、结构模板（分数/矩阵/根式等，支持自选矩阵行列数）、分隔符（含大尺寸变体和装饰框线）、集合与逻辑符号</li>
+<li><strong>代数与几何（3 类 196 条）：</strong> 线性代数（矩阵运算/特征系统）、抽象代数（群环域/同调代数/李理论）、几何（微分几何/黎曼曲率/陈类/Chern-Simons/Atiyah-Singer 指标）</li>
+<li><strong>分析（1 类 140 条）：</strong> 微积分/傅里叶分析/积分变换/偏微分方程/泛函分析/索伯列夫空间/特殊函数</li>
+<li><strong>拓扑（1 类 102 条）：</strong> 一般拓扑/同调论/同伦论/示性类/莫尔斯理论/谱序列/K 理论</li>
+<li><strong>关系与箭头（4 类 220 条）：</strong> 比较关系（含各种否定变体）/二元运算（含环论算子）/大型运算符（多重积分/求和乘积）/箭头符号</li>
+<li><strong>函数（1 类 56 条）：</strong> 三角函数/反三角函数/双曲函数/对数/极值/实虚部/误差函数/积分正弦余弦</li>
+<li><strong>概率统计（1 类 62 条）：</strong> 常见分布/随机过程/鞅/随机微积分/信息论/极限定理/不等式</li>
+<li><strong>物理（1 类 84 条）：</strong> 力学/电磁学/热力学/量子力学/相对论/标准模型/量子场论</li>
+<li><strong>化学（1 类 78 条）：</strong> 分子式/有机官能团/化学反应/物化常数/光谱学/电化学</li>
+<li><strong>其他（2 类 78 条）：</strong> 字体重音（mathbf/mathbb/mathcal/mathscr/boldsymbol 等）、杂项符号</li>
+</ul>
+<ul>
+<li><strong>标签内搜索：</strong> 每个符号面板顶部设有搜索框，支持按中文名称或 LaTeX 源码实时过滤当前标签内的符号</li>
+<li><strong>全局搜索：</strong> 标签列顶部设有全局搜索框，输入关键词后跨所有 18 个标签检索，按组归类展示结果</li>
+<li><strong>底部工具栏：</strong> 基础运算（计算/化简/数值化/求解/展开/因式分解）、多行排版布局、快捷插入片段、示例载入、复制（LaTeX / MathJSON）</li>
 <li><strong>插入 / 更新：</strong> 底部按钮根据当前模式显示"插入"或"更新"</li>
-<li><strong>取消（Esc）：</strong> 关闭编辑器，不应用更改</li>
+<li><strong>取消：</strong> 关闭编辑器，不应用更改</li>
 </ul>
 
 </div>
 <div class="callout tip">
 <div class="callout-title">编辑器快捷键</div>
 <div class="callout-body"><ul>
-<li><code>Ctrl+Enter</code>：在公式编辑器中换行</li>
+<li><code>Enter</code>：提交公式（确认插入/更新）</li>
 <li><code>Esc</code>：关闭编辑器，不应用更改</li>
 </ul>
 </div>
 </div>
 <h2 id="pingtai">平台界面差异</h2>
-<p>Word 侧边栏包含"行间公式""自动编号""重编号"等 Word 专属控件。PowerPoint 侧边栏不包含这些 Word 专属选项，界面更简洁。</p>
+<p>Word 侧边栏包含行间/行内模式切换、自动编号、重编号等 Word 专属控件。PowerPoint 侧边栏不包含这些 Word 专属选项，界面更简洁。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-settings">设置与帮助</h1>
 <h2 id="shezhichuangkou">设置窗口</h2>
 <p>通过功能区"设置"按钮打开。设置窗口的内容因宿主程序而异：</p>
 <div class="block">
 <ul>
-<li><strong>Word：</strong> 可配置带编号公式的默认布局（右编号或左编号）</li>
-<li><strong>PowerPoint：</strong> 当前无专属设置项</li>
-<li><strong>通用：</strong> 编辑器键盘行为说明（<code>Ctrl+Enter</code> 换行，<code>Esc</code> 关闭）</li>
+<li><strong>Word：</strong> 可配置带编号公式的默认布局（编号位于右侧或左侧）、编号格式（阿拉伯数字、罗马数字、字母）和括号样式（圆括号、方括号、花括号、无）；该设置影响新插入的编号公式和自动编号/重编号操作，不影响已有公式</li>
+<li><strong>通用：</strong> 编辑器键盘行为说明（<code>Enter</code> 提交，<code>Esc</code> 关闭）</li>
 </ul>
 
 </div>
@@ -1294,7 +1312,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>重新运行安装包，选择"修复"模式</li>
 </ol>
 <h2 id="heading">连接桌面端失败</h2>
-<p><strong>现象：</strong> 点击"连接"按钮后提示"无法连接到 LaTeXSnipper"。</p>
+<p><strong>现象：</strong> 使用截图识别或 OMML 公式插入时提示"无法连接到 LaTeXSnipper"（OLE 公式对象渲染不依赖 Bridge 连接）。</p>
 <p><strong>解决：</strong></p>
 <ol>
 <li>确认 LaTeXSnipper 桌面端正在运行</li>
@@ -1304,7 +1322,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </ol>
 <h2 id="shibianjiqi">公式编辑器加载失败</h2>
 <p><strong>现象：</strong> 侧边栏或独立编辑器显示空白或加载错误。</p>
-<p><strong>原因：</strong> 公式编辑器依赖 Microsoft Edge WebView2 Runtime。如果系统中未安装或版本过旧，编辑器可能无法加载。</p>
+<p><strong>原因：</strong> 公式编辑器（包括 MathLive 可视化编辑器和符号面板）依赖 Microsoft Edge WebView2 Runtime。如果系统中未安装或版本过旧，编辑器可能无法加载。</p>
 <p><strong>解决：</strong></p>
 <ol>
 <li>从 https://go.microsoft.com/fwlink/p/?LinkId=2124703 下载并安装 WebView2 Runtime</li>
