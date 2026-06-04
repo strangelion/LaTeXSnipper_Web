@@ -31,7 +31,7 @@ jobs:
               "LaTeXSnipperSetup-2.3.2.exe",
               "LaTeXSnipper_2.3.2_amd64.deb",
               "LaTeXSnipper_2.3.2_arm64.dmg",
-              "OfficePluginSetup-2.3.2_Final_Stable.exe",
+              "OfficePluginSetup-2.3.2.exe",
           ]
 
           # Fetch release assets information
@@ -202,7 +202,7 @@ jobs:
               ('LaTeXSnipperSetup-2.3.2.exe', sha_map.get('LaTeXSnipperSetup-2.3.2.exe', '')),
               ('LaTeXSnipper_2.3.2_amd64.deb', sha_map.get('LaTeXSnipper_2.3.2_amd64.deb', '')),
               ('LaTeXSnipper_2.3.2_arm64.dmg', sha_map.get('LaTeXSnipper_2.3.2_arm64.dmg', '')),
-              ('OfficePluginSetup-2.3.2_Final_Stable.exe', sha_map.get('OfficePluginSetup-2.3.2_Final_Stable.exe', '')),
+              ('OfficePluginSetup-2.3.2.exe', sha_map.get('OfficePluginSetup-2.3.2.exe', '')),
           ]
 
           def update_file(filepath):
