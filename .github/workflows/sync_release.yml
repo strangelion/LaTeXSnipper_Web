@@ -152,8 +152,8 @@ jobs:
       - name: 下载并上传变更文件到 R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CHANGED: ${{ needs.check.outputs.changed_assets }}
         run: |
-          CHANGED='${{ needs.check.outputs.changed_assets }}'
           python3 << PYEOF
           import json, os, subprocess, hashlib, sys
 
