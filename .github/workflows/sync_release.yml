@@ -35,13 +35,32 @@ jobs:
           ]
 
           # Fetch release assets information
-          url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable"
+          # Step 1: get release_id from tag endpoint
+          tag_url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable"
           result = subprocess.run(
-              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", url],
+              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", tag_url],
               capture_output=True, text=True
           )
           release = json.loads(result.stdout)
-          api_assets = {a["name"]: a["updated_at"] for a in release.get("assets", []) if a.get("name") in ASSETS}
+          release_id = release.get("id")
+          if not release_id:
+              print("ERROR: could not get release_id from tag endpoint")
+              print(json.dumps(release, indent=2)[:500])
+              raise SystemExit(1)
+
+          # Step 2: fetch all assets via the dedicated endpoint (supports pagination)
+          assets_url = f"https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/{release_id}/assets?per_page=100"
+          result = subprocess.run(
+              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", assets_url],
+              capture_output=True, text=True
+          )
+          all_assets = json.loads(result.stdout)
+          # Validate we got a list (not a dict with error message)
+          if isinstance(all_assets, dict):
+              print("WARNING: assets endpoint returned an object instead of list:", json.dumps(all_assets)[:200])
+              all_assets = release.get("assets", [])
+          api_assets = {a["name"]: a["updated_at"] for a in all_assets if a.get("name") in ASSETS}
+          print("Fetched all_assets count:", len(all_assets) if isinstance(all_assets, list) else "N/A")
           print("API asset timestamps:", json.dumps(api_assets, indent=2))
 
           # Read stored state (single file, merged with manual state)
