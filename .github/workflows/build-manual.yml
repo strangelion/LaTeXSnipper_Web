@@ -2,12 +2,67 @@ name: Build User Manual
 
 on:
   workflow_dispatch:
+    inputs:
+      force:
+        description: '强制重新构建（跳过 SHA 检查）'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      needs_update: ${{ steps.check.outputs.needs_update }}
+      upstream_sha: ${{ steps.check.outputs.upstream_sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查上游用户手册是否更新
+        id: check
+        run: |
+          FORCE_BUILD="${{ github.event.inputs.force == 'true' && 'true' || 'false' }}"
+
+          if [ "$FORCE_BUILD" = "true" ]; then
+            echo "Force build requested, skipping SHA check"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "upstream_sha=force" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
+            | jq -r '.sha')
+          echo "Upstream SHA: $UPSTREAM_SHA"
+
+          if [ -z "$UPSTREAM_SHA" ] || [ "$UPSTREAM_SHA" = "null" ]; then
+            echo "Failed to get upstream SHA, forcing rebuild"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "upstream_sha=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          LAST_SHA=""
+          if [ -f .release_state.json ]; then
+            LAST_SHA=$(jq -r '.last_manual_sha // empty' .release_state.json)
+          fi
+
+          if [ "$UPSTREAM_SHA" != "$LAST_SHA" ]; then
+            echo "Manual updated: $LAST_SHA -> $UPSTREAM_SHA"
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
+          else
+            echo "Manual unchanged, skipping build"
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "upstream_sha=$UPSTREAM_SHA" >> $GITHUB_OUTPUT
+          fi
+
   build:
+    needs: check
+    if: needs.check.outputs.needs_update == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -46,14 +101,32 @@ jobs:
           "
           ls -lh LaTeXSnipper_User_Manual.pdf
 
-      - name: Upload PDF to R2
+      - name: Upload PDF to R2（仅在 PDF 变化时上传）
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          npm install wrangler@3 --no-save -q
-          npx wrangler r2 object delete "release/LaTeXSnipper_Manual.pdf" || true
-          npx wrangler r2 object put "release/LaTeXSnipper_Manual.pdf" --file LaTeXSnipper_User_Manual.pdf
-          echo "PDF uploaded to R2: release/LaTeXSnipper_Manual.pdf"
+          # Get SHA256 of the newly built PDF
+          NEW_SHA=$(sha256sum LaTeXSnipper_User_Manual.pdf | cut -d' ' -f1)
+          echo "New PDF SHA256: $NEW_SHA"
+
+          # Temporarily download current R2 PDF to compare
+          PREV_SHA=""
+          if curl -sL -o /tmp/current_manual.pdf "https://pub-2a75e33f8a504a1ebc1a2aea66092490.r2.dev/release/LaTeXSnipper_Manual.pdf" 2>/dev/null && [ -s /tmp/current_manual.pdf ]; then
+            PREV_SHA=$(sha256sum /tmp/current_manual.pdf | cut -d' ' -f1)
+            echo "Current R2 PDF SHA256: $PREV_SHA"
+          else
+            echo "No existing PDF on R2 or failed to fetch"
+          fi
+
+          if [ "$NEW_SHA" = "$PREV_SHA" ]; then
+            echo "PDF unchanged, skipping R2 upload"
+          else
+            echo "PDF changed, uploading to R2..."
+            npm install wrangler@3 --no-save -q
+            npx wrangler r2 object delete "release/LaTeXSnipper_Manual.pdf" || true
+            npx wrangler r2 object put "release/LaTeXSnipper_Manual.pdf" --file LaTeXSnipper_User_Manual.pdf
+            echo "PDF uploaded to R2: release/LaTeXSnipper_Manual.pdf"
+          fi
 
       - name: Copy to dist
         run: |
@@ -63,11 +136,18 @@ jobs:
           cp LaTeXSnipper_User_Manual.pdf dist/LaTeXSnipper_Manual.pdf
           cp assets/images/*.png dist/assets/images/ 2>/dev/null || true
 
-      - name: Commit changes
+      - name: 更新状态文件并提交变更
         run: |
+          # 更新 last_manual_sha
+          UPSTREAM_SHA="${{ needs.check.outputs.upstream_sha }}"
+          if [ -n "$UPSTREAM_SHA" ] && [ "$UPSTREAM_SHA" != "force" ]; then
+            jq --arg sha "$UPSTREAM_SHA" '.last_manual_sha = $sha' .release_state.json > .release_state.tmp && mv .release_state.tmp .release_state.json
+            echo "Updated last_manual_sha to $UPSTREAM_SHA"
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add user_manual.typ user_manual.html dist/user_manual.html release/LaTeXSnipper_Manual.pdf dist/LaTeXSnipper_Manual.pdf assets/images/*.png dist/assets/images/*.png
+          git add user_manual.typ user_manual.html dist/user_manual.html release/LaTeXSnipper_Manual.pdf dist/LaTeXSnipper_Manual.pdf assets/images/*.png dist/assets/images/*.png .release_state.json
           if git diff --staged --quiet; then
             echo "No changes."
           else

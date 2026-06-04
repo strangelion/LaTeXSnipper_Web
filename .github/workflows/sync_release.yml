@@ -111,7 +111,7 @@ jobs:
           print(f"changed_assets={json.dumps(changed)}")
           PYEOF
 
-      - name: 检查上游用户手册是否更新（写入同一个状态文件）
+      - name: 检查上游用户手册是否更新（仅检测，不写入；由 build-manual 构建成功后写入）
         id: check_manual
         if: github.event_name == 'schedule'
         run: |
@@ -126,7 +126,6 @@ jobs:
               if [ "$UPSTREAM_SHA" != "$LAST_SHA" ] && [ "$UPSTREAM_SHA" != "null" ] && [ -n "$UPSTREAM_SHA" ]; then
                   MANUAL_UPDATED=true
                   echo "Manual updated: $LAST_SHA -> $UPSTREAM_SHA"
-                  jq --arg sha "$UPSTREAM_SHA" '.last_manual_sha = $sha' .release_state.json > .release_state.tmp && mv .release_state.tmp .release_state.json
               else
                   echo "Manual unchanged"
               fi
