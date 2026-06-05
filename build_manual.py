@@ -202,7 +202,7 @@ def tokenise(text):
         # text (non-whitespace, non-newline)
         if not ch.isspace():
             j = i
-            special = set('#"(){}[]\\=')
+            special = set('#"(){}[]\\=,')
             while j < n:
                 c = text[j]
                 if c in special or c in '-+' or c == '\n' or (c == '/' and j+1 < n and text[j+1] == '/'):
@@ -671,6 +671,54 @@ def parse_typ(source):
                 out.append(f'<div class="{cls}">\n{process_body_text(body)}\n</div>\n')
             continue
 
+        # #table(...) — convert Typst table to HTML table
+        if tt == 'HASH' and tv == '#table':
+            consume()
+            if peek()[0] == 'PAREN' and peek()[1] == '(':
+                consume()  # skip '('
+                # Collect all bracket bodies inside the parens
+                cells_raw = []
+                while pos[0] < n:
+                    tt2, tv2 = peek()
+                    if tt2 == 'BRACK' and tv2 == '[':
+                        cells_raw.append(read_bracket_body())
+                    elif tt2 == 'PAREN' and tv2 == '(':
+                        consume()
+                        rd = 1
+                        while pos[0] < n and rd > 0:
+                            t3, v3 = consume()
+                            if t3 == 'PAREN' and v3 == '(':
+                                rd += 1
+                            elif t3 == 'PAREN' and v3 == ')':
+                                rd -= 1
+                    elif tt2 == 'PAREN' and tv2 == ')':
+                        consume()
+                        break
+                    else:
+                        consume()
+                if cells_raw:
+                    COLS = 3
+                    rows = [cells_raw[i:i+COLS] for i in range(0, len(cells_raw), COLS)]
+                    out.append('<table class="typst-table">\n')
+                    if rows:
+                        header = rows[0]
+                        out.append('<thead>\n<tr>\n')
+                        for cell in header:
+                            is_h = cell.startswith('*') and cell.endswith('*')
+                            if is_h: cell = cell[1:-1]
+                            out.append(f'<th>{inline(esc(cell))}</th>\n')
+                        out.append('</tr>\n</thead>\n')
+                        if len(rows) > 1:
+                            out.append('<tbody>\n')
+                            for row in rows[1:]:
+                                out.append('<tr>\n')
+                                for cell in row:
+                                    out.append(f'<td>{inline(esc(cell))}</td>\n')
+                                out.append('</tr>\n')
+                            out.append('</tbody>\n')
+                    out.append('</table>\n')
+            continue
+
         # #set text(...) / #set par(...) — skip
         if tt == 'HASH' and tv.startswith('#set '):
             consume()
@@ -903,7 +951,7 @@ def parse_typ(source):
 def enhance_volumes(html_content):
     """将卷标题增强为醒目分割条，但跳过目录块内的标题。"""
     vol_pattern = re.compile(
-        r'(<p><strong>(第[一二两三]卷\s*[··]?\s*.+?)</strong></p>)',
+        r'(<p><strong>(第[一二两三四]卷\s*[··]?\s*.+?)</strong></p>)',
         re.DOTALL
     )
 
@@ -956,24 +1004,35 @@ def build_toc(content):
         if raw_text and not any(hid == h[1] for h in toc):
             toc.append((level, hid, text))
 
-    # 通过 volume-divider 定位分卷
-    vp = re.compile(r'<span class="volume-label">([^<]+)</span>')
-    vdivs = list(vp.finditer(content))
+    # 从正文 volume-divider 元素定位分卷在 toc_items 中的起止索引
+    # 卷的标题只出现在 enhance_volumes 生成的 <span class="volume-label"> 中
+    # 检查以下锚点 ID 在正文中出现的位置，确定每卷的 toc 起止
+    anchors = ['sec-quick', 'sec-office-intro', 'sec-mobile-intro', 'sec-mathcraft-intro', '']
+    volume_titles = ['第一卷 · LaTeXSnipper 用户指南', '第二卷 · Office 加载项指南',
+                     '第三卷 · 移动端使用指南', '第四卷 · MathCraft 内部模型介绍']
+    anchor_positions = []
+    for a in anchors:
+        if not a:
+            anchor_positions.append(len(content))
+            continue
+        pp = content.find(f'id="{a}"')
+        if pp < 0:
+            pp = content.find(f'href="#{a}"')
+        anchor_positions.append(pp)
+    # 为每个 volume 找出在 toc 中的起始索引
     vol_divisions = []
-    for idx, (lvl, hid, txt) in enumerate(toc):
-        pos = content.find(f'id="{hid}"')
-        if pos < 0:
-            pos = content.find(f'href="#{hid}"')
-        vol = 0
-        for vi, vd in enumerate(vdivs):
-            if pos > vd.start():
-                vol = vi + 1
-        if not vol_divisions or vol_divisions[-1]['vol'] != vol:
-            vol_divisions.append({
-                'vol': vol,
-                'start': idx,
-                'title': vdivs[vol-1].group(1) if vol > 0 else ''
-            })
+    for vi in range(len(volume_titles)):
+        start_anchor = anchor_positions[vi]
+        for idx, (lvl, hid, txt) in enumerate(toc):
+            hpos = content.find(f'id="{hid}"')
+            if hpos >= 0 and hpos >= start_anchor:
+                if not vol_divisions or vol_divisions[-1]['start'] != idx:
+                    vol_divisions.append({
+                        'vol': vi + 1,
+                        'start': idx,
+                        'title': volume_titles[vi],
+                    })
+                break
     return toc, vol_divisions
 
 
