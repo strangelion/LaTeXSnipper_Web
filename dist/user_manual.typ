@@ -106,7 +106,7 @@
 
 // ── 封面图 ──
 #align(center)[
-  #image("assets/images/LaTeXSnipper.png", width: 100%)
+  #image("LaTeXSnipper.png", width: 100%)
   #v(1em)
 ]
 
@@ -138,7 +138,29 @@
   - #link(<sec-bugreport>)[如何有效反馈 Bug]
 
   #v(0.5em)
-  #text(size: 10pt, weight: "bold")[第二卷 · MathCraft 内部模型介绍]
+  #text(size: 10pt, weight: "bold")[第二卷 · Office 加载项指南]
+  #v(0.3em)
+  - #link(<sec-office-intro>)[加载项介绍与系统要求]
+  - #link(<sec-office-install>)[安装与注册]
+  - #link(<sec-office-word>)[Word 功能详解]
+  - #link(<sec-office-ppt>)[PowerPoint 功能详解]
+  - #link(<sec-office-editor>)[公式编辑器与侧边栏]
+  - #link(<sec-office-settings>)[设置与帮助]
+  - #link(<sec-office-trouble>)[常见问题排查]
+
+  #v(0.5em)
+  #text(size: 10pt, weight: "bold")[第三卷 · 移动端使用指南]
+  #v(0.3em)
+  - #link(<sec-mobile-intro>)[LaTeXSnipper Mobile 介绍]
+  - #link(<sec-mobile-features>)[功能与页面结构]
+  - #link(<sec-mobile-diff>)[与桌面版的差异]
+  - #link(<sec-mobile-ocr>)[OCR 识别与输入方式]
+  - #link(<sec-mobile-editor>)[公式编辑器与键盘策略]
+  - #link(<sec-mobile-export>)[导出与分享]
+  - #link(<sec-mobile-issues>)[移动端常见问题]
+
+  #v(0.5em)
+  #text(size: 10pt, weight: "bold")[第四卷 · MathCraft 内部模型介绍]
   #v(0.3em)
   - #link(<sec-mathcraft-intro>)[MathCraft OCR 项目介绍]
   - #link(<sec-envvar>)[环境变量设置指南]
@@ -1176,10 +1198,961 @@ py -3.11 -m venv tools\deps\python311
 #pagebreak()
 
 // ═══════════════════════════════════════════
-// 第二卷：MathCraft 内部模型介绍
+// 第二卷：Office 加载项指南
 // ═══════════════════════════════════════════
 #align(center)[
-  #text(size: 14pt, weight: "bold")[第二卷 · MathCraft 内部模型介绍]
+  #text(size: 14pt, weight: "bold")[第二卷 · Office 加载项指南]
+  #v(0.25em)
+  #line(length: 60%, stroke: 0.4pt + rgb("#CCCCCC"))
+  #v(0.6em)
+]
+
+// ═══════════════════════════════════════════
+// 加载项介绍与系统要求
+// ═══════════════════════════════════════════
+#heading(level: 1)[加载项介绍与系统要求] <sec-office-intro>
+
+== 什么是 Office 加载项
+
+LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象渲染由本机 OLE 服务器独立完成，截图 OCR 和 OMML 转换通过 Bridge 与 LaTeXSnipper 桌面端通信。
+
+#info-block("与桌面端的关系", [
+  OLE 公式对象渲染（默认方式）由本机 OLE 服务器独立完成，不依赖桌面端。截图 OCR 和传统 OMML 转换需要通过 Bridge 与本机运行的 LaTeXSnipper 桌面端通信。
+  使用截图识别或 OMML 公式插入前，请确保桌面端已启动并开启了 Office 插件功能。
+])
+
+== 系统要求
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *Windows 版本：* Windows 10 22H2 或更高版本 / Windows 11
+  - *Office 版本：* Microsoft 365 应用（当前通道或月度企业通道）、Office 2024 / 2021 / 2019 零售版或批量许可版、Office LTSC 2024 / 2021
+  - *运行时：* .NET Framework 4.8；Microsoft Edge WebView2 Runtime（Windows 11 已内置；M365 会自动安装）
+  - *Office 体系：* 仅支持 32 位和 64 位桌面版 Office；不支持网页版、移动版和 macOS 版 Office
+  - *LaTeXSnipper 桌面端：* OLE 公式对象渲染不依赖桌面端；截图 OCR 和 OMML 公式转换需桌面端运行并开启 Office 插件功能，插件通过 `127.0.0.1:28765` 与本机 Bridge 通信
+]
+
+== 安装前检查
+
+#warn-block("首次安装必读", [
+  - 安装前请关闭所有正在运行的 Word 和 PowerPoint 窗口。Office 进程会锁定加载项 DLL，安装程序无法覆盖。
+  - 如果此前安装过开发版（通过脚本手动注册），请先使用注册脚本的反注册功能清理，或运行安装包执行升级安装。
+  - 安装程序需要管理员权限，用于写入 HKLM 注册表和受信任的发布者证书存储。
+])
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 安装与注册
+// ═══════════════════════════════════════════
+#heading(level: 1)[安装与注册] <sec-office-install>
+
+== 安装流程
+
+安装程序会自动完成以下步骤：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  + 将 Word 和 PowerPoint 加载项文件复制到安装目录
+  + 将代码签名证书安装到受信任的发布者存储
+  + 写入 HKLM 注册表键值（同时覆盖 32 位和 64 位 Office 路径）
+  + 调用 VSTO 安装程序静默注册加载项
+  + 清理 Office 禁用项和崩溃记录
+]
+
+== 自定义安装路径
+
+安装程序支持自定义安装路径，VSTO 注册和文件引用会自动适配所选路径。不建议将加载项安装到受保护的临时目录或网络路径。
+
+== 卸载
+
+通过 Windows"设置 → 应用 → 已安装的应用"卸载，或运行安装目录下的 `unins000.exe`。卸载程序会自动：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  + 删除所有安装文件
+  + 移除 HKLM 注册表键值
+  + 调用 VSTO 安装程序反注册加载项
+  + 清理 Office 禁用项和崩溃记录
+]
+
+== 命令行静默安装
+
+安装包支持 Inno Setup 标准静默参数：
+
+```text
+# 静默安装（显示进度条）
+OfficePluginSetup-2.3.2.exe /silent
+
+# 完全静默（无界面）
+OfficePluginSetup-2.3.2.exe /verysilent
+
+# 自定义安装目录
+OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"
+```
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// Word 功能详解
+// ═══════════════════════════════════════════
+#heading(level: 1)[Word 功能详解] <sec-office-word>
+
+== 功能区概览
+
+安装后，Word 功能区的最后位置会出现 #text(weight: "bold")[LaTeXSnipper] 标签页，包含四组按钮：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *公式组：* 行内公式、行间公式、带编号公式、截图识别
+  - *编辑组：* 加载所选、删除所选
+  - *编号组：* 自动编号、重编号全部
+  - *工具组：* 状态窗格、设置、帮助
+]
+
+== 插入公式
+
+Word 加载项支持两种渲染方式：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *OLE 公式对象（默认）：* 将 LaTeX 交由本机 OLE 公式对象处理器（`LaTeXSnipper.Formula`）直接渲染，以 OLE 对象形式嵌入文档。数学渲染保真度高，保留原始版式和字体，不受 Word 版本或数学字体差异影响。渲染过程不依赖 Bridge
+  - *OMML 公式：* 通过本机 Bridge 将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）。OMML 公式是 Word 原生格式，可像手动插入的公式一样在 Word 中直接编辑
+]
+
+加载项插入的公式均附带 LaTeXSnipper 管理元数据（LaTeX 源码、显示模式、编号模式），用于后续加载、更新和重编号。
+
+== 三种插入模式
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *行内公式：* 插入正文中的行内公式（行内 OLE 对象），跟随文字排版
+  - *行间公式：* 插入居中显示的独立公式
+  - *带编号公式：* 插入带编号的行间公式。公式与编号使用 1×3 表格布局，公式居中显示，编号位于左侧或右侧，编号文本存储在富文本内容控件中
+]
+
+== 加载、更新和删除
+
+选中由 LaTeXSnipper 插入的公式（点击公式本体、编号文本或所在表格均可）后：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - #text(weight: "bold")[加载所选：] 将公式的 LaTeX 源码加载到独立数学编辑器，可以修改后重新插入。更新后的公式会替换原位置的原公式
+  - #text(weight: "bold")[更新：] 在编辑器中修改后点击更新，显示为"更新"按钮，新公式会替换原公式，保留元数据和用户缩放比例
+  - #text(weight: "bold")[删除所选：] 删除公式、编号控件及对应的元数据。带编号公式的整个表格块会被一并删除
+]
+
+#warn-block("重要", [
+  只有由 LaTeXSnipper 插入并保留元数据的公式才能被插件管理。
+  复制粘贴后元数据丢失的公式无法继续维护。
+])
+
+== 自动编号与重编号
+
+Word 支持将未编号的 LaTeXSnipper 公式转换为自动编号公式，并按文档顺序维护自动编号。编号文本存储在独立的富文本内容控件中，与公式本体分离：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *自动编号：* 为选中的公式添加自动编号。如果公式已有编号，不会重复添加。新编号遵循设置中指定的编号位置（右侧或左侧）
+  - *重编号全部：* 按文档顺序重新排列所有自动编号公式的编号，更新元数据。不重新渲染公式内容，仅调整编号。编号格式（阿拉伯数字/罗马数字/字母）和括号样式（圆括号/方括号/花括号/无）可在设置中自定义
+  - *编号位置：* 设置中可选择右编号或左编号；该设置只影响新插入的编号公式和之后被自动编号的普通公式，不改变已有公式的编号属性
+]
+
+== 截图识别
+
+点击"截图识别"后，加载项等待桌面端完成下一次截图 OCR。若需取消，可点击功能区"取消识别"按钮或在等待过程中再次点击"截图识别"按钮。OCR 识别结果会自动填入公式编辑器。
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// PowerPoint 功能详解
+// ═══════════════════════════════════════════
+#heading(level: 1)[PowerPoint 功能详解] <sec-office-ppt>
+
+== 功能区概览
+
+PowerPoint 的 LaTeXSnipper 标签页结构与 Word 类似，但功能更精简：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *公式组：* 插入公式、截图识别
+  - *编辑组：* 加载所选、删除所选
+  - *工具组：* 状态窗格、设置、帮助
+]
+
+== 插入公式图片
+
+PowerPoint 加载项通过本机 Bridge 将 LaTeX 编译渲染，以高 DPI PNG 图片的形式插入当前幻灯片。
+
+#info-block("与 Word 的区别", [
+  - PowerPoint 所有公式均以高 DPI PNG 图片形式插入，不是 OLE 对象或 OMML 公式
+  - 没有行内/行间区别——PowerPoint 幻灯片上的公式始终是独立图片
+  - 不支持自动编号和重编号（这些是 Word 文档专属功能）
+])
+
+== 加载与删除
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *加载所选：* 选中幻灯片上的公式图片，点击加载所选，公式的 LaTeX 源码会载入独立公式编辑器。修改后重新插入时，新图片会替换原位置旧图片
+  - *删除所选：* 删除选中的公式图片及元数据
+]
+
+#tip-block("提示", [
+  如果你在幻灯片上找不到公式图片，可以检查形状的替代文本（Alt Text）。所有 LaTeXSnipper 公式图片的替代文本均以 "LaTeXSnipper formula" 开头。
+])
+
+== 截图识别
+
+与 Word 相同的截图 OCR 流程。识别结果会自动填入公式编辑器，可直接插入或修改后插入。
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 公式编辑器与侧边栏
+// ═══════════════════════════════════════════
+#heading(level: 1)[公式编辑器与侧边栏] <sec-office-editor>
+
+== 侧边栏（任务窗格）
+
+侧边栏是加载项的常驻面板，通过功能区"状态窗格"按钮或自动弹出显示，包含公式编辑和状态管理功能：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *MathLive 编辑器：* 侧边栏顶部是 MathLive 可视化公式编辑器，支持所见即所得的公式编辑，与下方的 LaTeX 源码区双向同步
+  - *LaTeX 源码：* 编辑器下方的 LaTeX 源码输入区，可直接粘贴或输入 LaTeX 代码，与可视化编辑区实时同步
+  - *连接状态：* 显示与桌面端 Bridge 的通信状态及公式转换状态文字
+  - *截图识别按钮：* 触发截图 OCR 等待状态，完成后结果自动填入编辑器
+  - *插入/更新按钮：* 根据当前操作模式显示对应按钮，将公式插入文档或替换选中公式
+  - *Word 专属控件：* 行间/行内模式切换、自动编号、重编号按钮，仅在 Word 侧边栏显示
+]
+
+== 独立公式编辑器
+
+通过功能区"行内公式""行间公式""带编号公式"按钮或"加载所选"打开的独立公式编辑器窗口，搭载 MathLive 可视化公式引擎和完整数学符号系统。
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *数学编辑区：* 全尺寸 MathLive 所见即所得编辑区，支持键盘快捷键（如 `+` `_` `/` `sqrt` 等标准 LaTeX 缩写自动识别）、光标导航和即时预览
+  - *LaTeX 源码区：* 编辑区下方的 LaTeX 源码输入区，与可视化编辑区实时双向同步，可直接粘贴或编辑 LaTeX 代码
+  - *符号面板（右侧）：* 内置 **18 分类、1705 个数学符号与公式模板**，覆盖从基础算术到前沿研究的全部符号体系：
+    #set par(spacing: 0.3em)
+    + *基础（4 类 141 条）：* 希腊字母（含变体和希伯来字母）、结构模板（分数/矩阵/根式等，支持自选矩阵行列数）、分隔符（含大尺寸变体和装饰框线）、集合与逻辑符号
+    + *代数（1 类 186 条）：* 线性代数（矩阵运算/特征系统）/抽象代数（群环域/同调代数/李理论/代数几何）/算子代数（C\* 代数/von Neumann/K-理论）
+    + *几何（1 类 145 条）：* 微分几何/黎曼曲率/陈类/Chern-Simons/Atiyah-Singer 指标/辛几何
+    + *数论（1 类 58 条）：* 同余/二次互反律/模形式/L 函数/丢番图方程
+    + *分析（1 类 224 条）：* 微积分/实复分析/傅里叶分析/PDE/泛函分析/不等式/估计理论
+    + *拓扑（1 类 180 条）：* 一般拓扑/同调论/同伦论/示性类/莫尔斯理论/谱序列/K 理论
+    + *关系与箭头（4 类 262 条）：* 比较关系（含各种否定变体）/二元运算（含环论算子）/大型运算符/箭头符号
+    + *函数（1 类 138 条）：* 三角函数/反三角函数/双曲函数/对数/极值/实虚部/误差函数/积分正弦余弦/数论函数
+    + *概率统计（1 类 62 条）：* 常见分布/随机过程/鞅/信息论/极限定理/不等式
+    + *物理（1 类 165 条）：* 力学/电磁学/热力学/量子力学/相对论/标准模型/经典/弦论
+    + *化学（1 类 88 条）：* 分子式/有机官能团/化学反应/物化常数/光谱学/电化学
+    + *其他（1 类 56 条）：* 杂项符号
+  - *标签内搜索：* 每个符号面板顶部设有搜索框，支持按中文名称或 LaTeX 源码实时过滤当前标签内的符号
+  - *全局搜索：* 标签列顶部设有全局搜索框，输入关键词后跨所有 18 个标签检索，按组归类展示结果
+  - *底部工具栏：* 基础运算（计算/化简/数值化/求解/展开/因式分解）、多行排版布局、快捷插入片段、示例载入、复制（LaTeX / MathJSON）
+  - *插入 / 更新：* 底部按钮根据当前模式显示"插入"或"更新"
+  - *取消：* 关闭编辑器，不应用更改
+]
+
+#tip-block("编辑器快捷键", [
+  - `Enter`：提交公式（确认插入/更新）
+  - `Esc`：关闭编辑器，不应用更改
+])
+
+== 平台界面差异
+
+Word 侧边栏包含行间/行内模式切换、自动编号、重编号等 Word 专属控件。PowerPoint 侧边栏不包含这些 Word 专属选项，界面更简洁。
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 设置与帮助
+// ═══════════════════════════════════════════
+#heading(level: 1)[设置与帮助] <sec-office-settings>
+
+== 设置窗口
+
+通过功能区"设置"按钮打开。设置窗口的内容因宿主程序而异：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - *Word：* 可配置带编号公式的默认布局（编号位于右侧或左侧）、编号格式（阿拉伯数字、罗马数字、字母）和括号样式（圆括号、方括号、花括号、无）；该设置影响新插入的编号公式和自动编号/重编号操作，不影响已有公式
+  - *通用：* 编辑器键盘行为说明（`Enter` 提交，`Esc` 关闭）
+]
+
+== 帮助窗口
+
+通过功能区"帮助"按钮打开，根据当前宿主（Word 或 PowerPoint）显示对应内容：
+
+#block(
+  inset: 12pt,
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+
+  - 系统要求详情
+  - Word / PowerPoint 功能列表
+  - 功能区按钮说明
+  - 插件架构介绍
+  - 使用边界说明
+]
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 常见问题排查
+// ═══════════════════════════════════════════
+#heading(level: 1)[常见问题排查] <sec-office-trouble>
+
+== 加载项未出现在功能区
+
+*现象：* 安装后打开 Word 或 PowerPoint，功能区没有 LaTeXSnipper 标签页。
+
+#v(0.35em)
+
+*排查步骤：*
+
++ 打开 Word / PowerPoint → 文件 → 选项 → 加载项
++ 在"管理"下拉列表中选择"COM 加载项"，点击"转到"
++ 检查列表中是否有 #text(weight: "bold")[LaTeXSnipper]
++ 如果存在但未勾选，勾选后确定
++ 如果存在但被禁用，在"禁用的应用程序加载项"中重新启用
+
+如果列表中完全没有 LaTeXSnipper：
+
++ 确认安装程序以管理员权限运行
++ 检查杀毒软件是否拦截了安装
++ 重新运行安装包，选择"修复"模式
+
+== 连接桌面端失败
+
+*现象：* 使用截图识别或 OMML 公式插入时提示"无法连接到 LaTeXSnipper"（OLE 公式对象渲染不依赖 Bridge 连接）。
+
+#v(0.35em)
+
+*解决：*
+
++ 确认 LaTeXSnipper 桌面端正在运行
++ 在桌面端设置中确认"Office 插件功能"已开启
++ 检查防火墙是否拦截了 `127.0.0.1:28765` 端口
++ 如果桌面端改变了 Bridge 端口，设置环境变量 `LATEXSNIPPER_OFFICE_BRIDGE_URL` 指向正确地址
+
+== 公式编辑器加载失败
+
+*现象：* 侧边栏或独立编辑器显示空白或加载错误。
+
+#v(0.35em)
+
+*原因：* 公式编辑器（包括 MathLive 可视化编辑器和符号面板）依赖 Microsoft Edge WebView2 Runtime。如果系统中未安装或版本过旧，编辑器可能无法加载。
+
+#v(0.35em)
+
+*解决：*
+
++ 从 https://go.microsoft.com/fwlink/p/?LinkId=2124703 下载并安装 WebView2 Runtime
++ Windows 11 和 Microsoft 365 通常已内置 WebView2
+
+== 截图 OCR 提示"正忙"
+
+*现象：* 点击截图识别后很快提示错误"截图识别正忙，请稍后再试"。
+
+#v(0.35em)
+
+*原因：* 桌面端上一次 OCR 请求尚未完成或未正确取消。加载项会自动取消旧请求并重试一次。如果重试仍然失败，可能桌面端正在处理其他任务。
+
+#v(0.35em)
+
+*解决：* 稍等片刻后重试。如果持续出现，关闭并重新打开桌面端的 Office 插件功能。
+
+== 加载项被 Office 禁用
+
+*现象：* 加载项之前正常使用，某次打开 Office 后消失了。
+
+#v(0.35em)
+
+*原因：* Office 检测到加载项启动耗时过长或崩溃，将其自动禁用。
+
+#v(0.35em)
+
+*解决：*
+
++ 文件 → 选项 → 加载项 → 管理"禁用的应用程序加载项" → 转到
++ 找到 LaTeXSnipper，重新启用
++ 如果频繁被禁用，查看 Office 加载项 Resiliency 注册表（`HKCU\Software\Microsoft\Office\{App}\Resiliency`）并清理对应条目
+
+== 安装后出现两个无图标程序条目
+
+*现象：* Windows"设置 → 应用 → 已安装的应用"中出现 `LaTeXSnipper.OfficePlugin.WordVstoAddIn` 和 `LaTeXSnipper.OfficePlugin.PowerPointVstoAddIn` 无图标条目。
+
+#v(0.35em)
+
+*说明：* 这些是 VSTO ClickOnce 部署的注册痕迹，属于正常现象。加载项安装程序已将其标记为系统组件，通常不会在用户界面上显示。如果仍然可见，不影响加载项的正常使用。
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 第三卷：移动端使用指南
+// ═══════════════════════════════════════════
+#align(center)[
+  #text(size: 14pt, weight: "bold")[第三卷 · 移动端使用指南]
+  #v(0.25em)
+  #line(length: 60%, stroke: 0.4pt + rgb("#CCCCCC"))
+  #v(0.6em)
+]
+
+// ═══════════════════════════════════════════
+// 第三卷 -> 移动端介绍
+// ═══════════════════════════════════════════
+#heading(level: 1)[LaTeXSnipper Mobile 介绍] <sec-mobile-intro>
+
+LaTeXSnipper Mobile 是面向 Android 和 iOS 的移动端公式 OCR 识别应用，基于 Capacitor + Vite 构建，前端为纯 Web 技术栈（HTML/CSS/JS），后端使用 Java ONNX Runtime 进行本地离线推理。
+
+== 项目地址与版本
+
+- GitHub：https://github.com/strangelion/LaTeXSnipper_mobile
+- 当前版本：#text(weight: "bold")[v1.2.1]
+- 构建方式：Vite 5 + Capacitor 8（Android/iOS）
+- 许可证：Apache License 2.0
+
+== 与桌面版的关系
+
+#info-block("全平台生态", [
+  LaTeXSnipper Mobile 是独立的应用，不依赖桌面版 LaTeXSnipper。
+  两者共享相同的 MathCraft OCR 模型体系，但移动版使用 Java ONNX Runtime（而非 Python），所有推理在手机本地完成。
+  桌面版的 Office 插件、Pandoc 导出高级功能、数学工作台等不在移动版中提供。
+])
+
+== 系统要求
+
+- Android 10+（推荐 Android 12+）
+- 存储空间：安装包约 120MB，解压后约 350MB（含全部 ONNX 模型）
+- RAM：推荐 6GB 以上（低端设备可能出现模型加载缓慢或 OOM）
+- 可选：网络连接（仅用于自动更新检查、AI 整理和 Pandoc WASM 首次加载）
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 功能与页面结构
+// ═══════════════════════════════════════════
+#heading(level: 1)[功能与页面结构] <sec-mobile-features>
+
+移动端采用单页面 SPA 架构，底部导航栏包含 4 个主页面：
+
+== 识别页面（OCR）
+
+移动端的核心功能页面，顶部有三个识别模式标签：
+
+- #text(weight: "bold")[公式模式：] 仅检测和识别数学公式，输出 LaTeX 代码
+- #text(weight: "bold")[混合模式：] 同时识别文本和公式，输出 Markdown + LaTeX 混合文档
+- #text(weight: "bold")[文字模式：] 纯文本 OCR，不检测公式
+
+识别图片的来源有 5 种方式：
+
++ *拍照识别：* 打开系统相机拍摄，支持矩形框选和套索裁剪，支持闪光灯、四角把手拖拽透视矫正、旋转滑块
++ *图片选择：* 从系统相册选取图片，自动识别
++ *PDF 识别：* 选择 PDF 文件，使用 pdfjs 逐页渲染为图片后识别
++ *手写识别：* 打开独立 Canvas 手写画板（支持压感、墨迹平滑、笔/橡皮擦、撤销/重做）
++ *文件拖放：* 将图片或 PDF 文件拖入识别区域
+
+== 编辑器页面
+
+MathLive 所见即所得公式编辑器，支持中文界面和本地化：
+
+- *MathLive 编辑区：* 所见即所得数学公式编辑，开启 `smartMode` 自动识别数学/文本模式，`smartFence` 自动闭合括号
+- *LaTeX 源码区：* 编辑器下方显示当前公式的 LaTeX 源码，与编辑区双向同步
+- *快速符号工具栏：* 希腊字母（α β π θ ω）、运算符（√ ∫ ∑ ∏）、关系符（≤ ≥ → ⇒ ∞）
+- *计算工具栏：* 求值、退格、常用 LaTeX 片段插入
+- *三态键盘切换：* 详见"公式编辑器与键盘策略"章节
+- *KaTeX 实时预览：* 编辑器内容通过 KaTeX 渲染为公式图片
+- *导出菜单：* 支持 9 种导出格式
+
+== 历史记录页面
+
+基于 IndexedDB 的本地存储，支持：
+
+- *滑动操作：* 右滑删除、左滑分享/复制/收藏（收藏触发阈值为 50% 位置）
+- *收藏筛选：* 过滤仅显示收藏项；收藏模式下清空只删除收藏条目
+- *点击载入：* 点击历史条目自动填入公式编辑器
+- *来源标记：* 每条历史记录标注来源（拍照/图片/PDF/手写）
+
+== 设置页面
+
+- *识别引擎：* 内置 MathCraft ONNX（默认）或外部 API（OpenAI-compatible）
+- *加速模式：* ONNX Runtime 推理加速选项（CPU / NNAPI / GPU）
+- *渲染引擎：* KaTeX（轻量快速）或 MathJax（兼容性更好），完全离线
+- *视觉皮肤：* 7 套视觉主题（Material 蓝 / MIUI 渐变 / iOS 蓝 / 樱花和风 / 黑客矩阵 / 暖咖纸墨 / 极简纤白）
+- *AI 整理：* DeepSeek 兼容 API 配置，用于识别结果纠错和格式化
+- *多语言：* 简体中文 / 繁体中文 / 英文 / 日文 / 韩文
+- *开发者面板：* 日志查看、版本信息、更新检查
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 与桌面版的差异
+// ═══════════════════════════════════════════
+#heading(level: 1)[与桌面版的差异] <sec-mobile-diff>
+
+#info-block("移动端不是桌面版的简化版", [
+  LaTeXSnipper Mobile 基于完全不同的技术栈实现（Java ONNX Runtime + WebView），与桌面版 Python/PyQt 共享模型体系但不共享代码。
+  功能取舍上更侧重移动场景，部分桌面功能不提供，也有桌面版没有的移动专属特性。
+])
+
+== 移动端没有的桌面功能
+
+#block(
+  fill: rgb("#FFF3E0"),
+  inset: 12pt,
+  radius: 4pt,
+  stroke: 0.8pt + rgb("#FFB74D"),
+)[
+  #set par(spacing: 0.25em)
+
+  - *Office 加载项：* Word / PowerPoint 插件只支持桌面 Windows，移动端不支持
+  - *数学工作台：* 符号计算、表达式化简、方程求解等桌面专属功能
+  - *双语阅读 / 翻译：* PDF 阅读翻译窗口
+  - *全局截图快捷键：* 移动端不存在桌面端的操作系统级截图快捷方式
+  - *Pandoc 全格式导出：* AsciiDoc、reStructuredText、OPML 等格式在移动端已移除，保留 9 种常用格式
+  - *自定义环境变量：* 桌面端通过 `MATHCRAFT_*` 等环境变量配置模型路径、加速模式等，移动端通过设置 UI 配置
+  - *多窗口管理：* 桌面端有主窗口、手写窗口、数学工作台等多个独立窗口，移动端为单页面应用
+]
+
+== 移动端独有的桌面没有的功能
+
+#block(
+  fill: rgb("#E8F5E9"),
+  inset: 12pt,
+  radius: 4pt,
+  stroke: 0.8pt + rgb("#81C784"),
+)[
+  #set par(spacing: 0.25em)
+
+  - *相机拍照识别：* 移动端利用手机摄像头拍摄文档和公式
+  - *套索裁剪：* 拍照后支持自由四边形框选和透视矫正
+  - *手写画板：* 移动端提供触控手写板（桌面端也有手写窗口，但移动端支持压感触控笔）
+  - *更多视觉皮肤：* 7 套皮肤（桌面端仅有浅色/深色主题）
+  - *自动更新检查：* 启动时检测 GitHub Release，移动端弹出系统更新提示
+  - *离线 PWA：* 可通过 Service Worker 缓存，支持离线使用
+  - *系统分享集成：* 结果可通过 Android/iOS 系统分享菜单发送到其他应用
+  - *三态键盘：* MathLive 虚拟键盘 / 系统原生键盘 / 关闭键盘的灵活切换
+]
+
+== 技术栈差异
+
+#block(
+  fill: rgb("#F5F5F5"),
+  inset: 12pt,
+  radius: 4pt,
+  stroke: 0.8pt + rgb("#BDBDBD"),
+  width: 100%,
+)[
+  #text(weight: "bold")[桌面端]
+  #v(0.2em)
+  - Python / PyQt6 / PyInstaller
+  - Python ONNX Runtime（公式/文字/混合识别）
+  - Qt WebEngine（编辑器、公式渲染）
+  - Pandoc 系统命令（文件格式转换）
+  - Win32 / Carbon / pynput（全局快捷键）
+
+  #v(0.5em)
+  #text(weight: "bold")[移动端]
+  #v(0.2em)
+  - Vite 5 / Capacitor 8 / WebView
+  - Java ONNX Runtime Android（公式/文字/混合识别）
+  - KaTeX / MathJax（公式渲染）
+  - Pandoc WASM（格式转换，内嵌在 APK 中）
+  - pdfjs-dist（PDF 渲染）
+]
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// OCR 识别与输入方式
+// ═══════════════════════════════════════════
+#heading(level: 1)[OCR 识别与输入方式] <sec-mobile-ocr>
+
+== 识别引擎架构
+
+移动端使用纯 Java ONNX Runtime 引擎，所有推理在手机本地完成：
+
+- *公式检测（YOLOv8）：* `mathcraft-mfd.onnx`，输入 [1,3,768,768]，768×768 letterbox
+- *公式识别（TrOCR）：* `encoder_model.onnx`（DeiT 编码器）+ `decoder_model.onnx`（束搜索解码，beam=3）
+- *文字检测（DBNet）：* `ppocrv5_mobile_det.onnx`，最长边 960，stride32 对齐
+- *文字识别（CRNN）：* `ppocrv5_mobile_rec.onnx`，BGR 48×320 输入，CTC 解码
+- *方向检测：* `pplcnet_doc_ori.onnx`，0°/90°/180°/270° 自动校正
+
+识别流程：
+
+```text
+图片 → 自动旋转（EXIF + ONNX 方向检测）
+  → 模式选择：
+    公式模式：YOLOv8 检测 → TrOCR 识别 → LaTeX 输出
+    文字模式：DBNet 检测 → CRNN 识别 → 文本输出
+    混合模式：YOLOv8 检测 + DBNet 检测 → 区域裁剪合并
+      → 公式段：行分割 → TrOCR 逐行识别 → {aligned} 重组
+      → 文字段：CRNN 识别 → 版面输出（inline: $...$, display: $$...$$）
+```
+
+== 拍照识别
+
+移动端全屏相机支持：
+
++ 点击识别页相机按钮启动系统相机，自动对焦
++ 拍照后进入裁剪模式：矩形框选或自由套索（四角把手拖拽）
++ 支持旋转滑块（0°-360°）
++ 透视矫正：四边形扭曲自动矫正为矩形
++ 确认后自动进入识别
++ 大图自动压缩：>500KB 压缩到最长边 1920px
+
+== 手写识别
+
+移动端提供触控手写板（独立于桌面端的手写窗口）：
+
+- *工具：* 笔 / 橡皮擦
+- *墨迹处理：* 墨迹平滑（SMOOTH_WINDOW=3）、压感支持（触控笔）
+- *撤销/重做：* 栈式管理，最多保留 60 笔
+- *画布调整：* 根据屏幕自动适配
+- *颜色跟随：* 笔颜色自动跟随深色/浅色主题
+- *识别：* 点击"识别"按钮，导出为 PNG 后走当前识别引擎
+- *默认模式：* 从图片切换到手写时自动设为混合模式
+
+== 外部 API 识别
+
+移动端支持连接外部 OCR API（OpenAI-compatible 协议）：
+
+- *内置预设：* PaddleOCR-VL、硅基流动 Qwen2.5-VL、Gemini 2.5 Flash、MinerU 原生
+- *连接测试：* 设置页中测试配置的有效性
+- *AI 整理：* 配置 DeepSeek 兼容 API，对识别结果进行纠错和格式化
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 公式编辑器与键盘策略
+// ═══════════════════════════════════════════
+#heading(level: 1)[公式编辑器与键盘策略] <sec-mobile-editor>
+
+== MathLive 编辑器配置
+
+移动端使用 MathLive 0.98 作为所见即所得公式编辑器，核心配置：
+
+- `mathVirtualKeyboardPolicy = 'manual'` — 不自动弹出虚拟键盘
+- `smartMode = true` — 自动识别输入为数学模式还是文本模式
+- `smartFence = true` — 自动闭合未配对的括号、花括号、方括号
+- 中文本地化：通过 `MathfieldElement.strings` 注入完整中文 UI 文本
+- 通过 `new MathfieldElement()` 创建而非 `<mathlive-field>` 标签（避免部分 WebView 不注册自定义元素）
+
+== 三态键盘切换
+
+针对移动端输入场景的特殊设计：
+
+编辑器顶部的键盘按钮支持三种模式循环切换：
+
++ #text(weight: "bold")[关闭（默认）：] 不弹出任何键盘，适合纯符号工具栏输入
++ #text(weight: "bold")[MathLive 虚拟键盘：] 弹出 MathLive 内置数学符号键盘，包含希腊字母、运算符、关系符等专用键位；通过 `toggleVirtualKeyboard` 命令唤起
++ #text(weight: "bold")[系统原生键盘：] 使用 `sandboxed` 策略让系统键盘稳定弹出，适合输入 LaTeX 源码；系统键盘弹出时自动隐藏底部公式符号工具栏，腾出编辑空间
+
+== 符号面板
+
+编辑器底部提供快速符号工具栏：
+
+- *希腊字母：* α β γ π θ μ σ ω δ ε φ
+- *运算符：* √ ∫ ∑ ∏ ∂ ∞
+- *关系符：* ≤ ≥ ≠ ≈ → ⇒ ↔
+- 点击符号直接在光标位置插入对应 LaTeX
+
+== 渲染引擎
+
+- #text(weight: "bold")[KaTeX（默认）：] 轻量快速（265KB），HTML 输出模式原生支持中文混合显示，无中文字体渲染问题，资源完全离线
+- #text(weight: "bold")[MathJax（可选）：] 兼容性更好（1.1MB + 23 字体文件），启动阶段 splash 预加载，完全离线（无 CDN 依赖）
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 导出与分享
+// ═══════════════════════════════════════════
+#heading(level: 1)[导出与分享] <sec-mobile-export>
+
+== 9 种导出格式
+
+#table(
+  columns: (auto, auto, 1fr),
+  inset: 8pt,
+  stroke: 0.5pt + rgb("#BDBDBD"),
+  [*格式*], [*转换路径*], [*说明*],
+  [PNG], [KaTeX → SVG → Canvas], [高清公式图片，含中文字体回退],
+  [SVG], [KaTeX → SVG], [矢量公式图片],
+  [LaTeX], [Pandoc WASM], [.tex 文件格式],
+  [MathML], [Pandoc WASM], [数学标记语言],
+  [Markdown], [Pandoc WASM], [`markdown+tex_math_dollars`],
+  [HTML], [Pandoc WASM], [网页格式],
+  [Typst], [纯 JS 转换器], [200+ 符号映射 + 结构转换，不依赖 Pandoc],
+  [Word], [Pandoc WASM], [.docx 格式],
+  [Plain Text], [Pandoc WASM], [纯文本],
+)
+
+#info-block("Typst 导出说明", [
+  Typst 导出使用纯 JS 转换器，包含 200+ LaTeX→Typst 符号映射（希腊字母、运算符、箭头、关系符、函数名）和结构转换（分数、根式、矩阵、cases、text 等）。
+  不经过 Pandoc WASM，因为 pandoc-wasm 的 WASM 二进制对完整 LaTeX math mode 支持受限。
+])
+
+== 分享功能
+
+- *系统分享：* 通过 Capacitor Share API 将识别结果分享到其他应用
+- *文件分享降级：* 当 Capacitor Share 在某些 Android 版本上传 base64 文件失败时，自动触发下载而非弹系统分享（避免"没有应用可执行此操作"的错误）
+- *复制到剪贴板：* 一键复制 LaTeX 源码
+- *发送到编辑器：* 将识别结果填入公式编辑器，修改后再导出
+
+== Pandoc WASM 说明
+
+#warn-block("移动端 Pandoc 导出注意事项", [
+  Pandoc WASM 二进制（约 56MB）内嵌在 APK 中，首次导出时需加载 WASM 模块。
+  Android WebView 运行时有几点限制：
+  - `wasi_snapshot_preview1` 模块在部分 WebView 中缺失，已通过 `@bjorn3/browser_wasi_shim` 垫片修复
+  - WASM 加载路径已处理为 Capacitor 兼容路径，绕开 vite-plugin-wasm 生成的路径问题
+  - Pandoc WASM 不需要网络连接（WASM 二进制已内嵌）
+])
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 移动端常见问题
+// ═══════════════════════════════════════════
+#heading(level: 1)[移动端常见问题] <sec-mobile-issues>
+
+== 模型加载失败或 OOM（内存不足）
+
+*现象：* 启动时进度条卡住，或识别时报"内存不足"直接闪退。
+
+*原因：* 全部 ONNX 模型约 350MB 解压后大小，`encoder_model.onnx` 一个文件就 87MB。低端设备（4GB 以下 RAM）可能在同时加载多个模型时 OOM。
+
+*解决：*
+- 在设置页 #text(weight: "bold")[加速模式] 中切换到较低加速级别
+- 避免在识别时同时运行大型应用（如游戏、视频编辑）
+- 如果频繁 OOM，尝试减少识别模式切换频率（避免频繁加载/卸载不同模型）
+- 应用已启用 `largeHeap`（AndroidManifest.xml），但仍有物理限制
+- 模型加载失败时会自动清理 session 并重试
+
+== 拍照识别卡顿或无法对焦
+
+*现象：* 相机启动慢、对焦困难或拍照后裁剪界面卡顿。
+
+*原因：* 移动端相机使用系统 WebView 的 `getUserMedia` API，其性能和对焦能力取决于 Android WebView 实现和系统相机 HAL。
+
+*解决：*
+- 优先使用系统自带相机应用拍照，然后从相册选择图片识别
+- 确保手机有足够光线的环境
+- 拍照时保持手机稳定
+- 大图自动压缩机制会处理 >500KB 的图片，无需手动压缩
+
+== 手写板延迟或误触
+
+*现象：* 手写识别延迟高，或手指/触控笔划线时出现误触。
+
+*原因：* Canvas 触控事件在 WebView 中可能不如原生应用灵敏，某些廉价的触控屏或贴膜也可能导致触控不准。
+
+*解决：*
+- 使用触控笔而非手指书写，效果更佳
+- 手写板支持墨迹平滑（SMOOTH_WINDOW=3），轻微抖动会被自动过滤
+- 如果橡皮擦不方便，可使用"清空"按钮一键清除
+- 手写完成后点击"识别"按钮，不走自动识别（减少误触发）
+
+== 导出失败（Pandoc WASM 相关问题）
+
+*现象：* 导出 Markdown/HTML/Word 等格式时卡住或报错。
+
+*原因：* Pandoc WASM 模块加载失败，或 WASM 二进制损坏/缺失。
+
+*解决：*
+- PNG、SVG、Typst 三种格式 #text(weight: "bold")[不依赖 Pandoc WASM]，可直接导出
+- 如果 Pandoc 依赖的格式导出失败，先尝试使用不依赖 Pandoc 的格式
+- 重启应用后重试
+- 如果问题持续，尝试清除应用数据后重新安装 APK
+- 检查开发者日志面板是否有 WASM 相关错误信息
+
+== AI 整理连接失败
+
+*现象：* 点击"AI 整理"后提示连接失败或超时。
+
+*原因：* AI 整理需要连接 DeepSeek 兼容 API，未配置正确的 API Key 或 Base URL，或网络不可用。
+
+*解决：*
+- 前往设置页 #text(weight: "bold")[AI 整理] 配置 API Endpoint 和 API Key
+- 确认手机网络连接正常
+- 如果使用自定义 API，确保接口兼容 DeepSeek 的聊天补全格式
+- AI 整理为可选功能，不配置不影响识别和导出
+
+== 更新检查失败
+
+*现象：* 启动时检查更新失败或不弹更新提示。
+
+*原因：* 更新检查访问 GitHub Releases API，国内用户可能无法直接访问。
+
+*解决：*
+- 确保手机网络可访问 GitHub
+- 如果使用代理/VPN，确认已正确配置
+- 更新检查失败不影响核心识别功能
+- 手动去 GitHub Releases 页面下载最新 APK
+
+== 外部 API 识别配置问题
+
+*现象：* 切换到外部引擎后识别失败或提示配置有误。
+
+*原因：* 外部 API 需要正确的协议类型、Base URL、模型名和可选的 API Key。
+
+*解决：*
+- 设置页提供预设（PaddleOCR-VL、硅基流动、Gemini、MinerU 原生），一键填写常用配置
+- 使用预设后再根据需要微调 Base URL 和模型名
+- 配置完成后点击 #text(weight: "bold")[测试连接] 确认配置有效
+- 移动端的外部 API 设置与桌面端类似，但预设列表可能不同
+
+== KaTeX / MathJax 渲染异常
+
+*现象：* 公式在预览中显示为源码或渲染错乱。
+
+*原因：* 渲染引擎切换后未完全加载，或公式包含特定语法导致渲染失败。
+
+*解决：*
+- 在设置页切换 #text(weight: "bold")[公式渲染引擎] 尝试另一种引擎
+- KaTeX 为默认引擎，轻量快速，绝大多数场景足够
+- 如果公式含有 KaTeX 不支持的语法（如某些 LaTeX 宏包），切换到 MathJax 通常可以解决
+- `renderBlock` 智能判断显示/内联模式：多行环境（`\begin{aligned}`、`$$...$$`）按逻辑块分组渲染，不逐行切分
+- 不含 `\` 的表达式（如 `x^2 + y^2 = z^2`）会被正确渲染（兜底逻辑）
+
+== 历史记录丢失
+
+*现象：* 重启应用后历史记录消失。
+
+*原因：* 历史记录存储在 IndexedDB 中，清除应用数据或存储空间不足时可能丢失。
+
+*解决：*
+- IndexedDB 数据与应用绑定，卸载应用会清除所有历史记录
+- 重要的识别结果建议提前复制到其他地方保存
+- 不要通过系统设置清除应用数据（会一并删除 IndexedDB）
+- 如果存储空间极度不足，Android 系统可能自动清除 IndexedDB
+
+== PDF 识别页数限制
+
+*现象：* 选择 PDF 后只识别了前面部分页面。
+
+*原因：* 移动端限制 PDF 最多识别 100 页，识别时逐页渲染处理较慢。
+
+*解决：*
+- 超过 100 页的 PDF 建议分卷处理或将长文档分段导出
+- PDF 使用 pdfjs-dist 3.11 在 WebView 中逐页渲染为图片后识别，渲染目标 768px
+- 处理器密集，长文档建议在充电状态下操作
+
+== 移动端特定兼容性问题
+
+#error-block("WebView 兼容性注意事项", [
+  以下问题已在开发中解决，但如果遇到异常，可参考：
+])
+
+- *MathLive 自定义元素：* `<mathlive-field>` 在部分 WebView 中不注册，改用 `new MathfieldElement()` 创建
+- *虚拟键盘策略：* 设置为 `'manual'`，不自动弹出；通过键盘按钮手动唤起
+- *按钮事件：* 必须用 `pointerdown` + `stopPropagation`，`click` 在 WebView 中不可靠
+- *COOP/COEP 头：* 已通过 Capacitor 和 Vite 配置，确保 WASM 加载正确
+- *Service Worker：* 注册 `/sw.js` 用于离线缓存
+- *PWA 安装：* 支持 `beforeinstallprompt` 事件，可添加到主屏幕
+- *中文渲染：* SVG foreignObject 显式指定 `"Noto Sans CJK SC","Microsoft YaHei"` 中文字体回退，避免中文方框问题
+
+#pagebreak()
+
+== 移动端数据目录
+
+#info-block("关注存储占用", [
+  移动端所有文件（模型、日志、历史记录）均存储在应用内部目录。
+  ONNX 模型约 220MB，Pandoc WASM 约 56MB，MathJax 字体约 20MB。
+  强烈不建议通过系统设置清除应用数据，否则所有模型和离线功能需要重新下载。
+])
+
+#block(
+  fill: rgb("#F5F5F5"),
+  inset: 12pt,
+  radius: 4pt,
+  stroke: 0.8pt + rgb("#BDBDBD"),
+  width: 100%,
+)[
+  #set par(spacing: 0.25em)
+  #text(weight: "bold")[应用数据目录位置]
+  #v(0.3em)
+
+  - *ONNX 模型：* `public/models/`（内嵌在 APK 中，无需下载）
+  - *Pandoc WASM：* `public/vendor/pandoc/`（内嵌在 APK 中）
+  - *历史记录：* IndexedDB（应用内部存储）
+  - *日志：* localStorage（开发者日志面板查看）
+  - *设置：* localStorage + Android SharedPreferences
+
+  #v(0.5em)
+  #text(weight: "bold")[APK 体积组成]
+  #v(0.3em)
+
+  - Pandoc WASM：~56MB
+  - ONNX 模型：~220MB（APK 内压缩）
+  - KaTeX + MathLive + PDF.js：~15MB
+  - MathJax 可选：~20MB
+  - APK 总大小约 280MB，安装解压后约 400MB
+]
+
+#pagebreak()
+
+// ═══════════════════════════════════════════
+// 第四卷：MathCraft 内部模型介绍
+// ═══════════════════════════════════════════
+#align(center)[
+  #text(size: 14pt, weight: "bold")[第四卷 · MathCraft 内部模型介绍]
   #v(0.25em)
   #line(length: 60%, stroke: 0.4pt + rgb("#CCCCCC"))
   #v(0.6em)
@@ -1278,7 +2251,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 
 公式密集的英文数学论文页面，包含大量行内公式和展示公式。
 
-#image("assets/images/mathcraft_abstract_algebra.png", width: 100%)
+#image("mathcraft_abstract_algebra.png", width: 100%)
 
 #v(0.5em)
 
@@ -1286,7 +2259,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 
 以展示公式为主的期刊页面，包含公式编号、标签、页眉和页码。
 
-#image("assets/images/mathcraft_dynamics_journal.png", width: 100%)
+#image("mathcraft_dynamics_journal.png", width: 100%)
 
 #v(0.5em)
 
@@ -1294,7 +2267,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 
 中文数学文档页面，包含文本与公式混合排版。
 
-#image("assets/images/mathcraft_chinese_lecture.png", width: 100%)
+#image("mathcraft_chinese_lecture.png", width: 100%)
 
 #v(0.5em)
 
@@ -1302,7 +2275,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 
 稀疏的标题/封面式页面，用于验证版面分析稳定性。
 
-#image("assets/images/mathcraft_limits_series.png", width: 100%)
+#image("mathcraft_limits_series.png", width: 100%)
 
 == 性能参考
 
