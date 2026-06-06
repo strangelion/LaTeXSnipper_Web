@@ -1448,8 +1448,8 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <h2 id="xiangmudiyuben">项目地址与版本</h2>
 <ul>
 <li>GitHub：https://github.com/strangelion/LaTeXSnipper_mobile</li>
-<li>当前版本：<strong>v1.2.1</strong></li>
-<li>构建方式：Vite 5 +Capacitor 8（Android/iOS）</li>
+<li>当前版本：<strong>v1.2.2</strong></li>
+<li>构建方式：Vite 8 +Capacitor 8（Android/iOS）</li>
 <li>许可证：Apache License 2.0</li>
 </ul>
 <h2 id="yuguan">与桌面版的关系</h2>
@@ -1561,11 +1561,11 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </ul>
 <p><strong>移动端</strong></p>
 <ul>
-<li>Vite 5 / Capacitor 8 / WebView</li>
+<li>Vite 8 / Capacitor 8 / WebView</li>
 <li>Java ONNX Runtime Android（公式/文字/混合识别）</li>
 <li>KaTeX / MathJax（公式渲染）</li>
 <li>Pandoc WASM（格式转换，内嵌在 APK 中）</li>
-<li>pdfjs-dist（PDF 渲染）</li>
+<li>pdfjs-dist 4.67（PDF 渲染）</li>
 </ul>
 
 </div>
@@ -1619,7 +1619,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-editor">公式编辑器与键盘策略</h1>
 <h2 id="mathlive-bianjiqipeizhi">MathLive 编辑器配置</h2>
-<p>移动端使用 MathLive 0.98 作为所见即所得公式编辑器，核心配置：</p>
+<p>移动端使用 MathLive 0.104 作为所见即所得公式编辑器，核心配置：</p>
 <ul>
 <li><code>mathVirtualKeyboardPolicy ='manual'</code> — 不自动弹出虚拟键盘</li>
 <li><code>smartMode =true</code> — 自动识别输入为数学模式还是文本模式</li>
@@ -1633,8 +1633,20 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <ol>
 <li><strong>关闭（默认）：</strong> 不弹出任何键盘，适合纯符号工具栏输入</li>
 <li><strong>MathLive 虚拟键盘：</strong> 弹出 MathLive 内置数学符号键盘，包含希腊字母、运算符、关系符等专用键位；通过 <code>toggleVirtualKeyboard</code> 命令唤起</li>
-<li><strong>系统原生键盘：</strong> 使用 <code>sandboxed</code> 策略让系统键盘稳定弹出，适合输入 LaTeX 源码；系统键盘弹出时自动隐藏底部公式符号工具栏，腾出编辑空间</li>
+<li><strong>系统原生键盘：</strong> 使用 <code>&lt;textarea&gt;</code> 代理接收焦点并触发 IME，输入事件转发到 MathLive 的 <code>insert()</code> 方法。系统键盘弹出时自动隐藏底部公式符号工具栏，腾出编辑空间</li>
 </ol>
+<div class="callout info">
+<div class="callout-title">系统键盘实现机制</div>
+<div class="callout-body"><p>MathLive v0.104 中 <code>sandboxed</code> 策略被映射为 <code>manual</code>，无法在 Android WebView 中触发系统 IME。移动版采用 offscreen <code>&lt;textarea&gt;</code> 代理方案：</p>
+<ul>
+<li>代理以 <code>position: fixed</code> 覆盖编辑区接收焦点，触发系统键盘</li>
+<li><code>input</code> 事件 → <code>mathField.insert()</code> 转发输入</li>
+<li>Shadow DOM 的 <code>contentEditable</code> 在系统键盘模式下被禁用，配合 capture-phase focus guard 防止 MathLive 抢焦点</li>
+<li>零宽空格占位防止 Android 在内容清空时自动隐藏 IME</li>
+<li>处理 Backspace、Enter、方向键和 CJK 输入法合成事件</li>
+</ul>
+</div>
+</div>
 <h2 id="heading">符号面板</h2>
 <p>编辑器底部提供快速符号工具栏：</p>
 <ul>
@@ -1833,7 +1845,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p><strong>解决：</strong></p>
 <ul>
 <li>超过 100 页的 PDF 建议分卷处理或将长文档分段导出</li>
-<li>PDF 使用 pdfjs-dist 3.11 在 WebView 中逐页渲染为图片后识别，渲染目标 768px</li>
+<li>PDF 使用 pdfjs-dist 4.67 在 WebView 中逐页渲染为图片后识别，渲染目标 768px</li>
 <li>处理器密集，长文档建议在充电状态下操作</li>
 </ul>
 <h2 id="dongtedingxingwenti">移动端特定兼容性问题</h2>
