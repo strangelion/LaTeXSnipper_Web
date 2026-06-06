@@ -27,6 +27,7 @@ const assets = [
   { src: 'public/error.html', dst: 'error.html' },
   { src: 'public/robots.txt', dst: 'robots.txt' },
   { src: 'public/ocr_demo.html', dst: 'ocr_demo.html' },
+  { src: 'public/js/ocr.js', dst: 'js/ocr.js' },
   'user_manual.html',
   'user_manual.typ',
   'styles/styles.css',

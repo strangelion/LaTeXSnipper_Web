@@ -8,9 +8,11 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        // React 核心单独分包，利用浏览器缓存（版本升级前不会变）
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
+        // Vite 8 (Rolldown) 要求 manualChunks 为函数
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) {
+            return 'vendor';
+          }
         },
       },
     },

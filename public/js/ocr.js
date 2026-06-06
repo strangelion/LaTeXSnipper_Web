@@ -502,6 +502,11 @@
   // ═══════════════════════════════════════════════
   async function processImage(file) {
     if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
+    // 等待 __modelsReady 同步标志（防止极端情况下 ready 先于加载完成设置）
+    if (!window.__modelsReady) {
+      for (var w = 0; w < 180; w++) { await new Promise(function(r) { setTimeout(r, 1000); }); if (window.__modelsReady) break; }
+      if (!window.__modelsReady) { showError('模型加载超时，请刷新页面重试'); return; }
+    }
 
     var now = Date.now();
     if (now - lastRecognitionTime < COOLDOWN_MS) {
@@ -650,13 +655,79 @@
   document.addEventListener('mouseup', function() { hwResizing = false; });
   document.addEventListener('touchend', function() { hwResizing = false; });
 
-  // MathJax SVG 渲染
+  // ═══════════════════════════════════════════════
+  // 8. MathJax SVG 渲染（优化版：块分组 + 环境保持 + 智能降级）
+  //    参考 mobile 端 result.js 策略
+  // ═══════════════════════════════════════════════
+
+  // 将 LaTeX 文本分组为逻辑块，保持环境 \begin{…}\end{…} 和 $$…$$ 跨行完整
+  function groupIntoBlocks(latex) {
+    var lines = latex.split('\n'), blocks = [], i = 0;
+    while (i < lines.length) {
+      var t = lines[i].trim();
+      // $$...$$ 跨行展示公式
+      if (t.startsWith('$$')) {
+        var bl = [lines[i]]; i++;
+        while (i < lines.length && !lines[i].trim().endsWith('$$')) { bl.push(lines[i]); i++; }
+        if (i < lines.length) bl.push(lines[i]); i++;
+        blocks.push(bl.join('\n')); continue;
+      }
+      // \begin{env}...\end{env} 环境保持完整
+      if (/^\\begin\{/.test(t)) {
+        var bl = [lines[i]], d = 1; i++;
+        while (i < lines.length && d > 0) { var l = lines[i]; bl.push(l); if (/\\begin\{/.test(l)) d++; if (/\\end\{/.test(l)) d--; i++; }
+        blocks.push(bl.join('\n')); continue;
+      }
+      // 普通非空行
+      if (t) blocks.push(lines[i]);
+      i++;
+    }
+    return blocks;
+  }
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function renderMathPreview(latex) {
-    if (!latex || typeof MathJax === 'undefined' || !MathJax.tex2svgPromise) { mathPreview.classList.remove('show'); return; }
-    var tex = latex.replace(/\n/g, ' ').trim();
-    if (!tex) { mathPreview.classList.remove('show'); return; }
-    MathJax.tex2svgPromise(tex).then(function(node) {
-      mathPreview.innerHTML = ''; mathPreview.appendChild(node); mathPreview.classList.add('show');
+    if (!latex || typeof MathJax === 'undefined' || !MathJax.tex2svgPromise) {
+      mathPreview.classList.remove('show'); return;
+    }
+    var blocks = groupIntoBlocks(latex);
+    if (blocks.length === 0) { mathPreview.classList.remove('show'); return; }
+    mathPreview.innerHTML = '';
+    Promise.all(blocks.map(function(block) {
+      var t = block.trim();
+      if (!t) return '';
+      // Case A: $$…$$ 展示数学，去掉定界符直接渲染
+      if (t.startsWith('$$') && t.endsWith('$$')) {
+        return MathJax.tex2svgPromise(t.slice(2, -2).trim(), { display: true })
+          .then(function(n) { return n.outerHTML; })
+          .catch(function() { return escapeHtml(block); });
+      }
+      // Case B: 含 $ 内联公式 → MathJax 原生处理 $...$
+      if (t.indexOf('$') !== -1) {
+        return MathJax.tex2svgPromise(t, { display: false })
+          .then(function(n) { return n.outerHTML; })
+          .catch(function() { return escapeHtml(block); });
+      }
+      // Case C: 含数学运算符 (^_{}&#~=) → 尝试展示模式
+      if (/[\\^{}_&#~=]/.test(t)) {
+        return MathJax.tex2svgPromise(t, { display: true })
+          .then(function(n) { return n.outerHTML; })
+          .catch(function() {
+            return MathJax.tex2svgPromise(t, { display: false })
+              .then(function(n) { return n.outerHTML; })
+              .catch(function() { return escapeHtml(block); });
+          });
+      }
+      // Case D: 纯文本，转义后直接输出
+      return escapeHtml(block);
+    })).then(function(html) {
+      mathPreview.innerHTML = html.join('\n');
+      mathPreview.classList.add('show');
     }).catch(function() { mathPreview.classList.remove('show'); });
   }
 
@@ -1025,7 +1096,8 @@
       else { ort.env.wasm.numThreads = 1; }
       setStatus('loading', '正在加载分词器…', true); await loadTokenizer();
       setStatus('loading', '正在下载编码器模型 (84MB)…', true); await loadModels();
-      ready = true; loadPPOCR().catch(function(){});
+      ready = true; window.__modelsReady = true; // 同步标志，供 processImage 等待
+      loadPPOCR().catch(function(){});
       setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
     } catch(e) { if (!errorMsg.style.display || errorMsg.style.display === 'none') showError('初始化失败: ' + (e.message || e)); }
   }
