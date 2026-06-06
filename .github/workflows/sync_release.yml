@@ -137,7 +137,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .release_state.json 2>/dev/null || true
-          git diff --staged --quiet && echo "No state change" || (echo "Committing state update" && git commit -m "chore: update sync state" && git pull --rebase && git push)
+          git diff --staged --quiet && echo "No state change" || (
+            echo "Committing state update" &&
+            git commit -m "chore: update sync state" &&
+            for i in 1 2 3; do
+              if git pull --rebase && git push; then
+                echo "Push succeeded on attempt $i"
+                break
+              fi
+              echo "Push failed on attempt $i, retrying..."
+              sleep 2
+            done
+          )
 
   sync:
     needs: check
@@ -242,7 +253,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add download.html dist/download.html
-          git diff --staged --quiet && echo "No SHA256 changes" || (git commit -m "chore: sync release SHA256" && git pull --rebase && git push)
+          git diff --staged --quiet && echo "No SHA256 changes" || (
+            git commit -m "chore: sync release SHA256" &&
+            for i in 1 2 3; do
+              if git pull --rebase && git push; then
+                echo "Push succeeded on attempt $i"
+                break
+              fi
+              echo "Push failed on attempt $i, retrying..."
+              sleep 2
+            done
+          )
 
   build-manual:
     needs: check
