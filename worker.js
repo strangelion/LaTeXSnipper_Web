@@ -8,7 +8,7 @@ const GITHUB_REPO = "LaTeXSnipper_user_manual";
 
 // 允许的文件扩展名白名单（防止路径遍历和信息泄露）
 const ALLOWED_EXTENSIONS = new Set([
-  "html", "css", "js", "json", "png", "jpg", "jpeg", "gif", "svg",
+  "html", "css", "js", "json", "xml", "png", "jpg", "jpeg", "gif", "svg",
   "ico", "wasm", "mp4", "webm", "otf", "ttf", "woff2", "typ", "pdf",
 ]);
 
@@ -641,7 +641,7 @@ export default {
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.8",
+        version: "2.3.9",
         timestamp: new Date().toISOString(),
         tip: "Download stats: Cloudflare Dashboard > Analytics & Logs > filter by /dl/*",
       });
