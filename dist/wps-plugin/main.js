@@ -8,7 +8,7 @@ let bridgeConnected = false;
 /**
  * Called when WPS loads this add-in (from ribbon.xml onLoad)
  */
-function OnAddInLoad(wpsApplication) {
+function OnAddinLoad(wpsApplication) {
     console.log('LaTeXSnipper WPS Plugin loaded');
     
     // Register event handlers
