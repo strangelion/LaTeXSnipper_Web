@@ -56,6 +56,7 @@ const MIME_TYPES = {
   otf: "font/otf",
   ttf: "font/ttf",
   woff2: "font/woff2",
+  xml: "text/xml; charset=utf-8",
 };
 
 function getMimeType(p) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -278,7 +278,7 @@
                 window.location.href = "ksoWPSCloudSvr://start=RelayHttpServer" + "&serverId=" + serverId //是否启动wps弹框
         }
 
-        var serverId = getServerId();
+        var serverId = undefined;
 
         /**
          * 获取serverId的接口
@@ -570,7 +570,7 @@
 
         function LoadPublishAddons() {
             var addonList = document.getElementById("addonList");
-            var curList = [{"name":"LaTeXSnipper","addonType":"wps","online":"true","multiUser":"true","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/"},{"name":"LaTeXSnipper","addonType":"wpp","online":"true","multiUser":"true","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/"}];
+            var curList = [{"name":"latexsnipper-wps","addonType":"wps","online":"true","multiUser":"false","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/","customDomain":""},{"name":"latexsnipper-wps","addonType":"wpp","online":"true","multiUser":"false","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/","customDomain":""}];
             curList.forEach(function (element) {
                 var param = JSON.stringify(element).replace("\"", "\'");
                 UpdateElement(element, 'enable')

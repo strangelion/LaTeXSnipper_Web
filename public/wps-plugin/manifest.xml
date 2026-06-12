@@ -2,5 +2,13 @@
 <JsPlugin>
   <ApiVersion>1.0.0</ApiVersion>
   <Name>LaTeXSnipper</Name>
-  <Description>LaTeX formula plugin for WPS Office</Description>
+  <Description>LaTeX formula insertion plugin for WPS Office. Insert, preview, and manage LaTeX equations in Word and PowerPoint.</Description>
+  <Version>1.0.0</Version>
+  <Author>LaTeXSnipper</Author>
+  <Homepage>https://latexsnipper.com</Homepage>
+  <Icon>images/insert_inline.svg</Icon>
+  <HostApplication>
+    <App>wps</App>
+    <App>wpp</App>
+  </HostApplication>
 </JsPlugin>
