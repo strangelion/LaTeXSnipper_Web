@@ -1,228 +1,221 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaTeXSnipper WPS Plugin</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
-            overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(135deg, #1976d2, #1565c0);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .header h1 { font-size: 28px; margin-bottom: 8px; }
-        .header p { opacity: 0.9; font-size: 14px; }
-        .content { padding: 30px; }
-        .section {
-            margin-bottom: 24px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-        .section h3 {
-            color: #1976d2;
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-        .step {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: flex-start;
-        }
-        .step-num {
-            background: #1976d2;
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .step-text { line-height: 1.6; }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-        .btn-primary { background: #1976d2; color: white; }
-        .btn-primary:hover {
-            background: #1565c0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(25,118,210,0.4);
-        }
-        .btn-outline {
-            background: white;
-            color: #1976d2;
-            border: 2px solid #1976d2;
-        }
-        .btn-outline:hover { background: #e3f2fd; }
-        .buttons {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .feature {
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .feature-icon { font-size: 24px; margin-bottom: 4px; }
-        .feature-text { font-size: 12px; color: #666; }
-        .note {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 16px;
-            font-size: 13px;
-            color: #856404;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 12px;
-            border-top: 1px solid #eee;
-        }
-        .footer a { color: #1976d2; text-decoration: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
+  <title>LaTeXSnipper — WPS 插件</title>
+  <link rel="icon" type="image/png" href="/assets/images/icon.png">
+  <script>
+    try { var s = localStorage.getItem('latexSnipper-theme'); if (s === 'dark' || s === 'light') document.documentElement.setAttribute('data-theme', s); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/styles/styles.css" media="all">
+  <style>
+    html { background: var(--bg); }
+    body { background: transparent; }
+
+    .spacer-top { height: 60px; }
+    .top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--hdr-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color); }
+    .top-nav .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.25rem; height: 48px; display: flex; align-items: center; gap: 1rem; }
+    .top-nav a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
+    .top-nav a:hover { color: var(--accent); }
+    .top-nav .brand-link { font-weight: 700; font-size: 1rem; }
+    .theme-toggle { margin-left: auto; background: none; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--fg); }
+    .theme-toggle:hover { background: rgba(128,128,128,0.1); border-color: var(--accent); }
+
+    .page { max-width: var(--max-w); margin: 0 auto; padding: 3rem 1.25rem 5rem; text-align: center; }
+
+    .page-title {
+      font-size: 2rem; font-weight: 800; margin: 0 0 0.5rem;
+      background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .page-sub { font-size: 1.05rem; color: var(--muted); margin: 0 0 2.5rem; }
+
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px;
+      padding: 2rem; backdrop-filter: blur(8px); box-shadow: var(--card-shadow);
+      text-align: left; margin-bottom: 1.5rem;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+
+    .card h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 1rem; color: var(--fg); }
+
+    .step { display: flex; gap: 12px; margin-bottom: 1rem; align-items: flex-start; }
+    .step-num {
+      background: var(--accent); color: #fff; width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0;
+    }
+    .step-text { line-height: 1.6; color: var(--card-text, var(--muted)); }
+    .step-text strong { color: var(--fg); }
+
+    .btn {
+      display: inline-block; padding: 12px 28px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 16px rgba(37,99,235,0.3); }
+    .btn-outline { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+    .btn-outline:hover { background: var(--accent); color: #fff; }
+    .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+
+    .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 1rem; }
+    .feature {
+      background: var(--bg); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 1rem; text-align: center; transition: border-color 0.2s;
+    }
+    .feature:hover { border-color: var(--accent); }
+    .feature-icon { font-size: 1.5rem; margin-bottom: 4px; }
+    .feature-text { font-size: 0.85rem; color: var(--muted); }
+
+    .note {
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px;
+      padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--muted);
+    }
+    .note strong { color: var(--accent); }
+
+    .footer { border-top: 1px solid var(--border-color); padding: 1rem 0; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .page-title { font-size: 1.5rem; }
+      .features { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
+  <div class="spacer-top"></div>
+  <nav class="top-nav">
+    <div class="inner">
+      <a href="/" class="brand-link">LaTeXSnipper</a>
+      <a href="/user_manual.html">用户手册</a>
+      <a href="/download.html">下载</a>
+      <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon" id="themeIcon"></span>
+        <span class="theme-label" id="themeLabel"></span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1 class="page-title">WPS Office 插件</h1>
+    <p class="page-sub">在 WPS 中直接插入和管理 LaTeX 公式</p>
+
     <div class="card">
-        <div class="header">
-            <h1>LaTeXSnipper</h1>
-            <p>LaTeX formula plugin for WPS Office</p>
-        </div>
-        <div class="content">
-            <div class="section">
-                <h3>Online Installation</h3>
-                <p style="margin-bottom: 16px;">Click the button below to install directly into WPS:</p>
-                <div style="text-align: center;">
-                    <button class="btn btn-primary" onclick="installAddon()">Install Plugin</button>
-                </div>
-                <div class="note">
-                    <strong>Note:</strong> Please ensure WPS Office is running before clicking install.
-                </div>
-            </div>
-
-            <div class="section">
-                <h3>Offline Installation</h3>
-                <div class="step">
-                    <div class="step-num">1</div>
-                    <div class="step-text">Download the plugin package</div>
-                </div>
-                <div class="step">
-                    <div class="step-num">2</div>
-                    <div class="step-text">Open WPS Office</div>
-                </div>
-                <div class="step">
-                    <div class="step-num">3</div>
-                    <div class="step-text">Go to <strong>Extensions</strong> -> <strong>Plugin Manager</strong> -> <strong>Install from Local</strong></div>
-                </div>
-                <div class="step">
-                    <div class="step-num">4</div>
-                    <div class="step-text">Select the downloaded files</div>
-                </div>
-                <div style="text-align: center; margin-top: 16px;">
-                    <a href="LaTeXSnipper-wps.zip" class="btn btn-outline" download>Download ZIP</a>
-                </div>
-            </div>
-
-            <div class="section">
-                <h3>Features</h3>
-                <div class="features">
-                    <div class="feature">
-                        <div class="feature-icon">&#128290;</div>
-                        <div class="feature-text">Insert LaTeX formulas</div>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">&#128247;</div>
-                        <div class="feature-text">Convert to images</div>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">&#128221;</div>
-                        <div class="feature-text">Manage formulas</div>
-                    </div>
-                    <div class="feature">
-                        <div class="feature-icon">&#128295;</div>
-                        <div class="feature-text">Auto numbering</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer">
-            <p>LaTeXSnipper &copy; 2026 | <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank">GitHub</a></p>
-        </div>
+      <h2>在线安装</h2>
+      <p style="color: var(--muted); margin-bottom: 1rem;">请先打开 WPS Office，然后点击下方按钮安装：</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="installAddon()">安装插件</button>
+      </div>
+      <div class="note">
+        <strong>提示：</strong>安装完成后需要重启 WPS Office 才能使用。
+      </div>
     </div>
 
-    <script>
-        function installAddon() {
-            var pluginUrl = window.location.origin + '/wps-plugin/';
-            var data = JSON.stringify({
-                cmd: 'enable',
-                name: 'LaTeXSnipper',
-                url: pluginUrl,
-                addonType: 'wps',
-                online: 'true',
-                version: '1.0.0',
-                customDomain: ''
-            });
-            window.location.href = 'ksoWPSCloudSvr://start=RelayHttpServer';
-            setTimeout(function() {
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'http://localhost:58890/deployaddons/runParams', true);
-                xhr.timeout = 3000;
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        alert('Plugin installed successfully!\n\nPlease restart WPS Office to use LaTeXSnipper.');
-                    } else {
-                        alert('Installation failed. Please ensure WPS Office is running and try again.');
-                    }
-                };
-                xhr.onerror = function() {
-                    alert('Cannot connect to WPS Office.\n\nPlease:\n1. Open WPS Office first\n2. Then click Install again');
-                };
-                xhr.send(btoa(data));
-            }, 1000);
-        }
-    </script>
+    <div class="card">
+      <h2>离线安装</h2>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">下载下方的插件压缩包</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">打开 WPS Office</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">进入 <strong>扩展</strong> → <strong>插件管理</strong> → <strong>从本地安装</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">选择解压后的文件夹即可</div>
+      </div>
+      <div class="btn-row">
+        <a href="/LaTeXSnipper-wps.zip" class="btn btn-outline" download>下载 ZIP (35KB)</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>功能介绍</h2>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">&#128290;</div>
+          <div class="feature-text">插入 LaTeX 公式（行内 / 独立 / 编号）</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128247;</div>
+          <div class="feature-text">公式截图识别 (OCR)</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128221;</div>
+          <div class="feature-text">加载与删除已有公式</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">&#128295;</div>
+          <div class="feature-text">自动编号与重新编号</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    &copy; 2026 LaTeXSnipper — <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank">GitHub</a>
+  </footer>
+
+  <script>
+    // Theme toggle
+    function getTheme() {
+      var s = localStorage.getItem('latexSnipper-theme');
+      if (s === 'dark' || s === 'light') return s;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      document.getElementById('themeIcon').textContent = t === 'dark' ? '\u2600' : '\u263E';
+      document.getElementById('themeLabel').textContent = t === 'dark' ? '浅色' : '深色';
+    }
+    function toggleTheme() {
+      var next = getTheme() === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('latexSnipper-theme', next);
+      applyTheme(next);
+    }
+    applyTheme(getTheme());
+
+    // Install addon
+    function installAddon() {
+      var pluginUrl = window.location.origin + '/wps-plugin/';
+      var data = JSON.stringify({
+        cmd: 'enable',
+        name: 'LaTeXSnipper',
+        url: pluginUrl,
+        addonType: 'wps',
+        online: 'true',
+        version: '1.0.0',
+        customDomain: ''
+      });
+
+      // Try to launch WPS relay
+      window.location.href = 'ksoWPSCloudSvr://start=RelayHttpServer';
+
+      setTimeout(function() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://localhost:58890/deployaddons/runParams', true);
+        xhr.timeout = 5000;
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            alert('安装成功！请重启 WPS Office 使用 LaTeXSnipper。');
+          } else {
+            alert('安装失败，请确保 WPS Office 已打开后重试。');
+          }
+        };
+        xhr.onerror = xhr.ontimeout = function() {
+          alert('无法连接 WPS Office，请先打开 WPS，然后再次点击安装按钮。');
+        };
+        xhr.send(btoa(data));
+      }, 1500);
+    }
+  </script>
 </body>
 </html>
