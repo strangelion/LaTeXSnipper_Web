@@ -787,6 +787,10 @@ export default {
       let filePath;
       if (path === "/") {
         filePath = "dist/index.html";
+      } else if (path.endsWith("/")) {
+        // 目录路径，尝试 index.html
+        const rawPath = path.slice(1) + "index.html";
+        filePath = "dist/" + rawPath;
       } else {
         const ext = path.split(".").pop() || "";
         const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
