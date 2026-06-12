@@ -68,11 +68,12 @@
     .feature-icon { font-size: 1.5rem; margin-bottom: 4px; }
     .feature-text { font-size: 0.85rem; color: var(--muted); }
 
-    .note {
-      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); border-radius: 12px;
-      padding: 1rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--muted);
+    .code-block {
+      background: var(--bg); border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 0.75rem 1rem; font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace;
+      font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0; overflow-x: auto;
+      word-break: break-all;
     }
-    .note strong { color: var(--accent); }
 
     .footer { border-top: 1px solid var(--border-color); padding: 1rem 0; text-align: center; color: var(--muted); font-size: 0.9rem; }
     .footer a { color: var(--accent); text-decoration: none; }
@@ -104,36 +105,25 @@
     <p class="page-sub">在 WPS 中直接插入和管理 LaTeX 公式</p>
 
     <div class="card">
-      <h2>在线安装</h2>
-      <p style="color: var(--muted); margin-bottom: 1rem;">请先打开 WPS Office，然后点击下方按钮安装：</p>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="installAddon()">安装插件</button>
-      </div>
-      <div class="note">
-        <strong>提示：</strong>安装完成后需要重启 WPS Office 才能使用。
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>离线安装</h2>
+      <h2>安装方法</h2>
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-text">下载下方的插件压缩包</div>
+        <div class="step-text">下载插件压缩包</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-text">打开 WPS Office</div>
+        <div class="step-text">解压到任意目录</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-text">进入 <strong>扩展</strong> → <strong>插件管理</strong> → <strong>从本地安装</strong></div>
+        <div class="step-text">打开 WPS Office → <strong>扩展</strong> → <strong>插件管理</strong> → <strong>从本地安装</strong></div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div class="step-text">选择解压后的文件夹即可</div>
+        <div class="step-text">选择解压后的 <strong>wps-plugin</strong> 文件夹</div>
       </div>
       <div class="btn-row">
-        <a href="/LaTeXSnipper-wps.zip" class="btn btn-outline" download>下载 ZIP (35KB)</a>
+        <a href="LaTeXSnipper-wps.zip" class="btn btn-primary" download>下载插件 (35KB)</a>
       </div>
     </div>
 
@@ -165,7 +155,6 @@
   </footer>
 
   <script>
-    // Theme toggle
     function getTheme() {
       var s = localStorage.getItem('latexSnipper-theme');
       if (s === 'dark' || s === 'light') return s;
@@ -182,40 +171,6 @@
       applyTheme(next);
     }
     applyTheme(getTheme());
-
-    // Install addon
-    function installAddon() {
-      var pluginUrl = window.location.origin + '/wps-plugin/';
-      var data = JSON.stringify({
-        cmd: 'enable',
-        name: 'LaTeXSnipper',
-        url: pluginUrl,
-        addonType: 'wps',
-        online: 'true',
-        version: '1.0.0',
-        customDomain: ''
-      });
-
-      // Try to launch WPS relay
-      window.location.href = 'ksoWPSCloudSvr://start=RelayHttpServer';
-
-      setTimeout(function() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://localhost:58890/deployaddons/runParams', true);
-        xhr.timeout = 5000;
-        xhr.onload = function() {
-          if (xhr.status === 200) {
-            alert('安装成功！请重启 WPS Office 使用 LaTeXSnipper。');
-          } else {
-            alert('安装失败，请确保 WPS Office 已打开后重试。');
-          }
-        };
-        xhr.onerror = xhr.ontimeout = function() {
-          alert('无法连接 WPS Office，请先打开 WPS，然后再次点击安装按钮。');
-        };
-        xhr.send(btoa(data));
-      }, 1500);
-    }
   </script>
 </body>
 </html>
