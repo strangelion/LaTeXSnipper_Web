@@ -570,7 +570,7 @@
 
         function LoadPublishAddons() {
             var addonList = document.getElementById("addonList");
-            var curList = [{"name":"test123","addonType":"wps","online":"true","multiUser":"false","url":"http://www.test.a/"},{"name":"latexsnipper-wps","online":"true","multiUser":"true","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/"}];
+            var curList = [{"name":"LaTeXSnipper","addonType":"wps","online":"true","multiUser":"true","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/index.html"},{"name":"LaTeXSnipper","addonType":"wpp","online":"true","multiUser":"true","url":"https://latexsnipper.interknot.dpdns.org/wps-plugin/index.html"}];
             curList.forEach(function (element) {
                 var param = JSON.stringify(element).replace("\"", "\'");
                 UpdateElement(element, 'enable')
