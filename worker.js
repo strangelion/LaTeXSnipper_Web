@@ -641,7 +641,7 @@ export default {
       return jsonResponse({
         status: "ok",
         service: "LaTeXSnipper User Manual",
-        version: "2.3.9",
+        version: "2.3.8",
         timestamp: new Date().toISOString(),
         tip: "Download stats: Cloudflare Dashboard > Analytics & Logs > filter by /dl/*",
       });
@@ -772,10 +772,6 @@ export default {
       let filePath;
       if (path === "/") {
         filePath = "dist/index.html";
-      } else if (path.endsWith("/")) {
-        // 目录路径，尝试 index.html
-        const rawPath = path.slice(1) + "index.html";
-        filePath = "dist/" + rawPath;
       } else {
         const ext = path.split(".").pop() || "";
         const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
