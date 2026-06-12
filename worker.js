@@ -101,7 +101,7 @@ function isSafePath(p) {
   return true;
 }
 
-function securityHeaders(isHtml) {
+function securityHeaders(isHtml, isWpsPlugin) {
   const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
@@ -110,22 +110,37 @@ function securityHeaders(isHtml) {
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
   };
   if (isHtml) {
-    // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
-    headers["Cross-Origin-Opener-Policy"] = "same-origin";
-    headers["Cross-Origin-Embedder-Policy"] = "credentialless";
-    // CSP：限制脚本和样式来源
-    headers["Content-Security-Policy"] = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:",
-      "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self'",
-      "connect-src 'self' https: blob:",
-      "worker-src 'self' blob:",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'none'",
-    ].join("; ");
+    if (isWpsPlugin) {
+      // WPS 插件页面需要连接本地 WPS 服务
+      headers["Content-Security-Policy"] = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self' http://localhost:* http://127.0.0.1:* https://latexsnipper.interknot.dpdns.org:",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'none'",
+      ].join("; ");
+    } else {
+      // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
+      headers["Cross-Origin-Opener-Policy"] = "same-origin";
+      headers["Cross-Origin-Embedder-Policy"] = "credentialless";
+      // CSP：限制脚本和样式来源
+      headers["Content-Security-Policy"] = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:",
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+        "img-src 'self' data: blob: https:",
+        "font-src 'self'",
+        "connect-src 'self' https: blob:",
+        "worker-src 'self' blob:",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'none'",
+      ].join("; ");
+    }
   }
   return headers;
 }
@@ -839,11 +854,12 @@ export default {
       }
     }
 
+    const isWpsPlugin = filePath.includes("wps-plugin");
     const headers = {
       "Content-Type": mimeType,
       "Cache-Control": cacheControl(filePath),
       ...corsHeaders(),
-      ...securityHeaders(isHtml),
+      ...securityHeaders(isHtml, isWpsPlugin),
     };
 
     // 预览分支 HTML 注入横幅（分支名已在上层转义）
