@@ -8,7 +8,7 @@ const GITHUB_REPO = "LaTeXSnipper_user_manual";
 
 // 允许的文件扩展名白名单（防止路径遍历和信息泄露）
 const ALLOWED_EXTENSIONS = new Set([
-  "html", "css", "js", "json", "xml", "png", "jpg", "jpeg", "gif", "svg",
+  "html", "css", "js", "json", "png", "jpg", "jpeg", "gif", "svg",
   "ico", "wasm", "mp4", "webm", "otf", "ttf", "woff2", "typ", "pdf",
 ]);
 
@@ -101,7 +101,7 @@ function isSafePath(p) {
   return true;
 }
 
-function securityHeaders(isHtml, isWpsPlugin) {
+function securityHeaders(isHtml) {
   const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
@@ -110,37 +110,22 @@ function securityHeaders(isHtml, isWpsPlugin) {
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
   };
   if (isHtml) {
-    if (isWpsPlugin) {
-      // WPS 插件页面需要连接本地 WPS 服务
-      headers["Content-Security-Policy"] = [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-        "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data:",
-        "font-src 'self'",
-        "connect-src 'self' http://localhost:* http://127.0.0.1:* https://latexsnipper.interknot.dpdns.org:",
-        "frame-ancestors 'none'",
-        "base-uri 'self'",
-        "form-action 'none'",
-      ].join("; ");
-    } else {
-      // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
-      headers["Cross-Origin-Opener-Policy"] = "same-origin";
-      headers["Cross-Origin-Embedder-Policy"] = "credentialless";
-      // CSP：限制脚本和样式来源
-      headers["Content-Security-Policy"] = [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:",
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-        "img-src 'self' data: blob: https:",
-        "font-src 'self'",
-        "connect-src 'self' https: blob:",
-        "worker-src 'self' blob:",
-        "frame-ancestors 'none'",
-        "base-uri 'self'",
-        "form-action 'none'",
-      ].join("; ");
-    }
+    // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
+    headers["Cross-Origin-Opener-Policy"] = "same-origin";
+    headers["Cross-Origin-Embedder-Policy"] = "credentialless";
+    // CSP：限制脚本和样式来源
+    headers["Content-Security-Policy"] = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:",
+      "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self'",
+      "connect-src 'self' https: blob:",
+      "worker-src 'self' blob:",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'none'",
+    ].join("; ");
   }
   return headers;
 }
@@ -858,12 +843,11 @@ export default {
       }
     }
 
-    const isWpsPlugin = filePath.includes("wps-plugin");
     const headers = {
       "Content-Type": mimeType,
       "Cache-Control": cacheControl(filePath),
       ...corsHeaders(),
-      ...securityHeaders(isHtml, isWpsPlugin),
+      ...securityHeaders(isHtml),
     };
 
     // 预览分支 HTML 注入横幅（分支名已在上层转义）
