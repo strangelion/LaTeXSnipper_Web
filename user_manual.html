@@ -170,12 +170,17 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#rushi">插入公式</a></li>
   <li class="toc-h2"><a href="#rumoshi">三种插入模式</a></li>
   <li class="toc-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
-  <li class="toc-h2"><a href="#zidongbianyubian">自动编号与重编号</a></li>
+  <li class="toc-h2"><a href="#bianyubian">添加编号与重编号</a></li>
+  <li class="toc-h2"><a href="#fenyubian">章/节分隔符与层级编号</a></li>
+  <li class="toc-h2"><a href="#yong">交叉引用</a></li>
+  <li class="toc-h2"><a href="#shi">公式转换</a></li>
+  <li class="toc-h2"><a href="#shizhi">格式重置</a></li>
   <li class="toc-h2"><a href="#shibie">截图识别</a></li>
 <li class="toc-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
   <li class="toc-h2"><a href="#rushi">插入公式图片</a></li>
   <li class="toc-h2"><a href="#yu">加载与删除</a></li>
+  <li class="toc-h2"><a href="#shiyushizhi">公式转换与格式重置</a></li>
   <li class="toc-h2"><a href="#shibie">截图识别</a></li>
 <li class="toc-h1"><a href="#sec-office-editor">公式编辑器与侧边栏</a></li>
   <li class="toc-h2"><a href="#chuang">侧边栏（任务窗格）</a></li>
@@ -335,12 +340,17 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#rushi">插入公式</a></li>
   <li class="rs-h2"><a href="#rumoshi">三种插入模式</a></li>
   <li class="rs-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
-  <li class="rs-h2"><a href="#zidongbianyubian">自动编号与重编号</a></li>
+  <li class="rs-h2"><a href="#bianyubian">添加编号与重编号</a></li>
+  <li class="rs-h2"><a href="#fenyubian">章/节分隔符与层级编号</a></li>
+  <li class="rs-h2"><a href="#yong">交叉引用</a></li>
+  <li class="rs-h2"><a href="#shi">公式转换</a></li>
+  <li class="rs-h2"><a href="#shizhi">格式重置</a></li>
   <li class="rs-h2"><a href="#shibie">截图识别</a></li>
 <li class="rs-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
   <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
   <li class="rs-h2"><a href="#rushi">插入公式图片</a></li>
   <li class="rs-h2"><a href="#yu">加载与删除</a></li>
+  <li class="rs-h2"><a href="#shiyushizhi">公式转换与格式重置</a></li>
   <li class="rs-h2"><a href="#shibie">截图识别</a></li>
 <li class="rs-h1"><a href="#sec-office-editor">公式编辑器与侧边栏</a></li>
   <li class="rs-h2"><a href="#chuang">侧边栏（任务窗格）</a></li>
@@ -1213,12 +1223,16 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
-<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含四组按钮：</p>
+<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含 8 个功能组：</p>
 <div class="block">
 <ul>
 <li><strong>公式组：</strong> 行内公式、行间公式、带编号公式、截图识别</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
-<li><strong>编号组：</strong> 自动编号、重编号全部</li>
+<li><strong>转换组：</strong> 转为 OLE、转为 Word</li>
+<li><strong>引用组：</strong> 插入引用</li>
+<li><strong>编号组：</strong> 添加编号、重编号</li>
+<li><strong>边界组：</strong> 插入章分隔符、插入节边界</li>
+<li><strong>格式化组：</strong> 格式化所选、格式化全部</li>
 <li><strong>工具组：</strong> 状态窗格、设置、帮助</li>
 </ul>
 
@@ -1228,7 +1242,7 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="block">
 <ul>
 <li><strong>OLE 公式对象（默认）：</strong> 将 LaTeX 交由本机 OLE 公式对象处理器（<code>LaTeXSnipper.Formula</code>）直接渲染，以 OLE 对象形式嵌入文档。数学渲染保真度高，保留原始版式和字体，不受 Word 版本或数学字体差异影响。渲染过程不依赖 Bridge</li>
-<li><strong>OMML 公式：</strong> 通过本机 Bridge 将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）。OMML 公式是 Word 原生格式，可像手动插入的公式一样在 Word 中直接编辑</li>
+<li><strong>OMML 公式：</strong> 通过本地 OMML 转换引擎将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language），不依赖桌面端 Bridge。OMML 公式是 Word 原生格式，可像手动插入的公式一样在 Word 中直接编辑</li>
 </ul>
 
 </div>
@@ -1252,13 +1266,51 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </ul>
 
 </div>
-<h2 id="zidongbianyubian">自动编号与重编号</h2>
+<h2 id="bianyubian">添加编号与重编号</h2>
 <p>Word 支持将未编号的 LaTeXSnipper 公式转换为自动编号公式，并按文档顺序维护自动编号。编号文本存储在独立的富文本内容控件中，与公式本体分离：</p>
 <div class="block">
 <ul>
-<li><strong>自动编号：</strong> 为选中的公式添加自动编号。如果公式已有编号，不会重复添加。新编号遵循设置中指定的编号位置（右侧或左侧）</li>
+<li><strong>添加编号：</strong> 为选中的行间公式添加自动编号。如果公式已有编号，不会重复添加。新编号遵循设置中指定的编号位置（右侧或左侧）</li>
 <li><strong>重编号全部：</strong> 按文档顺序重新排列所有自动编号公式的编号，更新元数据。不重新渲染公式内容，仅调整编号。编号格式（阿拉伯数字/罗马数字/字母）和括号样式（圆括号/方括号/花括号/无）可在设置中自定义</li>
 <li><strong>编号位置：</strong> 设置中可选择右编号或左编号；该设置只影响新插入的编号公式和之后被自动编号的普通公式，不改变已有公式的编号属性</li>
+</ul>
+
+</div>
+<h2 id="fenyubian">章/节分隔符与层级编号</h2>
+<p>支持多层级公式编号体系。在文档中插入章或节分隔符后，自动编号会按层级生成。</p>
+<div class="block">
+<ul>
+<li><strong>插入章分隔符：</strong> 标记新章开始，后续自动编号重置为当前章号</li>
+<li><strong>插入节边界：</strong> 标记新节开始，后续自动编号追加当前节号</li>
+<li><strong>包含章/节编号：</strong> 设置中可控制编号是否包含章或节的层级部分</li>
+<li><strong>分隔符样式：</strong> 层级分隔符可在设置中选择（<code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code>）</li>
+<li><strong>隐藏分隔符：</strong> 设置中可隐藏插入文档中的分隔符标记</li>
+</ul>
+
+</div>
+<h2 id="yong">交叉引用</h2>
+<p>支持在文档正文中插入对公式编号的交叉引用：</p>
+<div class="block">
+<ul>
+<li><strong>插入引用：</strong> 在光标位置插入引用占位符，然后点击目标公式的编号，自动生成交叉引用</li>
+<li>交叉引用与 Word 原生交叉引用系统集成，可通过 Word 的"更新域"刷新</li>
+</ul>
+
+</div>
+<h2 id="shi">公式转换</h2>
+<p>支持在已有的管理公式之间转换格式：</p>
+<div class="block">
+<ul>
+<li><strong>转为 OLE：</strong> 将选中的 OMML 管理公式转为 OLE 公式对象（支持更多渲染选项）</li>
+<li><strong>转为 Word：</strong> 将 OLE 公式转为 Word 原生 OMML 公式（可像 Word 公式一样直接编辑）</li>
+</ul>
+
+</div>
+<h2 id="shizhi">格式重置</h2>
+<div class="block">
+<ul>
+<li><strong>格式化所选：</strong> 将选中的公式恢复为默认字体、颜色和自然尺寸</li>
+<li><strong>格式化全部：</strong> 将所有尺寸被修改过的公式恢复为自然尺寸</li>
 </ul>
 
 </div>
@@ -1272,6 +1324,8 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <ul>
 <li><strong>公式组：</strong> 插入公式、截图识别</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
+<li><strong>转换组：</strong> 转为 OLE、转为 PNG</li>
+<li><strong>格式化组：</strong> 格式化所选、格式化全文</li>
 <li><strong>工具组：</strong> 状态窗格、设置、帮助</li>
 </ul>
 
@@ -1298,6 +1352,16 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <ul>
 <li><strong>加载所选：</strong> 选中幻灯片上的公式图片，点击加载所选，公式的 LaTeX 源码会载入独立公式编辑器。修改后重新插入时，新图片会替换原位置旧图片</li>
 <li><strong>删除所选：</strong> 删除选中的公式图片及元数据</li>
+</ul>
+
+</div>
+<h2 id="shiyushizhi">公式转换与格式重置</h2>
+<div class="block">
+<ul>
+<li><strong>转为 OLE：</strong> 将选中 PNG 格式的公式图片转换为 OLE 公式对象</li>
+<li><strong>转为 PNG：</strong> 将 OLE 公式转换为 PNG 图片</li>
+<li><strong>格式化所选：</strong> 将选中的公式恢复为默认字体、颜色和自然尺寸</li>
+<li><strong>格式化全文：</strong> 将所有尺寸被修改过的公式恢复为自然尺寸</li>
 </ul>
 
 </div>
@@ -1366,14 +1430,58 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-settings">设置与帮助</h1>
 <h2 id="shezhichuangkou">设置窗口</h2>
-<p>通过功能区"设置"按钮打开。设置窗口的内容因宿主程序而异：</p>
+<p>通过功能区"设置"按钮打开。设置窗口包含完整的公式参数配置：</p>
 <div class="block">
 <ul>
-<li><strong>Word：</strong> 可配置带编号公式的默认布局（编号位于右侧或左侧）、编号格式（阿拉伯数字、罗马数字、字母）和括号样式（圆括号、方括号、花括号、无）；该设置影响新插入的编号公式和自动编号/重编号操作，不影响已有公式</li>
-<li><strong>通用：</strong> 编辑器键盘行为说明（<code>Enter</code> 提交，<code>Ctrl+Enter</code> 换行，<code>Esc</code> 关闭）</li>
+<li><strong>公式插入方式：</strong> OLE 对象（默认，不依赖 Bridge）或 Word OMML（本地转换，不依赖 Bridge）</li>
+<li><strong>编号位置：</strong> 右编号（默认）或左编号</li>
+<li><strong>编号格式：</strong> 阿拉伯数字（1）、小写罗马数字（i）、大写罗马数字（I）、小写字母（a）、大写字母（A）</li>
+<li><strong>外框：</strong> 无、圆括号（()）、方括号（[]）、花括号（{}）</li>
+<li><strong>层级分隔符：</strong> <code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code></li>
+<li><strong>包含章编号 / 包含节编号：</strong> 控制编号是否包含层级部分</li>
+<li><strong>隐藏章分隔符 / 隐藏节分隔符：</strong> 控制文档中是否显示分隔符标记</li>
+<li><strong>字体颜色：</strong> 拾色器选择新插入公式的默认字体颜色</li>
+<li><strong>默认字体：</strong> TeX 原生字体、罗马正体、粗体、斜体</li>
 </ul>
 
 </div>
+<p><strong>*编辑器键盘行为</strong>*</p>
+<table class="typst-table">
+<thead>
+<tr>
+<th>快捷键</th>
+<th>功能</th>
+<th><code>Enter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新建数学行</td>
+<td><code>Shift +Enter</code></td>
+<td>插入或更新当前公式</td>
+</tr>
+<tr>
+<td><code>Ctrl +F</code></td>
+<td>插入分式</td>
+<td><code>Ctrl +R</code></td>
+</tr>
+<tr>
+<td>插入根号</td>
+<td><code>Ctrl +H</code></td>
+<td>插入上标</td>
+</tr>
+<tr>
+<td><code>Ctrl +L</code></td>
+<td>插入下标</td>
+<td><code>Ctrl +J</code></td>
+</tr>
+<tr>
+<td>插入上下标</td>
+<td><code>Esc</code></td>
+<td>收回 MathLive 虚拟键盘</td>
+</tr>
+</tbody>
+</table>
 <h2 id="chuangkou">帮助窗口</h2>
 <p>通过功能区"帮助"按钮打开，根据当前宿主（Word 或 PowerPoint）显示对应内容：</p>
 <div class="block">
