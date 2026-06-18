@@ -24,7 +24,7 @@ jobs:
       - name: 检查各 Release 文件时间戳
         id: decide
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
         run: |
           python3 << 'PYEOF'
           import json, os, subprocess
@@ -124,8 +124,7 @@ jobs:
         if: github.event_name == 'schedule'
         run: |
           UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
+            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \ \
             | jq -r '.sha')
           echo "Upstream SHA: $UPSTREAM_SHA"
 
@@ -282,7 +281,7 @@ jobs:
       - name: 触发用户手册构建
         run: |
           curl -sL -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-manual.yml/dispatches" \
             -d '{"ref":"master"}'
