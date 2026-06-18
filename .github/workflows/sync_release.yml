@@ -38,7 +38,7 @@ jobs:
 
           # Fetch release assets information
           # Step 1: get release_id from tag endpoint
-          tag_url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable"
+          tag_url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.4.0-LTS"
           result = subprocess.run(
               ["curl", "-sL", "--retry", "2",
                "-H", "Accept: application/vnd.github+json",
@@ -182,7 +182,7 @@ jobs:
 
           os.makedirs('.sync_tmp', exist_ok=True)
           for name in changed:
-              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.3.2_Final_Stable/{name}'
+              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.4.0-LTS/{name}'
               out = f'.sync_tmp/{name}'
               print(f'Downloading {name}...')
               subprocess.run(['curl', '-sL', '--retry', '2', url, '-o', out], check=True)
