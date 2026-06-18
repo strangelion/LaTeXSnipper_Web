@@ -23,6 +23,8 @@ jobs:
 
       - name: 检查各 Release 文件时间戳
         id: decide
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 << 'PYEOF'
           import json, os, subprocess
@@ -40,7 +42,7 @@ jobs:
           result = subprocess.run(
               ["curl", "-sL", "--retry", "2",
                "-H", "Accept: application/vnd.github+json",
-               "-H", f"Authorization: Bearer {os.environ['GITHUB_TOKEN']}",
+               "-H", f"Authorization: Bearer {os.environ['GH_TOKEN']}",
                tag_url],
               capture_output=True, text=True
           )
@@ -56,7 +58,7 @@ jobs:
           result = subprocess.run(
               ["curl", "-sL", "--retry", "2",
                "-H", "Accept: application/vnd.github+json",
-               "-H", f"Authorization: Bearer {os.environ['GITHUB_TOKEN']}",
+               "-H", f"Authorization: Bearer {os.environ['GH_TOKEN']}",
                assets_url],
               capture_output=True, text=True
           )
