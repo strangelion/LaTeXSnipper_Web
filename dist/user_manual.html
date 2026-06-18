@@ -175,6 +175,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#yong">交叉引用</a></li>
   <li class="toc-h2"><a href="#shi">公式转换</a></li>
   <li class="toc-h2"><a href="#shizhi">格式重置</a></li>
+  <li class="toc-h2"><a href="#xingnengyucankao">性能与复杂度参考</a></li>
   <li class="toc-h2"><a href="#shibie">截图识别</a></li>
 <li class="toc-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
@@ -345,6 +346,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#yong">交叉引用</a></li>
   <li class="rs-h2"><a href="#shi">公式转换</a></li>
   <li class="rs-h2"><a href="#shizhi">格式重置</a></li>
+  <li class="rs-h2"><a href="#xingnengyucankao">性能与复杂度参考</a></li>
   <li class="rs-h2"><a href="#shibie">截图识别</a></li>
 <li class="rs-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
   <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
@@ -506,7 +508,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li><strong>编辑区：</strong> 主窗口右侧是 LaTeX 编辑器，支持实时预览渲染</li>
 <li><strong>数学工作台：</strong> 点击"数学工作台"按钮打开独立窗口，会自动载入主编辑器中的公式。在工作台中可以编辑公式、进行数值计算或表达式化简，完成后可写回主编辑器</li>
 <li><strong>手写识别：</strong> 从主窗口打开手写窗口，内置识别固定使用 MathCraft 混合模式，手写文字和公式会一起识别</li>
-<li><strong>导出：</strong> 右键或菜单可选择 30+种格式导出（部分需要 Pandoc）</li>
+<li><strong>导出：</strong> 右键或菜单可选择 20 种桌面端导出格式（部分需要 Pandoc）</li>
 </ul>
 </div>
 </div>
@@ -534,8 +536,13 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li><strong>手写识别：</strong> 打开独立手写画布，写完后自动触发识别，结果可复制或写回主编辑器。</li>
 <li><strong>双语阅读：</strong> 打开 PDF 阅读/翻译窗口，左侧查看 PDF，右侧显示当前页原文与中文。</li>
 <li><strong>数学工作台：</strong> 将主编辑器中的公式载入 MathLive 工作台，进行计算、化简、展开、因式分解、求解等操作。</li>
-<li><strong>复制 / 导出：</strong> 复制当前编辑器内容，或通过统一导出菜单导出为 LaTeX、Markdown、MathML、HTML、OMML、SVG 以及 Pandoc 扩展格式。</li>
+<li><strong>复制 / 导出：</strong> 复制当前编辑器内容，或通过统一导出菜单导出为 LaTeX、Markdown、MathML、HTML、OMML、SVG 以及 Pandoc 扩展格式（Word、ODT、PowerPoint、EPUB、PDF、HTML 独立页、Typst、纯文本）。</li>
 <li><strong>收藏夹 / 历史记录：</strong> 历史项和收藏项都支持复制、编辑、导出、重命名和删除。</li>
+</ul>
+<p>桌面端当前共有 <strong>20 种导出格式</strong>：</p>
+<ul>
+<li><strong>内置格式（无需 Pandoc）：</strong> LaTeX 行内、LaTeX display、LaTeX equation、Markdown 行内、Markdown 块级、MathML、MathML <code>.mml</code>、MathML <code>&lt;m&gt;</code>、MathML 属性形式、HTML、Word OMML、SVG Code</li>
+<li><strong>Pandoc 扩展格式：</strong> Word <code>.docx</code>、ODT <code>.odt</code>、PowerPoint <code>.pptx</code>、EPUB <code>.epub</code>、PDF <code>.pdf</code>、HTML 独立页 <code>.html</code>、Typst <code>.typ</code>、纯文本 <code>.txt</code></li>
 </ul>
 <p>托盘或菜单栏状态菜单还提供 <strong>截图屏幕模式</strong>：自动模式会按鼠标释放点选择屏幕，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。</p>
 <h2 id="shezhiqianji">设置页当前业务逻辑</h2>
@@ -871,13 +878,14 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <li><strong>应用在后台运行？</strong> Windows 和有托盘的 Linux 会隐藏到系统托盘；macOS 会保持应用运行，可从 Dock 或菜单栏状态项重新打开</li>
 </ul>
 <h2 id="gongnengyongpandoc-xiangguan">导出功能不可用（Pandoc 相关）</h2>
-<p><strong>现象：</strong> 导出 Word / EPUB / Typst 等格式时报错或选项灰色。</p>
-<p><strong>原因：</strong> 这些格式依赖 Pandoc。Pandoc 是可选的外部工具。</p>
+<p><strong>现象：</strong> 导出 Word / PowerPoint / EPUB / PDF / Typst 等格式时报错或选项灰色。</p>
+<p><strong>原因：</strong> 这些格式依赖 Pandoc。Pandoc 是可选的外部工具；PDF 导出还需要系统中可用的 LaTeX PDF 引擎（XeLaTeX、LuaLaTeX 或 pdfLaTeX）。</p>
 <p><strong>解决：</strong></p>
 <ul>
 <li>打开依赖向导，安装 "PANDOC"层</li>
 <li>或手动安装 Pandoc（https://pandoc.org）并确保在 PATH 中</li>
-<li>核心功能（LaTeX / Markdown / MathML / HTML 导出）不需要 Pandoc</li>
+<li>核心功能（LaTeX / Markdown / MathML / HTML / OMML / SVG 导出）不需要 Pandoc</li>
+<li>PDF 导出如果继续失败，请确认已安装 TeX Live / MiKTeX 等 LaTeX 发行版，并且 <code>xelatex</code>、<code>lualatex</code> 或 <code>pdflatex</code> 可在 PATH 中找到</li>
 </ul>
 <h2 id="shibiefa">手写识别不触发 / 延迟太高</h2>
 <p><strong>现象：</strong> 在手写窗口写完公式后没反应，或延迟很长才识别。</p>
@@ -1312,6 +1320,139 @@ OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li><strong>格式化所选：</strong> 将选中的公式恢复为默认字体、颜色和自然尺寸</li>
 <li><strong>格式化全部：</strong> 将所有尺寸被修改过的公式恢复为自然尺寸</li>
 </ul>
+
+</div>
+<h2 id="xingnengyucankao">性能与复杂度参考</h2>
+<p>下面的复杂度用于估算长文档中的响应时间。设 <code>n</code> 为参与操作的公式数，<code>m</code> 为文档中 LaTeXSnipper 管理公式总数，<code>c</code> 为文档中的内容控件/图片对象数量，<code>s</code> 为单个公式源码或 OMML/MathML XML 的长度，<code>r</code> 为一次 MathJax 渲染或图片/OLE 生成成本。</p>
+<table class="typst-table">
+<thead>
+<tr>
+<th>操作</th>
+<th>Word 复杂度</th>
+<th>PowerPoint 复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要耗时来源</td>
+<td>插入 OLE 公式</td>
+<td><code>O(s +r +ole)</code></td>
+</tr>
+<tr>
+<td><code>O(s +r +ole)</code></td>
+<td>MathJax 渲染、EMF/OLE 对象创建、Office COM 插入</td>
+<td>插入 Word OMML</td>
+</tr>
+<tr>
+<td><code>O(s +r +xsl +xml)</code></td>
+<td>不适用</td>
+<td>MathJax 转 MathML、MML2OMML XSL、Word <code>InsertXML</code></td>
+</tr>
+<tr>
+<td>插入 PowerPoint PNG</td>
+<td>不适用</td>
+<td><code>O(s +r +png)</code></td>
+</tr>
+<tr>
+<td>MathJax 渲染、SVG/PNG 光栅化、形状插入</td>
+<td>插入带编号公式</td>
+<td><code>O(s +r +ole/xml)</code></td>
+</tr>
+<tr>
+<td>不适用</td>
+<td>公式插入 +编号内容控件布局</td>
+<td>加载所选</td>
+</tr>
+<tr>
+<td><code>O(c)</code> 最坏，通常接近 <code>O(1)</code></td>
+<td><code>O(c)</code> 最坏，通常接近 <code>O(1)</code></td>
+<td>从选区附近定位元数据，必要时扫描对象</td>
+</tr>
+<tr>
+<td>更新公式</td>
+<td><code>O(s +r +replace)</code></td>
+<td><code>O(s +r +replace)</code></td>
+</tr>
+<tr>
+<td>重新渲染和替换原对象；OLE 会保留用户缩放</td>
+<td>删除所选</td>
+<td><code>O(n log n)</code></td>
+</tr>
+<tr>
+<td><code>O(n)</code></td>
+<td>按文档位置排序后删除公式、编号和相邻制表符</td>
+<td>添加编号</td>
+</tr>
+<tr>
+<td><code>O(s +r +replace)</code></td>
+<td>不适用</td>
+<td>将普通行间公式改为编号布局并更新元数据</td>
+</tr>
+<tr>
+<td>重编号全部</td>
+<td><code>O(m log m +refs)</code></td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>收集并排序全部编号公式，更新编号文本和引用书签</td>
+<td>插入章/节分隔符</td>
+<td><code>O(m log m +refs)</code></td>
+</tr>
+<tr>
+<td>不适用</td>
+<td>插入边界后立即重编号全部自动编号公式</td>
+<td>插入交叉引用</td>
+</tr>
+<tr>
+<td><code>O(1)</code> 插入占位，选择目标时 <code>O(c)</code></td>
+<td>不适用</td>
+<td>查找目标编号控件并创建 Word 书签/域</td>
+</tr>
+<tr>
+<td>转 OLE（插件 OMML）</td>
+<td><code>O(n * (s +r +ole))</code></td>
+<td><code>O(n * (s +r +ole))</code>（PNG → OLE）</td>
+</tr>
+<tr>
+<td>渲染、OLE 创建、逐个 COM 替换</td>
+<td>Word 原生 OMath 转 OLE</td>
+<td><code>O(n * (s +xsl +r +ole))</code></td>
+</tr>
+<tr>
+<td>不适用</td>
+<td>OMML2MML XSL、MathJax 渲染、OLE 创建</td>
+<td>转 Word OMML / PNG</td>
+</tr>
+<tr>
+<td><code>O(n * (s +r +xsl +xml))</code></td>
+<td><code>O(n * (s +r +png))</code></td>
+<td>OLE/PNG 重新生成和 Office 对象替换</td>
+</tr>
+<tr>
+<td>格式化所选</td>
+<td><code>O(n * (s +r +replace))</code></td>
+<td><code>O(n * (s +r +replace))</code></td>
+</tr>
+<tr>
+<td>只有属性不同或尺寸被改过时才重新渲染/重置</td>
+<td>格式化全部</td>
+<td><code>O(m)</code></td>
+</tr>
+<tr>
+<td><code>O(m)</code></td>
+<td>扫描全文公式并恢复被用户缩放过的自然尺寸</td>
+<td>截图识别</td>
+</tr>
+<tr>
+<td><code>O(ocr +s +r)</code></td>
+<td><code>O(ocr +s +r)</code></td>
+<td>桌面端 OCR 和后续公式插入</td>
+</tr>
+</tbody>
+</table>
+<div class="block">
+<p>多选转换目前按公式逐个串行处理，并在 Word/PowerPoint 主线程执行最终对象替换。长公式或大量公式时，卡顿通常来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换），而不是选择发现本身。特别是 OLE 对象创建和 Word <code>InsertXML</code> 都是同步 COM 操作，执行期间 Office 界面可能短暂无响应。建议一次转换的公式数量控制在一个自然段或一页范围内；长文档批量清理时，优先分段执行并保存文档。</p>
+<p>Word 原生 OMath 转 OLE 会尽量保留可继续转换的 LaTeXSnipper 元数据。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
 
 </div>
 <h2 id="shibie">截图识别</h2>
