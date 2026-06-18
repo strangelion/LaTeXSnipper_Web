@@ -38,7 +38,10 @@ jobs:
           # Step 1: get release_id from tag endpoint
           tag_url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.3.2_Final_Stable"
           result = subprocess.run(
-              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", tag_url],
+              ["curl", "-sL", "--retry", "2",
+               "-H", "Accept: application/vnd.github+json",
+               "-H", f"Authorization: Bearer {os.environ['GITHUB_TOKEN']}",
+               tag_url],
               capture_output=True, text=True
           )
           release = json.loads(result.stdout)
@@ -51,7 +54,10 @@ jobs:
           # Step 2: fetch all assets via the dedicated endpoint (supports pagination)
           assets_url = f"https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/{release_id}/assets?per_page=100"
           result = subprocess.run(
-              ["curl", "-sL", "--retry", "2", "-H", "Accept: application/vnd.github+json", assets_url],
+              ["curl", "-sL", "--retry", "2",
+               "-H", "Accept: application/vnd.github+json",
+               "-H", f"Authorization: Bearer {os.environ['GITHUB_TOKEN']}",
+               assets_url],
               capture_output=True, text=True
           )
           all_assets = json.loads(result.stdout)
@@ -116,6 +122,7 @@ jobs:
         if: github.event_name == 'schedule'
         run: |
           UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
             | jq -r '.sha')
           echo "Upstream SHA: $UPSTREAM_SHA"
