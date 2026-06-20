@@ -116,6 +116,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#linuxmacos-huanjing">Linux/macOS 依赖环境创建在哪里</a></li>
   <li class="toc-h2"><a href="#pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</a></li>
   <li class="toc-h2"><a href="#wentiprogram-files-mu">权限问题（Program Files / 系统目录）</a></li>
+  <li class="toc-h2"><a href="#yonghemoxing">卸载后如何清理用户数据和模型缓存</a></li>
   <li class="toc-h2"><a href="#yongte">中文路径 / 用户名包含特殊字符</a></li>
 <li class="toc-h1"><a href="#sec-network">网络与更新问题</a></li>
   <li class="toc-h2"><a href="#windows-bendi">Windows 防火墙拦截本地服务</a></li>
@@ -287,6 +288,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#linuxmacos-huanjing">Linux/macOS 依赖环境创建在哪里</a></li>
   <li class="rs-h2"><a href="#pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</a></li>
   <li class="rs-h2"><a href="#wentiprogram-files-mu">权限问题（Program Files / 系统目录）</a></li>
+  <li class="rs-h2"><a href="#yonghemoxing">卸载后如何清理用户数据和模型缓存</a></li>
   <li class="rs-h2"><a href="#yongte">中文路径 / 用户名包含特殊字符</a></li>
 <li class="rs-h1"><a href="#sec-network">网络与更新问题</a></li>
   <li class="rs-h2"><a href="#windows-bendi">Windows 防火墙拦截本地服务</a></li>
@@ -426,7 +428,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <div class="center">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
-<p>适用于 v2.4.0 LTS</p>
+<p>适用于 v2.4.0-LTS | 长期支持版</p>
 
 </div>
 <div class="center">
@@ -530,7 +532,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <h2 id="zhuchuangkoufenbie">主窗口按钮分别做什么</h2>
 <p>当前主窗口左侧是截图和历史区，右侧是 LaTeX 编辑、预览和工具入口：</p>
 <ul>
-<li><strong>截图识别：</strong> 使用全局快捷键或按钮进入框选截图识别。默认快捷键是 <code>Ctrl+F</code>，可在主窗口"快捷键"按钮中修改。</li>
+<li><strong>截图识别：</strong> 使用全局快捷键或按钮进入框选截图识别。默认快捷键 Windows/Linux 为 <code>Ctrl+F</code>，macOS 为 <code>Command+F</code>，可在主窗口"快捷键"按钮中修改。</li>
 <li><strong>图片识别：</strong> 选择本地图片文件并走当前识别模型。</li>
 <li><strong>PDF识别：</strong> 选择 PDF 后按页渲染识别，可输出 Markdown 或 LaTeX 文档。</li>
 <li><strong>手写识别：</strong> 打开独立手写画布，写完后自动触发识别，结果可复制或写回主编辑器。</li>
@@ -596,7 +598,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li>尝试切换网络（如手机热点）</li>
 <li>删除 MathCraft 模型缓存目录下残留的不完整下载后重试：</li>
 </ul>
-<p>-Windows：<code>%APPDATA%\MathCraft\models\</code>-Linux/macOS：<code>~/.mathcraft/models/</code></p>
+<p>-Windows：<code>%APPDATA%\MathCraft\models\</code>-Linux：<code>${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models/</code>-macOS：<code>~/Library/Application Support/LaTeXSnipper/MathCraft/models/</code></p>
 <div class="callout tip">
 <div class="callout-title">命令行诊断</div>
 <div class="callout-body"><p>运行 <code>python -m mathcraft_ocr models check</code> 可以查看模型缓存状态。</p>
@@ -637,7 +639,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <p><strong>原因：</strong> 下载过程中断导致模型文件不完整；或者磁盘故障导致文件损坏。</p>
 <p><strong>解决：</strong></p>
 <ul>
-<li>删除对应模型目录：Windows 为 <code>%APPDATA%\MathCraft\models\&lt;model_id&gt;\</code>，Linux/macOS 为 <code>~/.mathcraft/models/&lt;model_id&gt;/</code></li>
+<li>删除对应模型目录：Windows 为 <code>%APPDATA%\MathCraft\models\&lt;model_id&gt;\</code>，Linux 为 <code>${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models/&lt;model_id&gt;/</code>，macOS 为 <code>~/Library/Application Support/LaTeXSnipper/MathCraft/models/&lt;model_id&gt;/</code></li>
 <li>重启应用，会自动重新下载</li>
 <li>或用命令行：<code>python -m mathcraft_ocr models check</code> 检查缓存状态</li>
 </ul>
@@ -805,6 +807,14 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <li>GitHub 安装包默认安装到 <code>%LOCALAPPDATA%\LaTeXSnipper</code>，普通用户权限即可运行</li>
 <li>如果手动放入 <code>C:\Program Files\</code> 等受保护目录，不要把依赖目录、模型缓存或日志目录指向安装目录；保持默认用户目录通常没有问题</li>
 </ul>
+<h2 id="yonghemoxing">卸载后如何清理用户数据和模型缓存</h2>
+<p>LaTeXSnipper 卸载默认保留用户数据，方便升级或重装后继续使用原配置、历史记录、依赖环境和 MathCraft 模型缓存。需要彻底清理时：</p>
+<ul>
+<li><strong>Windows：</strong> 运行 Windows 安装包自带卸载程序时，会出现两个可选项：删除 LaTeXSnipper 用户数据/日志/依赖状态/临时文件，删除 MathCraft 模型权重。</li>
+<li><strong>Linux <code>.deb</code>：</strong> 包管理器卸载不会自动删除 home 目录数据。卸载前可运行 <code>latexsnipper-clean-user-data</code>，按提示删除当前用户的数据和模型缓存。</li>
+<li><strong>macOS <code>.dmg</code> / <code>.app.zip</code>：</strong> 删除 <code>.app</code> 只会移除应用本体。需要清理数据时，运行 <code>.dmg</code> 中的 <code>Uninstall User Data.command</code>，或运行 app 包内 <code>Contents/Resources/Uninstall User Data.command</code>。</li>
+</ul>
+<p>如果你显式设置过 <code>MATHCRAFT_HOME</code> 指向自定义目录，卸载和清理脚本都不会自动删除该目录，避免误删用户指定的外部数据位置。</p>
 <h2 id="yongte">中文路径 / 用户名包含特殊字符</h2>
 <p><strong>现象：</strong> 启动崩溃或模型加载失败。</p>
 <p><strong>原因：</strong> Windows 用户名含中文、空格、特殊符号时，<code>%APPDATA%</code> 路径可能包含非 ASCII 字符，某些 C 库或 ONNX 底层可能无法正确处理。</p>
@@ -968,17 +978,17 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <p><strong>主要差异集中在系统集成层：</strong></p>
 <ul>
 <li><strong>截图快捷键：</strong> Windows 使用 Win32 原生全局快捷键；Linux 使用 <code>pynput</code> 全局快捷键，X11 最稳定，Wayland 可能受桌面环境策略限制；macOS 使用 Carbon 原生全局快捷键。</li>
-<li><strong>可设置快捷键：</strong> 三端统一限制为 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>。</li>
-<li><strong>默认快捷键：</strong> 三端都是 <code>Ctrl+F</code>。</li>
+<li><strong>可设置快捷键：</strong> Windows/Linux 支持 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>；macOS 支持 <code>Command+字母</code> 或 <code>Command+Shift+字母</code>。</li>
+<li><strong>默认快捷键：</strong> Windows/Linux 为 <code>Ctrl+F</code>；macOS 为 <code>Command+F</code>。</li>
 <li><strong>截图实现：</strong> Windows 使用 Qt 框选截图；Linux 先走 Qt，失败后可尝试 <code>grim</code>、<code>maim</code>、<code>gnome-screenshot</code> 等系统工具或 portal 回退；macOS 先走 Qt，可回退到系统 <code>screencapture</code>，首次使用可能弹出屏幕录制权限。</li>
 <li><strong>关闭窗口 / 后台常驻：</strong> Windows 关闭主窗口会隐藏到系统托盘，托盘菜单"退出"才真正退出；Linux 有系统托盘时关闭主窗口会隐藏到托盘，没有托盘时会询问是否退出；macOS 关闭主窗口会最小化并保持应用运行，Dock 或菜单栏"退出"才真正退出。</li>
 <li><strong>权限要求：</strong> Windows 普通截图路径不需要额外系统权限；Linux Wayland 可能限制截图和全局快捷键；macOS 截图需要屏幕录制权限，Carbon 全局快捷键通常不需要辅助功能权限。</li>
-<li><strong>依赖环境：</strong> Windows GitHub 安装包内置规范化依赖环境，Store 包内置 CPU 运行时和模型；Linux/macOS 运行时在 <code>~/.latexsnipper/deps/python311</code> 创建依赖环境，需要系统 Python 3.10+。</li>
-<li><strong>安装包：</strong> Windows 使用 Inno 安装包或 Store MSIX，GitHub Release 优先发布签名安装包，签名不可用时发布同名未签名回退包；Linux 使用 Debian/Ubuntu <code>.deb</code>；macOS 使用 <code>.dmg</code> 或 <code>.app.zip</code>。</li>
+<li><strong>依赖环境：</strong> Windows GitHub 安装包内置规范化依赖环境；Linux 运行时在 <code>~/.latexsnipper/deps/python311</code> 创建依赖环境，macOS 运行时在 <code>~/Library/Application Support/LaTeXSnipper/deps/python311</code> 创建依赖环境，需要系统 Python 3.10+。</li>
+<li><strong>安装包：</strong> Windows 使用 Inno 安装包；GitHub Release 优先发布签名安装包，签名不可用时发布同名未签名回退包；Linux 使用 Debian/Ubuntu <code>.deb</code>；macOS 使用 <code>.dmg</code> 或 <code>.app.zip</code>。</li>
 </ul>
 <div class="callout info">
 <div class="callout-title">快捷键兼容性</div>
-<div class="callout-body"><p>当前快捷键设置入口只接受 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>，因此默认快捷键和用户可设置快捷键都落在三端共同支持范围内。</p>
+<div class="callout-body"><p>快捷键设置入口使用平台主修饰键：Windows/Linux 接受 <code>Ctrl+字母</code> 或 <code>Ctrl+Shift+字母</code>，macOS 接受 <code>Command+字母</code> 或 <code>Command+Shift+字母</code>。</p>
 <p>若 Linux Wayland 环境下快捷键或截图无响应，通常是桌面环境权限或全局快捷键策略限制，优先参考下方 Wayland 说明。</p>
 <p>macOS 使用 Carbon 注册全局快捷键，通常不需要开启"辅助功能"权限；截图失败时应优先检查"屏幕录制"权限。</p>
 </div>
@@ -1031,7 +1041,7 @@ libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0</code></
 <p>LaTeXSnipper 在 macOS 上使用 Carbon 原生全局快捷键注册，不使用 pynput 或键盘事件监听线程。截图快捷键不生效时，优先检查快捷键是否被系统或其他软件占用，以及应用是否仍在运行。只有涉及低层键盘监听、模拟键鼠控制或其他辅助控制能力的软件通常才需要"辅助功能"权限。</p>
 <h2 id="macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</h2>
 <p><strong>现象：</strong> 依赖向导提示找不到 <code>pip</code>，或安装依赖时出现 <code>pip</code> / <code>setuptools</code> / <code>wheel</code> 版本过低。</p>
-<p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python 3.10+创建 <code>~/.latexsnipper/deps/python311</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</p>
+<p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python 3.10+创建 <code>~/Library/Application Support/LaTeXSnipper/deps/python311</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</p>
 <p><strong>解决：</strong></p>
 <ul>
 <li>推荐安装 Homebrew Python：<code>brew install python</code></li>
@@ -1042,16 +1052,16 @@ libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0</code></
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>配置文件 &amp; 日志：
 Windows:  %USERPROFILE%\.latexsnipper
 Linux:    ~/.latexsnipper/
-macOS:    ~/.latexsnipper/
+macOS:    ~/Library/Application Support/LaTeXSnipper/
 
 Linux/macOS Python 依赖环境：
 Linux:    ~/.latexsnipper/deps/python311
-macOS:    ~/.latexsnipper/deps/python311
+macOS:    ~/Library/Application Support/LaTeXSnipper/deps/python311
 
 模型缓存（MathCraft ONNX）：
 Windows:  %APPDATA%\MathCraft\models
-Linux:    ~/.mathcraft/models/
-macOS:    ~/.mathcraft/models/</code></pre></div>
+Linux:    ${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models/
+macOS:    ~/Library/Application Support/LaTeXSnipper/MathCraft/models/</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-conflict">与其他软件冲突</h1>
 <h2 id="duoben-python-yong">多版本 Python 共存导致调用错误</h2>
@@ -1119,7 +1129,7 @@ macOS:    ~/.mathcraft/models/</code></pre></div>
 <ul>
 <li><code>python311/</code> 是 Windows 安装包的内置 Python 模板，只用于打包复制，不要安装开发依赖，不要执行 ruff/pyright/pytest。</li>
 <li><code>tools/deps/python311/</code> 是 IDE、开发检查和 Actions 打包使用的项目环境，可以安装 <code>requirements*.txt</code>、<code>ruff</code>、<code>pytest</code>、<code>pyright</code>。</li>
-<li>Linux/macOS 安装包运行时不会携带 <code>tools/deps/python311</code>，用户运行时依赖环境位于 <code>~/.latexsnipper/deps/python311</code>。</li>
+<li>Linux/macOS 安装包运行时不会携带 <code>tools/deps/python311</code>。Linux 用户运行时依赖环境位于 <code>~/.latexsnipper/deps/python311</code>，macOS 位于 <code>~/Library/Application Support/LaTeXSnipper/deps/python311</code>。</li>
 </ul>
 <p><strong>Windows 开发者初始化示例：</strong></p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>py -3.11 -m venv tools\deps\python311
@@ -1132,7 +1142,8 @@ macOS:    ~/.mathcraft/models/</code></pre></div>
 <div class="callout-body"><ul>
 <li>仓库根目录 <code>python311/</code> — Windows 模板环境，不要污染。</li>
 <li><code>tools/deps/python311/</code> — 开发、检查、构建环境。</li>
-<li><code>~/.latexsnipper/deps/python311</code> — Linux/macOS 用户运行时依赖环境。</li>
+<li><code>~/.latexsnipper/deps/python311</code> — Linux 用户运行时依赖环境。</li>
+<li><code>~/Library/Application Support/LaTeXSnipper/deps/python311</code> — macOS 用户运行时依赖环境。</li>
 </ul>
 </div>
 </div>
@@ -1221,13 +1232,13 @@ macOS:    ~/.mathcraft/models/</code></pre></div>
 <h2 id="xinganzhuang">命令行静默安装</h2>
 <p>安装包支持 Inno Setup 标准静默参数：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#静默安装（显示进度条）
-OfficePluginSetup-2.3.2.exe /silent
+OfficePluginSetup-2.4.0.exe /silent
 
 #完全静默（无界面）
-OfficePluginSetup-2.3.2.exe /verysilent
+OfficePluginSetup-2.4.0.exe /verysilent
 
 #自定义安装目录
-OfficePluginSetup-2.3.2.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
+OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -2177,7 +2188,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h2 id="moxingjiyushibiepeizhi">模型集与识别配置</h2>
-<p>当前 <code>mathcraft-ocr</code> PyPI 包版本线为 <code>0.2.x</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.3</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
@@ -2273,7 +2284,7 @@ export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
 
 </div>
 <div class="center">
-<p>LaTeXSnipper FAQ · 版本 v2.4.0 LTS · https://github.com/SakuraMathcraft/LaTeXSnipper</p>
+<p>LaTeXSnipper FAQ · 版本 v2.4.0-LTS · https://github.com/SakuraMathcraft/LaTeXSnipper</p>
 
 </div>
 
