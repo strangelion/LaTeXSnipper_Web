@@ -65,6 +65,12 @@ const CARDS = [
     title: '双语 PDF 翻译',
     brief: '离线翻译 PDF，原文译文对照看。',
     detail: '内置 PDF 翻译功能，选中 PDF 后可以一边看原文、一边看译文，左右对照。翻译在本地完成，不需要联网，不用担心文档内容泄露。支持选页翻译，也支持整篇翻译。'
+  },
+  {
+    id: 'card-9',
+    title: 'Office/WPS 加载项',
+    brief: 'Word 和 PowerPoint 中直接使用，公式插入无缝衔接。',
+    detail: 'LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区中添加 LaTeXSnipper 专用标签页。支持 OLE 公式对象渲染、截图 OCR 识别、OMML 转换，通过 Bridge 与桌面端通信。WPS 用户也可以使用对应的加载项版本，在国产办公软件中享受同样的公式识别体验。'
   }
 ]
 

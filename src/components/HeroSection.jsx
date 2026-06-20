@@ -96,7 +96,7 @@ export default function HeroSection() {
           <p className="hero-sub">
             截取识别 → 手写输入 → 编辑计算 → 导出结果 — <span id="typed">{typed}</span>
           </p>
-          <div className="hero-badge">v2.3.2_Final_Stable · 免费开源 · Windows / Linux / macOS</div>
+          <div className="hero-badge">v2.4.0 LTS · 免费开源 · Windows / Linux / macOS</div>
           <div className="hero-ctas">
             <a className="btn primary" href="user_manual.html">阅读用户手册</a>
             <a className="btn" href="download.html">下载软件</a>
