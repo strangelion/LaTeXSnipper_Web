@@ -124,7 +124,8 @@ jobs:
         if: github.event_name == 'schedule'
         run: |
           UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \ \
+            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \
+            "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
             | jq -r '.sha')
           echo "Upstream SHA: $UPSTREAM_SHA"
 
