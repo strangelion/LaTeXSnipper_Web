@@ -7,7 +7,14 @@ workers_dev = false
 [assets]
 directory = "deploy"
 binding = "ASSETS"
-run_worker_first = true
+# Office 页面必须先进入 Worker，避免静态资产层提前重定向
+run_worker_first = ["/office/*"]
+
+# 禁用 Cloudflare 对 index.html 的自动 307 规范化
+html_handling = "none"
+
+# Office 路径找不到资源时必须是真实 404
+not_found_handling = "none"
 
 # ── R2 模型存储（OCR 模型文件） ──
 # 创建 R2 Bucket 后用 wrangler 上传模型：
