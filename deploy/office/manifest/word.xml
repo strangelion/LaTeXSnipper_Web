@@ -6,7 +6,7 @@
   xsi:type="TaskPaneApp">
 
   <Id>9a7b3c4d-5e6f-7890-abcd-ef1234567890</Id>
-  <Version>1.0.2.0</Version>
+  <Version>1.0.3.0</Version>
   <ProviderName>LaTeXSnipper</ProviderName>
   <DefaultLocale>zh-CN</DefaultLocale>
 
@@ -14,7 +14,7 @@
   <Description DefaultValue="LaTeXSnipper Word 公式编辑器"/>
 
   <IconUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/assets/icon-80.png"/>
+  <HighResolutionIconUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane/index.html"/>
 
   <AppDomains>

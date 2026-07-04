@@ -7,6 +7,7 @@ workers_dev = false
 [assets]
 directory = "deploy"
 binding = "ASSETS"
+run_worker_first = true
 
 # ── R2 模型存储（OCR 模型文件） ──
 # 创建 R2 Bucket 后用 wrangler 上传模型：
