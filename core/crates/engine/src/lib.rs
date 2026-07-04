@@ -1,0 +1,16 @@
+pub mod api;
+pub mod config;
+pub mod engine;
+pub mod job;
+pub mod metrics;
+pub mod sdk;
+pub mod service;
+
+pub use config::EngineConfig;
+pub use engine::{RecognizeMode, RecognizeRequest, RecognizeResponse, SnipperEngine, StreamItem};
+pub use job::{Job, JobQueue, JobStatus};
+pub use metrics::{MetricsBuilder, RecognitionMetrics, SerializableMetrics};
+pub use service::{Service, ServiceStatus};
+
+// Re-export api-types for backward compatibility (wasm/ffi use these via engine)
+pub use latexsnipper_api_types::{RecognizeMode as ApiRecognizeMode, StreamItem as ApiStreamItem};

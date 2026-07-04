@@ -14,11 +14,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run build:manual",
+    "build": "vite build && npm run build:manual && npm run assemble",
     "build:manual": "node scripts/copy-assets.cjs",
+    "assemble": "node scripts/assemble-deploy.mjs",
     "preview": "vite preview",
-    "deploy": "wrangler deploy",
-    "deploy:prod": "wrangler deploy --env production",
+    "deploy": "wrangler deploy --env production",
     "deploy:preview": "wrangler deploy --env preview",
     "deploy:branch": "wrangler deploy --branch"
   }

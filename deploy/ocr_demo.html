@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公式识别 Demo — LaTeXSnipper</title>
+<link rel="icon" type="image/png" href="assets/images/icon.png">
+<script>
+  try { var s = localStorage.getItem('latexSnipper-theme'); if (s === 'dark' || s === 'light') document.documentElement.setAttribute('data-theme', s); } catch (e) {}
+</script>
+<link rel="stylesheet" href="styles/styles.css" media="all">
+<style>
+/* ============================================================
+   CSS 目录
+   1. 基础布局 (html, body, nav, demo-page)
+   2. 状态栏 & 进度条
+   3. 拖拽区 (drop-zone)
+   4. 结果卡片 & 复制按钮
+   5. 相机 (trigger, modal)
+   6. 模式切换标签
+   7. 手写板 (canvas, toolbar)
+   8. MathJax 预览
+   9. 手机端适配 (@media)
+   ============================================================ */
+
+/* ── 1. 基础布局 ── */
+html { background: var(--bg); }
+body { background: transparent; font-family: "Segoe UI","Noto Sans CJK SC","Microsoft YaHei",sans-serif; }
+.spacer-top { height: 56px; }
+.top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--hdr-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color); }
+.top-nav .inner { max-width: var(--max-w); margin: 0 auto; padding: 0 1.25rem; height: 48px; display: flex; align-items: center; gap: 1rem; }
+.top-nav a { color: var(--fg); text-decoration: none; font-size: 0.9rem; }
+.top-nav a:hover { color: var(--accent); }
+.top-nav .brand-link { font-weight: 700; font-size: 1rem; }
+.top-nav .active-link { color: var(--accent); font-weight: 600; }
+.theme-toggle { margin-left: auto; background: none; border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 12px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--fg); transition: background 0.2s, border-color 0.2s; backdrop-filter: blur(4px); }
+.theme-toggle:hover { background: rgba(128,128,128,0.1); border-color: var(--accent); }
+.theme-icon { flex-shrink: 0; display: block; }
+.theme-label { line-height: 1; white-space: nowrap; }
+.demo-page { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+.demo-title { font-size: 2rem; font-weight: 800; text-align: center; margin: 0 0 0.5rem; background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.demo-sub { text-align: center; color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+
+/* ── 2. 状态栏 & 进度条 ── */
+.status-bar { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); font-size: 0.9rem; color: var(--muted); }
+.spinner { width: 22px; height: 22px; border: 3px solid var(--border-color); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: none; flex-shrink: 0; }
+.spinner.show { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.progress-wrap { width: 100%; max-width: 400px; margin: 0 auto 1.5rem; display: none; }
+.progress-wrap.show { display: block; }
+.progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+.progress-track { width: 100%; height: 8px; background: var(--border-color); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+.error-msg { color: #ef4444; font-size: 0.9rem; text-align: center; padding: 1rem; }
+.info-note { margin-top: 2rem; padding: 1rem; border-radius: 10px; background: var(--card-bg); border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+/* ── 3. 拖拽区 ── */
+.drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--card-bg); margin-bottom: 1.5rem; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(37,99,235,0.04); }
+.drop-zone input { display: none; }
+.drop-zone .icon { margin-bottom: 0.5rem; color: var(--muted); }
+.drop-zone img { max-width: 100%; max-height: 300px; border-radius: 8px; display: block; margin: 0 auto; }
+
+/* ── 4. 结果卡片 ── */
+.result-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: none; }
+.result-card.show { display: block; }
+.result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
+.result-header .label { font-weight: 700; font-size: 0.95rem; color: var(--fg); }
+.confidence { font-size: 0.8rem; color: var(--muted); background: rgba(34,197,94,0.1); padding: 2px 10px; border-radius: 4px; }
+pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; border-radius: 8px; overflow: auto; font-size: 0.9rem; font-family: "SF Mono","Cascadia Code","Consolas",monospace; white-space: pre-wrap; word-break: break-all; margin: 0; }
+.ocr-copy { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 0.75rem; text-align: center; background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(124,58,237,0.25); }
+.ocr-copy:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(124,58,237,0.35); }
+.ocr-copy:active { transform: translateY(0); box-shadow: 0 1px 4px rgba(124,58,237,0.2); }
+.ocr-copy.copied { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 2px 8px rgba(34,197,94,0.25); }
+
+/* ── 5. 相机 ── */
+.cam-trigger-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 0.75rem; padding: 8px 18px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+.cam-trigger-btn:hover { border-color: var(--accent); background: rgba(37,99,235,0.06); }
+.cam-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.9); flex-direction: column; align-items: center; justify-content: center; gap: 1.25rem; }
+.cam-modal.show { display: flex; }
+.cam-modal video { max-width: 95vw; max-height: 70vh; border-radius: 12px; background: #000; }
+.cam-actions { display: flex; gap: 1rem; }
+.cam-btn { padding: 12px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; transition: transform 0.15s; }
+.cam-btn:active { transform: scale(0.96); }
+.cam-capture { background: var(--accent); color: #fff; }
+.cam-close { background: rgba(255,255,255,0.12); color: #fff; }
+.cam-segmented { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+.cam-seg-btn { padding: 7px 16px; border: none; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.6); background: transparent; transition: all 0.15s; position: relative; }
+.cam-seg-btn:first-child::after { content: ''; position: absolute; right: 0; top: 20%; height: 60%; width: 1px; background: rgba(255,255,255,0.2); }
+.cam-seg-btn.active { color: #fff; background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+.cam-seg-btn.active::after { display: none; }
+.cam-seg-btn.lasso-active { color: #fff; background: linear-gradient(135deg, #f59e0b, #f97316); }
+.cam-seg-btn.lasso-active::after { display: none; }
+.cam-crop-hint { animation: hintWave 2.5s ease-in-out infinite; }
+@keyframes hintWave { 0%,100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+
+/* ── 6. 模式切换标签 ── */
+.mode-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
+.mode-tab { padding: 8px 24px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--muted); cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
+.mode-tab:first-child { border-radius: 10px 0 0 10px; }
+.mode-tab:last-child { border-radius: 0 10px 10px 0; }
+.mode-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.model-tabs { display: flex; justify-content: center; gap: 0; margin-bottom: 1rem; }
+.model-tab { padding: 5px 20px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--muted); cursor: pointer; font-size: 0.82rem; font-weight: 500; transition: all 0.15s; }
+.model-tab:first-child { border-radius: 14px 0 0 14px; }
+.model-tab:last-child { border-radius: 0 14px 14px 0; }
+.model-tab.active { background: linear-gradient(135deg, var(--accent), #2563eb); color: #fff; border-color: transparent; }
+
+/* ── 7. 手写板 ── */
+.hw-panel { display: none; }
+.hw-panel.show { display: block; }
+.hw-canvas-wrap {
+  border: 2px dashed var(--border-color); border-radius: 16px; overflow: hidden; margin-bottom: 0.75rem; touch-action: none;
+  background-color: #ffffff;
+  background-image: linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+:root[data-theme="dark"] .hw-canvas-wrap {
+  background-color: #1e293b;
+  background-image: linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px);
+}
+.hw-canvas-wrap canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+.hw-canvas-wrap { position: relative; }
+.hw-resize-handle { position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; cursor: nwse-resize; opacity: 0.4; transition: opacity 0.2s; z-index: 5; }
+.hw-resize-handle:hover { opacity: 0.8; }
+.hw-resize-handle::after { content: ''; position: absolute; right: 4px; bottom: 4px; width: 10px; height: 10px; border-right: 2px solid var(--fg); border-bottom: 2px solid var(--fg); }
+.hw-toolbar { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+.hw-tool-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; transition: all 0.15s; }
+.hw-tool-btn:hover { border-color: var(--accent); }
+.hw-tool-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.hw-recognize-btn { background: linear-gradient(135deg, var(--accent), #7c3aed); color: #fff; border: none; padding: 8px 22px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; font-weight: 600; margin-left: auto; }
+.hw-expand-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--fg); cursor: pointer; font-size: 0.82rem; }
+.hw-expand-btn:hover { border-color: var(--accent); }
+
+/* ── 8. MathJax SVG 预览 ── */
+.math-preview { display: none; margin-top: 1rem; padding: 1.25rem; background: #fff; border-radius: 10px; border: 1px solid var(--border-color); overflow-x: auto; text-align: center; min-height: 48px; }
+.math-preview.show { display: block; }
+:root[data-theme="dark"] .math-preview { background: #1a1d28; }
+
+/* ── 9. 手机端适配 ── */
+@media (max-width: 640px) {
+  .demo-page { padding: 1rem 0.5rem 3rem; }
+  .demo-title { font-size: 1.4rem; }
+  .mode-tab { padding: 6px 14px; font-size: 0.82rem; }
+  .drop-zone { padding: 2rem 1rem; }
+  .hw-canvas-wrap canvas { width: 100%; height: auto; }
+  .hw-toolbar { gap: 0.3rem; }
+  .hw-tool-btn { padding: 5px 8px; font-size: 0.75rem; }
+  .hw-tool-btn svg { width: 14px; height: 14px; }
+  .hw-recognize-btn { padding: 6px 14px; font-size: 0.82rem; }
+  .hw-expand-btn { padding: 5px 8px; font-size: 0.75rem; }
+  .result-card { padding: 1rem; }
+  pre.result-code { font-size: 0.78rem; padding: 0.75rem; }
+  .cam-modal video { max-width: 100vw; max-height: 60vh; }
+  .cam-btn { padding: 10px 20px; font-size: 0.9rem; }
+  .math-preview { padding: 0.75rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+</style>
+</head>
+<body>
+<!-- ═══ 顶栏导航 ═══ -->
+<nav class="top-nav">
+  <div class="inner">
+    <a href="index.html" class="brand-link">LaTeXSnipper</a>
+    <a href="user_manual.html">用户手册</a>
+    <a href="download.html">下载</a>
+    <a href="ocr_demo.html" class="active-link">在线识别</a>
+    <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+    <button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button>
+  </div>
+</nav>
+
+<div class="spacer-top"></div>
+
+<div class="demo-page">
+  <h1 class="demo-title">在线公式识别</h1>
+  <p class="demo-sub">基于 MathCraft OCR · 浏览器端 ONNX Runtime 推理 · 全程本地运算 <span style="font-size:0.7rem;opacity:0.4;">rev 250606</span></p>
+
+  <!-- ═══ 状态栏 ═══ -->
+  <div class="status-bar" id="statusBar">
+    <span id="statusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+    <span id="statusText">正在加载识别引擎…</span>
+    <div class="spinner show" id="spinner"></div>
+    <div id="modelProgress" style="font-size:0.8rem;opacity:0.7;"></div>
+  </div>
+
+  <!-- ═══ 下载进度 ═══ -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-label"><span id="progressFile"></span><span id="progressPercent">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- ═══ 模式切换 ═══ -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabImage">图片识别</button>
+    <button class="mode-tab" id="tabHandwrite">手写识别</button>
+  </div>
+
+  <!-- ═══ 模型选择 ═══ -->
+  <div class="model-tabs" id="modelTabs">
+    <button class="model-tab active" data-mode="formula">公式</button>
+    <button class="model-tab" data-mode="text">文字</button>
+    <button class="model-tab" data-mode="mixed">混合</button>
+  </div>
+
+  <!-- ═══ 图片识别模式：拖拽区 + 拍照 ═══ -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept="image/*,.pdf">
+    <div id="dropContent">
+      <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <div>拖入公式截图 / PDF · 点击上传 · <kbd style="background:var(--border-color);padding:2px 8px;border-radius:4px;">Ctrl+V</kbd> 粘贴截图</div>
+      <div style="font-size:0.8rem;opacity:0.6;margin-top:0.5rem;">Win+Shift+S 截图后在此页面按 Ctrl+V 即可识别<br>也可上传 PDF（最多100页），逐页识别公式<br>网页版提供基础识别效果，桌面客户端内置专属优化引擎</div>
+    </div>
+    <img id="preview" style="display:none;" alt="预览">
+    <button class="cam-trigger-btn" id="camTrigger" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      拍照识别
+    </button>
+  </div>
+
+  <!-- ═══ 相机 Modal ═══ -->
+  <div class="cam-modal" id="camModal">
+    <video id="camVideo" autoplay playsinline></video>
+    <canvas id="camCropCanvas" style="display:none;max-width:95vw;max-height:70vh;border-radius:12px;cursor:crosshair;touch-action:none;"></canvas>
+    <div class="cam-actions" id="camActions">
+      <button class="cam-btn cam-capture" id="camCapture">拍照识别</button>
+      <button class="cam-btn cam-close" id="camClose">关闭</button>
+    </div>
+    <div class="cam-actions" id="camCropActions" style="display:none;">
+      <div class="cam-segmented">
+        <button class="cam-seg-btn active" id="camCropModeRect">矩形框选</button>
+        <button class="cam-seg-btn" id="camCropModeLasso">自由绘制</button>
+      </div>
+      <button class="cam-btn cam-capture" id="camCropConfirm">确认识别</button>
+      <button class="cam-btn cam-close" id="camCropRetake">重拍</button>
+    </div>
+  </div>
+
+  <!-- ═══ 手写识别模式 ═══ -->
+  <div class="hw-panel" id="hwPanel">
+    <div class="hw-canvas-wrap" id="hwWrap">
+      <canvas id="hwCanvas" width="800" height="500"></canvas>
+      <div class="hw-resize-handle" id="hwResizeHandle"></div>
+    </div>
+    <div class="hw-toolbar">
+      <button class="hw-tool-btn active" id="hwPen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>笔</button>
+      <button class="hw-tool-btn" id="hwEraser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/><line x1="6" y1="20" x2="10" y2="20"/></svg>橡皮</button>
+      <button class="hw-tool-btn" id="hwUndo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>撤销</button>
+      <button class="hw-tool-btn" id="hwClear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>清空</button>
+      <button class="hw-recognize-btn" id="hwRecognize">识别</button>
+    </div>
+  </div>
+
+  <!-- ═══ 识别结果 ═══ -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <span class="label">识别结果</span>
+      <span class="confidence" id="confidence"></span>
+    </div>
+    <pre class="result-code" id="resultCode"></pre>
+    <div class="math-preview" id="mathPreview"></div>
+  </div>
+  <button class="ocr-copy" id="copyBtn" onclick="copyResult()" style="display:none;width:100%;margin-top:0.75rem;text-align:center;">复制 LaTeX 代码</button>
+
+  <div class="error-msg" id="errorMsg" style="display:none;"></div>
+
+  <div class="info-note">
+    <strong>说明：</strong>首次加载需下载 ONNX Runtime（约 6MB）和识别模型（编码器 84MB + 解码器 29MB），请耐心等待。模型缓存于浏览器，二次使用秒开。所有推理均在本地浏览器完成，图片不会上传。支持图片和 PDF（最多100页）上传识别。网页版提供基础识别效果，桌面客户端内置专属优化引擎，欢迎下载体验！
+  </div>
+</div>
+
+<!-- ═══ CDN 依赖 ═══ -->
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+// MathJax 全局配置（必须在脚本加载前设置）
+MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+
+<script src="js/ocr.js"></script>
+</body>
+</html>

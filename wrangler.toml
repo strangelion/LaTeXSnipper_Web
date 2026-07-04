@@ -1,10 +1,12 @@
 name = "latexsnipper"
 main = "worker.js"
 compatibility_date = "2026-05-20"
-workers_dev = true
+workers_dev = false
 
-# ── 静态资源：Office.js 加载项和公共文件 ──
-assets = { directory = "public", binding = "ASSETS" }
+# ── 静态资源 + Worker-first：Office 路径需要特殊响应头 ──
+[assets]
+directory = "deploy"
+binding = "ASSETS"
 
 # ── R2 模型存储（OCR 模型文件） ──
 # 创建 R2 Bucket 后用 wrangler 上传模型：

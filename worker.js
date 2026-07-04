@@ -608,28 +608,92 @@ export default {
     const path = url.pathname;
 
     // ── Office.js Add-in 静态资源 ──
-    // 由 wrangler.toml 的 assets 配置提供，worker 直接透传
+    // Worker-first: /office/* 路径先过 Worker（run_worker_first 配置），再查 ASSETS
     if (path.startsWith("/office/")) {
-      const asset = await env.ASSETS.fetch(request);
-      if (asset.status !== 404) {
-        const isOfficeHtml = path.endsWith(".html") || path.endsWith("taskpane/index.html");
-        const response = new Response(asset.body, asset);
-        if (isOfficeHtml) {
-          response.headers.set(
-            "Content-Security-Policy",
-            "default-src 'self'; " +
-            "script-src 'self' https://appsforoffice.microsoft.com 'unsafe-inline'; " +
-            "style-src 'self' 'unsafe-inline'; " +
-            "img-src 'self' data:; " +
-            "connect-src 'self' https://latexsnipper.interknot.dpdns.org wss://latexsnipper.interknot.dpdns.org; " +
-            "frame-ancestors 'self' https://*.microsoft.com https://*.office.com; " +
-            "base-uri 'self'; " +
-            "form-action 'none'"
-          );
-        }
-        response.headers.set("X-Frame-Options", "ALLOW-FROM https://*.microsoft.com");
-        return response;
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return new Response("Method Not Allowed", { status: 405 });
       }
+
+      const asset = await env.ASSETS.fetch(request);
+
+      if (!asset.ok) {
+        return new Response("Office asset not found", {
+          status: asset.status === 404 ? 404 : asset.status,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+            "Cache-Control": "no-store",
+          },
+        });
+      }
+
+      const headers = new Headers(asset.headers);
+      const isHtml = path.endsWith(".html");
+
+      headers.set("X-LaTeXSnipper-Office-Asset", "1");
+      headers.set("X-Content-Type-Options", "nosniff");
+
+      if (isHtml) {
+        headers.delete("X-Frame-Options");
+
+        headers.set(
+          "Content-Security-Policy",
+          [
+            "default-src 'self'",
+            "script-src 'self' https://appsforoffice.microsoft.com 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https:",
+            "connect-src 'self' https://latexsnipper.interknot.dpdns.org wss://latexsnipper.interknot.dpdns.org",
+            "frame-ancestors 'self' https://*.office.com https://*.officeapps.live.com https://*.microsoft.com https://*.office365.com",
+            "base-uri 'self'",
+            "form-action 'none'",
+          ].join("; ")
+        );
+      }
+
+      return new Response(request.method === "HEAD" ? null : asset.body, {
+        status: asset.status,
+        statusText: asset.statusText,
+        headers,
+      });
+    }
+
+    // ── Office.js API 存根 ──
+    // 这些 API 目前由桌面端处理；网站只做心跳确认和转换请求转发
+    if (path === "/api/office/convert" && request.method === "POST") {
+      return new Response(JSON.stringify({
+        success: false,
+        latex: null,
+        omml: "",
+        message: "LaTeX ↔ OMML conversion is handled by the LaTeXSnipper Desktop app. Please start the desktop app and try again.",
+      }), {
+        status: 501,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
+    }
+
+    if (path === "/api/office/heartbeat" && request.method === "POST") {
+      return new Response(JSON.stringify({ success: true, message: "heartbeat acknowledged" }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
+
+    if (path === "/api/office/actions/next") {
+      return new Response(JSON.stringify({ action: null, action_id: null }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
     }
 
     // ── 反爬虫检测 ──

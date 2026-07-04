@@ -1,0 +1,53 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /user_manual.html
+Allow: /download.html
+Allow: /error.html
+Allow: /assets/
+Allow: /styles/
+Allow: /images/
+Allow: /js/
+
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /*.typ$
+Disallow: /public/
+Disallow: /scripts/
+Disallow: /src/
+Disallow: /wasm/
+Disallow: /*.py$
+Disallow: /*.cjs$
+Disallow: /*.lock$
+Disallow: /*.json$
+Disallow: /*.toml$
+
+# 爬虫速率限制建议（礼貌性请求）
+Crawl-delay: 10
+
+# AI 爬虫限制
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Anthropic-AI
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+Sitemap: https://latexsnipper.interknot.dpdns.org/sitemap.xml

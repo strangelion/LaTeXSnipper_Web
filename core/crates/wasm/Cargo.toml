@@ -1,0 +1,30 @@
+[package]
+name = "latexsnipper-wasm"
+description = "WebAssembly bindings — run Core in browsers"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+latexsnipper-foundation = { path = "../foundation" }
+latexsnipper-ast = { path = "../ast" }
+latexsnipper-image = { path = "../image" }
+latexsnipper-runtime = { path = "../runtime" }
+latexsnipper-engine = { path = "../engine" }
+latexsnipper-syntax = { path = "../syntax" }
+latexsnipper-conversion = { path = "../conversion" }
+latexsnipper-tract = { path = "../tract" }
+serde_json.workspace = true
+log.workspace = true
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde-wasm-bindgen = "0.6"
+once_cell = "1"
+tokio = { version = "1", features = ["rt", "macros"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

@@ -1,0 +1,42 @@
+# Build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ONNX Runtime (downloaded separately)
+onnxruntime-*/
+
+# Test fixtures (generated images)
+fixtures/*.png
+fixtures/*.typ
+
+# Test models (ONNX files)
+test-models/
+models-download/
+
+# release models (ONNX files)
+release_models/
+models/
+
+# Cargo local config (mirror settings)
+.cargo/
+
+# Test artifacts
+*.pdb
+
+# Local agent learnings
+.learnings/
+
+# Documentation build
+docs/book/

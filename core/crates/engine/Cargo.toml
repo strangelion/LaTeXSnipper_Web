@@ -1,0 +1,32 @@
+[package]
+name = "latexsnipper-engine"
+description = "Core engine — orchestrates all capabilities"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+latexsnipper-foundation.workspace = true
+latexsnipper-ast.workspace = true
+latexsnipper-image.workspace = true
+latexsnipper-runtime.workspace = true
+latexsnipper-inference.workspace = true
+latexsnipper-pipeline.workspace = true
+latexsnipper-model.workspace = true
+latexsnipper-api-types.workspace = true
+latexsnipper-conversion.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+log.workspace = true
+thiserror.workspace = true
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+[dev-dependencies]
+latexsnipper-mock.workspace = true
+latexsnipper-syntax.workspace = true
+latexsnipper-export.workspace = true
+tokio = { version = "1", features = ["full"] }
