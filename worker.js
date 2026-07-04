@@ -607,12 +607,40 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // ── Office.js Add-in 静态资源 ──
+    // 由 wrangler.toml 的 assets 配置提供，worker 直接透传
+    if (path.startsWith("/office/")) {
+      const asset = await env.ASSETS.fetch(request);
+      if (asset.status !== 404) {
+        const isOfficeHtml = path.endsWith(".html") || path.endsWith("taskpane/index.html");
+        const response = new Response(asset.body, asset);
+        if (isOfficeHtml) {
+          response.headers.set(
+            "Content-Security-Policy",
+            "default-src 'self'; " +
+            "script-src 'self' https://appsforoffice.microsoft.com 'unsafe-inline'; " +
+            "style-src 'self' 'unsafe-inline'; " +
+            "img-src 'self' data:; " +
+            "connect-src 'self' https://latexsnipper.interknot.dpdns.org wss://latexsnipper.interknot.dpdns.org; " +
+            "frame-ancestors 'self' https://*.microsoft.com https://*.office.com; " +
+            "base-uri 'self'; " +
+            "form-action 'none'"
+          );
+        }
+        response.headers.set("X-Frame-Options", "ALLOW-FROM https://*.microsoft.com");
+        return response;
+      }
+    }
+
     // ── 反爬虫检测 ──
     const userAgent = request.headers.get("User-Agent") || "";
     const clientIP = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
 
+    // Office 客户端 UA 跳过机器人和频率限制
+    const isOfficeUA = /Microsoft\sOffice|Word|Excel|PowerPoint|Office\sAdd-in|WebView/i.test(userAgent);
+
     // 恶意机器人直接拦截
-    if (isBadBot(userAgent)) {
+    if (!isOfficeUA && isBadBot(userAgent)) {
       return new Response("Forbidden", {
         status: 403,
         headers: {
