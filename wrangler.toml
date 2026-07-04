@@ -8,7 +8,7 @@ workers_dev = false
 directory = "deploy"
 binding = "ASSETS"
 # Office 页面必须先进入 Worker，避免静态资产层提前重定向
-run_worker_first = ["/office/*"]
+run_worker_first = true
 
 # 禁用 Cloudflare 对 index.html 的自动 307 规范化
 html_handling = "none"

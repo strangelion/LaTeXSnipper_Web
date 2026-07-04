@@ -27,7 +27,7 @@ const REQUIRED_PATHS = [
   'assets/',
   'ocr_demo.html',
   'js/ocr.js',
-  'office/taskpane/index.html',
+  'office/taskpane.html',
   'office/assets/taskpane-',
   'office/assets/icon-16.png',
   'office/assets/icon-32.png',

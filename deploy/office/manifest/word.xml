@@ -6,7 +6,7 @@
   xsi:type="TaskPaneApp">
 
   <Id>9a7b3c4d-5e6f-7890-abcd-ef1234567890</Id>
-  <Version>1.0.3.0</Version>
+  <Version>1.0.4.0</Version>
   <ProviderName>LaTeXSnipper</ProviderName>
   <DefaultLocale>zh-CN</DefaultLocale>
 
@@ -15,7 +15,7 @@
 
   <IconUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane/index.html"/>
+  <SupportUrl DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane.html"/>
 
   <AppDomains>
     <AppDomain>https://latexsnipper.interknot.dpdns.org</AppDomain>
@@ -26,7 +26,7 @@
   </Hosts>
 
   <DefaultSettings>
-    <SourceLocation DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane/index.html"/>
+    <SourceLocation DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane.html"/>
   </DefaultSettings>
 
   <Permissions>ReadWriteDocument</Permissions>
@@ -92,7 +92,7 @@
       </bt:Images>
 
       <bt:Urls>
-        <bt:Url id="Taskpane.Url" DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane/index.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://latexsnipper.interknot.dpdns.org/office/taskpane.html"/>
       </bt:Urls>
 
       <bt:ShortStrings>
