@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ecosystems,
   faqs,
   featureShowcases,
-  formatGroups,
   trustItems,
   workflowSteps,
 } from '../data/siteContent';
 import { usePreferredPlatform } from '../hooks/usePreferredPlatform';
 import { useReleaseInfo } from '../hooks/useReleaseInfo';
+import ProductStage from './ProductStage';
 import '../styles/landing.css';
 
 const GITHUB_URL =
@@ -132,18 +131,24 @@ function Hero() {
     <section className="ls-hero" aria-labelledby="hero-title">
       <div className="ls-container ls-hero-grid">
         <div className="ls-hero-copy">
-          <div className="ls-release-pill">
-            v{release.version} {release.channel}
-          </div>
+          <p className="hero-version">
+            LaTeXSnipper {release.version}
+            <span aria-hidden="true">/</span>
+            {release.channel}
+            <span aria-hidden="true">/</span>
+            Windows · Linux · macOS
+          </p>
 
           <h1 id="hero-title">
-            把数学内容从图片，
-            <span>变成可以继续使用的公式。</span>
+            识别公式，
+            <br />
+            也保留它的结构。
           </h1>
 
           <p className="ls-hero-description">
-            截图识别、手写输入、数学编辑、格式转换和
-            Office 集成，集中在一个本地优先的数学工作空间。
+            从截图、手写和 PDF 中提取可编辑数学内容，
+            转换为 LaTeX、OMML、Typst 与矢量图。
+            默认在本机完成。
           </p>
 
           <div className="ls-hero-actions">
@@ -172,27 +177,8 @@ function Hero() {
           </p>
         </div>
 
-        <div className="ls-product-frame">
-          <picture>
-            <source
-              srcSet="/assets/images/product/hero-workspace.webp"
-              type="image/webp"
-            />
-            <img
-              src="/assets/images/LaTeXSnipper.png"
-              width="1600"
-              height="1000"
-              alt="LaTeXSnipper 数学工作空间界面"
-              fetchPriority="high"
-            />
-          </picture>
-
-          <div className="ls-product-badge ls-product-badge-top">
-            图片 → LaTeX
-          </div>
-          <div className="ls-product-badge ls-product-badge-bottom">
-            LaTeX → Office / Typst / SVG
-          </div>
+        <div className="ls-hero-stage">
+          <ProductStage />
         </div>
       </div>
     </section>
@@ -234,12 +220,26 @@ function WorkflowSection() {
           description="每一步都保留可编辑的数学内容，而不是只生成一张不可修改的图片。"
         />
 
-        <div className="ls-workflow-grid">
-          {workflowSteps.map((step) => (
-            <article className="ls-workflow-card" key={step.number}>
-              <span className="ls-step-number">{step.number}</span>
-              <h3>{step.title}</h3>
-              <p>{step.description}</p>
+        <div className="workflow-rail">
+          {workflowSteps.map((step, index) => (
+            <article className="workflow-node" key={step.number}>
+              <div className="workflow-index">
+                {step.number}
+              </div>
+
+              <div className="workflow-node-copy">
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </div>
+
+              {index < workflowSteps.length - 1 && (
+                <span
+                  className="workflow-connector"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              )}
             </article>
           ))}
         </div>
@@ -257,7 +257,7 @@ function FeatureShowcase() {
       <div className="ls-container">
         <SectionHeading
           eyebrow="核心能力"
-          title="展示真实界面，而不是只描述功能"
+          title="从截图到文档，公式始终可编辑"
           description="每个模块都对应一个完整使用场景。"
         />
 
@@ -310,25 +310,67 @@ function EcosystemSection() {
     <section id="ecosystem" className="ls-section">
       <div className="ls-container">
         <SectionHeading
-          eyebrow="平台生态"
-          title="根据宿主能力选择正确的集成方式"
-          description="官网明确区分稳定、Beta、开发中和规划中的功能。"
+          eyebrow="平台集成"
+          title="在你已经使用的编辑器中继续工作"
+          description="区分稳定、Beta、开发中和规划中的功能。"
         />
 
-        <div className="ls-ecosystem-grid">
-          {ecosystems.map((item) => (
-            <article className="ls-ecosystem-card" key={item.name}>
-              <div>
-                <h3>{item.name}</h3>
-                <span
-                  className={`ls-status ls-status-${item.status}`}
-                >
-                  {item.status}
-                </span>
-              </div>
-              <p>{item.description}</p>
-            </article>
-          ))}
+        <div className="ls-compat-table-wrap">
+          <table className="ls-compat-table">
+            <thead>
+              <tr>
+                <th>平台</th>
+                <th>状态</th>
+                <th>插入</th>
+                <th>读取</th>
+                <th>推荐方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Windows Office</td>
+                <td><span className="ls-status ls-status-Beta">Beta</span></td>
+                <td>✓</td>
+                <td>✓</td>
+                <td>COM / VSTO</td>
+              </tr>
+              <tr>
+                <td>macOS Office</td>
+                <td><span className="ls-status ls-status-开发中">开发中</span></td>
+                <td>✓</td>
+                <td>部分</td>
+                <td>Office.js</td>
+              </tr>
+              <tr>
+                <td>WPS</td>
+                <td><span className="ls-status ls-status-开发中">开发中</span></td>
+                <td>✓</td>
+                <td>部分</td>
+                <td>WPS Add-in</td>
+              </tr>
+              <tr>
+                <td>Obsidian</td>
+                <td><span className="ls-status ls-status-规划中">规划中</span></td>
+                <td>—</td>
+                <td>—</td>
+                <td>Community plugin</td>
+              </tr>
+              <tr>
+                <td>Desktop</td>
+                <td><span className="ls-status ls-status-稳定">稳定</span></td>
+                <td>✓</td>
+                <td>✓</td>
+                <td>Qt 原生应用</td>
+              </tr>
+              <tr>
+                <td>CLI / Core</td>
+                <td><span className="ls-status ls-status-开发中">开发中</span></td>
+                <td>✓</td>
+                <td>✓</td>
+                <td>Rust Core + Python</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -344,17 +386,42 @@ function FormatSection() {
           title="一份数学内容，进入不同写作环境"
         />
 
-        <div className="ls-format-groups">
-          {formatGroups.map((group) => (
-            <article className="ls-format-group" key={group.title}>
-              <h3>{group.title}</h3>
-              <div>
-                {group.formats.map((format) => (
-                  <span key={format}>{format}</span>
-                ))}
-              </div>
-            </article>
-          ))}
+        <div className="ls-format-examples">
+          <div className="ls-format-example">
+            <div className="ls-format-example-header">
+              <span className="ls-format-example-lang">LaTeX</span>
+            </div>
+            <pre><code>{String.raw`\int_0^\infty e^{-x^2}\,dx`}</code></pre>
+          </div>
+
+          <div className="ls-format-example">
+            <div className="ls-format-example-header">
+              <span className="ls-format-example-lang">Typst</span>
+            </div>
+            <pre><code>{String.raw`$ integral_0^infinity e^(-x^2) dif x $`}</code></pre>
+          </div>
+
+          <div className="ls-format-example">
+            <div className="ls-format-example-header">
+              <span className="ls-format-example-lang">Markdown</span>
+            </div>
+            <pre><code>{String.raw`$$\int_0^\infty e^{-x^2}\,dx$$`}</code></pre>
+          </div>
+
+          <div className="ls-format-example">
+            <div className="ls-format-example-header">
+              <span className="ls-format-example-lang">OMML</span>
+            </div>
+            <pre><code>{String.raw`<m:oMath>
+  <m:int>
+    <m:lim><m:r>0</m:r></m:lim>
+    <m:sup><m:r>∞</m:r></m:sup>
+  </m:int>
+  <m:r>e</m:r><m:sSup>
+    <m:e><m:r>−x²</m:r></m:e>
+  </m:sSup>
+</m:oMath>`}</code></pre>
+          </div>
         </div>
       </div>
     </section>
@@ -370,13 +437,13 @@ function PrivacySection() {
       <div className="ls-container ls-privacy-grid">
         <div>
           <SectionHeading
-            eyebrow="隐私与联网边界"
-            title={'本地优先，但不使用模糊的\u201c永不联网\u201d宣传'}
+            eyebrow="隐私"
+            title="你的公式，默认留在本机"
           />
 
           <p className="ls-privacy-intro">
-            官网应该把模型下载、本地推理和外部 API
-            三种情况分开说明，让用户知道什么时候发生网络请求。
+            本地模型准备完成后，截图、图片和公式默认在设备上处理。
+            只有主动启用第三方服务时，内容才会发送到对应服务。
           </p>
         </div>
 
@@ -547,7 +614,7 @@ export default function LandingPage() {
   return (
     <>
       <Header />
-      <main id="main-content">
+      <main id="main-content" className="landing-main">
         <Hero />
         <TrustStrip />
         <WorkflowSection />
