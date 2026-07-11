@@ -9,6 +9,10 @@ permissions:
   contents: write
   actions: write
 
+concurrency:
+  group: latexsnipper-web-master-writer
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest

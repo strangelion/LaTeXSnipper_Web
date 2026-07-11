@@ -12,6 +12,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: latexsnipper-web-master-writer
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -152,5 +156,25 @@ jobs:
             echo "No changes."
           else
             git commit -m "docs: auto-build user manual"
-            git push
+
+            PUSH_OK=false
+            for i in 1 2 3; do
+              echo "Push attempt $i..."
+
+              if git pull --rebase origin "${GITHUB_REF_NAME}" &&
+                 git push origin "HEAD:${GITHUB_REF_NAME}"; then
+                echo "Push succeeded on attempt $i"
+                PUSH_OK=true
+                break
+              fi
+
+              git rebase --abort 2>/dev/null || true
+              echo "Push failed on attempt $i, retrying..."
+              sleep $((i * 2))
+            done
+
+            if [ "$PUSH_OK" != "true" ]; then
+              echo "::error::Failed to push generated manual after 3 attempts"
+              exit 1
+            fi
           fi
