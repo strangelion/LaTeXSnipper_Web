@@ -1,0 +1,21 @@
+{
+  "name": "LaTeXSnipper",
+  "short_name": "LaTeXSnipper",
+  "description": "数学公式识别、编辑、转换与导出工作空间",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6fbff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/assets/images/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
