@@ -107,7 +107,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#ollama-dong-base-url">Ollama 已启动但 Base URL 填错</a></li>
   <li class="toc-h2"><a href="#moxing">模型名拼写错误 / 大小写不对</a></li>
   <li class="toc-h2"><a href="#api-yong-api-key">线上 API 用了但没填 API Key</a></li>
-  <li class="toc-h2"><a href="#mineru-pei">MinerU 协议选了但是服务端没配好</a></li>
+  <li class="toc-h2"><a href="#mineru-local-pei">MinerU Local 协议选了但是服务端没配好</a></li>
   <li class="toc-h2"><a href="#openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</a></li>
   <li class="toc-h2"><a href="#zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</a></li>
 <li class="toc-h1"><a href="#sec-install">安装和环境问题</a></li>
@@ -279,7 +279,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#ollama-dong-base-url">Ollama 已启动但 Base URL 填错</a></li>
   <li class="rs-h2"><a href="#moxing">模型名拼写错误 / 大小写不对</a></li>
   <li class="rs-h2"><a href="#api-yong-api-key">线上 API 用了但没填 API Key</a></li>
-  <li class="rs-h2"><a href="#mineru-pei">MinerU 协议选了但是服务端没配好</a></li>
+  <li class="rs-h2"><a href="#mineru-local-pei">MinerU Local 协议选了但是服务端没配好</a></li>
   <li class="rs-h2"><a href="#openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</a></li>
   <li class="rs-h2"><a href="#zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</a></li>
 <li class="rs-h1"><a href="#sec-install">安装和环境问题</a></li>
@@ -548,21 +548,23 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li><strong>内置格式（无需 Pandoc）：</strong> LaTeX 行内、LaTeX display、LaTeX equation、Markdown 行内、Markdown 块级、MathML、MathML <code>.mml</code>、MathML <code>&lt;m&gt;</code>、MathML 属性形式、HTML、Word OMML、SVG Code</li>
 <li><strong>Pandoc 扩展格式：</strong> Word <code>.docx</code>、ODT <code>.odt</code>、PowerPoint <code>.pptx</code>、EPUB <code>.epub</code>、PDF <code>.pdf</code>、HTML 独立页 <code>.html</code>、Typst <code>.typ</code>、纯文本 <code>.txt</code></li>
 </ul>
+<p>导出 Word、ODT、PowerPoint、EPUB 或 PDF 时，如果识别内容包含完整闭合的 SVG 源码块，程序会验证并按出现顺序保存原始 SVG 和 PNG 图像，将 PNG 嵌入目标文档，不额外添加图片标题或占位文字。图像保存在导出文件旁的 <code>&lt;文件名&gt;_assets_&lt;内容哈希&gt;</code> 目录；不同内容不会互相覆盖。无效、不完整或包含危险外部资源的 SVG 会被跳过。资源处理和 Pandoc 转换均在后台执行。</p>
 <p>托盘或菜单栏状态菜单还提供 <strong>截图屏幕模式</strong>：自动模式会按鼠标释放点选择屏幕，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。</p>
 <h2 id="shezhiqianji">设置页当前业务逻辑</h2>
 <p>设置页的"选择识别模型"只有两类入口：</p>
 <ul>
 <li><strong>内置模型：</strong> 使用 MathCraft OCR。本地识别类型可选 <strong>公式</strong>、<strong>混合（文字+公式）</strong>、<strong>纯文字</strong>。</li>
-<li><strong>外部模型：</strong> 连接 OpenAI-compatible、Ollama 或 MinerU 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL、Qwen2.5/Qwen3-VL 和 MinerU Native。</li>
+<li><strong>外部模型：</strong> 连接 OpenAI-compatible、Ollama 或 MinerU Local 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL（FastDeploy）、Qwen2.5/Qwen3-VL 和 MinerU Local。</li>
 </ul>
-<p>外部模型的 <strong>输出偏好</strong> 只影响普通图片、截图和手写识别；PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认模板。</p>
+<p>外部模型的 <strong>提示词模板</strong> 决定普通图片和截图识别的请求内容与结果类型，可选公式、Markdown 或纯文本。手写识别固定使用混合文档类型，PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认提示词；MinerU Local 不使用提示词。</p>
+<p>普通图片和截图的确认窗口、历史记录及主窗口预览会按结果类型渲染：LaTeX 使用公式预览，Markdown 使用混合预览，纯文本使用文本预览。本地 MathCraft 的公式、混合和纯文字结果遵循相同映射。</p>
 <p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示日志窗口、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
 <h2 id="pdf-shibieliucheng">PDF 识别流程</h2>
 <p>点击 <strong>PDF识别</strong> 后，程序会按当前模型执行：</p>
 <ul>
 <li>当前为 <strong>内置模型</strong> 且不是混合模式时，会提示切换到 MathCraft 混合识别后继续。PDF 文档识别需要混合模式做文本和公式整理。</li>
 <li>当前为 <strong>外部模型</strong> 时，必须先在设置中完成外部模型配置并通过连接测试。</li>
-<li>MinerU 原生协议会走文档解析模式，输出固定为 Markdown；其他模型会先询问输出 Markdown 还是 LaTeX。</li>
+<li>MinerU Local 会走文档解析模式，输出固定为 Markdown；其他模型会先询问输出 Markdown 还是 LaTeX。</li>
 <li>程序会询问识别页码或连续范围，例如 <code>5</code>、<code>3-7</code>；默认先填入 <code>1-5</code>，避免大 PDF 一次性耗时过长。</li>
 <li>程序会询问 PDF 渲染 DPI，范围为 90-300。外部模型默认 150 DPI，内置模型默认 200 DPI。</li>
 <li>识别结果会打开独立的 PDF 结果窗口，可编辑、复制或保存。Markdown 文档保存时，如果结构化结果包含图片资源，程序会尽量把相关 assets 一起复制到保存目录。</li>
@@ -648,7 +650,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <p><strong>现象：</strong> 截图后识别失败，提示"模型名为空"或"外部模型地址为空"。</p>
 <div class="callout error">
 <div class="callout-title">错误原因</div>
-<div class="callout-body"><p>外部模型客户端 <code>_validate_config()</code> 要求 provider 非 mineru 时 <code>model_name</code> 和 <code>base_url</code> 不能为空。</p>
+<div class="callout-body"><p>外部模型客户端要求普通视觉协议填写模型名和 Base URL；MinerU Local 可不填模型名。</p>
 <p>默认 <code>model_name</code> 就是空字符串，你需要手动填写。</p>
 </div>
 </div>
@@ -659,7 +661,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <ul>
 <li>Ollama：<code>&lt;Base URL&gt;/api/tags</code> 测试模型列表，<code>&lt;Base URL&gt;/api/chat</code> 执行识别</li>
 <li>OpenAI-compatible：<code>&lt;Base URL&gt;/v1/models</code> 测试模型列表，<code>&lt;Base URL&gt;/v1/chat/completions</code> 执行识别</li>
-<li>MinerU：<code>&lt;Base URL&gt;/&lt;健康检查路径&gt;</code> 测试连接，<code>&lt;Base URL&gt;/&lt;解析接口路径&gt;</code> 执行解析</li>
+<li>MinerU Local：<code>&lt;Base URL&gt;/&lt;健康检查路径&gt;</code> 测试连接，<code>&lt;Base URL&gt;/&lt;解析接口路径&gt;</code> 执行解析</li>
 </ul>
 <p><strong>解决：</strong> Base URL 只填服务根地址，例如 <code>http://127.0.0.1:11434</code>、<code>http://127.0.0.1:8000</code> 或服务商 HTTPS 根地址；不要手动追加 <code>/v1</code>、<code>/api/chat</code>、<code>/v1/chat/completions</code> 或 <code>/file_parse</code>。</p>
 <h2 id="moxingdongyong">模型没预热（冷启动），第一次调用巨慢或超时</h2>
@@ -703,7 +705,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <p>LaTeXSnipper 不会将你的 API Key 发送到除你指定的 Base URL 以外的任何地方。</p>
 </div>
 </div>
-<h2 id="mineru-pei">MinerU 协议选了但是服务端没配好</h2>
+<h2 id="mineru-local-pei">MinerU Local 协议选了但是服务端没配好</h2>
 <p><strong>现象：</strong> 测试连接报 404 或 409。</p>
 <p><strong>原因：</strong> MinerU 的默认测试端点是 <code>/health</code>，默认解析端点是 <code>/file_parse</code>。不同版本可能用不同路径。</p>
 <p><strong>解决：</strong></p>
@@ -714,12 +716,12 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 </ul>
 <div class="callout info">
 <div class="callout-title">源码实现对应关系</div>
-<div class="callout-body"><p>MinerU 与普通视觉模型走不同链路：</p>
+<div class="callout-body"><p>MinerU Local 与普通视觉模型走不同链路：</p>
 <ul>
 <li>测试连接访问 <code>Base URL +健康检查路径</code>，默认 <code>/health</code></li>
 <li>图片识别和 PDF 解析访问 <code>Base URL +解析接口路径</code>，默认 <code>/file_parse</code></li>
 <li>解析请求会依次尝试 <code>pipeline</code>、<code>hybrid-auto-engine</code>、<code>vlm-auto-engine</code></li>
-<li>PDF 使用 MinerU 时会把原 PDF 交给服务端解析；OpenAI-compatible / Ollama 则由 LaTeXSnipper 用 PyMuPDF 按 DPI 渲染页面后逐页发送图片</li>
+<li>PDF 使用 MinerU Local 时会把原 PDF 交给服务端解析；OpenAI-compatible / Ollama 则由 LaTeXSnipper 用 PyMuPDF 按 DPI 渲染页面后逐页发送图片</li>
 </ul>
 </div>
 </div>
@@ -732,14 +734,14 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <div class="callout-body"><ul>
 <li>Ollama 服务 → 选 <strong>Ollama</strong></li>
 <li>硅基流动 / DeepSeek / OpenAI / Groq 等 → 选 <strong>OpenAI-compatible</strong></li>
-<li>MinerU 服务 → 选 <strong>MinerU</strong></li>
+<li>MinerU 本地服务 → 选 <strong>MinerU Local</strong></li>
 <li>本地 MathCraft ONNX → 在"选择识别模型"中选 <strong>内置模型</strong></li>
 </ul>
 </div>
 </div>
 <h2 id="zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</h2>
 <p><strong>现象：</strong> 填写了自定义提示词后，输出变成了自然语言解释而不是 LaTeX 代码。</p>
-<p><strong>原因：</strong> 自定义提示词优先级最高，会完全覆盖模板提示词。如果你写的提示词没有强调"只输出 LaTeX"，模型可能会自由发挥。</p>
+<p><strong>原因：</strong> 自定义提示词优先级最高，会完全覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的模板提示词。如果自定义提示词没有明确输出格式，模型可能返回解释文字或不符合导出格式的内容。MinerU Local 不使用提示词。</p>
 <p><strong>解决：</strong> 如果不确定怎么写，清空自定义提示词，只用模板。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-install">安装和环境问题</h1>
@@ -879,13 +881,13 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <ul>
 <li>文字型 PDF：尝试 140-170 DPI</li>
 <li>扫描件：尝试 200-300 DPI</li>
-<li>外部模型普通图片/手写识别：确认设置中"输出偏好"和提示词模板与任务匹配</li>
+<li>外部模型普通图片识别：确认设置中的提示词模板与任务匹配；手写识别固定使用混合文档类型</li>
 <li>PDF 识别：在 PDF 入口单独选择 Markdown/LaTeX 与 DPI；MinerU 文档解析固定输出 Markdown</li>
 </ul>
 <h2 id="moshiguo">切换了输出模式但结果没变</h2>
 <p><strong>现象：</strong> 设置里选了 LaTeX 输出，但返回的还是 Markdown。</p>
-<p><strong>原因：</strong> 自定义提示词会覆盖输出模式设置；PDF 入口的格式选择独立于外部模型设置页的"输出偏好"；MinerU 协议走原生接口，不受输出偏好影响。</p>
-<p><strong>解决：</strong> 清空自定义提示词、确认协议类型；如果是 PDF，请重新从 PDF 入口选择导出格式。</p>
+<p><strong>原因：</strong> 提示词模板决定普通图片和截图的结果类型；手写识别固定使用混合文档类型，PDF 入口的格式选择独立。自定义提示词会覆盖 OpenAI-compatible / Ollama 的内置提示词，包括手写和 PDF 识别；MinerU Local 走文档解析接口，不使用提示词。</p>
+<p><strong>解决：</strong> 清空自定义提示词并确认提示词模板；如果是 PDF，请重新从 PDF 入口选择导出格式。</p>
 <h2 id="fenshibie">大图片 / 高分辨率截图识别失败</h2>
 <p><strong>现象：</strong> 截了 4K 屏幕的图，识别直接报错或超时。</p>
 <p><strong>原因：</strong> 图片太大，Base64 编码后体积膨胀约 33%，可能超过服务端请求体大小限制，或传输太慢导致超时。</p>
@@ -942,6 +944,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <p><strong>当前策略：</strong></p>
 <ul>
 <li>自动排版会生成完整 XeLaTeX 文档，并使用 <code>ctexart</code> 文档类</li>
+<li>内嵌 MathLive 编辑器中，<code>Enter</code> 新建数学行，<code>Esc</code> 收起虚拟键盘但不关闭编辑器</li>
 <li>导言区会补齐常用数学和表格宏包，如 <code>amsmath</code>、<code>amssymb</code>、<code>mathtools</code>、<code>geometry</code> 等</li>
 <li>普通文字行会按段落保留，连续文字行会自动分段，避免 PDF 中被合并到同一行</li>
 <li>如果外部模型排版时吞掉了识别草稿里的普通文字，程序会尝试把这些文字合并回文档正文</li>

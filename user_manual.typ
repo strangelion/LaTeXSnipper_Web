@@ -256,6 +256,8 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 - #text(weight: "bold")[内置格式（无需 Pandoc）：] LaTeX 行内、LaTeX display、LaTeX equation、Markdown 行内、Markdown 块级、MathML、MathML `.mml`、MathML `<m>`、MathML 属性形式、HTML、Word OMML、SVG Code
 - #text(weight: "bold")[Pandoc 扩展格式：] Word `.docx`、ODT `.odt`、PowerPoint `.pptx`、EPUB `.epub`、PDF `.pdf`、HTML 独立页 `.html`、Typst `.typ`、纯文本 `.txt`
 
+导出 Word、ODT、PowerPoint、EPUB 或 PDF 时，如果识别内容包含完整闭合的 SVG 源码块，程序会验证并按出现顺序保存原始 SVG 和 PNG 图像，将 PNG 嵌入目标文档，不额外添加图片标题或占位文字。图像保存在导出文件旁的 `<文件名>_assets_<内容哈希>` 目录；不同内容不会互相覆盖。无效、不完整或包含危险外部资源的 SVG 会被跳过。资源处理和 Pandoc 转换均在后台执行。
+
 托盘或菜单栏状态菜单还提供 #text(weight: "bold")[截图屏幕模式]：自动模式会按鼠标释放点选择屏幕，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。
 
 == 设置页当前业务逻辑
@@ -263,9 +265,11 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 设置页的"选择识别模型"只有两类入口：
 
 - #text(weight: "bold")[内置模型：] 使用 MathCraft OCR。本地识别类型可选 #text(weight: "bold")[公式]、#text(weight: "bold")[混合（文字+公式）]、#text(weight: "bold")[纯文字]。
-- #text(weight: "bold")[外部模型：] 连接 OpenAI-compatible、Ollama 或 MinerU 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL、Qwen2.5/Qwen3-VL 和 MinerU Native。
+- #text(weight: "bold")[外部模型：] 连接 OpenAI-compatible、Ollama 或 MinerU Local 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL（FastDeploy）、Qwen2.5/Qwen3-VL 和 MinerU Local。
 
-外部模型的 #text(weight: "bold")[输出偏好] 只影响普通图片、截图和手写识别；PDF 入口会单独询问导出格式和 DPI。填写 #text(weight: "bold")[自定义提示词] 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认模板。
+外部模型的 #text(weight: "bold")[提示词模板] 决定普通图片和截图识别的请求内容与结果类型，可选公式、Markdown 或纯文本。手写识别固定使用混合文档类型，PDF 入口会单独询问导出格式和 DPI。填写 #text(weight: "bold")[自定义提示词] 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认提示词；MinerU Local 不使用提示词。
+
+普通图片和截图的确认窗口、历史记录及主窗口预览会按结果类型渲染：LaTeX 使用公式预览，Markdown 使用混合预览，纯文本使用文本预览。本地 MathCraft 的公式、混合和纯文字结果遵循相同映射。
 
 设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示日志窗口、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。
 
@@ -275,7 +279,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 
 - 当前为 #text(weight: "bold")[内置模型] 且不是混合模式时，会提示切换到 MathCraft 混合识别后继续。PDF 文档识别需要混合模式做文本和公式整理。
 - 当前为 #text(weight: "bold")[外部模型] 时，必须先在设置中完成外部模型配置并通过连接测试。
-- MinerU 原生协议会走文档解析模式，输出固定为 Markdown；其他模型会先询问输出 Markdown 还是 LaTeX。
+- MinerU Local 会走文档解析模式，输出固定为 Markdown；其他模型会先询问输出 Markdown 还是 LaTeX。
 - 程序会询问识别页码或连续范围，例如 `5`、`3-7`；默认先填入 `1-5`，避免大 PDF 一次性耗时过长。
 - 程序会询问 PDF 渲染 DPI，范围为 90-300。外部模型默认 150 DPI，内置模型默认 200 DPI。
 - 识别结果会打开独立的 PDF 结果窗口，可编辑、复制或保存。Markdown 文档保存时，如果结构化结果包含图片资源，程序会尽量把相关 assets 一起复制到保存目录。
@@ -395,7 +399,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 *现象：* 截图后识别失败，提示"模型名为空"或"外部模型地址为空"。
 
 #error-block("错误原因", [
-  外部模型客户端 `_validate_config()` 要求 provider 非 mineru 时 `model_name` 和 `base_url` 不能为空。
+  外部模型客户端要求普通视觉协议填写模型名和 Base URL；MinerU Local 可不填模型名。
   默认 `model_name` 就是空字符串，你需要手动填写。
 ])
 
@@ -411,7 +415,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 
 - Ollama：`<Base URL>/api/tags` 测试模型列表，`<Base URL>/api/chat` 执行识别
 - OpenAI-compatible：`<Base URL>/v1/models` 测试模型列表，`<Base URL>/v1/chat/completions` 执行识别
-- MinerU：`<Base URL>/<健康检查路径>` 测试连接，`<Base URL>/<解析接口路径>` 执行解析
+- MinerU Local：`<Base URL>/<健康检查路径>` 测试连接，`<Base URL>/<解析接口路径>` 执行解析
 
 #v(0.35em)
 
@@ -477,7 +481,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
   LaTeXSnipper 不会将你的 API Key 发送到除你指定的 Base URL 以外的任何地方。
 ])
 
-== MinerU 协议选了但是服务端没配好
+== MinerU Local 协议选了但是服务端没配好
 
 *现象：* 测试连接报 404 或 409。
 
@@ -493,11 +497,11 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 - MinerU 409 错误通常表示解析任务失败，查看 MinerU 服务端日志
 
 #info-block("源码实现对应关系", [
-  MinerU 与普通视觉模型走不同链路：
+  MinerU Local 与普通视觉模型走不同链路：
   - 测试连接访问 `Base URL + 健康检查路径`，默认 `/health`
   - 图片识别和 PDF 解析访问 `Base URL + 解析接口路径`，默认 `/file_parse`
   - 解析请求会依次尝试 `pipeline`、`hybrid-auto-engine`、`vlm-auto-engine`
-  - PDF 使用 MinerU 时会把原 PDF 交给服务端解析；OpenAI-compatible / Ollama 则由 LaTeXSnipper 用 PyMuPDF 按 DPI 渲染页面后逐页发送图片
+  - PDF 使用 MinerU Local 时会把原 PDF 交给服务端解析；OpenAI-compatible / Ollama 则由 LaTeXSnipper 用 PyMuPDF 按 DPI 渲染页面后逐页发送图片
 ])
 
 == 选了 OpenAI-compatible 协议但服务是 Ollama
@@ -515,7 +519,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 #info-block("协议选择速查", [
   - Ollama 服务 → 选 #text(weight: "bold")[Ollama]
   - 硅基流动 / DeepSeek / OpenAI / Groq 等 → 选 #text(weight: "bold")[OpenAI-compatible]
-  - MinerU 服务 → 选 #text(weight: "bold")[MinerU]
+  - MinerU 本地服务 → 选 #text(weight: "bold")[MinerU Local]
   - 本地 MathCraft ONNX → 在"选择识别模型"中选 #text(weight: "bold")[内置模型]
 ])
 
@@ -525,7 +529,7 @@ LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导
 
 #v(0.35em)
 
-*原因：* 自定义提示词优先级最高，会完全覆盖模板提示词。如果你写的提示词没有强调"只输出 LaTeX"，模型可能会自由发挥。
+*原因：* 自定义提示词优先级最高，会完全覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的模板提示词。如果自定义提示词没有明确输出格式，模型可能返回解释文字或不符合导出格式的内容。MinerU Local 不使用提示词。
 
 #v(0.35em)
 
@@ -764,7 +768,7 @@ LaTeXSnipper 卸载默认保留用户数据，方便升级或重装后继续使�
 *解决：*
 - 文字型 PDF：尝试 140-170 DPI
 - 扫描件：尝试 200-300 DPI
-- 外部模型普通图片/手写识别：确认设置中"输出偏好"和提示词模板与任务匹配
+- 外部模型普通图片识别：确认设置中的提示词模板与任务匹配；手写识别固定使用混合文档类型
 - PDF 识别：在 PDF 入口单独选择 Markdown/LaTeX 与 DPI；MinerU 文档解析固定输出 Markdown
 
 == 切换了输出模式但结果没变
@@ -773,11 +777,11 @@ LaTeXSnipper 卸载默认保留用户数据，方便升级或重装后继续使�
 
 #v(0.35em)
 
-*原因：* 自定义提示词会覆盖输出模式设置；PDF 入口的格式选择独立于外部模型设置页的"输出偏好"；MinerU 协议走原生接口，不受输出偏好影响。
+*原因：* 提示词模板决定普通图片和截图的结果类型；手写识别固定使用混合文档类型，PDF 入口的格式选择独立。自定义提示词会覆盖 OpenAI-compatible / Ollama 的内置提示词，包括手写和 PDF 识别；MinerU Local 走文档解析接口，不使用提示词。
 
 #v(0.35em)
 
-*解决：* 清空自定义提示词、确认协议类型；如果是 PDF，请重新从 PDF 入口选择导出格式。
+*解决：* 清空自定义提示词并确认提示词模板；如果是 PDF，请重新从 PDF 入口选择导出格式。
 
 == 大图片 / 高分辨率截图识别失败
 
@@ -863,6 +867,7 @@ LaTeXSnipper 卸载默认保留用户数据，方便升级或重装后继续使�
 
 *当前策略：*
 - 自动排版会生成完整 XeLaTeX 文档，并使用 `ctexart` 文档类
+- 内嵌 MathLive 编辑器中，`Enter` 新建数学行，`Esc` 收起虚拟键盘但不关闭编辑器
 - 导言区会补齐常用数学和表格宏包，如 `amsmath`、`amssymb`、`mathtools`、`geometry` 等
 - 普通文字行会按段落保留，连续文字行会自动分段，避免 PDF 中被合并到同一行
 - 如果外部模型排版时吞掉了识别草稿里的普通文字，程序会尝试把这些文字合并回文档正文
