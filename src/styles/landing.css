@@ -598,6 +598,73 @@
   white-space: pre;
 }
 
+/* Platform blocks and export groups */
+.ls-platform-block + .ls-platform-block {
+  margin-top: 3rem;
+}
+
+.ls-table-title {
+  margin: 0 0 1rem;
+  color: var(--fg);
+  font-size: 1.05rem;
+}
+
+.ls-table-note {
+  margin: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.ls-export-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--ls-border);
+  padding-top: 2rem;
+}
+
+.ls-export-group {
+  min-width: 0;
+}
+
+.ls-export-group-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ls-export-group h3 {
+  margin: 0;
+  color: var(--fg);
+  font-size: 1rem;
+}
+
+.ls-export-group-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.ls-export-group ol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style-position: inside;
+  border-top: 1px solid var(--ls-border);
+}
+
+.ls-export-group li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--ls-border);
+  color: var(--fg);
+  font-size: 0.86rem;
+}
+
 /* Privacy */
 .ls-privacy-section {
   background: radial-gradient(circle at 85% 20%, rgba(23, 105, 170, 0.12), transparent 40%);
@@ -878,6 +945,14 @@
   }
 
   .ls-format-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .ls-export-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .ls-export-group ol {
     grid-template-columns: 1fr;
   }
 

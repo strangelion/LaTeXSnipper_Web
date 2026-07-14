@@ -16,7 +16,8 @@ export const FALLBACK_RELEASE = {
     linux: {
       label: 'Linux',
       architecture: 'x86_64',
-      requirements: 'Debian / Ubuntu 及兼容发行版',
+      requirements:
+        '需要 Python 3.10–3.12、venv 与 pip',
       href: '/dl/LaTeXSnipper_2.4.0_amd64.deb',
       sha256: '',
       size: '',
@@ -24,7 +25,8 @@ export const FALLBACK_RELEASE = {
     macos: {
       label: 'macOS',
       architecture: 'Apple Silicon',
-      requirements: 'macOS 11 或更高版本',
+      requirements:
+        'macOS 11+；需要 Python 3.10–3.12',
       href: '/dl/LaTeXSnipper_2.4.0_arm64.dmg',
       sha256: '',
       size: '',
@@ -35,211 +37,235 @@ export const FALLBACK_RELEASE = {
 export const trustItems = [
   {
     title: '本地优先',
-    description: '默认使用本地模型处理图片和公式',
+    description:
+      'MathCraft OCR 与数学计算可在本机运行',
   },
   {
-    title: '免费开源',
-    description: '核心功能与桌面应用开放源代码',
+    title: '公式、文字与混合识别',
+    description:
+      '针对公式、纯文字和图文页面提供独立模式',
   },
   {
-    title: '多平台',
-    description: '支持 Windows、Linux 和 macOS',
+    title: '20 种导出格式',
+    description:
+      '12 种内置格式与 8 种可选 Pandoc 格式',
   },
   {
-    title: '多格式',
-    description: 'LaTeX、Markdown、OMML、Typst、SVG 等',
+    title: '桌面多平台',
+    description:
+      'Windows 为主要平台，Linux 与 macOS 通过 Provider 层支持',
   },
 ];
 
 export const workflowSteps = [
   {
     number: '01',
-    title: '捕获内容',
+    title: '捕获',
     description:
-      '截图选区、拖入图片或 PDF，也可以直接使用鼠标与触控笔书写公式。',
+      '使用截图快捷键、图片、PDF 或手写画布输入内容。',
   },
   {
     number: '02',
-    title: '识别与解析',
+    title: '识别',
     description:
-      '本地模型识别公式、文字与版面结构，并保留可继续编辑的数学语义。',
+      '选择公式、文字、混合 MathCraft OCR，或已配置的外部模型。',
   },
   {
     number: '03',
     title: '编辑与计算',
     description:
-      '检查 LaTeX、预览公式、修正识别结果，并进行化简、求值或格式转换。',
+      '在 MathLive 编辑器中修正结果，并进行计算、化简、展开或求解。',
   },
   {
     number: '04',
-    title: '插入与导出',
+    title: '导出与插入',
     description:
-      '复制到 Markdown、Typst、Word、Office/WPS，或导出 SVG、PNG、PDF。',
+      '输出 LaTeX、Markdown、MathML、OMML、SVG、Typst 或 Office 文档。',
   },
 ];
 
 export const featureShowcases = [
   {
     id: 'ocr',
-    eyebrow: '公式与文档识别',
-    title: '从屏幕或文档中提取可编辑的数学内容',
+    eyebrow: 'MathCraft OCR',
+    title: '识别公式、文字和图文混排页面',
     description:
-      '支持截图、图片、PDF 与图文混合内容。识别结果不只是图片，而是能够继续修改、复制和导出的结构化数学表达式。',
+      '桌面端 MathCraft OCR 使用独立的公式检测、公式识别、文字检测和文字识别模型，并将结果按版面顺序合并。',
     points: [
-      '截图区域快速识别',
-      '印刷体和手写公式',
-      '公式与中英文混合内容',
-      '图片和 PDF 文件导入',
+      '截图和本地图片识别',
+      '公式、纯文字和混合模式',
+      '按页 PDF 识别',
+      '输出 LaTeX、Markdown 或纯文本',
     ],
     image: '/assets/images/product/ocr-result.webp',
-    alt: 'LaTeXSnipper 公式识别结果界面',
+    alt: 'LaTeXSnipper MathCraft OCR 识别结果',
     href: '/ocr_demo.html',
-    cta: '在浏览器中体验',
+    cta: '体验网页版公式识别',
   },
   {
     id: 'workspace',
     eyebrow: '数学工作台',
-    title: '识别、预览、计算和转换集中在一个窗口',
+    title: '在同一窗口编辑、预览和计算公式',
     description:
-      '编辑器提供公式预览、常用符号、数学操作和格式转换，减少在多个应用之间来回复制的步骤。',
+      'MathLive 编辑器和虚拟数学键盘用于修正公式，数学工作台支持常见符号计算，并可把结果写回主编辑器。',
     points: [
+      'MathLive math-field',
       'LaTeX 实时预览',
-      '求值、化简、展开和因式分解',
-      '矩阵、积分、根号和分式模板',
-      '识别结果一键回填',
+      '计算、化简与数值化',
+      '展开、因式分解与求解',
     ],
     image: '/assets/images/product/hero-workspace.webp',
     alt: 'LaTeXSnipper 数学工作台',
     href: '/user_manual.html',
-    cta: '查看工作台说明',
+    cta: '查看用户手册',
   },
   {
     id: 'handwriting',
-    eyebrow: '手写输入',
-    title: '使用鼠标或触控笔书写公式',
+    eyebrow: '手写识别',
+    title: '使用鼠标或触控笔输入数学内容',
     description:
-      '通过手写板输入复杂公式，支持橡皮、撤销、圈选修正，并将书写内容转换为可编辑的 LaTeX。',
+      '独立手写窗口支持书写、橡皮、圈选修正、撤销和重做，识别结果可以继续编辑并实时预览。',
     points: [
       '鼠标与触控笔输入',
-      '撤销、清除和橡皮工具',
-      '局部圈选修正',
-      '自动生成公式预览',
+      '圈选修正并保留剩余笔段',
+      '撤销、重做和清空',
+      '识别结果编辑与实时预览',
     ],
     image: '/assets/images/product/handwriting.webp',
-    alt: 'LaTeXSnipper 手写公式识别界面',
+    alt: 'LaTeXSnipper 手写识别窗口',
   },
   {
     id: 'office',
-    eyebrow: 'Office 与编辑器集成',
-    title: '把识别结果直接送入常用写作环境',
+    eyebrow: 'Windows Office 插件',
+    title: '在 Word 和 PowerPoint 中维护公式',
     description:
-      '针对不同平台采用合适的接入方式。Windows Office 以原生 COM/VSTO 加载项为主，macOS 与网页版 Office 使用 Office.js；WPS 和其他编辑器通过各自插件接入。',
+      '已发布的 Windows VSTO 插件面向 Word 和 PowerPoint。Word 支持 OLE 与原生 OMML，PowerPoint 支持 OLE 与 PNG。',
     points: [
-      'Windows Word / Excel / PowerPoint 原生加载项',
-      'macOS 与 Web Office.js 接入',
-      'LaTeX 与 OMML 双向转换',
-      'WPS、Obsidian 和浏览器扩展逐步接入',
+      'Word：OLE 与原生 OMML',
+      'PowerPoint：OLE 与 PNG',
+      '加载、更新和删除托管公式',
+      '通过本地 Bridge 调用截图 OCR',
     ],
     image: '/assets/images/product/office-word.webp',
-    alt: 'LaTeXSnipper Word 加载项',
+    alt: 'LaTeXSnipper Microsoft Word 插件',
+    href:
+      'https://github.com/SakuraMathcraft/LaTeXSnipper/blob/main/office_plugin/README.md',
+    cta: '查看 Office 插件说明',
   },
   {
     id: 'export',
-    eyebrow: '格式转换与导出',
-    title: '一次识别，适配不同写作与发布平台',
+    eyebrow: '格式导出',
+    title: '12 种内置格式，另有 8 种 Pandoc 格式',
     description:
-      '无需为不同编辑器重复整理公式。识别结果可以转换成常用标记语言、Office 公式或矢量图。',
+      '内置格式覆盖 LaTeX、Markdown、MathML、HTML、Word OMML 和 SVG Code；安装 Pandoc 层后可导出文档格式。',
     points: [
-      'LaTeX、Markdown 和 MathML',
-      'Word OMML 与 HTML',
-      'Typst、SVG、PNG 和 PDF',
-      '可选 Pandoc 扩展格式',
+      'LaTeX、Markdown、MathML',
+      'HTML、Word OMML、SVG Code',
+      'Word、ODT、PowerPoint、EPUB',
+      'PDF、独立 HTML、Typst、纯文本',
     ],
     image: '/assets/images/product/export-formats.webp',
-    alt: 'LaTeXSnipper 多格式导出界面',
+    alt: 'LaTeXSnipper 导出菜单',
   },
 ];
 
-export const ecosystems = [
+export const desktopPlatforms = [
   {
-    name: 'Desktop',
-    status: '稳定',
-    description: 'Windows、Linux 和 macOS 桌面应用。',
+    name: 'Windows',
+    status: '主要发布平台',
+    capability:
+      '原生全局快捷键、Qt 截图、桌面安装包',
+    requirement: 'Windows 10 / 11',
   },
   {
-    name: 'Windows Office',
-    status: 'Beta',
-    description: 'Word、Excel、PowerPoint 的 COM/VSTO 集成。',
+    name: 'Linux',
+    status: 'Provider 层支持',
+    capability:
+      'pynput 快捷键、Qt 截图、Wayland/X11/portal 回退',
+    requirement:
+      'Python 3.10–3.12，venv/pip 可用',
   },
   {
-    name: 'Office.js',
-    status: '开发中',
-    description: '面向 macOS、Web 与跨平台 Office。',
-  },
-  {
-    name: 'WPS',
-    status: '开发中',
-    description: '面向 WPS Word、表格和演示。',
-  },
-  {
-    name: 'Obsidian',
-    status: '规划中',
-    description: '从笔记中读取和插入公式内容。',
-  },
-  {
-    name: 'CLI / Core',
-    status: '开发中',
-    description: 'Rust Core、命令行与第三方集成能力。',
+    name: 'macOS',
+    status: 'Provider 层支持',
+    capability:
+      '原生快捷键、Qt 截图、screencapture 回退',
+    requirement:
+      'Python 3.10–3.12；可能需要屏幕录制权限',
   },
 ];
 
-export const formatGroups = [
+export const officePlatforms = [
   {
-    title: '数学标记',
-    formats: ['LaTeX', 'MathML', 'AsciiMath', 'Unicode Math'],
+    host: 'Microsoft Word',
+    status: '已发布',
+    insert: 'OLE、原生 OMML',
+    manage:
+      '加载、更新、删除、编号、引用、OLE/OMML 转换',
+    requirement:
+      'Windows Office 2019+；32/64 位',
   },
   {
-    title: '文档写作',
-    formats: ['Markdown', 'Typst', 'HTML', 'GitHub Markdown'],
+    host: 'Microsoft PowerPoint',
+    status: '已发布',
+    insert: 'OLE、PNG',
+    manage:
+      '加载、更新、删除、OLE/PNG 转换、保留缩放',
+    requirement:
+      'Windows Office 2019+；32/64 位',
   },
-  {
-    title: 'Office',
-    formats: ['OMML', 'Word', 'Excel', 'PowerPoint'],
-  },
-  {
-    title: '图像',
-    formats: ['SVG', 'PNG', 'PDF'],
-  },
-  {
-    title: '扩展转换',
-    formats: ['Pandoc', 'EPUB', 'Wiki', '自定义模板'],
-  },
+];
+
+export const builtinExportFormats = [
+  'LaTeX 行内',
+  'LaTeX display',
+  'LaTeX equation',
+  'Markdown 行内',
+  'Markdown 块级',
+  'MathML',
+  'MathML .mml',
+  'MathML <m>',
+  'MathML 属性形式',
+  'HTML',
+  'Word OMML',
+  'SVG Code',
+];
+
+export const pandocExportFormats = [
+  'Word .docx',
+  'ODT .odt',
+  'PowerPoint .pptx',
+  'EPUB .epub',
+  'PDF .pdf',
+  '独立 HTML .html',
+  'Typst .typ',
+  '纯文本 .txt',
 ];
 
 export const faqs = [
   {
-    question: '识别时会把图片上传到服务器吗？',
+    question: '识别内容会上传吗？',
     answer:
-      '默认本地模型不会上传图片。浏览器 OCR Demo 也在浏览器中执行推理。只有用户主动选择第三方 API 或云端模型时，相应内容才会发送到所配置的服务。',
+      '使用本地 MathCraft OCR 时，图片与公式在本机处理。启用 OpenAI-compatible、Ollama 或 MinerU Local 等外部服务时，数据流向由对应服务和配置决定。',
   },
   {
-    question: '为什么首次使用可能需要联网？',
+    question: '为什么首次使用需要联网？',
     answer:
-      '应用本身可以离线工作，但部分模型需要在首次使用时下载。模型下载完成后，本地识别不再依赖网络。',
+      '依赖向导需要安装运行依赖并准备模型。模型和依赖准备完成后，本地 MathCraft OCR 可以离线运行。',
   },
   {
-    question: 'Office 加载项在不同平台上是否相同？',
+    question: '网页版 OCR 与桌面端完全相同吗？',
     answer:
-      '不是。Windows 桌面 Office 优先使用 COM/VSTO，以获得更完整的公式和对象访问能力；macOS 和网页版 Office 使用 Office.js。',
+      '不是。网页版优先提供公式识别体验；完整的公式检测、文字检测、混合布局、PDF 工作流和桌面集成以桌面版为准。',
   },
   {
-    question: '是否支持自定义模型或 API？',
+    question: 'Office 插件支持哪些程序？',
     answer:
-      '支持配置本地模型以及兼容 OpenAI API 形式的外部服务。启用外部服务时，网站和应用应明确提示联网边界。',
+      '当前正式发布的是 Windows 桌面版 Microsoft Word 和 PowerPoint 插件，不应把 Excel、macOS Office.js 或 WPS 描述为当前稳定能力。',
   },
   {
-    question: 'LaTeXSnipper 是否收费？',
+    question: '是否支持外部模型？',
     answer:
-      '项目以免费开源为主。下载、核心识别和常用格式转换不需要订阅。',
+      '桌面版支持 OpenAI-compatible、Ollama 和 MinerU Local，并支持公式、Markdown、纯文本等提示词输出模式。',
   },
 ];

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
+  builtinExportFormats,
+  desktopPlatforms,
   faqs,
   featureShowcases,
+  officePlatforms,
+  pandocExportFormats,
   trustItems,
   workflowSteps,
 } from '../data/siteContent';
@@ -305,75 +309,120 @@ function FeatureShowcase() {
   );
 }
 
+function StatusBadge({ children }) {
+  return (
+    <span className="ls-status">
+      {children}
+    </span>
+  );
+}
+
 function EcosystemSection() {
   return (
     <section id="ecosystem" className="ls-section">
       <div className="ls-container">
         <SectionHeading
-          eyebrow="平台集成"
-          title="在你已经使用的编辑器中继续工作"
-          description="区分稳定、Beta、开发中和规划中的功能。"
+          eyebrow="平台支持"
+          title="桌面应用与 Office 插件"
+          description="Windows 是主要发布平台；Linux 和 macOS 通过平台 Provider 层支持。"
         />
 
-        <div className="ls-compat-table-wrap">
-          <table className="ls-compat-table">
-            <thead>
-              <tr>
-                <th>平台</th>
-                <th>状态</th>
-                <th>插入</th>
-                <th>读取</th>
-                <th>推荐方式</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Windows Office</td>
-                <td><span className="ls-status ls-status-Beta">Beta</span></td>
-                <td>✓</td>
-                <td>✓</td>
-                <td>COM / VSTO</td>
-              </tr>
-              <tr>
-                <td>macOS Office</td>
-                <td><span className="ls-status ls-status-开发中">开发中</span></td>
-                <td>✓</td>
-                <td>部分</td>
-                <td>Office.js</td>
-              </tr>
-              <tr>
-                <td>WPS</td>
-                <td><span className="ls-status ls-status-开发中">开发中</span></td>
-                <td>✓</td>
-                <td>部分</td>
-                <td>WPS Add-in</td>
-              </tr>
-              <tr>
-                <td>Obsidian</td>
-                <td><span className="ls-status ls-status-规划中">规划中</span></td>
-                <td>—</td>
-                <td>—</td>
-                <td>Community plugin</td>
-              </tr>
-              <tr>
-                <td>Desktop</td>
-                <td><span className="ls-status ls-status-稳定">稳定</span></td>
-                <td>✓</td>
-                <td>✓</td>
-                <td>Qt 原生应用</td>
-              </tr>
-              <tr>
-                <td>CLI / Core</td>
-                <td><span className="ls-status ls-status-开发中">开发中</span></td>
-                <td>✓</td>
-                <td>✓</td>
-                <td>Rust Core + Python</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="ls-platform-block">
+          <h3 className="ls-table-title">
+            桌面应用
+          </h3>
+
+          <div className="ls-compat-table-wrap">
+            <table className="ls-compat-table">
+              <thead>
+                <tr>
+                  <th>平台</th>
+                  <th>状态</th>
+                  <th>能力</th>
+                  <th>运行要求</th>
+                </tr>
+              </thead>
+              <tbody>
+                {desktopPlatforms.map((item) => (
+                  <tr key={item.name}>
+                    <td>{item.name}</td>
+                    <td>
+                      <StatusBadge>
+                        {item.status}
+                      </StatusBadge>
+                    </td>
+                    <td>{item.capability}</td>
+                    <td>{item.requirement}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="ls-platform-block">
+          <h3 className="ls-table-title">
+            Windows Microsoft Office 插件
+          </h3>
+
+          <div className="ls-compat-table-wrap">
+            <table className="ls-compat-table">
+              <thead>
+                <tr>
+                  <th>宿主</th>
+                  <th>状态</th>
+                  <th>插入形式</th>
+                  <th>管理能力</th>
+                  <th>要求</th>
+                </tr>
+              </thead>
+              <tbody>
+                {officePlatforms.map((item) => (
+                  <tr key={item.host}>
+                    <td>{item.host}</td>
+                    <td>
+                      <StatusBadge>
+                        {item.status}
+                      </StatusBadge>
+                    </td>
+                    <td>{item.insert}</td>
+                    <td>{item.manage}</td>
+                    <td>{item.requirement}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="ls-table-note">
+            Office 插件还需要 .NET Framework 4.8
+            与 WebView2 Runtime。Office 2016
+            不属于正式支持版本。
+          </p>
         </div>
       </div>
     </section>
+  );
+}
+
+function FormatList({
+  title,
+  note,
+  formats,
+}) {
+  return (
+    <article className="ls-export-group">
+      <div className="ls-export-group-heading">
+        <h3>{title}</h3>
+        <p>{note}</p>
+      </div>
+
+      <ol>
+        {formats.map((format) => (
+          <li key={format}>{format}</li>
+        ))}
+      </ol>
+    </article>
   );
 }
 
@@ -383,7 +432,8 @@ function FormatSection() {
       <div className="ls-container">
         <SectionHeading
           eyebrow="格式支持"
-          title="一份数学内容，进入不同写作环境"
+          title="20 种桌面端导出格式"
+          description="12 种格式内置可用；8 种文档格式需要安装 Pandoc 层。"
         />
 
         <div className="ls-format-examples">
@@ -422,6 +472,20 @@ function FormatSection() {
   </m:sSup>
 </m:oMath>`}</code></pre>
           </div>
+        </div>
+
+        <div className="ls-export-groups">
+          <FormatList
+            title="内置格式"
+            note="不需要 Pandoc"
+            formats={builtinExportFormats}
+          />
+
+          <FormatList
+            title="Pandoc 格式"
+            note="需要 Pandoc；PDF 还需要可用的 LaTeX PDF 引擎"
+            formats={pandocExportFormats}
+          />
         </div>
       </div>
     </section>
