@@ -11,7 +11,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path $root -Parent
-$corePath = Join-Path $repoRoot "core"
+$corePath = Join-Path $repoRoot "latexsnipper-core"
 
 Write-Host "=== Sync latexsnipper-core submodule ===" -ForegroundColor Cyan
 
@@ -43,7 +43,7 @@ Set-Location $repoRoot
 
 # 3. 提交 submodule 引用更新
 Write-Host "`n[2/3] Committing submodule update..." -ForegroundColor Yellow
-git add core
+git add latexsnipper-core
 $commitMsg = "chore: sync latexsnipper-core -> $after"
 git commit -m $commitMsg
 Write-Host "  $commitMsg" -ForegroundColor Green

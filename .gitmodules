@@ -1,4 +1,4 @@
-[submodule "core"]
-	path = core
+[submodule "latexsnipper-core"]
+	path = latexsnipper-core
 	url = https://github.com/strangelion/latexsnipper-core.git
 	branch = main
