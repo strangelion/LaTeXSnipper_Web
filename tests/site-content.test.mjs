@@ -73,10 +73,10 @@ test('homepage uses an eager product stage and lazy follow-up story images', () 
   assert.match(landingSource, /loading="lazy"/);
 });
 
-test('homepage reserves the approved three-zone Hero without using the poster as character art', () => {
+test('homepage uses the approved three-zone Hero with responsive character art', () => {
   assert.match(landingStyles, /grid-template-columns:\s*minmax\(390px, 38%\) minmax\(0, 62%\)/);
   assert.match(landingSource, /src: '\/assets\/brand\/snipper-girl\.webp'/);
-  assert.match(landingSource, /enabled: false/);
+  assert.match(landingSource, /enabled: true/);
   assert.match(landingStyles, /\.hero-visual\.has-mascot \.hero-math-layer[\s\S]*width:\s*58%/);
   assert.match(landingStyles, /\.hero-mascot[\s\S]*right:\s*2%[\s\S]*height:\s*92%/);
   assert.match(landingSource, /把数学，<br \/>从图像重新<br \/>变成知识。/);

@@ -15,7 +15,7 @@ const mascot = {
   src: '/assets/brand/snipper-girl.webp',
   srcSet: '/assets/brand/snipper-girl-640.webp 640w, /assets/brand/snipper-girl-960.webp 960w',
   sizes: '(min-width: 1200px) 30vw, (min-width: 780px) 28vw, 0px',
-  enabled: false,
+  enabled: true,
 };
 
 const conversionExamples = {

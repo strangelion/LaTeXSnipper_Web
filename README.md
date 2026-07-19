@@ -47,9 +47,9 @@ manifest。`download.html` 不保存可直接使用的 Desktop 文件链接或�
 
 ## 品牌人物素材
 
-Hero 已预留 `/assets/brand/snipper-girl.webp` 及 640/960 宽度的 `srcset`
-接口。只有取得不含海报文案、信息框和背景的透明原始立绘后才可启用；禁止把
-完整海报裁切进 Hero，或使用参考图中的 AI 重绘人物代替原始素材。
+Hero 使用 `/assets/brand/snipper-girl.webp` 及 640/960 宽度的 `srcset`
+透明素材。当前版本由提供的绿幕立绘通过确定性色键处理得到，没有生成式重绘；
+禁止把完整海报裁切进 Hero，或使用带文案、信息框和背景的合成图替换该素材。
 
 ## Cloudflare 部署
 

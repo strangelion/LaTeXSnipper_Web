@@ -9,7 +9,8 @@
 - Added a tiered `LiquidGlassSurface` material system for navigation, controls,
   and two floating Hero functions while keeping content panels on Standard Material.
 - Reserved the approved 38/27/35 Hero composition and a transparent Snipper娘
-  asset interface; the full poster is intentionally not cropped into the page.
+  asset interface; the supplied green-screen character is now keyed into
+  responsive transparent WebP assets without generative redrawing.
 - Unified the download center, generated manual, and OCR workspace visual shell.
 - Added conservative platform and CPU-architecture detection for download
   recommendations, including Android, iPadOS, ChromeOS, and unknown fallbacks.
