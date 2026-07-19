@@ -3,7 +3,7 @@
  *
  * 1. Vite build (React SPA → dist/)
  * 2. Copy dist/ → deploy/
- * 3. Copy public/ (OCR, Office add-in) → deploy/
+ * 3. Copy public/ (OCR and runtime assets) → deploy/
  * 4. Verify all required paths
  *
  * Run after `npm run build`.
@@ -34,18 +34,20 @@ const REQUIRED_PATHS = [
   'core-wasm/latexsnipper_wasm_bg.wasm',
   'core-wasm/core-build.json',
   'vendor/onnxruntime/ort.all.min.js',
+  'vendor/onnxruntime/ort-wasm-simd-threaded.mjs',
+  'vendor/onnxruntime/ort-wasm-simd-threaded.wasm',
   'vendor/pdfjs/pdf.min.mjs',
   'vendor/pdfjs/pdf.worker.min.mjs',
   'vendor/mathjax/tex-svg.js',
   'vendor/fflate/fflate.js',
   'core-models.lock.json',
+  'release-manifest.json',
+  'schemas/release-manifest-v1.schema.json',
+  'assets/images/icon-96.png',
   'open-source.html',
-  'office/taskpane.html',
-  'office/assets/taskpane-',
-  'office/assets/icon-16.png',
-  'office/assets/icon-32.png',
-  'office/assets/icon-80.png',
-  'office/manifest/word.xml',
+  'styles/product-shell.css',
+  'js/product-shell.js',
+  'js/device-detection.js',
 ];
 
 // 1. Ensure Vite build exists
@@ -64,7 +66,7 @@ fs.mkdirSync(DEPLOY_DIR, { recursive: true });
 copyDirSync(DIST_DIR, DEPLOY_DIR);
 console.log(`[assemble] Copied dist/ → deploy/`);
 
-// 4. Copy public/ (static files, OCR, Office add-in)
+// 4. Copy public/ (static files and OCR runtime)
 copyDirSync(PUBLIC_DIR, DEPLOY_DIR);
 console.log(`[assemble] Copied public/ → deploy/`);
 

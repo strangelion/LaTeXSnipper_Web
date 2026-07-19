@@ -245,11 +245,11 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
   async function loadModels() {
     const encoderBuf = await downloadWithProgress(MODEL_BASE + '/encoder_model.onnx', '编码器模型');
     setStatus('loading', '正在加载编码器到内存…', true);
-    encoderSession = await ort.InferenceSession.create(encoderBuf, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' });
+    encoderSession = await ort.InferenceSession.create(encoderBuf, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
 
     const decoderBuf = await downloadWithProgress(MODEL_BASE + '/decoder_model.onnx', '解码器模型');
     setStatus('loading', '正在加载解码器到内存…', true);
-    decoderSession = await ort.InferenceSession.create(decoderBuf, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' });
+    decoderSession = await ort.InferenceSession.create(decoderBuf, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
   }
 
   async function loadPPOCR() {
@@ -258,7 +258,7 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
       var resp = await fetch(MODEL_BASE + '/ch_PP-OCRv4_rec_infer.onnx');
       if (!resp.ok) return;
       var buf = await resp.arrayBuffer();
-      ppocrSession = await ort.InferenceSession.create(buf, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' });
+      ppocrSession = await ort.InferenceSession.create(buf, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
       resp = await fetch(MODEL_BASE + '/ppocr_keys_v1.txt');
       ppocrDict = (await resp.text()).replace(/\r/g, '').split('\n').filter(function(l) { return l.trim(); });
       ppocrDict.unshift('');

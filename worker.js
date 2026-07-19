@@ -5,6 +5,7 @@
 
 const GITHUB_OWNER = "strangelion";
 const GITHUB_REPO = "LaTeXSnipper_Web";
+const WORKER_SERVICE_VERSION = "2026.07.19";
 
 // 允许的文件扩展名白名单（防止路径遍历和信息泄露）
 const ALLOWED_EXTENSIONS = new Set([
@@ -105,6 +106,7 @@ function isSafePath(p) {
 
 function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
   const allowCamera = path === "/ocr" || path === "/ocr.html";
+  const isOcrPage = allowCamera;
   const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
@@ -132,12 +134,11 @@ function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
         "base-uri 'self'",
         "form-action 'none'",
       ].join("; ");
-    } else {
-      // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
+    } else if (isOcrPage) {
+      // OCR requires cross-origin isolation for SharedArrayBuffer and WASM workers.
       headers["Cross-Origin-Opener-Policy"] = "same-origin";
       headers["Cross-Origin-Embedder-Policy"] = "require-corp";
       headers["Cross-Origin-Resource-Policy"] = "same-origin";
-      // CSP：限制脚本和样式来源
       headers["Content-Security-Policy"] = [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:",
@@ -146,6 +147,19 @@ function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
         "font-src 'self'",
         "connect-src 'self' blob:",
         "worker-src 'self' blob:",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join("; ");
+    } else {
+      headers["Content-Security-Policy"] = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self'",
         "object-src 'none'",
         "frame-ancestors 'none'",
         "base-uri 'self'",
@@ -184,7 +198,7 @@ async function proxyBinary(request, upstreamUrl, {
   headers.set("Cache-Control", cacheControlValue);
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("Cross-Origin-Resource-Policy", "same-origin");
-  for (const [name, value] of Object.entries(corsHeaders())) {
+  for (const [name, value] of Object.entries(publicCorsHeaders())) {
     headers.set(name, value);
   }
 
@@ -198,13 +212,18 @@ async function proxyBinary(request, upstreamUrl, {
   );
 }
 
-function corsHeaders() {
+function publicCorsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
   };
+}
+
+// Kept for the public OPTIONS response. HTML responses deliberately omit CORS.
+function corsHeaders() {
+  return publicCorsHeaders();
 }
 
 // ── 反爬虫 / 恶意机器人检测 ──
@@ -240,16 +259,16 @@ const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW = 5000;  // 5 秒窗口
 const RATE_LIMIT_MAX = 120;       // 窗口内最多请求数
 
-function isRateLimited(ip) {
+function isRateLimited(ip, windowMs = RATE_LIMIT_WINDOW, maxRequests = RATE_LIMIT_MAX) {
   const now = Date.now();
   let entry = rateLimitMap.get(ip);
-  if (!entry || now - entry.reset > RATE_LIMIT_WINDOW) {
+  if (!entry || now - entry.reset > windowMs) {
     entry = { count: 1, reset: now };
     rateLimitMap.set(ip, entry);
     return false;
   }
   entry.count++;
-  if (entry.count > RATE_LIMIT_MAX) return true;
+  if (entry.count > maxRequests) return true;
   return false;
 }
 
@@ -539,11 +558,11 @@ async function fetchWithRetry(url, maxRetries = 2) {
   throw lastError;
 }
 
-function jsonResponse(data) {
+function jsonResponse(data, { publicCors = false } = {}) {
   return new Response(JSON.stringify(data, null, 2), {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...corsHeaders(),
+      ...(publicCors ? publicCorsHeaders() : {}),
       ...securityHeaders(false),
     },
   });
@@ -635,7 +654,7 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
       <p>请求路径：<code>${safePath}</code></p>
       <p>时间戳：<code>${now}</code></p>
       <p>HTTP 状态码：<code>${safeCode}</code></p>
-      <p>服务：LaTeXSnipper User Manual Worker v2.3.8</p>
+      <p>服务：LaTeXSnipper Web Worker ${WORKER_SERVICE_VERSION}</p>
     </details>
   </div>
 </div>
@@ -647,7 +666,6 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
     status: statusCode,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      ...corsHeaders(),
       ...securityHeaders(true, false, requestPath || "/"),
     },
   });
@@ -670,104 +688,12 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
-    // ── Office.js Add-in 静态资源 ──
-    // Worker-first: /office/* 路径先过 Worker（run_worker_first 配置），再查 ASSETS
-    if (path.startsWith("/office/")) {
-      if (request.method !== "GET" && request.method !== "HEAD") {
-        return new Response("Method Not Allowed", { status: 405 });
-      }
-
-      const asset = await env.ASSETS.fetch(request);
-
-      if (!asset.ok) {
-        return new Response("Office asset not found", {
-          status: asset.status === 404 ? 404 : asset.status,
-          headers: {
-            "Content-Type": "text/plain; charset=utf-8",
-            "Cache-Control": "no-store",
-          },
-        });
-      }
-
-      const headers = new Headers(asset.headers);
-      const isHtml = path.endsWith(".html");
-
-      headers.set("X-LaTeXSnipper-Office-Asset", "1");
-      headers.set("X-Content-Type-Options", "nosniff");
-
-      if (isHtml) {
-        headers.delete("X-Frame-Options");
-
-        headers.set(
-          "Content-Security-Policy",
-          [
-            "default-src 'self'",
-            "script-src 'self' https://appsforoffice.microsoft.com 'unsafe-inline'",
-            "style-src 'self' 'unsafe-inline'",
-            "img-src 'self' data: https:",
-            "connect-src 'self' https://latexsnipper.interknot.dpdns.org wss://latexsnipper.interknot.dpdns.org",
-            "frame-ancestors 'self' https://*.office.com https://*.officeapps.live.com https://*.microsoft.com https://*.office365.com",
-            "base-uri 'self'",
-            "form-action 'none'",
-          ].join("; ")
-        );
-      }
-
-      return new Response(request.method === "HEAD" ? null : asset.body, {
-        status: asset.status,
-        statusText: asset.statusText,
-        headers,
-      });
-    }
-
-    // ── Office.js API 存根 ──
-    // 这些 API 目前由桌面端处理；网站只做心跳确认和转换请求转发
-    if (path === "/api/office/convert" && request.method === "POST") {
-      return new Response(JSON.stringify({
-        success: false,
-        latex: null,
-        omml: "",
-        message: "LaTeX ↔ OMML conversion is handled by the LaTeXSnipper Desktop app. Please start the desktop app and try again.",
-      }), {
-        status: 501,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      });
-    }
-
-    if (path === "/api/office/heartbeat" && request.method === "POST") {
-      return new Response(JSON.stringify({ success: true, message: "heartbeat acknowledged" }), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
-    }
-
-    if (path === "/api/office/actions/next") {
-      return new Response(JSON.stringify({ action: null, action_id: null }), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
-    }
-
     // ── 反爬虫检测 ──
     const userAgent = request.headers.get("User-Agent") || "";
     const clientIP = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
 
-    // Office 客户端 UA 跳过机器人和频率限制
-    const isOfficeUA = /Microsoft\sOffice|Word|Excel|PowerPoint|Office\sAdd-in|WebView/i.test(userAgent);
-
     // 恶意机器人直接拦截
-    if (!isOfficeUA && isBadBot(userAgent)) {
+    if (isBadBot(userAgent)) {
       return new Response("Forbidden", {
         status: 403,
         headers: {
@@ -811,8 +737,8 @@ export default {
     if (path === "/ping") {
       return jsonResponse({
         status: "ok",
-        service: "LaTeXSnipper User Manual",
-        version: "2.3.8",
+        service: "LaTeXSnipper Web Worker",
+        serviceVersion: WORKER_SERVICE_VERSION,
         timestamp: new Date().toISOString(),
         tip: "Download stats: Cloudflare Dashboard > Analytics & Logs > filter by /dl/*",
       });
@@ -820,6 +746,12 @@ export default {
 
     // ── TOTP 解锁 API ──
     if (path === "/api/unlock" && request.method === "POST") {
+      if (isRateLimited(`unlock:${clientIP}`, 300_000, 5)) {
+        return new Response("Too Many Requests", {
+          status: 429,
+          headers: { "Retry-After": "300", ...securityHeaders(false) },
+        });
+      }
       try {
         const body = await request.json();
         const token = String(body.code || "").trim();
@@ -926,6 +858,10 @@ export default {
       // ── 下载代理（R2）──
       // /dl/xxx → R2/xxx，追踪带宽，98% 时重定向 GitHub
       if (path.startsWith("/dl/")) {
+        const downloadPath = decodeURIComponent(path.slice(4));
+        if (!/^[A-Za-z0-9._/-]+$/.test(downloadPath) || downloadPath.includes("..")) {
+          return new Response("Download asset not found", { status: 404 });
+        }
         const R2_BASE = env.R2_MODEL_BASE || "https://release.interknot.dpdns.org";
 
         // 配额阻断：重定向到 GitHub Releases
@@ -934,7 +870,7 @@ export default {
           return Response.redirect("https://github.com/SakuraMathcraft/LaTeXSnipper/releases", 302);
         }
 
-        const dlUrl = R2_BASE + "/" + path.slice(4); // /dl/foo → /foo
+        const dlUrl = R2_BASE + "/" + downloadPath; // /dl/foo → /foo
 
         const relResp = await fetch(dlUrl);
         if (!relResp.ok) {
@@ -958,15 +894,17 @@ export default {
         });
       }
 
-      // 路径解析
+      // Resolve the public request to the assembled Static Assets directory.
+      // `deploy/` is the Worker asset root, so it must not use the retired
+      // `dist/` + GitHub Raw lookup path.
       let filePath;
       if (path === "/") {
-        filePath = "dist/index.html";
+        filePath = "index.html";
       } else {
         const ext = path.split(".").pop() || "";
         const hasExt = /^[a-zA-Z0-9]+$/.test(ext) && ext.length <= 10;
         const rawPath = hasExt ? path.slice(1) : path.slice(1) + ".html";
-        filePath = "dist/" + rawPath;
+        filePath = rawPath;
       }
 
       // 安全检查
@@ -976,15 +914,19 @@ export default {
           path, request);
       }
 
-      const branch = getBranch(env);
-      const githubUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/${filePath}`;
-      const resp = await fetchWithRetry(githubUrl);
+      const assetUrl = new URL(request.url);
+      assetUrl.pathname = `/${filePath}`;
+      assetUrl.search = "";
+      const assetRequest = new Request(assetUrl, request);
+      const resp = await env.ASSETS.fetch(assetRequest);
 
       if (!resp.ok) {
         // favicon 回退到 icon.png
         if (path.endsWith(".ico")) {
-          const pngUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/${branch}/public/icon.png`;
-          const pngResp = await fetchWithRetry(pngUrl);
+          const pngUrl = new URL(request.url);
+          pngUrl.pathname = "/assets/images/icon.png";
+          pngUrl.search = "";
+          const pngResp = await env.ASSETS.fetch(new Request(pngUrl, request));
           if (pngResp.ok) {
           return new Response(isHead ? null : await pngResp.arrayBuffer(), {
             headers: {
@@ -1033,7 +975,6 @@ export default {
     const headers = {
       "Content-Type": mimeType,
       "Cache-Control": cacheControl(filePath),
-      ...corsHeaders(),
       ...securityHeaders(isHtml, isWpsPlugin, path),
     };
 

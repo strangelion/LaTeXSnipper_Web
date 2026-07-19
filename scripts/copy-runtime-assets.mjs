@@ -12,8 +12,6 @@ const assets = [
   ['node_modules/onnxruntime-web/dist/ort.all.min.js', 'onnxruntime/ort.all.min.js'],
   ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs', 'onnxruntime/ort-wasm-simd-threaded.mjs'],
   ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm', 'onnxruntime/ort-wasm-simd-threaded.wasm'],
-  ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs', 'onnxruntime/ort-wasm-simd-threaded.jsep.mjs'],
-  ['node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm', 'onnxruntime/ort-wasm-simd-threaded.jsep.wasm'],
   ['public/licenses/onnxruntime-web-MIT.txt', 'onnxruntime/LICENSE'],
   ['node_modules/pdfjs-dist/build/pdf.min.mjs', 'pdfjs/pdf.min.mjs'],
   ['node_modules/pdfjs-dist/build/pdf.worker.min.mjs', 'pdfjs/pdf.worker.min.mjs'],

@@ -9,10 +9,6 @@ function mergeReleaseInfo(remote) {
   return {
     ...FALLBACK_RELEASE,
     ...remote,
-    downloads: {
-      ...FALLBACK_RELEASE.downloads,
-      ...(remote.downloads || {}),
-    },
   };
 }
 
@@ -25,13 +21,13 @@ export function useReleaseInfo() {
 
     async function loadRelease() {
       try {
-        const response = await fetch('/release.json', {
+        const response = await fetch('/release-manifest.json', {
           signal: controller.signal,
           cache: 'no-cache',
         });
 
         if (!response.ok) {
-          throw new Error(`release.json returned ${response.status}`);
+          throw new Error(`release manifest returned ${response.status}`);
         }
 
         const data = await response.json();

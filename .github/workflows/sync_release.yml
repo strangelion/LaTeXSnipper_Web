@@ -21,6 +21,7 @@ jobs:
     outputs:
       should_sync: ${{ steps.decide.outputs.should_sync }}
       changed_assets: ${{ steps.decide.outputs.changed_assets }}
+      asset_timestamps: ${{ steps.decide.outputs.asset_timestamps }}
       should_build_manual: ${{ steps.check_manual.outputs.manual_updated }}
     steps:
       - uses: actions/checkout@v4
@@ -33,16 +34,14 @@ jobs:
           python3 << 'PYEOF'
           import json, os, subprocess
 
-          ASSETS = [
-              "LaTeXSnipperSetup-2.4.0.exe",
-              "LaTeXSnipper_2.4.0_amd64.deb",
-              "LaTeXSnipper_2.4.0_arm64.dmg",
-              "OfficePluginSetup-2.4.0.exe",
-          ]
+          with open("public/release-manifest.json", encoding="utf-8") as f:
+              manifest = json.load(f)
+          ASSETS = [item["href"].removeprefix("/dl/") for item in manifest["assets"]]
+          release_tag = manifest["releaseNotesUrl"].rstrip("/").rsplit("/", 1)[-1]
 
           # Fetch release assets information
           # Step 1: get release_id from tag endpoint
-          tag_url = "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/v2.4.0-LTS"
+          tag_url = f"https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/{release_tag}"
           result = subprocess.run(
               ["curl", "-sL", "--retry", "2",
                "-H", "Accept: application/vnd.github+json",
@@ -98,7 +97,11 @@ jobs:
               else:
                   print(f"  {name}: unchanged  ({api_ts})")
 
-          should_sync = "true" if (changed or is_manual) else "false"
+          if is_manual:
+              # A manually-dispatched sync validates every declared asset. This
+              # also handles a maintainer replacing files under the same tag.
+              changed = ASSETS
+          should_sync = "true" if changed else "false"
 
           # Write outputs for subsequent jobs
           github_output = os.environ.get("GITHUB_OUTPUT")
@@ -106,18 +109,7 @@ jobs:
               with open(github_output, "a") as f:
                   f.write(f"should_sync={should_sync}\n")
                   f.write(f"changed_assets={json.dumps(changed)}\n")
-
-          # Update state file with new timestamps (only when something changed)
-          if changed:
-              for name in changed:
-                  stored[name] = api_assets.get(name, "")
-              state["assets"] = stored
-              all_ts = [v for v in stored.values() if v]
-              state["last_sync"] = max(all_ts) if all_ts else ""
-              with open(".release_state.json", "w") as f:
-                  json.dump(state, f, indent=2)
-                  f.write("\n")
-              print("State updated with new timestamps")
+                  f.write(f"asset_timestamps={json.dumps(api_assets)}\n")
 
           print(f"should_sync={should_sync}")
           print(f"changed_assets={json.dumps(changed)}")
@@ -145,24 +137,6 @@ jobs:
           fi
           echo "manual_updated=$MANUAL_UPDATED" >> $GITHUB_OUTPUT
 
-      - name: 保存状态文件（仅当有变动时提交）
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .release_state.json 2>/dev/null || true
-          git diff --staged --quiet && echo "No state change" || (
-            echo "Committing state update" &&
-            git commit -m "chore: update sync state" &&
-            for i in 1 2 3; do
-              if git pull --rebase && git push; then
-                echo "Push succeeded on attempt $i"
-                break
-              fi
-              echo "Push failed on attempt $i, retrying..."
-              sleep 2
-            done
-          )
-
   sync:
     needs: check
     if: needs.check.outputs.should_sync == 'true'
@@ -176,6 +150,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CHANGED: ${{ needs.check.outputs.changed_assets }}
+          ASSET_TIMESTAMPS: ${{ needs.check.outputs.asset_timestamps }}
         run: |
           python3 << PYEOF
           import json, os, subprocess, hashlib, sys
@@ -185,22 +160,12 @@ jobs:
               print('No changed files to sync, exiting')
               sys.exit(0)
 
-          # Release metadata for public/release.json
-          release_metadata = {
-              "version": "2.4.0",
-              "channel": "LTS",
-              "publishedAt": "",
-              "releaseNotesUrl": (
-                  "https://github.com/SakuraMathcraft/"
-                  "LaTeXSnipper/releases/tag/v2.4.0-LTS"
-              ),
-              "downloads": {}
-          }
-
-          platform_map = {
-              "LaTeXSnipperSetup-2.4.0.exe": ("windows", "Windows", "x86_64", "Windows 10 / 11"),
-              "LaTeXSnipper_2.4.0_amd64.deb": ("linux", "Linux", "x86_64", "Debian / Ubuntu 及兼容发行版"),
-              "LaTeXSnipper_2.4.0_arm64.dmg": ("macos", "macOS", "Apple Silicon", "macOS 11 或更高版本"),
+          with open('public/release-manifest.json', encoding='utf-8') as f:
+              manifest = json.load(f)
+          release_tag = manifest['releaseNotesUrl'].rstrip('/').rsplit('/', 1)[-1]
+          assets_by_name = {
+              item['href'].removeprefix('/dl/'): item
+              for item in manifest['assets']
           }
 
           def human_size(size_bytes):
@@ -212,7 +177,10 @@ jobs:
 
           os.makedirs('.sync_tmp', exist_ok=True)
           for name in changed:
-              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.4.0-LTS/{name}'
+              item = assets_by_name.get(name)
+              if item is None:
+                  raise SystemExit(f'Asset is not declared by the release manifest: {name}')
+              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/{release_tag}/{name}'
               out = f'.sync_tmp/{name}'
               print(f'Downloading {name}...')
               subprocess.run(['curl', '-sL', '--retry', '2', url, '-o', out], check=True)
@@ -220,108 +188,66 @@ jobs:
               size_bytes = os.path.getsize(out)
               print(f'  SHA256: {sha}')
 
-              # Collect metadata for known platforms
-              if name in platform_map:
-                  platform, label, architecture, requirements = platform_map[name]
-                  release_metadata["downloads"][platform] = {
-                      "label": label,
-                      "architecture": architecture,
-                      "requirements": requirements,
-                      "href": f"/dl/{name}",
-                      "sha256": sha,
-                      "size": human_size(size_bytes),
-                  }
+              item['sha256'] = sha
+              item['size'] = human_size(size_bytes)
 
               subprocess.run(['npx', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
                           capture_output=True, timeout=60000)
               subprocess.run(['npx', 'wrangler', 'r2', 'object', 'put', f'release/{name}', '--file', out, '--remote'],
                           check=True, timeout=120000)
               print(f'  Uploaded release/{name}')
-              with open('/tmp/sha256.txt', 'a') as f:
-                  f.write(f'{name}:{sha}\n')
-
-          # Write release metadata
-          with open('/tmp/release.json', 'w', encoding='utf-8') as f:
-              json.dump(release_metadata, f, ensure_ascii=False, indent=2)
+          # Do not publish a partially-updated manifest: this file is written
+          # only after every changed asset has downloaded, verified, and uploaded.
+          with open('/tmp/release-manifest.json', 'w', encoding='utf-8') as f:
+              json.dump(manifest, f, ensure_ascii=False, indent=2)
               f.write('\n')
-          print('Release metadata written to /tmp/release.json')
+          desktop_downloads = {}
+          for item in manifest['assets']:
+              if item['platform'] in ('windows', 'linux', 'macos') and item['platform'] not in desktop_downloads:
+                  desktop_downloads[item['platform']] = item
+          legacy = {key: manifest[key] for key in ('version', 'channel', 'publishedAt', 'releaseNotesUrl')}
+          legacy['downloads'] = desktop_downloads
+          with open('/tmp/release.json', 'w', encoding='utf-8') as f:
+              json.dump(legacy, f, ensure_ascii=False, indent=2)
+              f.write('\n')
 
           subprocess.run(['rm', '-rf', '.sync_tmp'])
           PYEOF
 
-      - name: 更新 download.html SHA256
+      - name: 原子更新发布 manifest
+        env:
+          ASSET_TIMESTAMPS: ${{ needs.check.outputs.asset_timestamps }}
         run: |
-          python3 << 'PYEOF'
-          import re
-
-          sha_map = {}
-          try:
-              with open('/tmp/sha256.txt') as f:
-                  for line in f:
-                      parts = line.strip().split(':')
-                      if len(parts) >= 2:
-                          sha_map[parts[0]] = parts[1]
-          except FileNotFoundError:
-              print("No sha256.txt found, nothing to update")
-              exit(0)
-
-          pairs = [
-              ('LaTeXSnipperSetup-2.4.0.exe', sha_map.get('LaTeXSnipperSetup-2.4.0.exe', '')),
-              ('LaTeXSnipper_2.4.0_amd64.deb', sha_map.get('LaTeXSnipper_2.4.0_amd64.deb', '')),
-              ('LaTeXSnipper_2.4.0_arm64.dmg', sha_map.get('LaTeXSnipper_2.4.0_arm64.dmg', '')),
-              ('OfficePluginSetup-2.4.0.exe', sha_map.get('OfficePluginSetup-2.4.0.exe', '')),
-          ]
-
-          def update_file(filepath):
-              with open(filepath, 'r', encoding='utf-8') as f:
-                  html = f.read()
-              changed = False
-              for filename, sha in pairs:
-                  if not sha: continue
-                  escaped = re.escape(filename)
-                  cur_match = re.search(
-                      r'<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256="([^"]*)"',
-                      html
-                  )
-                  if cur_match and cur_match.group(1) == sha:
-                      print(f"  {filepath}: {filename} already correct")
-                      continue
-                  pattern = re.compile(
-                      r'(<a\s+class="download-btn"\s+href="[^"]*' + escaped + r'"[^>]*>[^<]*</a>\s*<p\s+class="sha256"\s+data-sha256=")[^"]*(")',
-                  )
-                  new_html = pattern.sub(r'\g<1>' + sha + r'\g<2>', html)
-                  if new_html != html:
-                      html = new_html
-                      changed = True
-                      print(f"  {filepath}: {filename} sha256 updated")
-                  else:
-                      print(f"  {filepath}: {filename} no_match")
-              if changed:
-                  with open(filepath, 'w') as f:
-                      f.write(html)
-              return changed
-
-          c1 = update_file('download.html')
-          c2 = update_file('dist/download.html')
-          PYEOF
-
-      - name: 更新网站版本元数据
-        run: |
-          if [ -f /tmp/release.json ]; then
+          if [ -f /tmp/release-manifest.json ] && [ -f /tmp/release.json ]; then
+            cp /tmp/release-manifest.json public/release-manifest.json
             cp /tmp/release.json public/release.json
-            cp /tmp/release.json dist/release.json
-            echo "Release metadata updated"
+            node scripts/validate-release-manifest.mjs public/release-manifest.json
+            python3 - << 'PYEOF'
+          import json, os
+          with open('.release_state.json', encoding='utf-8') as f:
+              state = json.load(f)
+          timestamps = json.loads(os.environ.get('ASSET_TIMESTAMPS', '{}'))
+          stored = state.setdefault('assets', {})
+          stored.update({name: value for name, value in timestamps.items() if value})
+          values = [value for value in stored.values() if value]
+          state['last_sync'] = max(values) if values else ''
+          with open('.release_state.json', 'w', encoding='utf-8') as f:
+              json.dump(state, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PYEOF
+            echo "Release manifest updated"
           else
-            echo "No release.json generated, skipping"
+            echo "No release manifest generated, skipping"
+            exit 1
           fi
 
-      - name: 提交 SHA256 更新
+      - name: 提交发布 manifest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add download.html dist/download.html public/release.json dist/release.json
-          git diff --staged --quiet && echo "No SHA256 changes" || (
-            git commit -m "chore: sync release SHA256" &&
+          git add public/release-manifest.json public/release.json .release_state.json
+          git diff --staged --quiet && echo "No manifest changes" || (
+            git commit -m "chore: sync release manifest" &&
             for i in 1 2 3; do
               if git pull --rebase && git push; then
                 echo "Push succeeded on attempt $i"

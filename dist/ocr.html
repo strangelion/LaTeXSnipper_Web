@@ -165,12 +165,14 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 }
 </style>
   <link rel="stylesheet" href="/styles/editorial.css">
+  <link rel="stylesheet" href="/styles/product-shell.css">
+  <script src="/js/product-shell.js" defer></script>
 </head>
-<body>
+<body class="ocr-page">
 <!-- ═══ 顶栏导航 ═══ -->
 <nav class="top-nav">
   <div class="inner">
-    <a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon.png" width="28" height="28" alt=""><span>LaTeXSnipper</span></a>
+    <a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="32" height="32" alt=""><span>LaTeXSnipper</span></a>
     <a href="user_manual.html">用户手册</a>
     <a href="download.html">下载</a>
     <a href="ocr.html" class="active-link">单公式识别</a>
@@ -182,6 +184,7 @@ pre.result-code { background: #1e293b; color: #94a3b8; padding: 1rem 1.25rem; bo
 <div class="spacer-top"></div>
 
 <div class="demo-page">
+  <p class="demo-eyebrow">LOCAL-FIRST OCR WORKSPACE</p>
   <h1 class="demo-title">在线公式识别</h1>
   <p class="demo-sub">LaTeXSnipper Core v3 · WASM / Tract 本地推理 · 模型按需下载并缓存</p>
 

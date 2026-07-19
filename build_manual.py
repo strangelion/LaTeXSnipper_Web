@@ -1319,10 +1319,11 @@ def main():
 {sidebar_css}
 </style>
 <link rel="stylesheet" href="styles/editorial.css">
+<link rel="stylesheet" href="styles/product-shell.css">
 </head>
 <body class="manual">
 <div class="top-nav-trigger" id="topNavTrigger"></div>
-<nav class="top-nav"><div class="inner"><a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon.png" width="28" height="28" alt=""><span>LaTeXSnipper</span></a><a href="user_manual.html" class="active-link">用户手册</a><a href="ocr.html">单公式识别</a><a href="download.html">下载</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
+<nav class="top-nav"><div class="inner"><a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="32" height="32" alt=""><span>LaTeXSnipper</span></a><a href="user_manual.html" class="active-link">用户手册</a><a href="ocr.html">单公式识别</a><a href="download.html">下载</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
 <div class="spacer-top"></div>
 
 <!-- 浮动可拖动箭头按钮 -->
@@ -1477,6 +1478,7 @@ function copyCode(btn) {{
 }}
 </script>
 {sidebar_script}
+<script src="js/product-shell.js" defer></script>
 </body>
 </html>
 """

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
@@ -6,6 +7,15 @@ import {
   proxyBinary,
   securityHeaders,
 } from '../worker.js';
+import worker from '../worker.js';
+
+const workerSource = await readFile(new URL('../worker.js', import.meta.url), 'utf8');
+
+test('retired website Office.js routes and API stubs are absent', () => {
+  assert.doesNotMatch(workerSource, /path\.startsWith\("\/office\/"\)/);
+  assert.doesNotMatch(workerSource, /\/api\/office\//);
+  assert.doesNotMatch(workerSource, /appsforoffice\.microsoft\.com/);
+});
 
 test('OCR pages alone receive camera permission', () => {
   assert.match(
@@ -25,6 +35,35 @@ test('general CSP is self-hosted and permits WASM without CDN', () => {
   assert.match(csp, /wasm-unsafe-eval/);
   assert.doesNotMatch(csp, /cdn\.jsdelivr\.net|connect-src 'self' https:/);
   assert.doesNotMatch(csp, /'unsafe-eval'/);
+});
+
+test('marketing pages use a narrower CSP and do not enable cross-origin isolation', () => {
+  const headers = securityHeaders(true, false, '/');
+  assert.doesNotMatch(headers['Content-Security-Policy'], /wasm-unsafe-eval|worker-src/);
+  assert.equal(headers['Cross-Origin-Opener-Policy'], undefined);
+  assert.equal(headers['Cross-Origin-Embedder-Policy'], undefined);
+});
+
+test('ordinary pages are served from the assembled Static Assets binding', async () => {
+  let requestedPath = '';
+  const env = {
+    ASSETS: {
+      fetch(request) {
+        requestedPath = new URL(request.url).pathname;
+        return Promise.resolve(new Response('<!doctype html><title>Home</title>', {
+          headers: { 'Content-Type': 'text/html' },
+        }));
+      },
+    },
+  };
+  const ctx = { waitUntil() {} };
+  const request = new Request('https://example.test/', {
+    headers: { 'User-Agent': 'Mozilla/5.0 LaTeXSnipper test browser' },
+  });
+  const response = await worker.fetch(request, env, ctx);
+  assert.equal(response.status, 200);
+  assert.equal(requestedPath, '/index.html');
+  assert.equal(response.headers.get('Access-Control-Allow-Origin'), null);
 });
 
 test('WASM and module scripts use correct MIME types', () => {

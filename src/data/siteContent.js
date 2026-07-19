@@ -14,34 +14,6 @@ export const FALLBACK_RELEASE = {
   publishedAt: '',
   releaseNotesUrl:
     'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.4.0-LTS',
-  downloads: {
-    windows: {
-      label: 'Windows',
-      architecture: 'x86_64',
-      requirements: 'Windows 10 / 11',
-      href: '/dl/LaTeXSnipperSetup-2.4.0.exe',
-      sha256: '',
-      size: '',
-    },
-    linux: {
-      label: 'Linux',
-      architecture: 'x86_64',
-      requirements:
-        '需要 Python >=3.10,<3.13、venv 与 pip',
-      href: '/dl/LaTeXSnipper_2.4.0_amd64.deb',
-      sha256: '',
-      size: '',
-    },
-    macos: {
-      label: 'macOS',
-      architecture: 'Apple Silicon',
-      requirements:
-        '需要 Python >=3.10,<3.13；截图需屏幕录制权限',
-      href: '/dl/LaTeXSnipper_2.4.0_arm64.dmg',
-      sha256: '',
-      size: '',
-    },
-  },
 };
 
 export const trustItems = [
