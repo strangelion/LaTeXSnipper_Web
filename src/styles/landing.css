@@ -549,6 +549,117 @@ body {
   text-decoration: underline;
 }
 
+.ls-project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 5rem;
+  border-top: 1px solid var(--ls-line-strong);
+  border-left: 1px solid var(--ls-line-strong);
+}
+
+.ls-project-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: clamp(1.5rem, 3vw, 2.4rem);
+  border-right: 1px solid var(--ls-line-strong);
+  border-bottom: 1px solid var(--ls-line-strong);
+  background: var(--ls-paper);
+}
+
+.ls-project-card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  color: var(--ls-muted);
+  font: 650 .64rem/1.4 var(--ls-mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.ls-project-card h3 {
+  margin: 1.3rem 0 .8rem;
+  font: 680 clamp(1.65rem, 2.7vw, 2.5rem)/1.08 var(--ls-serif);
+  letter-spacing: -.035em;
+}
+
+.ls-project-description {
+  min-height: 4.8em;
+  margin: 0;
+  color: var(--ls-muted);
+  line-height: 1.75;
+}
+
+.ls-project-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.5rem 0 0;
+  border-top: 1px solid var(--ls-line);
+  border-bottom: 1px solid var(--ls-line);
+}
+
+.ls-project-meta div {
+  min-width: 0;
+  padding: .85rem .7rem .85rem 0;
+}
+
+.ls-project-meta div + div {
+  padding-left: .7rem;
+  border-left: 1px solid var(--ls-line);
+}
+
+.ls-project-meta dt {
+  color: var(--ls-muted);
+  font: .58rem/1.4 var(--ls-mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.ls-project-meta dd {
+  margin: .25rem 0 0;
+  overflow-wrap: anywhere;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.ls-project-card ul {
+  margin: 1.25rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ls-project-card li {
+  padding: .45rem 0;
+  border-bottom: 1px solid var(--ls-line);
+  font-size: .8rem;
+  line-height: 1.55;
+}
+
+.ls-project-card li::before {
+  content: "—";
+  margin-right: .65rem;
+  color: var(--ls-accent);
+}
+
+.ls-project-requirement {
+  margin: 0 0 1.2rem;
+  color: var(--ls-muted);
+  font-size: .76rem;
+  line-height: 1.7;
+}
+
+.ls-project-requirement strong {
+  display: block;
+  margin-bottom: .2rem;
+  color: var(--ls-ink);
+  font-size: .68rem;
+}
+
+.ls-project-card .ls-text-link {
+  margin-top: auto;
+}
+
 .ls-platform-block + .ls-platform-block {
   margin-top: 4.5rem;
 }
@@ -924,7 +1035,8 @@ body {
   }
 
   .ls-showcase,
-  .ls-privacy-grid {
+  .ls-privacy-grid,
+  .ls-project-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1070,6 +1182,20 @@ body {
     grid-template-columns: 1fr;
     gap: 2.4rem;
     padding: 3.5rem 0;
+  }
+
+  .ls-project-description {
+    min-height: 0;
+  }
+
+  .ls-project-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .ls-project-meta div + div {
+    padding-left: 0;
+    border-top: 1px solid var(--ls-line);
+    border-left: 0;
   }
 
   .ls-showcase-media::before {

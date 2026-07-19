@@ -1,3 +1,13 @@
+import heroWorkspaceImage from '../../assets/images/product/hero-workspace.webp';
+import ocrResultImage from '../../assets/images/product/ocr-result.webp';
+import officeWordImage from '../../assets/images/product/office-word.webp';
+
+export const productImages = {
+  heroWorkspace: heroWorkspaceImage,
+  ocrResult: ocrResultImage,
+  officeWord: officeWordImage,
+};
+
 export const FALLBACK_RELEASE = {
   version: '2.4.0',
   channel: 'LTS',
@@ -17,7 +27,7 @@ export const FALLBACK_RELEASE = {
       label: 'Linux',
       architecture: 'x86_64',
       requirements:
-        '需要 Python 3.10–3.12、venv 与 pip',
+        '需要 Python >=3.10,<3.13、venv 与 pip',
       href: '/dl/LaTeXSnipper_2.4.0_amd64.deb',
       sha256: '',
       size: '',
@@ -26,7 +36,7 @@ export const FALLBACK_RELEASE = {
       label: 'macOS',
       architecture: 'Apple Silicon',
       requirements:
-        'macOS 11+；需要 Python 3.10–3.12',
+        '需要 Python >=3.10,<3.13；截图需屏幕录制权限',
       href: '/dl/LaTeXSnipper_2.4.0_arm64.dmg',
       sha256: '',
       size: '',
@@ -97,7 +107,9 @@ export const featureShowcases = [
       '按页 PDF 识别',
       '输出 LaTeX、Markdown 或纯文本',
     ],
-    image: '/assets/images/product/ocr-result.webp',
+    image: productImages.ocrResult,
+    width: 1440,
+    height: 900,
     alt: 'LaTeXSnipper MathCraft OCR 识别结果',
     href: '/ocr.html',
     cta: '体验网页单公式识别',
@@ -114,58 +126,111 @@ export const featureShowcases = [
       '计算、化简与数值化',
       '展开、因式分解与求解',
     ],
-    image: '/assets/images/product/hero-workspace.webp',
+    image: productImages.heroWorkspace,
+    width: 1600,
+    height: 1000,
     alt: 'LaTeXSnipper 数学工作台',
     href: '/user_manual.html',
     cta: '查看用户手册',
   },
   {
-    id: 'handwriting',
-    eyebrow: '手写识别',
-    title: '使用鼠标或触控笔输入数学内容',
-    description:
-      '独立手写窗口支持书写、橡皮、圈选修正、撤销和重做，识别结果可以继续编辑并实时预览。',
-    points: [
-      '鼠标与触控笔输入',
-      '圈选修正并保留剩余笔段',
-      '撤销、重做和清空',
-      '识别结果编辑与实时预览',
-    ],
-    image: '/assets/images/product/handwriting.webp',
-    alt: 'LaTeXSnipper 手写识别窗口',
-  },
-  {
     id: 'office',
-    eyebrow: 'Windows Office 插件',
-    title: '在 Word 和 PowerPoint 中维护公式',
+    eyebrow: 'Desktop 随附 VSTO 插件',
+    title: '在 Word 和 PowerPoint 中插入并维护公式',
     description:
-      '已发布的 Windows VSTO 插件面向 Word 和 PowerPoint。Word 支持 OLE 与原生 OMML，PowerPoint 支持 OLE 与 PNG。',
+      '这是 SakuraMathcraft/LaTeXSnipper 桌面仓库随附的 Windows 插件：Word 支持 OLE 与原生 OMML，PowerPoint 支持 OLE 与 PNG。',
     points: [
       'Word：OLE 与原生 OMML',
       'PowerPoint：OLE 与 PNG',
       '加载、更新和删除托管公式',
       '通过本地 Bridge 调用截图 OCR',
     ],
-    image: '/assets/images/product/office-word.webp',
+    image: productImages.officeWord,
+    width: 1440,
+    height: 900,
     alt: 'LaTeXSnipper Microsoft Word 插件',
     href:
       'https://github.com/SakuraMathcraft/LaTeXSnipper/blob/main/office_plugin/README.md',
     cta: '查看 Office 插件说明',
   },
+];
+
+export const ecosystemProjects = [
   {
-    id: 'export',
-    eyebrow: '格式导出',
-    title: '12 种内置格式，另有 8 种 Pandoc 格式',
+    name: 'LaTeXSnipper Desktop',
+    scope: '桌面数学工作台',
+    version: 'v2.4.0 LTS',
+    status: '稳定发布',
+    author: 'SakuraMathcraft',
+    license: 'GPL-3.0',
+    repository: 'SakuraMathcraft/LaTeXSnipper',
     description:
-      '内置格式覆盖 LaTeX、Markdown、MathML、HTML、Word OMML 和 SVG Code；安装 Pandoc 层后可导出文档格式。',
+      '围绕截图、图片、PDF 与手写输入，提供 MathCraft OCR、MathLive 编辑、数学计算和 20 种导出格式。',
     points: [
-      'LaTeX、Markdown、MathML',
-      'HTML、Word OMML、SVG Code',
-      'Word、ODT、PowerPoint、EPUB',
-      'PDF、独立 HTML、Typst、纯文本',
+      'Windows 为主要发布平台',
+      'Linux / macOS 通过平台 Provider 支持',
+      '随附 Word / PowerPoint Windows VSTO 插件',
     ],
-    image: '/assets/images/product/export-formats.webp',
-    alt: 'LaTeXSnipper 导出菜单',
+    requirement:
+      'Windows 10/11；Linux 与 macOS 的可选依赖环境需要 Python >=3.10,<3.13。',
+    href: 'https://github.com/SakuraMathcraft/LaTeXSnipper',
+  },
+  {
+    name: 'LaTeXSnipper Mobile',
+    scope: '移动端 OCR',
+    version: '代码版本 v1.3.0',
+    status: '独立仓库',
+    author: 'strangelion',
+    license: 'AGPL-3.0',
+    repository: 'strangelion/LaTeXSnipper_mobile',
+    description:
+      'Capacitor 移动应用；Android 通过 Java ONNX Runtime 在本机执行公式、文字和混合 OCR。',
+    points: [
+      '图片、PDF、拍照与手写输入',
+      'MathLive 编辑、历史记录与多格式导出',
+      '模型按需下载、断点续传与 SHA-256 校验',
+    ],
+    requirement:
+      'Android minSdk 24（Android 7.0+）；iOS 构建需要 macOS、Xcode 与签名，当前本地 OCR 原生桥接以 Android 为主。',
+    href: 'https://github.com/strangelion/LaTeXSnipper_mobile',
+  },
+  {
+    name: 'LaTeXSnipper Office',
+    scope: '公式编辑与插件生态',
+    version: '代码版本 v1.4.2',
+    status: '独立仓库',
+    author: 'strangelion',
+    license: 'AGPL-3.0',
+    repository: 'strangelion/LaTeXSnipper-Office',
+    description:
+      '独立公式编辑器，以及 Native Office、Office.js、Obsidian、WPS、VS Code 和浏览器扩展。',
+    points: [
+      'Windows：Word / Excel / PowerPoint，Visio Beta',
+      'macOS 12+ / Linux：Tauri 桌面编辑器',
+      'Obsidian、WPS、VS Code、Chrome / Edge / Firefox',
+    ],
+    requirement:
+      'Native VSTO / OLE 仅限 Windows；macOS 与 Office Web 使用 Office.js 或复制粘贴工作流。',
+    href: 'https://github.com/strangelion/LaTeXSnipper-Office',
+  },
+  {
+    name: 'LaTeXSnipper Core',
+    scope: 'Rust 文档理解核心',
+    version: 'v3.0.1',
+    status: 'Core 3 稳定契约',
+    author: 'strangelion',
+    license: 'AGPL-3.0',
+    repository: 'strangelion/latexsnipper-core',
+    description:
+      '提供统一 Document AST、OCR 流水线、多格式转换、CLI、Rust SDK、插件基础设施与 WASM 接口。',
+    points: [
+      '原生 ONNX Runtime 与浏览器 Tract / WASM',
+      'LaTeX、Markdown、Typst、MathML、OMML 等语义转换',
+      '能力注册表按运行时和模型报告真实 readiness',
+    ],
+    requirement:
+      'Rust MSRV 1.88；支持 Windows、Linux、macOS 与 WASM。WASM 语义转换稳定，WASM OCR 仍按模型能力分级。',
+    href: 'https://github.com/strangelion/latexsnipper-core',
   },
 ];
 
@@ -183,7 +248,7 @@ export const desktopPlatforms = [
     capability:
       'pynput 快捷键、Qt 截图、Wayland/X11/portal 回退',
     requirement:
-      'Python 3.10–3.12，venv/pip 可用',
+      'Python >=3.10,<3.13，venv/pip 可用',
   },
   {
     name: 'macOS',
@@ -191,7 +256,7 @@ export const desktopPlatforms = [
     capability:
       '原生快捷键、Qt 截图、screencapture 回退',
     requirement:
-      'Python 3.10–3.12；可能需要屏幕录制权限',
+      'Python >=3.10,<3.13；截图需屏幕录制权限',
   },
 ];
 
@@ -203,7 +268,7 @@ export const officePlatforms = [
     manage:
       '加载、更新、删除、编号、引用、OLE/OMML 转换',
     requirement:
-      'Windows Office 2019+；32/64 位',
+      'Windows Office 2019/2021/2024/LTSC/Microsoft 365；32/64 位',
   },
   {
     host: 'Microsoft PowerPoint',
@@ -212,7 +277,7 @@ export const officePlatforms = [
     manage:
       '加载、更新、删除、OLE/PNG 转换、保留缩放',
     requirement:
-      'Windows Office 2019+；32/64 位',
+      'Windows Office 2019/2021/2024/LTSC/Microsoft 365；32/64 位',
   },
 ];
 
@@ -261,11 +326,16 @@ export const faqs = [
   {
     question: 'Office 插件支持哪些程序？',
     answer:
-      '当前正式发布的是 Windows 桌面版 Microsoft Word 和 PowerPoint 插件，不应把 Excel、macOS Office.js 或 WPS 描述为当前稳定能力。',
+      '需要区分两个项目：SakuraMathcraft/LaTeXSnipper 随附的稳定 Windows VSTO 插件支持 Word 和 PowerPoint；strangelion/LaTeXSnipper-Office 是独立生态仓库，包含 Word、Excel、PowerPoint、Visio Beta、Office.js、WPS、Obsidian、VS Code 和浏览器扩展。',
   },
   {
     question: '是否支持外部模型？',
     answer:
       '桌面版支持 OpenAI-compatible、Ollama 和 MinerU Local，并支持公式、Markdown、纯文本等提示词输出模式。',
+  },
+  {
+    question: '这些 LaTeXSnipper 项目是同一位作者吗？',
+    answer:
+      '不是。LaTeXSnipper Desktop 的作者是 SakuraMathcraft；LaTeXSnipper Mobile、LaTeXSnipper Office 与 LaTeXSnipper Core 的仓库作者和维护者标记为 strangelion。各项目的版本、稳定性与许可证也分别以各自仓库为准。',
   },
 ];

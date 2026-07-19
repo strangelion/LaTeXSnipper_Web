@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   builtinExportFormats,
   desktopPlatforms,
+  ecosystemProjects,
   faqs,
   featureShowcases,
   officePlatforms,
   pandocExportFormats,
+  productImages,
   trustItems,
   workflowSteps,
 } from '../data/siteContent';
@@ -192,7 +194,7 @@ function Hero() {
             <em>Local-first</em>
           </div>
           <img
-            src="/assets/images/product/hero-workspace.webp"
+            src={productImages.heroWorkspace}
             width="1600"
             height="1000"
             alt="LaTeXSnipper 数学工作台主界面"
@@ -295,9 +297,9 @@ function FeatureShowcase() {
                 <img
                   src={feature.image}
                   alt={feature.alt}
-                  width="1440"
-                  height="900"
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  width={feature.width}
+                  height={feature.height}
+                  loading="eager"
                   decoding="async"
                 />
               </div>
@@ -340,14 +342,63 @@ function EcosystemSection() {
     <section id="ecosystem" className="ls-section">
       <div className="ls-container">
         <SectionHeading
-          eyebrow="平台支持"
-          title="桌面应用与 Office 插件"
-          description="Windows 是主要发布平台；Linux 和 macOS 通过平台 Provider 层支持。"
+          eyebrow="项目生态"
+          title="同一名称下，功能与作者各自清楚"
+          description="以下信息来自各仓库当前代码、构建配置与项目清单。版本、稳定性、作者和许可证均分别标注，不把独立项目合并描述。"
         />
+
+        <div className="ls-project-grid">
+          {ecosystemProjects.map((project) => (
+            <article className="ls-project-card" key={project.repository}>
+              <div className="ls-project-card-topline">
+                <span>{project.scope}</span>
+                <StatusBadge>{project.status}</StatusBadge>
+              </div>
+
+              <h3>{project.name}</h3>
+              <p className="ls-project-description">{project.description}</p>
+
+              <dl className="ls-project-meta">
+                <div>
+                  <dt>版本</dt>
+                  <dd>{project.version}</dd>
+                </div>
+                <div>
+                  <dt>作者 / 维护者</dt>
+                  <dd>{project.author}</dd>
+                </div>
+                <div>
+                  <dt>许可证</dt>
+                  <dd>{project.license}</dd>
+                </div>
+              </dl>
+
+              <ul>
+                {project.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+
+              <p className="ls-project-requirement">
+                <strong>运行边界</strong>
+                {project.requirement}
+              </p>
+
+              <a
+                className="ls-text-link"
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                查看 {project.repository} →
+              </a>
+            </article>
+          ))}
+        </div>
 
         <div className="ls-platform-block">
           <h3 className="ls-table-title">
-            桌面应用
+            LaTeXSnipper Desktop 平台要求
           </h3>
 
           <div className="ls-compat-table-wrap">
@@ -380,7 +431,7 @@ function EcosystemSection() {
 
         <div className="ls-platform-block">
           <h3 className="ls-table-title">
-            Windows Microsoft Office 插件
+            Desktop 仓库随附的 Windows VSTO 插件
           </h3>
 
           <div className="ls-compat-table-wrap">
@@ -413,9 +464,11 @@ function EcosystemSection() {
           </div>
 
           <p className="ls-table-note">
-            Office 插件还需要 .NET Framework 4.8
-            与 WebView2 Runtime。Office 2016
-            不属于正式支持版本。
+            这一插件属于 SakuraMathcraft/LaTeXSnipper，支持 Windows
+            桌面版 Office 2019、2021、2024、LTSC 2021/2024 与
+            Microsoft 365 Apps（32/64 位），并需要 .NET Framework 4.8
+            与 WebView2 Runtime。它不同于上方 strangelion 维护的
+            LaTeXSnipper-Office 独立仓库。
           </p>
         </div>
       </div>
@@ -650,28 +703,17 @@ function Footer() {
           <a href="/user_manual.html">用户手册</a>
         </nav>
 
-        <nav aria-label="开发">
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-          <a
-            href={`${GITHUB_URL}/issues`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Issues
-          </a>
-          <a
-            href={`${GITHUB_URL}/releases`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Release Notes
-          </a>
+        <nav aria-label="项目仓库">
+          {ecosystemProjects.map((project) => (
+            <a
+              key={project.repository}
+              href={project.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {project.name.replace('LaTeXSnipper ', '')}
+            </a>
+          ))}
         </nav>
 
         <nav aria-label="法律">
@@ -688,7 +730,7 @@ function Footer() {
         </nav>
 
         <p className="ls-copyright">
-          &copy; 2026 LaTeXSnipper &middot; GPLv3
+          各项目作者与许可证分别标注 &middot; GPL-3.0 / AGPL-3.0
         </p>
       </div>
     </footer>
