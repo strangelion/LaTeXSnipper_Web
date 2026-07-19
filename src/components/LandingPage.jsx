@@ -11,7 +11,6 @@ import {
 } from '../data/siteContent';
 import { usePreferredPlatform } from '../hooks/usePreferredPlatform';
 import { useReleaseInfo } from '../hooks/useReleaseInfo';
-import ProductStage from './ProductStage';
 import '../styles/landing.css';
 
 const GITHUB_URL =
@@ -133,57 +132,76 @@ function Hero() {
 
   return (
     <section className="ls-hero" aria-labelledby="hero-title">
-      <div className="ls-container ls-hero-grid">
-        <div className="ls-hero-copy">
-          <p className="hero-version">
-            LaTeXSnipper {release.version}
-            <span aria-hidden="true">/</span>
-            {release.channel}
-            <span aria-hidden="true">/</span>
-            Windows · Linux · macOS
-          </p>
+      <div className="ls-container">
+        <div className="ls-hero-grid">
+          <div className="ls-hero-copy">
+            <p className="hero-version">
+              <span>Desktop OCR / Math workspace</span>
+              <span>v{release.version} {release.channel}</span>
+            </p>
 
-          <h1 id="hero-title">
-            识别公式，
-            <br />
-            也保留它的结构。
-          </h1>
+            <h1 id="hero-title">
+              把公式，
+              <br />
+              从像素里拿回来。
+            </h1>
 
-          <p className="ls-hero-description">
-            从截图、手写和 PDF 中提取可编辑数学内容，
-            转换为 LaTeX、OMML、Typst 与矢量图。
-            默认在本机完成。
-          </p>
+            <p className="ls-hero-description">
+              LaTeXSnipper 是本地优先的桌面数学工作台：
+              截图识别、手写输入、PDF 分页处理、公式编辑、
+              计算与多格式导出在一处完成。
+            </p>
 
-          <div className="ls-hero-actions">
-            <a
-              className="ls-button ls-button-primary"
-              href={preferred.downloadPageHref}
-            >
-              下载 {preferred.label} 版
-            </a>
+            <div className="ls-hero-actions">
+              <a
+                className="ls-button ls-button-primary"
+                href={preferred.downloadPageHref}
+              >
+                下载 {preferred.label} 版
+              </a>
 
-            <a
-              className="ls-button ls-button-secondary"
-              href="/ocr_demo.html"
-            >
-              在线体验 OCR
-            </a>
+              <a
+                className="ls-button ls-button-secondary"
+                href="/ocr.html"
+              >
+                试用网页单公式识别
+              </a>
+            </div>
 
-            <a className="ls-text-link" href="/user_manual.html">
-              阅读用户手册
-            </a>
+            <p className="ls-hero-note">
+              GPLv3 · Windows 为主要发布平台 · Linux / macOS Provider 支持
+            </p>
           </div>
 
-          <p className="ls-hero-note">
-            免费开源 · 默认本地识别 ·
-            首次使用部分模型可能需要下载
-          </p>
+          <aside className="ls-hero-index" aria-label="产品工作流概览">
+            <p>工作流索引</p>
+            <ol>
+              <li><span>01</span> 捕获截图与页面</li>
+              <li><span>02</span> 本地识别结构</li>
+              <li><span>03</span> 编辑与计算</li>
+              <li><span>04</span> 导出或插入 Office</li>
+            </ol>
+            <a href="/user_manual.html">打开完整用户手册 ↗</a>
+          </aside>
         </div>
 
-        <div className="ls-hero-stage">
-          <ProductStage />
-        </div>
+        <figure className="ls-product-plate">
+          <div className="ls-window-bar" aria-hidden="true">
+            <span><i /><i /><i /></span>
+            <code>LaTeXSnipper / Workspace</code>
+            <em>Local-first</em>
+          </div>
+          <img
+            src="/assets/images/product/hero-workspace.webp"
+            width="1600"
+            height="1000"
+            alt="LaTeXSnipper 数学工作台主界面"
+          />
+          <figcaption>
+            <span>截图识别、公式编辑、数学计算与格式导出位于同一工作区。</span>
+            <span>Windows 10 / 11</span>
+          </figcaption>
+        </figure>
       </div>
     </section>
   );
@@ -628,7 +646,7 @@ function Footer() {
 
         <nav aria-label="产品">
           <a href="/download.html">下载</a>
-          <a href="/ocr_demo.html">OCR Demo</a>
+          <a href="/ocr.html">单公式识别</a>
           <a href="/user_manual.html">用户手册</a>
         </nav>
 
@@ -657,6 +675,9 @@ function Footer() {
         </nav>
 
         <nav aria-label="法律">
+          <a href="/open-source.html">
+            开源许可
+          </a>
           <a
             href={`${GITHUB_URL}/blob/main/LICENSE`}
             target="_blank"

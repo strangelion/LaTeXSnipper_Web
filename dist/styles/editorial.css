@@ -1,0 +1,404 @@
+:root {
+  --paper: #f2f0e9;
+  --surface: #faf9f5;
+  --ink: #171717;
+  --ink-soft: #5f5d57;
+  --rule: #c9c5b9;
+  --cobalt: #174ea6;
+  --cobalt-soft: #dce6f5;
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: var(--ink-soft);
+  --accent: var(--cobalt);
+  --accent-hover: #113c82;
+  --hdr-bg: rgba(242, 240, 233, .96);
+  --ftr-bg: var(--paper);
+  --border-color: var(--rule);
+  --card-bg: var(--surface);
+  --card-shadow: none;
+  --card-shadow-hover: none;
+}
+
+:root[data-theme="dark"] {
+  --paper: #151617;
+  --surface: #1c1e20;
+  --ink: #eeece5;
+  --ink-soft: #aaa79e;
+  --rule: #3a3c3e;
+  --cobalt: #77a7e8;
+  --cobalt-soft: #1d3554;
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: var(--ink-soft);
+  --accent: var(--cobalt);
+  --accent-hover: #9abff0;
+  --hdr-bg: rgba(21, 22, 23, .96);
+  --ftr-bg: var(--paper);
+  --border-color: var(--rule);
+  --card-bg: var(--surface);
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  background-image: linear-gradient(to bottom, transparent 31px, color-mix(in srgb, var(--rule) 24%, transparent) 32px);
+  background-size: 100% 32px;
+}
+
+#mathBg,
+.bg-video,
+#bg-overlay {
+  display: none;
+}
+
+.top-nav {
+  background: var(--hdr-bg);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.top-nav .inner {
+  max-width: 1248px;
+  height: 64px;
+  padding: 0 32px;
+}
+
+.top-nav .brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-right: auto;
+  color: var(--ink);
+  font-family: Georgia, "Noto Serif CJK SC", serif;
+  letter-spacing: -.02em;
+}
+
+.top-nav .brand-link img {
+  display: block;
+  border-radius: 3px;
+}
+
+.top-nav a {
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.top-nav a:hover,
+.top-nav a.active-link {
+  color: var(--cobalt);
+}
+
+.theme-toggle {
+  margin-left: 16px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.mode-tab:first-child,
+.mode-tab:last-child,
+.model-tab:first-child,
+.model-tab:last-child {
+  border-radius: 0 !important;
+}
+
+.spacer-top {
+  height: 64px;
+}
+
+.download-page,
+.demo-page {
+  max-width: 1184px;
+  padding: 72px 32px 96px;
+  text-align: left;
+}
+
+.download-title,
+.demo-title {
+  max-width: 880px;
+  margin: 0 0 16px;
+  color: var(--ink);
+  font-family: Georgia, "Noto Serif CJK SC", serif;
+  font-size: clamp(42px, 7vw, 84px);
+  font-weight: 500;
+  line-height: .98;
+  letter-spacing: -.055em;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+.download-sub,
+.demo-sub {
+  max-width: 700px;
+  margin: 0 0 40px;
+  color: var(--ink-soft);
+  font-size: 16px;
+}
+
+.release-summary,
+.runtime-strip {
+  justify-content: flex-start;
+  gap: 0;
+  margin: 0 0 32px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.release-summary span,
+.runtime-badge {
+  padding: 10px 16px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: 12px/1.4 "Cascadia Code", Consolas, monospace;
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+
+.platform-card {
+  width: auto;
+  max-width: none;
+  min-height: 360px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 36px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: background-color .2s ease;
+}
+
+.platform-card:hover {
+  transform: none;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.platform-card.recommended {
+  border-color: var(--rule);
+  box-shadow: inset 5px 0 0 var(--cobalt);
+}
+
+.recommended-badge {
+  top: 24px;
+  right: 24px;
+  padding: 4px 8px;
+  border-radius: 0;
+  background: var(--cobalt);
+  font: 11px/1.4 "Cascadia Code", Consolas, monospace;
+}
+
+.platform-icon {
+  width: 38px;
+  height: 38px;
+  color: var(--cobalt);
+}
+
+.platform-name {
+  font-family: Georgia, "Noto Serif CJK SC", serif;
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.platform-desc,
+.platform-meta {
+  color: var(--ink-soft);
+}
+
+.download-btn,
+.hw-recognize-btn,
+.ocr-copy,
+.cam-btn,
+.cam-trigger-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+  font-weight: 650;
+}
+
+.download-btn:hover,
+.hw-recognize-btn:hover,
+.ocr-copy:hover {
+  transform: none;
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+}
+
+.sha256,
+.other-info,
+.installation-notes details,
+.drop-zone,
+.status-bar,
+.progress-wrap,
+.result-card,
+.info-note,
+.hw-canvas-wrap {
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.other-info,
+.installation-notes {
+  max-width: none;
+  margin-top: 48px;
+}
+
+.installation-notes h2 {
+  text-align: left;
+  font-family: Georgia, "Noto Serif CJK SC", serif;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.mode-tabs,
+.model-tabs {
+  justify-content: center;
+  gap: 0;
+}
+
+.mode-tab,
+.model-tab,
+.hw-tool-btn,
+.cam-seg-btn {
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink-soft);
+}
+
+.mode-tab + .mode-tab,
+.model-tab + .model-tab,
+.hw-tool-btn + .hw-tool-btn,
+.cam-seg-btn + .cam-seg-btn {
+  border-left: 0;
+}
+
+.mode-tab.active,
+.model-tab.active,
+.hw-tool-btn.active,
+.cam-seg-btn.active {
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+  color: #fff;
+}
+
+.drop-zone {
+  min-height: 300px;
+  border-style: dashed;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+  border-color: var(--cobalt);
+  background: var(--cobalt-soft);
+}
+
+.result-code,
+pre,
+code {
+  font-family: "Cascadia Code", Consolas, monospace;
+}
+
+body.manual {
+  max-width: 920px;
+  padding: 96px 40px 120px;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--rule);
+}
+
+body.manual h1,
+body.manual h2,
+body.manual h3,
+body.manual .cover-title,
+body.manual .center > p:first-child > strong {
+  color: var(--ink);
+  font-family: Georgia, "Noto Serif CJK SC", serif;
+  font-weight: 500;
+  letter-spacing: -.025em;
+}
+
+body.manual h1 {
+  margin-top: 56px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 38px;
+}
+
+body.manual h2 { font-size: 27px; }
+body.manual h3 { font-size: 20px; }
+
+body.manual .top-nav .inner {
+  max-width: 1248px;
+}
+
+.top-nav .brand-link {
+  color: var(--ink) !important;
+}
+
+body.manual img {
+  border-radius: 0;
+}
+
+.sidebar,
+.right-sidebar,
+.float-arrow,
+.volume-label,
+.toc,
+.styled-block,
+.callout,
+.warn-box,
+body.manual pre {
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.float-arrow {
+  background: var(--surface);
+}
+
+@media (max-width: 760px) {
+  .top-nav .inner { padding: 0 16px; overflow-x: auto; }
+  .top-nav a:not(.brand-link):not(.active-link) { display: none; }
+  .download-page, .demo-page { padding: 48px 18px 72px; }
+  .download-title, .demo-title { font-size: 48px; }
+  .platform-grid { grid-template-columns: 1fr; }
+  .platform-card { min-height: 300px; padding: 28px; }
+  .runtime-strip { display: block; }
+  .runtime-badge { display: block; border-right: 0; border-bottom: 1px solid var(--rule); }
+  body.manual { padding: 80px 18px 80px; box-shadow: none; }
+  body.manual h1 { font-size: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

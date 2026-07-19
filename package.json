@@ -3,21 +3,31 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
+    "fflate": "^0.8.2",
+    "mathjax": "^3.2.2",
     "onnxruntime-web": "^1.26.0",
+    "pdfjs-dist": "^6.1.200",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.0.2",
     "vite": "^8.0.16",
-    "wrangler": "^3.100.0"
+    "wrangler": "^4.112.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && npm run build:manual && npm run assemble",
+    "check:core": "node scripts/check-core-version.mjs",
+    "build:core": "node scripts/fetch-core-wasm.mjs",
+    "build:runtime": "node scripts/copy-runtime-assets.mjs",
+    "prepare:web": "npm run check:core && npm run build:core && npm run build:runtime",
+    "dev": "npm run prepare:web && vite",
+    "build:web": "vite build",
+    "build": "npm run prepare:web && npm run build:web && npm run build:manual && npm run assemble",
     "build:manual": "node scripts/copy-assets.cjs",
     "assemble": "node scripts/assemble-deploy.mjs",
     "preview": "vite preview",
+    "test": "node --test tests/*.test.mjs",
+    "test:core-models": "node scripts/verify-core-models.mjs",
     "deploy": "wrangler deploy --env production",
     "deploy:preview": "wrangler deploy --env preview",
     "deploy:branch": "wrangler deploy --branch"

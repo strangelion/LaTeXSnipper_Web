@@ -1,0 +1,48 @@
+name: Web
+
+on:
+  push:
+    branches: [new, main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare locked Core Release WASM
+        run: npm run prepare:web
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify deploy artifacts
+        run: |
+          test -f deploy/core-wasm/latexsnipper_wasm_bg.wasm
+          test -f deploy/core-wasm/core-build.json
+          test -f deploy/vendor/onnxruntime/ort.all.min.js
+          test -f deploy/open-source.html
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: latexsnipper-web
+          path: deploy

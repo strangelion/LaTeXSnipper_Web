@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>开源许可 — LaTeXSnipper</title>
+  <link rel="icon" type="image/png" href="/assets/images/icon.png">
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
+    body { background: var(--bg); color: var(--fg); }
+    main { width: min(920px, calc(100% - 2rem)); margin: 3rem auto 5rem; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin-bottom: .5rem; }
+    .lead { color: var(--muted); line-height: 1.8; }
+    .license-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 2rem 0; }
+    article { border: 1px solid var(--border-color); border-radius: 14px; background: var(--card-bg); padding: 1.25rem; }
+    article h2 { margin-top: 0; font-size: 1.1rem; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; }
+    dd { margin: 0; overflow-wrap: anywhere; }
+    a { color: var(--accent); }
+    .back { display: inline-block; margin-bottom: 2rem; }
+    #buildInfoError { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="/">← 返回首页</a>
+    <h1>开源许可</h1>
+    <p class="lead">本站在浏览器中运行 LaTeXSnipper Core WASM、ONNX Runtime Web、PDF.js 与 MathJax。下面列出当前部署版本与对应许可。</p>
+
+    <section class="license-grid">
+      <article>
+        <h2>LaTeXSnipper Core WASM</h2>
+        <dl>
+          <dt>版本</dt><dd id="coreVersion">读取中…</dd>
+          <dt>Commit</dt><dd id="coreCommit">读取中…</dd>
+          <dt>WASM API</dt><dd id="wasmApiVersion">读取中…</dd>
+          <dt>Document Schema</dt><dd id="documentSchemaVersion">读取中…</dd>
+          <dt>许可</dt><dd>AGPL-3.0-only</dd>
+        </dl>
+        <p><a href="https://github.com/strangelion/latexsnipper-core">Core 源代码</a> · <a href="/core-wasm/LICENSE">许可原文</a></p>
+      </article>
+
+      <article>
+        <h2>浏览器运行时</h2>
+        <p>ONNX Runtime Web 1.26.0 — MIT</p>
+        <p>PDF.js 3.11.174 — Apache-2.0</p>
+        <p>MathJax 3.2.2 — Apache-2.0</p>
+        <p><a href="/vendor/onnxruntime/LICENSE">ORT 许可</a> · <a href="/vendor/pdfjs/LICENSE">PDF.js 许可</a> · <a href="/vendor/mathjax/LICENSE">MathJax 许可</a></p>
+      </article>
+
+      <article>
+        <h2>识别模型</h2>
+        <p>模型文件由网页按需下载，并在浏览器缓存。各模型的来源、版本和许可应以随模型发布的 manifest 为准。</p>
+        <p><a href="https://github.com/strangelion/latexsnipper-core/releases">Core 与模型 Releases</a></p>
+      </article>
+    </section>
+    <p id="buildInfoError" role="status"></p>
+  </main>
+  <script type="module" src="/js/open-source.js"></script>
+</body>
+</html>

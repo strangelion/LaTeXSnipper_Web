@@ -99,8 +99,8 @@ export const featureShowcases = [
     ],
     image: '/assets/images/product/ocr-result.webp',
     alt: 'LaTeXSnipper MathCraft OCR 识别结果',
-    href: '/ocr_demo.html',
-    cta: '体验网页版公式识别',
+    href: '/ocr.html',
+    cta: '体验网页单公式识别',
   },
   {
     id: 'workspace',

@@ -1,0 +1,14 @@
+{
+  "commit": "23ea7901a4363eb790c75d817e864d1c660e6276",
+  "coreVersion": "3.0.1",
+  "releaseTag": "v3.0.1",
+  "releaseUrl": "https://github.com/strangelion/latexsnipper-core/releases/tag/v3.0.1",
+  "wasmApiVersion": 3,
+  "capabilitySchemaVersion": 3,
+  "documentSchemaVersion": "1.0.0",
+  "asset": {
+    "name": "latexsnipper-wasm-web.tgz",
+    "url": "https://github.com/strangelion/latexsnipper-core/releases/download/v3.0.1/latexsnipper-wasm-web.tgz",
+    "sha256": "3ad7e8ba7d30816f908c3c300cc47c14aac1315831f6bb9965e084637ecf6d57"
+  }
+}
