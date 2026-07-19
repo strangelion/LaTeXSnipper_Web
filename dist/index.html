@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
-  <title>LaTeXSnipper — 数学内容一站式工作空间</title>
-  <meta name="description" content="LaTeXSnipper 是一款数学公式截取识别工具，支持截图 OCR、手写识别、自动排版、30+ 格式导出，全程离线运行保护隐私。支持 Windows、Linux、macOS。">
+  <title>LaTeXSnipper — 把公式从像素里拿回来</title>
+  <meta name="description" content="LaTeXSnipper 是一款本地优先的数学公式工具：从截图和手写内容识别公式，继续编辑，并导出 LaTeX、Typst、OMML 等格式。支持 Windows、Linux、macOS。">
   <meta name="keywords" content="LaTeX, OCR, 公式识别, 数学公式, 截图识别, 手写识别, 离线OCR, 论文排版">
   <meta name="author" content="SakuraMathcraft">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="LaTeXSnipper — 数学内容一站式工作空间">
-  <meta property="og:description" content="截取识别 → 手写输入 → 编辑计算 → 导出结果。支持 30+ 格式导出，全程离线保护隐私。">
+  <meta property="og:title" content="LaTeXSnipper — 把公式从像素里拿回来">
+  <meta property="og:description" content="截图或手写识别、继续编辑，再导出 LaTeX、Typst、OMML 等格式。默认本地处理。">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://latexsnipper.interknot.dpdns.org/">
   <meta property="og:image" content="https://latexsnipper.interknot.dpdns.org/assets/images/LaTeXSnipper.png">
@@ -19,26 +19,53 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="LaTeXSnipper — 数学内容一站式工作空间">
-  <meta name="twitter:description" content="截取识别 → 手写输入 → 编辑计算 → 导出结果。30+ 格式导出，全程离线。">
+  <meta name="twitter:title" content="LaTeXSnipper — 把公式从像素里拿回来">
+  <meta name="twitter:description" content="截图或手写识别、继续编辑，再导出 LaTeX、Typst、OMML 等格式。默认本地处理。">
+
+  <meta name="theme-color" content="#174ea6">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta property="og:image:alt" content="LaTeXSnipper 数学内容工作空间界面">
+  <meta name="twitter:image" content="https://latexsnipper.interknot.dpdns.org/assets/images/LaTeXSnipper.png">
 
   <link rel="icon" type="image/png" href="/assets/icon-Dv-vtQWy.png">
   <link rel="canonical" href="https://latexsnipper.interknot.dpdns.org/">
+  <link rel="manifest" href="/site.webmanifest">
 
-  <!-- 预连接到 GitHub 资源来源 -->
-  <link rel="preconnect" href="https://raw.githubusercontent.com">
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "LaTeXSnipper",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": ["Windows", "Linux", "macOS"],
+    "description": "本地优先的数学公式识别、编辑、转换与 Office 集成工具。",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "downloadUrl": "https://latexsnipper.interknot.dpdns.org/download.html",
+    "softwareVersion": "2.4.0",
+    "featureList": [
+      "数学公式 OCR",
+      "手写公式识别",
+      "LaTeX 实时预览",
+      "OMML 与 LaTeX 转换",
+      "Typst、Markdown 与 SVG 导出",
+      "Windows、Linux 与 macOS 支持"
+    ]
+  }
+  </script>
 
-  <!-- 主题闪烁防止 -->
+  <!-- Theme flash prevention -->
   <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
-  <script type="module" crossorigin src="/assets/index-CvA_PlDf.js"></script>
+  <script type="module" crossorigin src="/assets/index-BJaFUyRu.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-Bh1tDfsg.js">
   <link rel="modulepreload" crossorigin href="/assets/vendor-CIxRT3XZ.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-DC02Apsp.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-CmHEL6Rl.css">
 </head>
 <body>
-  <!-- 跳过导航链接（无障碍） -->
-  <a class="skip-link" href="#main-content">跳转到主内容</a>
-
   <div id="root"></div>
 </body>
 </html>

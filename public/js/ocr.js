@@ -1,3 +1,5 @@
+import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
+
 /* ============================================================
    JS 目录
    1. 初始化 & DOM 引用
@@ -23,9 +25,7 @@
   // ═══════════════════════════════════════════════
   const MODEL_BASE = '/models/mathcraft-formula-rec';
 
-  if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdfjs/pdf.worker.min.mjs';
 
   // -- 状态/进度 DOM --
   const statusIcon = document.getElementById('statusIcon');
@@ -49,6 +49,8 @@
   const confidence = document.getElementById('confidence');
   const copyBtn = document.getElementById('copyBtn');
   const mathPreview = document.getElementById('mathPreview');
+  const outputFormat = document.getElementById('outputFormat');
+  const coreRuntimeStatus = document.getElementById('coreRuntimeStatus');
 
   // -- 相机 DOM --
   const camModal = document.getElementById('camModal');
@@ -83,6 +85,26 @@
   let decoderStartId = 2, eosId = 2, padId = 0, ready = false;
   let recognizing = false; // 防并发锁
   let ppocrSession = null, ppocrDict = null, ppocrReady = false;
+  let coreBridge = null;
+  let coreRuntime = null;
+  let coreOcrBridge = null;
+  let coreOcrRuntime = null;
+  let legacyOrtReady = false;
+  let lastLatexResult = '';
+  let renderedResultText = '';
+  let conversionSequence = 0;
+
+  const FORMAT_LABELS = {
+    latex: 'LaTeX',
+    latex_display: 'LaTeX Display',
+    latex_equation: 'LaTeX Equation',
+    typst: 'Typst',
+    markdown_inline: 'Markdown Inline',
+    markdown_block: 'Markdown Block',
+    mathml: 'MathML',
+    omml: 'Word OMML',
+    html: 'HTML',
+  };
 
   // ═══════════════════════════════════════════════
   // 2. 状态 & 工具函数
@@ -96,6 +118,74 @@
     errorMsg.style.display = 'block';
     errorMsg.textContent = msg;
     setStatus('error', '加载失败', false);
+  }
+
+  async function initCoreRuntime() {
+    try {
+      coreBridge = await import('/js/core-runtime.js');
+      coreRuntime = await coreBridge.loadCoreRuntime();
+      var formats = coreBridge.availableCoreFormats(coreRuntime);
+      outputFormat.textContent = '';
+      formats.forEach(function(format) {
+        var option = document.createElement('option');
+        option.value = format;
+        option.textContent = FORMAT_LABELS[format] || format;
+        outputFormat.appendChild(option);
+      });
+      outputFormat.value = formats.includes('latex') ? 'latex' : formats[0];
+      outputFormat.disabled = formats.length === 0;
+      coreRuntimeStatus.dataset.state = 'ready';
+      coreOcrBridge = await import('/js/core-ocr-runtime.js');
+      coreOcrRuntime = await coreOcrBridge.loadCoreOcrRuntime();
+      coreRuntimeStatus.textContent = 'Core WASM：Ready · v' + coreRuntime.version + ' · 模型按需加载';
+      coreRuntimeStatus.title = coreRuntime.buildInfo.gitCommit;
+      return coreRuntime;
+    } catch (error) {
+      coreRuntimeStatus.dataset.state = 'error';
+      coreRuntimeStatus.textContent = 'Core WASM：不可用（兼容引擎回退）';
+      coreRuntimeStatus.title = error.message || String(error);
+      outputFormat.innerHTML = '<option value="latex">LaTeX</option>';
+      outputFormat.disabled = true;
+      return null;
+    }
+  }
+
+  var coreReadyPromise = initCoreRuntime();
+
+  async function updateResultOutput() {
+    if (!lastLatexResult) return;
+    var sequence = ++conversionSequence;
+    var format = outputFormat.value || 'latex';
+    var text = lastLatexResult;
+
+    await coreReadyPromise;
+    if (coreBridge && coreRuntime) {
+      try {
+        var artifact = await coreBridge.convertLatex(lastLatexResult, format);
+        text = artifact.text;
+      } catch (error) {
+        if (format !== 'latex') {
+          coreRuntimeStatus.dataset.state = 'error';
+          coreRuntimeStatus.textContent = 'Core Conversion：转换失败';
+          coreRuntimeStatus.title = error.message || String(error);
+          return;
+        }
+      }
+    }
+
+    if (sequence !== conversionSequence) return;
+    renderedResultText = text;
+    resultCode.textContent = text;
+    copyBtn.textContent = '复制 ' + (FORMAT_LABELS[format] || format) + ' 结果';
+  }
+
+  async function displayRecognitionResult(latex) {
+    lastLatexResult = latex;
+    renderedResultText = latex;
+    renderMathPreview(latex);
+    await updateResultOutput();
+    resultCard.classList.add('show');
+    copyBtn.style.display = 'block';
   }
   const COOLDOWN_MS = 2000;
   let lastRecognitionTime = 0;
@@ -266,8 +356,8 @@
     return text.trim();
   }
 
-  async function recognize(img) {
-    if (!ready) throw new Error('模型尚未就绪');
+  async function recognizeLegacyOrt(img) {
+    if (!legacyOrtReady) throw new Error('兼容模型尚未就绪');
     if (recognizing) throw new Error('识别进行中，请稍后再试');
     recognizing = true;
     try {
@@ -309,6 +399,79 @@
     if (avgConf < CONFIDENCE_MIN) latex = '';
     return { latex: latex, confidence: avgConf };
     } finally { recognizing = false; }
+  }
+
+  async function ensureLegacyOrtModels() {
+    if (legacyOrtReady) return;
+    if (typeof ort === 'undefined') throw new Error('ONNX Runtime 兼容引擎不可用');
+    ort.env.wasm.wasmPaths = '/vendor/onnxruntime/';
+    ort.env.wasm.numThreads = crossOriginIsolated
+      ? Math.min(navigator.hardwareConcurrency || 4, 4)
+      : 1;
+    setStatus('loading', 'Core 模型不可用，正在准备兼容识别引擎…', true);
+    await loadTokenizer();
+    await loadModels();
+    legacyOrtReady = true;
+  }
+
+  function coreProgress(event) {
+    var pct = Math.max(0, Math.min(100, Math.round((event.progress || 0) * 100)));
+    progressWrap.classList.add('show');
+    progressFill.style.width = pct + '%';
+    progressPercent.textContent = pct + '%';
+    progressFile.textContent = event.message || '准备 Core WASM 模型';
+    setStatus(event.stage === 'inference' ? 'processing' : 'loading', event.message || 'Core WASM 处理中…', true);
+  }
+
+  function imageRgba(img) {
+    var width = img.naturalWidth || img.width;
+    var height = img.naturalHeight || img.height;
+    var maxEdge = 2048;
+    var scale = Math.min(1, maxEdge / Math.max(width, height));
+    width = Math.max(1, Math.round(width * scale));
+    height = Math.max(1, Math.round(height * scale));
+    var canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+    return { width: width, height: height, pixels: ctx.getImageData(0, 0, width, height).data };
+  }
+
+  async function recognize(img) {
+    if (!ready) throw new Error('Core WASM 尚未就绪');
+    if (recognizing) throw new Error('识别进行中，请稍后再试');
+    recognizing = true;
+    try {
+      if (isImageEmpty(img)) return { latex: '', confidence: null, engine: 'core-wasm' };
+      await coreReadyPromise;
+      if (!coreOcrRuntime || !coreBridge) throw new Error('Core OCR Runtime 不可用');
+      var input = imageRgba(img);
+      var documentValue = await coreOcrRuntime.recognize({
+        width: input.width,
+        height: input.height,
+        pixels: input.pixels,
+        mode: 'formula',
+      }, coreProgress);
+      var artifact = await coreBridge.convertDocument(documentValue, 'latex');
+      var latex = String(artifact.text || '').trim();
+      if (latex.startsWith('$') && latex.endsWith('$')) latex = latex.slice(1, -1).trim();
+      progressWrap.classList.remove('show');
+      return { latex: repairLatex(latex), confidence: null, engine: 'core-wasm' };
+    } catch (coreError) {
+      coreRuntimeStatus.dataset.state = 'fallback';
+      coreRuntimeStatus.textContent = 'Core WASM：模型加载失败 · 使用兼容引擎';
+      coreRuntimeStatus.title = coreError.message || String(coreError);
+      await ensureLegacyOrtModels();
+      recognizing = false;
+      var fallback = await recognizeLegacyOrt(img);
+      fallback.engine = 'ort-web-fallback';
+      return fallback;
+    } finally {
+      recognizing = false;
+    }
   }
 
   // ═══════════════════════════════════════════════
@@ -492,7 +655,8 @@
         if (r.latex && r.latex.trim()) { parts.push('% --- Formulas ---'); parts.push(r.latex); }
         return parts.join('\n');
       }).join('\n\n');
-      var avgConf = allResults.reduce(function(s, r) { return s + r.confidence; }, 0) / allResults.length;
+      var measured = allResults.filter(function(r) { return typeof r.confidence === 'number'; });
+      var avgConf = measured.length ? measured.reduce(function(s, r) { return s + r.confidence; }, 0) / measured.length : null;
       return { latex: combined, confidence: avgConf, pageCount: totalPages };
     } catch(e) { showError('PDF 处理失败: ' + (e.message || e)); return null; }
   }
@@ -522,10 +686,8 @@
       var pdfResult = await processPDF(file);
       if (!pdfResult) return;
       lastRecognitionTime = Date.now();
-      resultCode.textContent = pdfResult.latex;
-      renderMathPreview(pdfResult.latex);
-      confidence.textContent = '置信度 ' + (pdfResult.confidence * 100).toFixed(1) + '% | ' + pdfResult.pageCount + ' 页';
-      resultCard.classList.add('show'); copyBtn.style.display = 'block';
+      await displayRecognitionResult(pdfResult.latex);
+      confidence.textContent = (typeof pdfResult.confidence === 'number' ? '置信度 ' + (pdfResult.confidence * 100).toFixed(1) + '% · ' : 'Core WASM · ') + pdfResult.pageCount + ' 页';
       setStatus('done', '识别完成（' + pdfResult.pageCount + ' 页）', false);
       return;
     }
@@ -553,14 +715,16 @@
           }
         }
         if (!result.latex) {
-          showError('未识别到公式（置信度 ' + (result.confidence * 100).toFixed(1) + '% 过低）。请确保图片中有清晰的公式。');
+          showError(typeof result.confidence === 'number'
+            ? '未识别到公式（置信度 ' + (result.confidence * 100).toFixed(1) + '% 过低）。请确保图片中有清晰的公式。'
+            : 'Core WASM 未识别到公式，请确保图片清晰且只包含需要识别的内容。');
           setStatus('ready', '模型就绪！请重新上传公式图片', false);
           return;
         }
-        resultCode.textContent = result.latex;
-        renderMathPreview(result.latex);
-        confidence.textContent = '置信度 ' + (result.confidence * 100).toFixed(1) + '%';
-        resultCard.classList.add('show'); copyBtn.style.display = 'block';
+        await displayRecognitionResult(result.latex);
+        confidence.textContent = typeof result.confidence === 'number'
+          ? '置信度 ' + (result.confidence * 100).toFixed(1) + '% · 兼容引擎'
+          : 'Core WASM · 本地识别';
         setStatus('done', '识别完成', false);
       } catch(e) { showError('识别失败: ' + (e.message || e)); setStatus('ready', '模型就绪！拖入公式图片开始识别', false); }
     };
@@ -619,8 +783,6 @@
   }
 
   function hwRecognize() {
-    // 手写强制混合模式
-    var savedMode = ocrMode; ocrMode = 'mixed';
     if (!ready) { showError('模型尚未加载完成，请稍等'); return; }
     var tmp = document.createElement('canvas');
     tmp.width = hwCanvas.width; tmp.height = hwCanvas.height;
@@ -640,7 +802,6 @@
       tctx.putImageData(imgData, 0, 0);
     }
     tmp.toBlob(function(blob) { processImage(new File([blob], 'handwrite.png', { type: 'image/png' })); }, 'image/png');
-    ocrMode = savedMode;
   }
 
   // 自由拖拽缩放画布（右下角手柄）
@@ -1033,9 +1194,17 @@
   // 模型选择胶囊
   document.querySelectorAll('.model-tab').forEach(function(btn) {
     btn.addEventListener('click', function() {
+      if (this.disabled) return;
       document.querySelectorAll('.model-tab').forEach(function(b) { b.classList.remove('active'); });
       ocrMode = this.dataset.mode;
       this.classList.add('active');
+    });
+  });
+  outputFormat.addEventListener('change', function() {
+    updateResultOutput().catch(function(error) {
+      coreRuntimeStatus.dataset.state = 'error';
+      coreRuntimeStatus.textContent = 'Core Conversion：转换失败';
+      coreRuntimeStatus.title = error.message || String(error);
     });
   });
 
@@ -1050,7 +1219,17 @@
   document.addEventListener('paste', function(e) { var items = e.clipboardData && e.clipboardData.items; if (!items) return;
     for (var i = 0; i < items.length; i++) { if (items[i].type.startsWith('image/')) { e.preventDefault(); var f = items[i].getAsFile(); if (f) processImage(f); return; } }
   });
-  window.copyResult = function() { navigator.clipboard.writeText('$$\n' + resultCode.textContent + '\n$$').then(function() { copyBtn.textContent = '已复制 ✓'; copyBtn.classList.add('copied'); setTimeout(function() { copyBtn.textContent = '复制 LaTeX 代码'; copyBtn.classList.remove('copied'); }, 1500); }); };
+  copyBtn.addEventListener('click', function() {
+    var format = outputFormat.value || 'latex';
+    navigator.clipboard.writeText(renderedResultText || resultCode.textContent).then(function() {
+      copyBtn.textContent = '已复制 ✓';
+      copyBtn.classList.add('copied');
+      setTimeout(function() {
+        copyBtn.textContent = '复制 ' + (FORMAT_LABELS[format] || format) + ' 结果';
+        copyBtn.classList.remove('copied');
+      }, 1500);
+    });
+  });
 
   // ═══════════════════════════════════════════════
   // 13. 主题切换
@@ -1086,19 +1265,12 @@
   // ═══════════════════════════════════════════════
   async function init() {
     try {
-      if (typeof ort === 'undefined') {
-        showError('ONNX Runtime 加载失败。请检查网络连接，刷新页面重试（Ctrl+F5）。如使用广告拦截器，请将本站加入白名单。');
-        setStatus('error', 'CDN 加载失败', false);
-        return;
-      }
-      ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/';
-      if (crossOriginIsolated) { ort.env.wasm.numThreads = Math.min(navigator.hardwareConcurrency || 4, 4); ort.env.wasm.simd = true; }
-      else { ort.env.wasm.numThreads = 1; }
-      setStatus('loading', '正在加载分词器…', true); await loadTokenizer();
-      setStatus('loading', '正在下载编码器模型 (84MB)…', true); await loadModels();
-      ready = true; window.__modelsReady = true; // 同步标志，供 processImage 等待
-      loadPPOCR().catch(function(){});
-      setStatus('ready', '模型就绪！拖入公式图片或 Ctrl+V 粘贴截图', false);
+      setStatus('loading', '正在初始化 Core WASM…', true);
+      await coreReadyPromise;
+      if (!coreOcrRuntime) throw new Error('Core OCR Worker 初始化失败');
+      ready = true;
+      window.__modelsReady = true;
+      setStatus('ready', 'Core 已就绪；首次识别将下载并缓存约 104 MB 单公式模型', false);
     } catch(e) { if (!errorMsg.style.display || errorMsg.style.display === 'none') showError('初始化失败: ' + (e.message || e)); }
   }
 

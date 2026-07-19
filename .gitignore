@@ -1,8 +1,11 @@
 # === Dependencies ===
 node_modules/
+.cache/
 
 # === Build Output ===
 # dist/ 作为 Worker 静态文件源，全部跟踪
+public/core-wasm/
+public/vendor/
 
 *.svg
 user_manual.md

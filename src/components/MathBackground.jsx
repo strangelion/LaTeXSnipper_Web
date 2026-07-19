@@ -1,5 +1,55 @@
 import React, { useEffect, useRef } from 'react'
 
+// Module-level constants to avoid re-creating arrays on every render
+const MATH_SYMBOLS = [
+  '∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ',
+  'λ', 'θ', 'α', 'β', 'γ', 'δ', 'ε', 'μ', 'σ', 'τ', 'ω', 'φ', 'ψ',
+  '×', '÷', '±', '∓', '∠', '⊥', '∈', '∩', '∪', '⊂', '⊃',
+  '∀', '∃', '∧', '∨', '⊕', '⊗', '∴', '∵', '∼', '≅', '≡',
+  'ℕ', 'ℤ', 'ℚ', 'ℝ', 'ℂ', 'ℵ',
+]
+
+const FORMULAS = [
+  { type: 'text', content: 'e^{iπ}+1=0' },
+  { type: 'text', content: '∫e^{-x²}dx' },
+  { type: 'text', content: '∑1/n²' },
+  { type: 'text', content: '∇·F=0' },
+  { type: 'text', content: 'a²+b²=c²' },
+  { type: 'text', content: '∂u/∂t=∇²u' },
+  { type: 'text', content: 'lim x→∞' },
+  { type: 'text', content: 'Δ=b²-4ac' },
+  { type: 'text', content: 'φ=(1+√5)/2' },
+  { type: 'text', content: 'i²=-1' },
+  { type: 'text', content: 'sin²θ+cos²θ=1' },
+  { type: 'text', content: 'tanθ=sinθ/cosθ' },
+  { type: 'text', content: 'F=Gm₁m₂/r²' },
+  { type: 'text', content: 'E=mc²' },
+  { type: 'text', content: 'F=ma' },
+  { type: 'text', content: 'E=hf' },
+  { type: 'text', content: 'ΔxΔp≥ℏ/2' },
+  { type: 'text', content: 'PV=nRT' },
+  { type: 'text', content: 'F=q(E+v×B)' },
+  { type: 'text', content: 'I=V/R' },
+  { type: 'text', content: 'S=k·ln(W)' },
+  // Fraction templates (lower drawing complexity)
+  { type: 'frac', num: 'dv', den: 'dt' },
+  { type: 'frac', num: 'Δx', den: 'Δt' },
+  { type: 'frac', num: '∂ψ', den: '∂t' },
+  { type: 'frac', num: 'ρ', den: 'ε₀' },
+  // Dynamic formulas (fewer values for faster switching)
+  { type: 'dynamic', template: 'sin({n}π)', values: ['0', '½', '1', '3/2'] },
+  { type: 'dynamic', template: 'x^{n}', values: ['0', '1', '2', '3'] },
+  { type: 'dynamic', template: '√{n}', values: ['0', '2', '4', '9'] },
+  { type: 'dynamic', template: 'n!={n}', values: ['1', '2', '6', '24'] },
+]
+
+const MATRIX_TEMPLATES = [
+  { type: 'matrix', rows: [['a', 'b'], ['c', 'd']] },
+  { type: 'matrix', rows: [['1', '0'], ['0', '1']] },
+  { type: 'matrix', rows: [['x₁', 'x₂'], ['y₁', 'y₂']] },
+  { type: 'matrix', rows: [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']] },
+]
+
 export default function MathBackground() {
   const canvasRef = useRef(null)
   const animationRef = useRef(null)
@@ -12,63 +62,21 @@ export default function MathBackground() {
   const resizeTimerRef = useRef(null)
   const isTouchingRef = useRef(false)
 
-  // 常用符号（精简版，减少缓存不命中）
-  const MATH_SYMBOLS = [
-    '∑', '∫', '∂', '∇', '√', 'π', '∞', '≈', '≠', '≤', '≥', 'Δ', 'Σ',
-    'λ', 'θ', 'α', 'β', 'γ', 'δ', 'ε', 'μ', 'σ', 'τ', 'ω', 'φ', 'ψ',
-    '×', '÷', '±', '∓', '∠', '⊥', '∈', '∩', '∪', '⊂', '⊃',
-    '∀', '∃', '∧', '∨', '⊕', '⊗', '∴', '∵', '∼', '≅', '≡',
-    'ℕ', 'ℤ', 'ℚ', 'ℝ', 'ℂ', 'ℵ',
-  ]
-  
-  // 精简公式模板（减少内存，保持视觉丰富度）
-  const FORMULAS = [
-    { type: 'text', content: 'e^{iπ}+1=0' },
-    { type: 'text', content: '∫e^{-x²}dx' },
-    { type: 'text', content: '∑1/n²' },
-    { type: 'text', content: '∇·F=0' },
-    { type: 'text', content: 'a²+b²=c²' },
-    { type: 'text', content: '∂u/∂t=∇²u' },
-    { type: 'text', content: 'lim x→∞' },
-    { type: 'text', content: 'Δ=b²-4ac' },
-    { type: 'text', content: 'φ=(1+√5)/2' },
-    { type: 'text', content: 'i²=-1' },
-    { type: 'text', content: 'sin²θ+cos²θ=1' },
-    { type: 'text', content: 'tanθ=sinθ/cosθ' },
-    { type: 'text', content: 'F=Gm₁m₂/r²' },
-    { type: 'text', content: 'E=mc²' },
-    { type: 'text', content: 'F=ma' },
-    { type: 'text', content: 'E=hf' },
-    { type: 'text', content: 'ΔxΔp≥ℏ/2' },
-    { type: 'text', content: 'PV=nRT' },
-    { type: 'text', content: 'F=q(E+v×B)' },
-    { type: 'text', content: 'I=V/R' },
-    { type: 'text', content: 'S=k·ln(W)' },
-    // 分式（降低绘制复杂度）
-    { type: 'frac', num: 'dv', den: 'dt' },
-    { type: 'frac', num: 'Δx', den: 'Δt' },
-    { type: 'frac', num: '∂ψ', den: '∂t' },
-    { type: 'frac', num: 'ρ', den: 'ε₀' },
-    // 动态（减少值数量，加快切换）
-    { type: 'dynamic', template: 'sin({n}π)', values: ['0', '½', '1', '3/2'] },
-    { type: 'dynamic', template: 'x^{n}', values: ['0', '1', '2', '3'] },
-    { type: 'dynamic', template: '√{n}', values: ['0', '2', '4', '9'] },
-    { type: 'dynamic', template: 'n!={n}', values: ['1', '2', '6', '24'] },
-  ]
-
-  const MATRIX_TEMPLATES = [
-    { type: 'matrix', rows: [['a', 'b'], ['c', 'd']] },
-    { type: 'matrix', rows: [['1', '0'], ['0', '1']] },
-    { type: 'matrix', rows: [['x₁', 'x₂'], ['y₁', 'y₂']] },
-    { type: 'matrix', rows: [['a', 'b', 'c'], ['d', 'e', 'f'], ['g', 'h', 'i']] },
-  ]
-
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
     if (!ctx) return
+
+    // Accessibility: detect reduced motion and pointer type
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+
+    const hasFinePointer = window.matchMedia(
+      '(any-pointer: fine)',
+    ).matches
 
     const isDarkMode = () => {
       return document.documentElement.getAttribute('data-theme') === 'dark' ||
@@ -94,7 +102,7 @@ export default function MathBackground() {
       const dark = isDarkMode()
 
       // 底色
-      cctx.fillStyle = dark ? '#0f111a' : '#f6fbff'
+      cctx.fillStyle = dark ? '#11151b' : '#f6f5f1'
       cctx.fillRect(0, 0, w, h)
 
       // 数学方格纸网格：小格 20px，粗格 100px
@@ -102,7 +110,7 @@ export default function MathBackground() {
       const bigSize = 100
 
       // 小网格线（浅）
-      cctx.strokeStyle = dark ? 'rgba(200, 220, 255, 0.05)' : 'rgba(60, 120, 200, 0.08)'
+      cctx.strokeStyle = dark ? 'rgba(104, 174, 232, 0.05)' : 'rgba(23, 105, 170, 0.08)'
       cctx.lineWidth = 1
       for (let x = 0; x <= w; x += smallSize) {
         if (x % bigSize !== 0) {
@@ -122,7 +130,7 @@ export default function MathBackground() {
       }
 
       // 粗网格线（略深）
-      cctx.strokeStyle = dark ? 'rgba(200, 220, 255, 0.12)' : 'rgba(60, 120, 200, 0.15)'
+      cctx.strokeStyle = dark ? 'rgba(104, 174, 232, 0.12)' : 'rgba(23, 105, 170, 0.15)'
       cctx.lineWidth = 1
       for (let x = 0; x <= w; x += bigSize) {
         cctx.beginPath()
@@ -186,21 +194,34 @@ export default function MathBackground() {
       }
     }
 
-    const handleMouseMove = (e) => {
-      const prev = mouseRef.current
-      mouseRef.current = { x: e.clientX, y: e.clientY }
-      spawnTrailParticle(e.clientX, e.clientY, prev.x, prev.y, false)
+    const pointerInitializedRef = { current: false }
+
+    const handlePointerMove = (event) => {
+      if (event.pointerType === 'touch') return
+
+      const previous = mouseRef.current
+
+      if (!pointerInitializedRef.current) {
+        mouseRef.current = { x: event.clientX, y: event.clientY }
+        pointerInitializedRef.current = true
+        return
+      }
+
+      mouseRef.current = { x: event.clientX, y: event.clientY }
+      spawnTrailParticle(event.clientX, event.clientY, previous.x, previous.y, false)
       lastMoveTimeRef.current = Date.now()
     }
-    window.addEventListener('mousemove', handleMouseMove)
 
-    // 触摸事件 —— 手机端手指附近生成符号
+    if (!reducedMotion && hasFinePointer) {
+      window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    }
+
+    // Touch events - skip entirely when reduced motion is preferred
     const handleTouchStart = (e) => {
       if (e.touches.length === 0) return
       isTouchingRef.current = true
       const t = e.touches[0]
       mouseRef.current = { x: t.clientX, y: t.clientY }
-      // 触摸开始瞬间生成一簇粒子
       for (let i = 0; i < 5; i++) {
         spawnTrailParticle(t.clientX, t.clientY, t.clientX - 10, t.clientY, true)
       }
@@ -220,15 +241,23 @@ export default function MathBackground() {
       isTouchingRef.current = false
     }
 
-    window.addEventListener('touchstart', handleTouchStart, { passive: true })
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
-    window.addEventListener('touchend', handleTouchEnd)
+    if (!reducedMotion) {
+      window.addEventListener('touchstart', handleTouchStart, { passive: true })
+      window.addEventListener('touchmove', handleTouchMove, { passive: true })
+      window.addEventListener('touchend', handleTouchEnd)
+    }
 
     const initFormulas = () => {
       formulasRef.current = []
-      // 减少粒子密度 ≈ 每 70000 px² 一个，移动端进一步减半
-      const density = window.innerWidth < 768 ? 100000 : 70000
-      const count = Math.max(10, Math.min(30, Math.floor((canvas.width * canvas.height) / density)))
+      // Reduced motion: no floating formulas at all
+      const density = reducedMotion
+        ? Number.POSITIVE_INFINITY
+        : window.innerWidth < 768
+          ? 180000
+          : 90000
+      const count = reducedMotion
+        ? 0
+        : Math.max(6, Math.min(20, Math.floor((canvas.width * canvas.height) / density)))
       for (let i = 0; i < count; i++) {
         formulasRef.current.push(createFormula(canvas))
       }
@@ -351,7 +380,7 @@ export default function MathBackground() {
 
     const drawFormulas = () => {
       const dark = isDarkMode()
-      const color = dark ? 'rgba(180, 200, 240, 0.85)' : 'rgba(40, 50, 80, 0.7)'
+      const color = dark ? 'rgba(156, 174, 200, 0.85)' : 'rgba(24, 32, 44, 0.7)'
       const skipOutOfBounds = (f) =>
         f.x < -100 || f.x > canvas.width + 100 ||
         f.y < -50 || f.y > canvas.height + 50
@@ -410,7 +439,7 @@ export default function MathBackground() {
 
     const drawTrail = () => {
       const dark = isDarkMode()
-      const color = dark ? 'rgba(96, 165, 250, 0.95)' : 'rgba(37, 99, 235, 0.9)'
+      const color = dark ? 'rgba(104, 174, 232, 0.95)' : 'rgba(23, 105, 170, 0.9)'
 
       for (let i = trailRef.current.length - 1; i >= 0; i--) {
         const p = trailRef.current[i]
@@ -511,10 +540,14 @@ export default function MathBackground() {
     return () => {
       window.removeEventListener('resize', debouncedResize)
       clearTimeout(resizeTimerRef.current)
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('touchstart', handleTouchStart)
-      window.removeEventListener('touchmove', handleTouchMove)
-      window.removeEventListener('touchend', handleTouchEnd)
+      if (!reducedMotion && hasFinePointer) {
+        window.removeEventListener('pointermove', handlePointerMove)
+      }
+      if (!reducedMotion) {
+        window.removeEventListener('touchstart', handleTouchStart)
+        window.removeEventListener('touchmove', handleTouchMove)
+        window.removeEventListener('touchend', handleTouchEnd)
+      }
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
       themeObserver.disconnect()
@@ -524,12 +557,7 @@ export default function MathBackground() {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: -2,
-        pointerEvents: 'none',
-      }}
+      className="math-background"
       aria-hidden="true"
     />
   )

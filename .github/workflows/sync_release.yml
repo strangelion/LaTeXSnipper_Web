@@ -185,6 +185,31 @@ jobs:
               print('No changed files to sync, exiting')
               sys.exit(0)
 
+          # Release metadata for public/release.json
+          release_metadata = {
+              "version": "2.4.0",
+              "channel": "LTS",
+              "publishedAt": "",
+              "releaseNotesUrl": (
+                  "https://github.com/SakuraMathcraft/"
+                  "LaTeXSnipper/releases/tag/v2.4.0-LTS"
+              ),
+              "downloads": {}
+          }
+
+          platform_map = {
+              "LaTeXSnipperSetup-2.4.0.exe": ("windows", "Windows", "x86_64", "Windows 10 / 11"),
+              "LaTeXSnipper_2.4.0_amd64.deb": ("linux", "Linux", "x86_64", "Debian / Ubuntu 及兼容发行版"),
+              "LaTeXSnipper_2.4.0_arm64.dmg": ("macos", "macOS", "Apple Silicon", "macOS 11 或更高版本"),
+          }
+
+          def human_size(size_bytes):
+              value = float(size_bytes)
+              for unit in ["B", "KB", "MB", "GB"]:
+                  if value < 1024 or unit == "GB":
+                      return f"{value:.1f} {unit}"
+                  value /= 1024
+
           os.makedirs('.sync_tmp', exist_ok=True)
           for name in changed:
               url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v2.4.0-LTS/{name}'
@@ -192,7 +217,20 @@ jobs:
               print(f'Downloading {name}...')
               subprocess.run(['curl', '-sL', '--retry', '2', url, '-o', out], check=True)
               sha = hashlib.sha256(open(out, 'rb').read()).hexdigest()
+              size_bytes = os.path.getsize(out)
               print(f'  SHA256: {sha}')
+
+              # Collect metadata for known platforms
+              if name in platform_map:
+                  platform, label, architecture, requirements = platform_map[name]
+                  release_metadata["downloads"][platform] = {
+                      "label": label,
+                      "architecture": architecture,
+                      "requirements": requirements,
+                      "href": f"/dl/{name}",
+                      "sha256": sha,
+                      "size": human_size(size_bytes),
+                  }
 
               subprocess.run(['npx', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
                           capture_output=True, timeout=60000)
@@ -201,6 +239,12 @@ jobs:
               print(f'  Uploaded release/{name}')
               with open('/tmp/sha256.txt', 'a') as f:
                   f.write(f'{name}:{sha}\n')
+
+          # Write release metadata
+          with open('/tmp/release.json', 'w', encoding='utf-8') as f:
+              json.dump(release_metadata, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          print('Release metadata written to /tmp/release.json')
 
           subprocess.run(['rm', '-rf', '.sync_tmp'])
           PYEOF
@@ -261,11 +305,21 @@ jobs:
           c2 = update_file('dist/download.html')
           PYEOF
 
+      - name: 更新网站版本元数据
+        run: |
+          if [ -f /tmp/release.json ]; then
+            cp /tmp/release.json public/release.json
+            cp /tmp/release.json dist/release.json
+            echo "Release metadata updated"
+          else
+            echo "No release.json generated, skipping"
+          fi
+
       - name: 提交 SHA256 更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add download.html dist/download.html
+          git add download.html dist/download.html public/release.json dist/release.json
           git diff --staged --quiet && echo "No SHA256 changes" || (
             git commit -m "chore: sync release SHA256" &&
             for i in 1 2 3; do

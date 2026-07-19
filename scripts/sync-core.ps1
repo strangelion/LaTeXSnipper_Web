@@ -1,56 +1,63 @@
 # sync-core.ps1
-# 从远程拉取 latexsnipper-core 最新提交，更新主仓库的 submodule 引用
-# 用法: .\scripts\sync-core.ps1
-#
-# 工作流:
-#   1. 在 latexsnipper-core 仓库编辑代码、推送
-#   2. 在 LaTeXSnipper-Office 仓库运行此脚本
-#   3. 脚本自动更新 submodule 引用并推送
+# 将 latexsnipper-core 子模块同步到 core.lock.json 固定的发布提交。
+# 此脚本只更新本地工作树；提交与推送由维护者显式完成。
+
+param(
+    [switch]$Fetch
+)
 
 $ErrorActionPreference = "Stop"
 
-$root = Split-Path -Parent $MyInvocation.MyCommand.Path
-$repoRoot = Split-Path $root -Parent
-$corePath = Join-Path $repoRoot "core"
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path $scriptRoot -Parent
+$corePath = Join-Path $repoRoot "latexsnipper-core"
+$lockPath = Join-Path $repoRoot "core.lock.json"
 
-Write-Host "=== Sync latexsnipper-core submodule ===" -ForegroundColor Cyan
-
-# 1. 更新 submodule 到远程最新
-Write-Host "`n[1/4] Fetching latest from remote..." -ForegroundColor Yellow
-Set-Location $corePath
-$before = git rev-parse --short HEAD
-
-# 拉取远程最新提交
-git fetch origin --quiet
-
-# 获取 origin/main 的 HEAD
-$remoteHead = git rev-parse --short origin/main
-
-if ($before -eq $remoteHead) {
-    Write-Host "  Already up to date ($before)" -ForegroundColor Green
-    Write-Host "`nNo changes. Done." -ForegroundColor Cyan
-    Set-Location $repoRoot
-    exit 0
+if (-not (Test-Path -LiteralPath $lockPath)) {
+    throw "Missing core.lock.json: $lockPath"
 }
 
-# Checkout 到 origin/main
-git checkout origin/main --quiet
-$after = git rev-parse --short HEAD
-Write-Host "  $before -> $after" -ForegroundColor Green
+$lock = Get-Content -LiteralPath $lockPath -Raw | ConvertFrom-Json
+$targetCommit = [string]$lock.commit
+if ($targetCommit -notmatch '^[0-9a-f]{40}$') {
+    throw "core.lock.json contains an invalid commit SHA: $targetCommit"
+}
 
-# 2. 回到主仓库
-Set-Location $repoRoot
+Write-Host "=== Sync latexsnipper-core to locked release ===" -ForegroundColor Cyan
+Write-Host "  Core $($lock.coreVersion) / $($lock.releaseTag)"
+Write-Host "  $targetCommit"
 
-# 3. 提交 submodule 引用更新
-Write-Host "`n[2/3] Committing submodule update..." -ForegroundColor Yellow
-git add core
-$commitMsg = "chore: sync latexsnipper-core -> $after"
-git commit -m $commitMsg
-Write-Host "  $commitMsg" -ForegroundColor Green
+Push-Location $corePath
+try {
+    if ($Fetch) {
+        Write-Host "`nFetching the locked commit from origin..." -ForegroundColor Yellow
+        git fetch origin $targetCommit --quiet
+        if ($LASTEXITCODE -ne 0) {
+            throw "Unable to fetch locked Core commit $targetCommit"
+        }
+    }
 
-# 4. 推送
-Write-Host "`n[3/3] Pushing..." -ForegroundColor Yellow
-git push
-Write-Host "  Done" -ForegroundColor Green
+    git cat-file -e "$targetCommit^{commit}" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Locked commit is unavailable locally. Re-run with -Fetch."
+    }
 
-Write-Host "`n=== Synced to $after ===" -ForegroundColor Cyan
+    $before = (git rev-parse HEAD).Trim()
+    if ($before -eq $targetCommit) {
+        Write-Host "`nAlready at the locked release." -ForegroundColor Green
+        exit 0
+    }
+
+    git checkout --detach $targetCommit --quiet
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to checkout locked Core commit $targetCommit"
+    }
+
+    Write-Host "`nUpdated local submodule:" -ForegroundColor Green
+    Write-Host "  $before -> $targetCommit"
+}
+finally {
+    Pop-Location
+}
+
+Write-Host "`nReview the change, then commit the submodule pointer explicitly." -ForegroundColor Cyan

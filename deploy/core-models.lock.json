@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "releaseTag": "models-v2.0.0",
+  "source": "https://github.com/strangelion/latexsnipper-core/releases/tag/models-v2.0.0",
+  "profiles": {
+    "formula": {
+      "coreRecognitionMode": "handwriting",
+      "scope": "single-formula-crop",
+      "downloadBytes": 108794007,
+      "installedBytes": 117653305,
+      "packages": [
+        {
+          "asset": "latexsnipper-formula-rec.zip",
+          "sha256": "fdcc414b9073c73325614faafc6473ddd7e91a80305cdc55f7267195de152a21",
+          "size": 108794007,
+          "category": "formula-rec",
+          "variant": "trocr-deit"
+        }
+      ]
+    }
+  }
+}

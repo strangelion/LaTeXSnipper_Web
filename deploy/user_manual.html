@@ -65,11 +65,12 @@
   .volume-label { position: relative; z-index: 1; background: var(--card-bg); padding: 0.4rem 1.5rem; font-size: 1rem; font-weight: 700; color: var(--accent); border-radius: 20px; border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   @media (max-width: 768px) { .sidebar, .right-sidebar { width: 220px; } .toc-list a, .rs-list a { font-size: 0.78rem; } }
 
-body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; } code, pre { font-family: "Cascadia Code", monospace; }</style>
+</style>
+<link rel="stylesheet" href="styles/editorial.css">
 </head>
 <body class="manual">
 <div class="top-nav-trigger" id="topNavTrigger"></div>
-<nav class="top-nav"><div class="inner"><a href="index.html">主页</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载 PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
+<nav class="top-nav"><div class="inner"><a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon.png" width="28" height="28" alt=""><span>LaTeXSnipper</span></a><a href="user_manual.html" class="active-link">用户手册</a><a href="ocr.html">单公式识别</a><a href="download.html">下载</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
 <div class="spacer-top"></div>
 
 <!-- 浮动可拖动箭头按钮 -->
@@ -150,6 +151,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li class="toc-h1"><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
   <li class="toc-h2"><a href="#bi">必须提供的信息</a></li>
   <li class="toc-h2"><a href="#fankui">去哪里反馈</a></li>
+  <li class="toc-h2"><a href="#heading">可附带的诊断输出</a></li>
 <li class="toc-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
   <li class="toc-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
   <li class="toc-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
@@ -239,15 +241,15 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="toc-h2"><a href="#dongtedingxingwenti">移动端特定兼容性问题</a></li>
   <li class="toc-h2"><a href="#dongmu">移动端数据目录</a></li>
 <li class="toc-vol-divider"><span>第四卷 · MathCraft 内部模型介绍</span></li>
-  <li class="toc-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
-  <li class="toc-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
-  <li class="toc-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
+<li class="toc-h1"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+<li class="toc-h1"><a href="#sec-mathcraft-models">模型集与识别配置</a></li>
+<li class="toc-h1"><a href="#sec-mathcraft-showcase">识别效果展示</a></li>
     <li class="toc-h3"><a href="#abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</a></li>
     <li class="toc-h3"><a href="#dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</a></li>
     <li class="toc-h3"><a href="#lecture-note-p-1">中文讲义：Lecture Note (p.1)</a></li>
     <li class="toc-h3"><a href="#yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</a></li>
-  <li class="toc-h2"><a href="#xingnengcankao">性能参考</a></li>
-  <li class="toc-h2"><a href="#sec-envvar">环境变量设置指南</a></li>
+<li class="toc-h1"><a href="#sec-mathcraft-performance">性能参考</a></li>
+<li class="toc-h1"><a href="#sec-envvar">环境变量设置指南</a></li>
     </ul>
   </div>
 </nav>
@@ -321,6 +323,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li class="rs-h1"><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
   <li class="rs-h2"><a href="#bi">必须提供的信息</a></li>
   <li class="rs-h2"><a href="#fankui">去哪里反馈</a></li>
+  <li class="rs-h2"><a href="#heading">可附带的诊断输出</a></li>
 <li class="rs-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
   <li class="rs-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
   <li class="rs-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
@@ -410,15 +413,15 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
   <li class="rs-h2"><a href="#dongtedingxingwenti">移动端特定兼容性问题</a></li>
   <li class="rs-h2"><a href="#dongmu">移动端数据目录</a></li>
 <li class="rs-vol-divider"><span>第四卷 · MathCraft 内部模型介绍</span></li>
-  <li class="rs-h2"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
-  <li class="rs-h2"><a href="#moxingjiyushibiepeizhi">模型集与识别配置</a></li>
-  <li class="rs-h2"><a href="#shibiexiaoguozhanshi">识别效果展示</a></li>
+<li class="rs-h1"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+<li class="rs-h1"><a href="#sec-mathcraft-models">模型集与识别配置</a></li>
+<li class="rs-h1"><a href="#sec-mathcraft-showcase">识别效果展示</a></li>
     <li class="rs-h3"><a href="#abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</a></li>
     <li class="rs-h3"><a href="#dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</a></li>
     <li class="rs-h3"><a href="#lecture-note-p-1">中文讲义：Lecture Note (p.1)</a></li>
     <li class="rs-h3"><a href="#yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</a></li>
-  <li class="rs-h2"><a href="#xingnengcankao">性能参考</a></li>
-  <li class="rs-h2"><a href="#sec-envvar">环境变量设置指南</a></li>
+<li class="rs-h1"><a href="#sec-mathcraft-performance">性能参考</a></li>
+<li class="rs-h1"><a href="#sec-envvar">环境变量设置指南</a></li>
     </ul>
   </div>
 </aside>
@@ -473,6 +476,9 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <p><strong>第四卷 · MathCraft 内部模型介绍</strong></p>
 <ul>
 <li><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
+<li><a href="#sec-mathcraft-models">模型集与识别配置</a></li>
+<li><a href="#sec-mathcraft-showcase">识别效果展示</a></li>
+<li><a href="#sec-mathcraft-performance">性能参考</a></li>
 <li><a href="#sec-envvar">环境变量设置指南</a></li>
 </ul>
 
@@ -548,7 +554,7 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <p>设置页的"选择识别模型"只有两类入口：</p>
 <ul>
 <li><strong>内置模型：</strong> 使用 MathCraft OCR。本地识别类型可选 <strong>公式</strong>、<strong>混合（文字+公式）</strong>、<strong>纯文字</strong>。</li>
-<li><strong>外部模型：</strong> 连接 OpenAI-compatible、Ollama 或 MinerU 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL、Qwen2.5/Qwen3-VL、Ollama Vision 和 MinerU Native。</li>
+<li><strong>外部模型：</strong> 连接 OpenAI-compatible、Ollama 或 MinerU 服务。推荐预设包括 GLM-OCR、PaddleOCR-VL、Qwen2.5/Qwen3-VL 和 MinerU Native。</li>
 </ul>
 <p>外部模型的 <strong>输出偏好</strong> 只影响普通图片、截图和手写识别；PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认模板。</p>
 <p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示日志窗口、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
@@ -707,6 +713,17 @@ body { font-family: "Noto Sans CJK SC", "Noto Sans SC", sans-serif !important; }
 <li>如果路径不对，在设置中修改"解析接口路径"和"健康检查路径"</li>
 <li>MinerU 409 错误通常表示解析任务失败，查看 MinerU 服务端日志</li>
 </ul>
+<div class="callout info">
+<div class="callout-title">源码实现对应关系</div>
+<div class="callout-body"><p>MinerU 与普通视觉模型走不同链路：</p>
+<ul>
+<li>测试连接访问 <code>Base URL +健康检查路径</code>，默认 <code>/health</code></li>
+<li>图片识别和 PDF 解析访问 <code>Base URL +解析接口路径</code>，默认 <code>/file_parse</code></li>
+<li>解析请求会依次尝试 <code>pipeline</code>、<code>hybrid-auto-engine</code>、<code>vlm-auto-engine</code></li>
+<li>PDF 使用 MinerU 时会把原 PDF 交给服务端解析；OpenAI-compatible / Ollama 则由 LaTeXSnipper 用 PyMuPDF 按 DPI 渲染页面后逐页发送图片</li>
+</ul>
+</div>
+</div>
 <h2 id="openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</h2>
 <p><strong>现象：</strong> 测试连接时访问 <code>/v1/models</code> 返回 404。</p>
 <p><strong>原因：</strong> Ollama 的模型列表接口是 <code>/api/tags</code>，不是 <code>/v1/models</code>。</p>
@@ -816,11 +833,11 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <li><strong>Linux <code>.deb</code>：</strong> 包管理器卸载不会自动删除 home 目录数据。卸载前可运行 <code>latexsnipper-clean-user-data</code>，按提示删除当前用户的数据、共享工具和模型缓存；脚本不会读取或删除用户切换过的外部 Python 依赖根。</li>
 <li><strong>macOS <code>.dmg</code> / <code>.app.zip</code>：</strong> 删除 <code>.app</code> 只会移除应用本体。需要清理数据时，运行 <code>.dmg</code> 中的 <code>Uninstall User Data.command</code>，或运行 app 包内 <code>Contents/Resources/Uninstall User Data.command</code>。</li>
 </ul>
-<p>如果你显式设置过 <code>MATHCRAFT_HOME</code> 指向自定义目录，卸载和清理脚本都不会自动删除该目录，避免误删用户指定的外部数据位置。</p>
+<p>如果你在命令行单独运行 <code>mathcraft_ocr</code> 时显式设置过 <code>MATHCRAFT_HOME</code> 指向自定义目录，卸载和清理脚本都不会自动删除该目录，避免误删用户指定的外部数据位置。桌面端通常使用应用管理的模型目录，不依赖外部 <code>MATHCRAFT_HOME</code>。</p>
 <h2 id="yongte">中文路径 / 用户名包含特殊字符</h2>
 <p><strong>现象：</strong> 启动崩溃或模型加载失败。</p>
 <p><strong>原因：</strong> Windows 用户名含中文、空格、特殊符号时，<code>%APPDATA%</code> 路径可能包含非 ASCII 字符，某些 C 库或 ONNX 底层可能无法正确处理。</p>
-<p><strong>解决：</strong> 设置环境变量 <code>MATHCRAFT_HOME</code> 指向一个纯 ASCII 路径，例如 <code>C:\mathcraft_data</code>。</p>
+<p><strong>解决：</strong> 如果是在命令行单独运行 <code>mathcraft_ocr</code>，可以设置 <code>MATHCRAFT_HOME</code> 指向纯 ASCII 路径，例如 <code>C:\mathcraft_data</code>。桌面端会清理 <code>MATHCRAFT_HOME</code>，避免外部环境污染应用运行时；桌面端遇到这类问题时请优先附上日志目录和依赖目录信息反馈。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-network">网络与更新问题</h1>
 <h2 id="windows-bendi">Windows 防火墙拦截本地服务</h2>
@@ -1056,7 +1073,6 @@ python311         主依赖 Python/venv
 Windows:  %APPDATA%\MathCraft\models
 Linux:    ${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models/
 macOS:    ~/Library/Application Support/LaTeXSnipper/MathCraft/models/</code></pre></div>
-<div class="spacer-lg"></div>
 <h1 id="sec-conflict">与其他软件冲突</h1>
 <h2 id="duoben-python-yong">多版本 Python 共存导致调用错误</h2>
 <p><strong>现象：</strong> 命令行能跑但 GUI 跑不了，或反之。</p>
@@ -1071,7 +1087,6 @@ macOS:    ~/Library/Application Support/LaTeXSnipper/MathCraft/models/</code></p
 <p><strong>现象：</strong> 截图快捷键无效或截到的画面不对。</p>
 <p><strong>原因：</strong> 某些输入法、词典取词、录屏软件占用全局快捷键或 hook 了屏幕捕获。</p>
 <p><strong>解决：</strong> 暂时关闭冲突软件的屏幕相关功能，或在 LaTeXSnipper 设置中修改截图快捷键。</p>
-<div class="spacer-lg"></div>
 <h1 id="sec-bugreport">如何有效反馈 Bug</h1>
 <div class="callout error">
 <div class="callout-title">先说最重要的</div>
@@ -1103,7 +1118,16 @@ macOS:    ~/Library/Application Support/LaTeXSnipper/MathCraft/models/</code></p
 <li><strong>GitHub Issues：</strong> https://github.com/SakuraMathcraft/LaTeXSnipper/issues</li>
 <li><strong>GitHub Discussions：</strong> https://github.com/SakuraMathcraft/LaTeXSnipper/discussions （一般使用问题请发这里）</li>
 </ul>
-<div class="spacer-lg"></div>
+<h2 id="heading">可附带的诊断输出</h2>
+<p>这些命令与当前源码中的启动和 MathCraft CLI 一致，能直接判断是依赖环境、模型缓存还是 ONNX Runtime 后端问题：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>python -m mathcraft_ocr models check
+python -m mathcraft_ocr doctor --provider auto
+python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div>
+<ul>
+<li>如果 <code>models check</code> 显示缺文件或缓存不完整，问题通常在模型下载或缓存目录。</li>
+<li>如果 <code>doctor</code> 显示 ONNX Runtime providers 异常，优先说明是否安装 GPU 版、是否设置过 <code>MATHCRAFT_FORCE_ORT_CPU=1</code>。</li>
+<li>如果命令行正常但 GUI 失败，请同时说明设置页中的依赖目录、日志目录和当前选择的识别模型。</li>
+</ul>
 <h1 id="sec-source">从源码运行与开发者常见问题</h1>
 <h2 id="readme-quick-start">README Quick Start 步骤验证</h2>
 <p>README 中提供了三种平台的源码运行步骤，经验证均正确可行：</p>
@@ -1798,7 +1822,6 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h2 id="ji">技术栈差异</h2>
-<div class="block block-gray">
 <p><strong>桌面端</strong></p>
 <ul>
 <li>Python / PyQt6 / PyInstaller</li>
@@ -1815,8 +1838,6 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>Pandoc WASM（格式转换，内嵌在 APK 中）</li>
 <li>pdfjs-dist 4.67（PDF 渲染）</li>
 </ul>
-
-</div>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-ocr">OCR 识别与输入方式</h1>
 <h2 id="shibie">识别引擎架构</h2>
@@ -2144,7 +2165,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label">第四卷 · MathCraft 内部模型介绍</span></div></div>
 
 </div>
-<h2 id="sec-mathcraft-intro">MathCraft OCR 项目介绍</h2>
+<h1 id="sec-mathcraft-intro">MathCraft OCR 项目介绍</h1>
 <p>MathCraft OCR 是 LaTeXSnipper 内置的本地公式、文本与混合文档识别引擎，基于 ONNX Runtime 实现本地推理。模型缓存完整后，截图、图片和 PDF 页面识别都可以离线完成。</p>
 <p><strong>项目地址：</strong></p>
 <ul>
@@ -2177,7 +2198,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 #混合文档识别并输出 Markdown
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
-<h2 id="moxingjiyushibiepeizhi">模型集与识别配置</h2>
+<h1 id="sec-mathcraft-models">模型集与识别配置</h1>
 <p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.4</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
@@ -2204,7 +2225,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 </ul>
 
 </div>
-<h2 id="shibiexiaoguozhanshi">识别效果展示</h2>
+<h1 id="sec-mathcraft-showcase">识别效果展示</h1>
 <p>以下示例来自 MathCraft 的结构化块输出。彩色框标注了检测到的角色、顺序、分栏信息和置信度分数。</p>
 <h3 id="abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</h3>
 <p>公式密集的英文数学论文页面，包含大量行内公式和展示公式。</p>
@@ -2218,7 +2239,7 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 <h3 id="yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</h3>
 <p>稀疏的标题/封面式页面，用于验证版面分析稳定性。</p>
 <div class="center"><img src="assets/images/mathcraft_limits_series.png" alt="" loading="lazy" decoding="async"></div>
-<h2 id="xingnengcankao">性能参考</h2>
+<h1 id="sec-mathcraft-performance">性能参考</h1>
 <p>以下为本地 <code>block_layout_regression_v4</code> 基准测试数据（CUDA 环境）：</p>
 <div class="block block-gray">
 <ul>
@@ -2244,39 +2265,73 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 </ul>
 </div>
 </div>
-<h2 id="sec-envvar">环境变量设置指南</h2>
-<p>许多解决方案需要设置环境变量（如 <code>MATHCRAFT_FORCE_ORT_CPU</code>、<code>MATHCRAFT_HOME</code> 等）：</p>
-<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Windows（永久生效）：
-1. Win+R → 输入 sysdm.cpl → 高级 → 环境变量
-2. 在"用户变量"中新建，变量名填入上面给出的名称，值填入 1 或路径
-
-Windows（仅当前终端）：
-在 PowerShell 中执行：$env:MATHCRAFT_FORCE_ORT_CPU ="1"
-
-Linux / macOS（永久生效）：
-在 ~/.bashrc 或 ~/.zshrc 末尾添加：
-export MATHCRAFT_FORCE_ORT_CPU=1
-然后执行 source ~/.bashrc
-
-Linux / macOS（仅当前终端）：
-export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
+<h1 id="sec-envvar">环境变量设置指南</h1>
+<p>许多排障操作需要临时设置环境变量。注意：桌面端启动时会清理 <code>MATHCRAFT_HOME</code>、<code>PYTHONHOME</code> 和 <code>PYTHONPATH</code>，避免外部 Python 环境污染应用运行时；<code>MATHCRAFT_HOME</code> 主要用于命令行单独运行 <code>mathcraft_ocr</code> 时指定模型缓存目录。</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Windows 永久：Win+R → sysdm.cpl → 高级 → 环境变量 → 用户变量中新建
+Windows 当前终端：$env:MATHCRAFT_FORCE_ORT_CPU ="1"
+Linux/macOS 永久：写入 ~/.bashrc 或 ~/.zshrc 后 source 对应文件
+Linux/macOS 当前终端：export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
 <p><strong>常用环境变量一览：</strong></p>
 <div class="block">
 <ul>
 <li><code>MATHCRAFT_FORCE_ORT_CPU</code> — 设为 <code>1</code> 强制使用 CPU 推理（禁用 GPU）</li>
-<li><code>MATHCRAFT_HOME</code> — 指定 MathCraft 数据目录（模型缓存、配置等）</li>
+<li><code>MATHCRAFT_HOME</code> — 命令行 <code>mathcraft_ocr</code> 使用的模型缓存目录；桌面端会清理该变量</li>
+<li><code>MATHCRAFT_BUNDLED_MODELS_DIR</code> — 定制包或调试时指定包内 MathCraft 模型目录；正式包未预置模型时不需要设置</li>
 <li><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> — 设置代理服务器地址（用于模型下载）</li>
-<li><code>MATHCRAFT_LOG_LEVEL</code> — 日志级别（DEBUG / INFO / WARNING / ERROR）</li>
 <li><code>LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下强制启用 Qt/WebEngine 软件渲染兜底</li>
 <li><code>LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下禁用图形兜底，尝试原生 Qt/GPU 路径</li>
 <li><code>LATEXSNIPPER_SHOW_CONSOLE</code> — Windows 打包版调试时显示或隐藏运行日志窗口</li>
 </ul>
 
 </div>
-<div class="center">
-<p>LaTeXSnipper FAQ · 版本 v2.4.0-LTS · https://github.com/SakuraMathcraft/LaTeXSnipper</p>
+<div class="block">
+<p><strong>模型目录与桌面端行为：</strong></p>
+<p>#table(</p>
+<p>columns: (1.1fr,3.2fr),</p>
+<p>align: horizon,</p>
+<p>[场景],[实际行为],</p>
+<p>[命令行 <code>mathcraft_ocr</code> 默认缓存],[Windows：<code>%APPDATA%\MathCraft\models</code>；Linux：<code>${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models</code>；macOS：<code>~/Library/Application Support/LaTeXSnipper/MathCraft/models</code>],</p>
+<p>[桌面端 MathCraft worker],[启动子进程前会清理 <code>PYTHONHOME</code>、<code>PYTHONPATH</code>、<code>PYTHONSTARTUP</code>、<code>PYTHONEXECUTABLE</code> 和 <code>MATHCRAFT_HOME</code>，并设置 <code>PYTHONNOUSERSITE=1</code>],</p>
+<p>[可选包内模型目录],[如果可执行文件旁或包内实际存在 <code>MathCraft/models</code>，程序会自动设置 <code>MATHCRAFT_BUNDLED_MODELS_DIR</code> 并优先读取；当前发布包未预置模型时会直接使用用户模型缓存],</p>
+<p>[强制 CPU],[<code>MATHCRAFT_FORCE_ORT_CPU=1</code> 会被 ONNX Runtime provider 检测逻辑读取，可用于避开 GPU/CUDA 兼容性问题],</p>
+<p>)</p>
 
 </div>
+<div class="callout info">
+<div class="callout-title">排障判断顺序</div>
+<div class="callout-body"><ul>
+<li>检测到包内 <code>MathCraft/models</code> 时，模型查找顺序是 <strong>包内模型目录</strong> → <strong>用户模型缓存</strong>；包内模型完整时，用户缓存缺失通常不会影响识别。</li>
+<li>如果没有包内模型目录，<code>mathcraft_ocr</code> 会检查用户缓存；缺失或不完整时，运行时会按 manifest 下载或修复。</li>
+<li><code>models check</code> 用来确认模型文件是否完整，<code>doctor --provider auto</code> 用来确认 ONNX Runtime provider，<code>warmup --profile mixed</code> 用来验证公式、文字和混合识别链路。</li>
+<li><code>MATHCRAFT_FORCE_ORT_CPU=1</code> 只改变 ONNX Runtime provider 选择，不改变模型缓存目录；模型路径问题和 GPU/CUDA 问题要分开排查。</li>
+</ul>
+</div>
+</div>
+<p><strong>变量适用边界：</strong></p>
+<table class="typst-table">
+<thead>
+<tr>
+<th>排查目标</th>
+<th>优先检查</th>
+<th>命令行模型缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MATHCRAFT_HOME</code> 和 <code>models check</code>；这只影响单独运行的 <code>mathcraft_ocr</code>。</td>
+<td>桌面端识别失败</td>
+<td>日志目录、当前选择的识别模型，以及 worker 环境；桌面端会清理外部 Python 变量和 <code>MATHCRAFT_HOME</code>。</td>
+</tr>
+<tr>
+<td>GPU / CUDA 异常</td>
+<td><code>doctor --provider auto</code> 与 <code>MATHCRAFT_FORCE_ORT_CPU=1</code>；先确认是否为 provider 问题。</td>
+<td>Linux 黑屏或 WebView 异常</td>
+</tr>
+<tr>
+<td><code>LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS</code> / <code>LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS</code>；它们只影响 Qt/WebEngine 图形路径。</td>
+</tr>
+</tbody>
+</table>
 
 
 <button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部">

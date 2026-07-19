@@ -4,11 +4,11 @@
  */
 
 const GITHUB_OWNER = "strangelion";
-const GITHUB_REPO = "LaTeXSnipper_user_manual";
+const GITHUB_REPO = "LaTeXSnipper_Web";
 
 // 允许的文件扩展名白名单（防止路径遍历和信息泄露）
 const ALLOWED_EXTENSIONS = new Set([
-  "html", "css", "js", "json", "xml", "png", "jpg", "jpeg", "gif", "svg",
+  "html", "css", "js", "mjs", "json", "xml", "txt", "png", "jpg", "jpeg", "gif", "svg",
   "ico", "wasm", "mp4", "webm", "otf", "ttf", "woff2", "typ", "pdf",
 ]);
 
@@ -43,6 +43,7 @@ const MIME_TYPES = {
   html: "text/html; charset=utf-8",
   css: "text/css; charset=utf-8",
   js: "application/javascript; charset=utf-8",
+  mjs: "application/javascript; charset=utf-8",
   json: "application/json; charset=utf-8",
   png: "image/png",
   jpg: "image/jpeg",
@@ -102,13 +103,20 @@ function isSafePath(p) {
   return true;
 }
 
-function securityHeaders(isHtml, isWpsPlugin) {
+function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
+  const allowCamera = path === "/ocr" || path === "/ocr.html";
   const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "X-XSS-Protection": "0",  // 已废弃但保留以兼容旧浏览器
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
+    "Permissions-Policy": [
+      allowCamera ? "camera=(self)" : "camera=()",
+      "microphone=()",
+      "geolocation=()",
+      "payment=()",
+      "usb=()",
+    ].join(", "),
   };
   if (isHtml) {
     if (isWpsPlugin) {
@@ -127,23 +135,67 @@ function securityHeaders(isHtml, isWpsPlugin) {
     } else {
       // COOP/COEP 启用 SharedArrayBuffer（ONNX 多线程加速）
       headers["Cross-Origin-Opener-Policy"] = "same-origin";
-      headers["Cross-Origin-Embedder-Policy"] = "credentialless";
+      headers["Cross-Origin-Embedder-Policy"] = "require-corp";
+      headers["Cross-Origin-Resource-Policy"] = "same-origin";
       // CSP：限制脚本和样式来源
       headers["Content-Security-Policy"] = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net blob:",
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-        "img-src 'self' data: blob: https:",
+        "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
         "font-src 'self'",
-        "connect-src 'self' https: blob:",
+        "connect-src 'self' blob:",
         "worker-src 'self' blob:",
+        "object-src 'none'",
         "frame-ancestors 'none'",
         "base-uri 'self'",
-        "form-action 'none'",
+        "form-action 'self'",
       ].join("; ");
     }
   }
   return headers;
+}
+
+async function proxyBinary(request, upstreamUrl, {
+  cacheControlValue = "public, max-age=31536000, immutable",
+} = {}) {
+  const requestHeaders = new Headers();
+  for (const name of ["Range", "If-None-Match", "If-Modified-Since"]) {
+    const value = request.headers.get(name);
+    if (value) requestHeaders.set(name, value);
+  }
+
+  const upstream = await fetch(upstreamUrl, {
+    method: request.method,
+    headers: requestHeaders,
+  });
+  const headers = new Headers();
+  for (const name of [
+    "Content-Type",
+    "Content-Length",
+    "Content-Range",
+    "Accept-Ranges",
+    "ETag",
+    "Last-Modified",
+  ]) {
+    const value = upstream.headers.get(name);
+    if (value) headers.set(name, value);
+  }
+  headers.set("Cache-Control", cacheControlValue);
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Cross-Origin-Resource-Policy", "same-origin");
+  for (const [name, value] of Object.entries(corsHeaders())) {
+    headers.set(name, value);
+  }
+
+  return new Response(
+    request.method === "HEAD" ? null : upstream.body,
+    {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers,
+    },
+  );
 }
 
 function corsHeaders() {
@@ -306,7 +358,7 @@ function quotaBanner(type, pct) {
 // ── 页面访问统计 ──
 // 内存计数 + 使用与配额相同的刷入策略（每1000次/每1小时）
 
-let pvMemory = {};              // { "/": 10, "/ocr_demo": 5, ... }
+let pvMemory = {};              // { "/": 10, "/ocr": 5, ... }
 let pvMonth = '';               // 当前月份
 let pvLastFlush = 0;            // 上次刷入时间戳
 let pvFlushMark = 0;            // 上次刷入时的总计数
@@ -596,16 +648,27 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       ...corsHeaders(),
-      ...securityHeaders(true),
+      ...securityHeaders(true, false, requestPath || "/"),
     },
   });
   return request ? compressResponse(response, request).catch(() => response) : response;
 }
 
+export {
+  getMimeType,
+  proxyBinary,
+  securityHeaders,
+};
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (path === "/ocr_demo" || path === "/ocr_demo.html") {
+      url.pathname = "/ocr.html";
+      return Response.redirect(url.toString(), 301);
+    }
 
     // ── Office.js Add-in 静态资源 ──
     // Worker-first: /office/* 路径先过 Worker（run_worker_first 配置），再查 ASSETS
@@ -775,17 +838,51 @@ export default {
     }
 
     try {
-      // ── 模型文件代理（R2）──
-      // 通过 Worker 代理模型文件，避免暴露 R2 直链
-      // 仅允许从本站页面访问，防止恶意下载
+      // ── 自托管浏览器运行时 ──
+      // 直接从 Workers Static Assets 流式返回，避免通过 GitHub Raw 中转或缓冲 WASM。
+      if (path.startsWith("/core-wasm/") || path.startsWith("/vendor/")) {
+        if (request.method !== "GET" && request.method !== "HEAD") {
+          return new Response("Method Not Allowed", { status: 405 });
+        }
+        const asset = await env.ASSETS.fetch(request);
+        if (!asset.ok) return asset;
+        const headers = new Headers(asset.headers);
+        headers.set("Content-Type", getMimeType(path));
+        headers.set("Cache-Control", "public, max-age=31536000, immutable");
+        headers.set("X-Content-Type-Options", "nosniff");
+        headers.set("Cross-Origin-Resource-Policy", "same-origin");
+        return new Response(isHead ? null : asset.body, {
+          status: asset.status,
+          statusText: asset.statusText,
+          headers,
+        });
+      }
+
+      // ── Core 官方模型 Release 代理 ──
+      // 固定 tag 与文件名白名单，避免把同源代理变成开放转发器。
+      if (path.startsWith("/models/core/models-v2.0.0/")) {
+        if (request.method !== "GET" && request.method !== "HEAD") {
+          return new Response("Method Not Allowed", { status: 405, headers: { "Allow": "GET, HEAD" } });
+        }
+        const asset = path.slice("/models/core/models-v2.0.0/".length);
+        if (!/^latexsnipper-[a-z0-9-]+\.zip$/.test(asset)) {
+          return new Response("Model asset not found", { status: 404 });
+        }
+        const releaseBase = env.CORE_MODEL_BASE ||
+          "https://github.com/strangelion/latexsnipper-core/releases/download/models-v2.0.0";
+        return proxyBinary(request, `${releaseBase}/${asset}`, {
+          cacheControlValue: "public, max-age=31536000, immutable",
+        });
+      }
+
+      // ── 旧版模型文件代理（R2）──
+      // 公开模型由同源 Worker 流式代理，并完整透传 Range/ETag。
       if (path.startsWith("/models/")) {
-        const referer = request.headers.get("Referer") || "";
-        const origin = url.origin;
-        // 仅允许本站页面或无 Referer（浏览器直接访问）
-        if (referer && !referer.startsWith(origin)) {
-          return renderErrorPage(403, "禁止访问",
-            "模型文件仅允许从本站页面加载。请访问 ocr_demo.html 使用在线识别功能。",
-            path, request);
+        if (request.method !== "GET" && request.method !== "HEAD") {
+          return new Response("Method Not Allowed", {
+            status: 405,
+            headers: { "Allow": "GET, HEAD" },
+          });
         }
 
         // 频率限制：模型文件较大，单独限制
@@ -818,26 +915,11 @@ export default {
         // R2 模型存储 URL（从环境变量或使用默认值）
         const R2_MODEL_BASE = env.R2_MODEL_BASE || "https://release.interknot.dpdns.org";
         const modelUrl = R2_MODEL_BASE + path;
-        const modelResp = await fetch(modelUrl);
-
-        if (!modelResp.ok) {
-          return renderErrorPage(404, "模型文件未找到",
-            "模型文件尚未部署到 R2。请联系管理员。",
-            path, request);
-        }
-
-        const modelContent = await modelResp.arrayBuffer();
 
         // 追踪 B 类操作（R2 配额管理）
         quotaTrackOp(env, ctx);
-
-        return new Response(modelContent, {
-          headers: {
-            "Content-Type": "application/octet-stream",
-            "Cache-Control": "public, max-age=86400, s-maxage=604800",
-            ...corsHeaders(),
-            ...securityHeaders(false),
-          },
+        return proxyBinary(request, modelUrl, {
+          cacheControlValue: "public, max-age=31536000, immutable",
         });
       }
 
@@ -939,7 +1021,7 @@ export default {
             'https://github.com/SakuraMathcraft/LaTeXSnipper/releases');
           content = content.replace('<body>', '<body>' + quotaBanner('block', pageQuota.pctUsed));
         }
-      } else if (filePath.endsWith('ocr_demo.html') || filePath === 'dist/ocr_demo.html') {
+      } else if (filePath.endsWith('ocr.html') || filePath === 'dist/ocr.html') {
         pageQuota = await quotaGetStatus(env);
         if (pageQuota.isWarn) {
           content = content.replace('<body>', '<body>' + quotaBanner('warn', pageQuota.pctUsed));
@@ -952,7 +1034,7 @@ export default {
       "Content-Type": mimeType,
       "Cache-Control": cacheControl(filePath),
       ...corsHeaders(),
-      ...securityHeaders(isHtml, isWpsPlugin),
+      ...securityHeaders(isHtml, isWpsPlugin, path),
     };
 
     // 预览分支 HTML 注入横幅（分支名已在上层转义）

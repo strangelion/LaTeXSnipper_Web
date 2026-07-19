@@ -1,30 +1,30 @@
 /* ===== 主题调色板 ===== */
-/* 冷色系（默认） - 现代、清爽 */
+/* Paper / engineering drawing aesthetic */
 :root {
-  --bg: #f6fbff;
-  --fg: #0b1220;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --muted: #6b7280;
+  --bg: #f6f5f1;
+  --fg: #18202c;
+  --accent: #1769aa;
+  --accent-hover: #0f548d;
+  --muted: #667085;
   --max-w: 960px;
-  --hdr-bg: rgba(255, 255, 255, 0.75);
-  --ftr-bg: rgba(255, 255, 255, 0.75);
-  --border-color: #e6eef8;
-  --text-shadow: 0 0 16px rgba(2, 6, 23, 0.06);
-  --canvas-bg: #eef6fb;
-  --card-bg: rgba(255, 255, 255, 0.9);
-  --card-border: rgba(255, 255, 255, 0.95);
+  --hdr-bg: rgba(246, 245, 241, 0.82);
+  --ftr-bg: #f6f5f1;
+  --border-color: rgba(24, 32, 44, 0.14);
+  --text-shadow: none;
+  --canvas-bg: #f6f5f1;
+  --card-bg: #fbfaf7;
+  --card-border: rgba(24, 32, 44, 0.10);
   --card-text: #475569;
-  --card-shadow: 0 8px 32px rgba(2, 6, 23, 0.06);
-  --card-shadow-hover: 0 16px 48px rgba(2, 6, 23, 0.12);
+  --card-shadow: 0 4px 16px rgba(24, 32, 44, 0.06);
+  --card-shadow-hover: 0 8px 28px rgba(24, 32, 44, 0.10);
 
-  /* Canvas / 背景渐变色 */
-  --bg1: #f7fbff;
-  --bg2: #e6eef8;
-  --bg3: #cfe6f2;
-  --grid-color: rgba(100, 116, 139, 0.06);
-  --symbol-color: rgba(30, 41, 59, 0.95);
-  --formula-color: rgba(30, 41, 59, 0.9);
+  /* Canvas / grid */
+  --bg1: #f6f5f1;
+  --bg2: #ebe9e3;
+  --bg3: #ddd9d1;
+  --grid-color: rgba(23, 105, 170, 0.07);
+  --symbol-color: rgba(24, 32, 44, 0.95);
+  --formula-color: rgba(24, 32, 44, 0.9);
 }
 
 html {
@@ -127,48 +127,48 @@ main {
 /* ===== 暗色模式 ===== */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0b1220;
-    --fg: #e6eef8;
-    --muted: #94a3b8;
-    --accent: #60a5fa;
-    --accent-hover: #3b82f6;
-    --hdr-bg: rgba(11, 18, 32, 0.82);
-    --ftr-bg: rgba(11, 18, 32, 0.72);
-    --border-color: #0f1724;
-    --text-shadow: 0 0 16px rgba(0, 0, 0, 0.45);
-    --canvas-bg: #0f1724;
-    --card-bg: rgba(18, 24, 36, 0.86);
-    --card-border: rgba(18, 24, 36, 0.92);
-    --card-text: #94a3b8;
+    --bg: #11151b;
+    --fg: #ecf0f6;
+    --muted: #9aa4b2;
+    --accent: #68aee8;
+    --accent-hover: #8bc4f1;
+    --hdr-bg: rgba(17, 21, 27, 0.88);
+    --ftr-bg: #11151b;
+    --border-color: rgba(236, 240, 246, 0.12);
+    --text-shadow: none;
+    --canvas-bg: #11151b;
+    --card-bg: #171c24;
+    --card-border: rgba(236, 240, 246, 0.08);
+    --card-text: #9aa4b2;
     --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
 
-    /* Canvas / 背景渐变色（Dark） */
-    --bg1: #0b1220;
-    --bg2: #121827;
-    --bg3: #223047;
-    --grid-color: rgba(148, 163, 184, 0.06);
-    --symbol-color: rgba(148, 163, 184, 0.9);
+    /* Canvas / grid (Dark) */
+    --bg1: #11151b;
+    --bg2: #171c24;
+    --bg3: #1e2530;
+    --grid-color: rgba(104, 174, 232, 0.07);
+    --symbol-color: rgba(156, 174, 200, 0.9);
     --formula-color: rgba(148, 163, 184, 0.8);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0f111a;
-  --fg: #e2e8f0;
-  --muted: #94a3b8;
-  --accent: #60a5fa;
-  --accent-hover: #3b82f6;
-  --hdr-bg: rgba(15, 17, 26, 0.82);
-  --ftr-bg: rgba(15, 17, 26, 0.7);
-  --border-color: #1e293b;
-  --text-shadow: 0 0 20px rgba(0, 0, 0, 0.45);
-  --canvas-bg: #181c26;
-  --card-bg: rgba(30, 34, 48, 0.82);
-  --card-border: rgba(30, 34, 48, 0.9);
-  --card-text: #94a3b8;
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --bg: #11151b;
+  --fg: #ecf0f6;
+  --muted: #9aa4b2;
+  --accent: #68aee8;
+  --accent-hover: #8bc4f1;
+  --hdr-bg: rgba(17, 21, 27, 0.88);
+  --ftr-bg: #11151b;
+  --border-color: rgba(236, 240, 246, 0.12);
+  --text-shadow: none;
+  --canvas-bg: #11151b;
+  --card-bg: #171c24;
+  --card-border: rgba(236, 240, 246, 0.08);
+  --card-text: #9aa4b2;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --card-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 
 .theme-toggle {
