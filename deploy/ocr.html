@@ -82,7 +82,7 @@
 
   <!-- ═══ 图片识别模式：拖拽区 + 拍照 ═══ -->
   <div class="ocr-workspace-shell lg-surface lg-surface--panel"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-  <div class="drop-zone standard-surface" id="dropZone">
+  <div class="drop-zone" data-lg-surface="panel" data-lg-interactive="true" id="dropZone">
     <input type="file" id="fileInput" accept="image/*,.pdf">
     <div id="dropContent">
       <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
@@ -130,7 +130,7 @@
   </div>
 
   <!-- ═══ 识别结果 ═══ -->
-  <div class="result-card lg-surface lg-surface--panel" id="resultCard"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><div class="result-standard standard-surface">
+  <div class="result-card lg-surface lg-surface--panel" id="resultCard"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><div class="result-standard">
     <div class="result-header">
       <span class="label">识别结果</span>
       <div class="result-tools">
@@ -168,5 +168,4 @@ MathJax = {
 <script type="module" src="js/ocr.js"></script>
 </body>
 </html>
-
 

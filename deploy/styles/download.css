@@ -234,8 +234,21 @@
   margin-top: auto;
 }
 
+.download-btn.lg-surface {
+  min-width: 170px;
+  min-height: 46px;
+  padding: 0 20px;
+  color: var(--site-blue-ink);
+  font-size: 0.93rem;
+  font-weight: 750;
+  text-align: center;
+  text-decoration: none;
+}
+
 .download-btn > .lg-content {
-  display: inline-flex;
+  width: 100%;
+  min-height: 44px;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -499,5 +512,3 @@
     left: 12px;
   }
 }
-
-

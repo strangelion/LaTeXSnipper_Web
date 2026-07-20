@@ -118,6 +118,11 @@ textarea:focus-visible,
   display: contents;
 }
 
+.site-header-inner > .lg-content > * {
+  position: relative;
+  z-index: 2;
+}
+
 .site-brand,
 .brand-link {
   flex: 0 0 auto;
@@ -145,6 +150,11 @@ textarea:focus-visible,
 
 .site-navigation {
   margin-left: auto;
+}
+
+.site-navigation:not(.lg-surface) > .lg-backdrop,
+.site-navigation:not(.lg-surface) > .lg-optics {
+  display: none;
 }
 
 .site-navigation > .lg-content {

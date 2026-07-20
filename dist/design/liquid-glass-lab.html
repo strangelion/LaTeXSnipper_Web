@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Liquid Glass Engine V2 Lab</title>
+  <title>Liquid Glass Engine V2.1 Lab</title>
   <link rel="stylesheet" href="/styles/site-tokens.css">
   <link rel="stylesheet" href="/styles/liquid-glass.css">
   <link rel="stylesheet" href="/styles/liquid-glass-lab.css">
@@ -12,11 +12,11 @@
 <body>
   <main class="lab-shell">
     <header class="lab-heading">
-      <div><p>DEVELOPMENT MATERIAL LAB</p><h1>Liquid Glass Engine V2</h1></div>
+      <div><p>DEVELOPMENT MATERIAL LAB</p><h1>Liquid Glass Engine V2.1</h1></div>
       <aside class="engine-readout" aria-live="polite"><strong>Current Engine</strong><code id="engineName">检测中</code><span id="engineDetails"></span></aside>
     </header>
 
-    <section class="lab-controls standard-surface" aria-label="材质调试开关">
+    <section class="lab-controls" data-lg-surface="control" aria-label="材质调试开关">
       <label><input type="checkbox" data-debug-toggle="blur" checked> Blur</label>
       <label><input type="checkbox" data-debug-toggle="refraction" checked> Refraction</label>
       <label><input type="checkbox" data-debug-toggle="optics" checked> Optics</label>
@@ -30,7 +30,7 @@
       <div class="scene-line line-a" aria-hidden="true"></div><div class="scene-line line-b" aria-hidden="true"></div>
 
       <div class="material-stack">
-        <div class="lab-navigation lg-surface lg-surface--navigation" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><strong>Navigation · Regular</strong><span>7px stabilization</span></div></div>
+        <div class="lab-navigation lg-surface lg-surface--navigation" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><strong>Navigation · Regular</strong><span>6px transmission</span></div></div>
         <div class="lab-row">
           <button class="lab-control lg-surface lg-surface--clear" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">Clear Control</span></button>
           <button class="lab-control lg-surface lg-surface--control" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">Regular Control</span></button>

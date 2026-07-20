@@ -41,7 +41,7 @@
     const chromium = /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent) && !/(?:Firefox|FxiOS)\//.test(navigator.userAgent);
     const referenceParsed = CSS.supports('backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)')
       || CSS.supports('-webkit-backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)');
-    const enhanced = chromium && referenceParsed;
+    const enhanced = root.getAttribute('data-lg-enable-svg') === 'true' && chromium && referenceParsed;
     root.setAttribute('data-liquid-engine', enhanced ? 'svg-backdrop-refraction' : 'optical-fallback');
     root.setAttribute('data-lg-backdrop-supported', String(CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)')));
     root.setAttribute('data-lg-svg-reference-enabled', String(enhanced));
@@ -56,6 +56,9 @@
 
   ensureLiquidGlassFilterDefs();
   selectLiquidEngine();
+  document.querySelectorAll('[data-lg-surface]').forEach((element) => {
+    decorateLiquidSurface(element, element.dataset.lgSurface || 'regular', element.dataset.lgInteractive === 'true');
+  });
   syncMobileNavigationMaterials();
   mobileNavigationQuery.addEventListener('change', syncMobileNavigationMaterials);
   window.LaTeXSnipperLiquid = Object.freeze({ ensureLiquidGlassFilterDefs, decorateLiquidSurface });
@@ -121,7 +124,7 @@
   let previousScrollY = window.scrollY;
   function updateHeaders() {
     const currentScrollY = window.scrollY;
-    const scrolled = currentScrollY > 18;
+    const scrolled = currentScrollY > 40;
     const manualPage = document.body.classList.contains('manual');
     const movingDown = currentScrollY > previousScrollY + 3;
     const movingUp = currentScrollY < previousScrollY - 3;

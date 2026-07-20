@@ -56,6 +56,9 @@
 
   ensureLiquidGlassFilterDefs();
   selectLiquidEngine();
+  document.querySelectorAll('[data-lg-surface]').forEach((element) => {
+    decorateLiquidSurface(element, element.dataset.lgSurface || 'regular', element.dataset.lgInteractive === 'true');
+  });
   syncMobileNavigationMaterials();
   mobileNavigationQuery.addEventListener('change', syncMobileNavigationMaterials);
   window.LaTeXSnipperLiquid = Object.freeze({ ensureLiquidGlassFilterDefs, decorateLiquidSurface });
@@ -121,7 +124,7 @@
   let previousScrollY = window.scrollY;
   function updateHeaders() {
     const currentScrollY = window.scrollY;
-    const scrolled = currentScrollY > 18;
+    const scrolled = currentScrollY > 40;
     const manualPage = document.body.classList.contains('manual');
     const movingDown = currentScrollY > previousScrollY + 3;
     const movingUp = currentScrollY < previousScrollY - 3;

@@ -8,6 +8,7 @@ button { color: inherit; font: inherit; }
 .engine-readout { max-width: 420px; display: grid; gap: 5px; color: var(--site-muted); font-size: .78rem; }
 .engine-readout code { color: var(--site-blue-bright); font-weight: 700; }
 .lab-controls { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-bottom: 18px; padding: 14px 18px; border-radius: 14px; }
+.lab-controls > .lg-content { display: flex; flex-wrap: wrap; gap: 10px 24px; }
 .lab-controls label { display: flex; align-items: center; gap: 7px; font-weight: 650; }
 .lab-scene { position: relative; min-height: 720px; overflow: hidden; border: 1px solid rgba(185,210,242,.12); border-radius: 28px; background: linear-gradient(145deg,#172131,#243c54); }
 .scene-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(190,220,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(190,220,255,.12) 1px,transparent 1px); background-size: 52px 52px; }

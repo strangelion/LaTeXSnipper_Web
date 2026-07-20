@@ -125,7 +125,7 @@ test('homepage keeps mobile navigation text visually hidden and constrains hero 
   assert.match(landingStyles, /@media \(max-width: 720px\)[\s\S]*\.hero-mascot\s*\{[\s\S]*display:\s*block/);
 });
 
-test('liquid glass V2 separates backdrop processing from foreground optics', () => {
+test('liquid glass V2.1 separates backdrop processing from restrained foreground optics', () => {
   assert.match(landingSource, /function LiquidGlassSurface/);
   assert.match(landingSource, /id="liquid-backdrop-refraction"/);
   assert.match(landingSource, /className="lg-backdrop"/);
@@ -141,9 +141,11 @@ test('liquid glass V2 separates backdrop processing from foreground optics', () 
   assert.match(liquidGlassStyles, /\.lg-surface--overlay/);
   assert.match(liquidGlassStyles, /html\[data-liquid-debug="no-blur"\]/);
   assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
-  assert.match(landingSource, /className="formula-sheet standard-surface"/);
+  assert.match(landingSource, /<LiquidGlassSurface className="formula-sheet" thickness="panel">/);
   assert.match(landingSource, /assets\/formula-gaussian-integral\.svg/);
-  assert.match(landingStyles, /\.download-cta-panel\s*\{[\s\S]*background:\s*var\(--ls-surface-strong\)/);
+  assert.doesNotMatch(liquidGlassStyles, /radial-gradient/);
+  assert.match(liquidGlassStyles, /\.lg-specular\s*\{[\s\S]*linear-gradient/);
+  assert.match(landingStyles, /\.download-cta-panel > \.lg-content\s*\{[\s\S]*display:\s*flex/);
 });
 
 test('release manifest declares only safe, verifiable direct download assets', () => {
@@ -238,12 +240,13 @@ test('static pages share one filter injector and no fake glass shortcuts', () =>
   }
 });
 
-test('homepage header keeps a plain desktop navigation inside one condensing material surface', () => {
-  assert.match(landingSource, /data-lg-condense="true"/);
+test('homepage header uses the regular material at rest and on scroll', () => {
+  assert.doesNotMatch(landingSource, /data-lg-condense="true"/);
+  assert.match(landingSource, /<LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation">/);
   assert.match(landingSource, /<nav id="site-navigation" className=/);
   assert.doesNotMatch(landingSource, /<LiquidGlassSurface as="nav"/);
-  assert.match(liquidGlassStyles, /\.lg-surface\[data-lg-condense="true"\][\s\S]*--lg-blur:\s*0px/);
-  assert.match(liquidGlassStyles, /\.is-scrolled \.lg-surface\[data-lg-condense="true"\]/);
+  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-blur:\s*6px/);
+  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-tint-strength:\s*0\.1/);
 });
 
 test('lab exposes blur, refraction, optics, and tint debug switches', () => {

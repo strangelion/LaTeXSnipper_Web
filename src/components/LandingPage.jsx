@@ -128,7 +128,7 @@ function SiteHeader() {
 
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
-      <LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation" data-lg-condense="true">
+      <LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation">
         <a className="site-brand" href="/" aria-label="LaTeXSnipper 首页">
           <img src="/assets/images/icon-96.png" width="32" height="32" alt="" />
           <span>LaTeXSnipper</span>
@@ -194,14 +194,14 @@ function HeroSection() {
           <div className="hero-math-layer">
             <div className="hero-orbit hero-orbit-one" aria-hidden="true" />
             <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
-            <div className="formula-sheet standard-surface">
+            <LiquidGlassSurface className="formula-sheet" thickness="panel">
               <span className="formula-sheet-label">DOCUMENT AST</span>
               <div className="formula-display">
                 <img src="/assets/formula-gaussian-integral.svg" alt="从零到无穷的 e 的负 x 平方积分，等于根号派除以二" />
               </div>
               <div className="formula-source">\int_0^\infty e^&#123;-x^2&#125;\,dx</div>
               <div className="formula-sheet-status"><span /> Editable mathematical semantics</div>
-            </div>
+            </LiquidGlassSurface>
             <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-latex">LaTeX</LiquidGlassSurface>
             <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-typst">Typst</LiquidGlassSurface>
             <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-omml">OMML</LiquidGlassSurface>
@@ -301,11 +301,11 @@ function ConversionUniverse() {
             {Object.keys(conversionExamples).map((item) => <button key={item} type="button" className={format === item ? 'is-active' : ''} onClick={() => setFormat(item)} aria-pressed={format === item}>{item}</button>)}
           </div>
         </div>
-        <div className="conversion-console standard-surface reveal">
+        <LiquidGlassSurface className="conversion-console reveal" thickness="panel">
           <div><span>Example output</span><strong>{format}</strong></div>
           <pre><code>{conversionExamples[format]}</code></pre>
           <p>语义转换以统一 Document AST 为中心；不同格式有明确的稳定性与保真度等级。</p>
-        </div>
+        </LiquidGlassSurface>
       </div>
     </section>
   );
@@ -322,13 +322,13 @@ function EcosystemSection() {
         <SectionHeading eyebrow="清楚的生态边界" title="一个工作空间，四个独立项目。" description="版本、维护者和许可证分别标注；不将独立项目的能力混入 Desktop 描述。" />
         <div className="ecosystem-grid">
           {ecosystemProjects.map((project) => (
-            <article className="ecosystem-card standard-surface reveal" key={project.repository}>
+            <LiquidGlassSurface as="article" className="ecosystem-card reveal" thickness="panel" key={project.repository}>
               <div className="ecosystem-topline"><span>{project.scope}</span><StatusBadge>{project.status}</StatusBadge></div>
               <h3>{project.name}</h3>
               <p>{project.description}</p>
               <dl><div><dt>版本</dt><dd>{project.version}</dd></div><div><dt>维护者</dt><dd>{project.author}</dd></div><div><dt>许可证</dt><dd>{project.license}</dd></div></dl>
               <a className="text-link" href={project.href} target="_blank" rel="noopener noreferrer">查看仓库 <span aria-hidden="true">↗</span></a>
-            </article>
+            </LiquidGlassSurface>
           ))}
         </div>
       </div>
@@ -350,7 +350,7 @@ function PrivacySection() {
 function DownloadCta() {
   const { release } = useReleaseInfo();
   return (
-    <section className="section-space download-cta"><div className="ls-container download-cta-panel standard-surface reveal"><div><span>DESKTOP {release.version} {release.channel}</span><h2>从下载中心开始，选择适合你的平台。</h2><p>下载中心只显示经过 release manifest 验证的实际资产，并保留独立生态项目的边界。</p></div><a className="button button-primary" href="/download.html">前往下载中心</a></div></section>
+    <section className="section-space download-cta"><LiquidGlassSurface className="ls-container download-cta-panel reveal" thickness="panel"><div><span>DESKTOP {release.version} {release.channel}</span><h2>从下载中心开始，选择适合你的平台。</h2><p>下载中心只显示经过 release manifest 验证的实际资产，并保留独立生态项目的边界。</p></div><a className="button button-primary" href="/download.html">前往下载中心</a></LiquidGlassSurface></section>
   );
 }
 
