@@ -4,9 +4,10 @@
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const mobileNavigationQuery = window.matchMedia('(max-width: 820px)');
 
   function ensureLiquidGlassFilterDefs() {
-    if (document.getElementById('liquid-edge-refraction')) return;
+    if (document.getElementById('liquid-backdrop-refraction')) return;
     const namespace = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(namespace, 'svg');
     svg.setAttribute('class', 'liquid-filter-defs');
@@ -14,26 +15,49 @@
     svg.setAttribute('height', '0');
     svg.setAttribute('aria-hidden', 'true');
     svg.setAttribute('focusable', 'false');
-    svg.innerHTML = '<defs><filter id="liquid-edge-refraction" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="1" seed="7" result="edgeNoise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="edgeNoise" scale="1.6" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap></filter></defs>';
+    svg.innerHTML = '<defs><filter id="liquid-backdrop-refraction" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.006 0.009" numOctaves="1" seed="7" result="backdropNoise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="backdropNoise" scale="1.4" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap></filter></defs>';
     document.body.prepend(svg);
   }
 
   function decorateLiquidSurface(element, variant = 'panel', interactive = false) {
-    if (!element || element.classList.contains('liquid-surface')) return element;
+    if (!element || element.classList.contains('lg-surface')) return element;
+    const backdrop = document.createElement('span');
+    backdrop.className = 'lg-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
     const optics = document.createElement('span');
-    optics.className = 'liquid-glass__optics';
+    optics.className = 'lg-optics';
     optics.setAttribute('aria-hidden', 'true');
-    optics.innerHTML = '<span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span>';
+    optics.innerHTML = '<span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span>';
     const content = document.createElement(element.tagName === 'SPAN' ? 'span' : 'div');
-    content.className = 'liquid-glass__content';
+    content.className = 'lg-content';
     while (element.firstChild) content.appendChild(element.firstChild);
-    element.append(optics, content);
-    element.classList.add('liquid-surface', `liquid-surface--${variant}`);
-    if (interactive) element.dataset.liquidInteractive = 'true';
+    element.append(backdrop, optics, content);
+    element.classList.add('lg-surface', `lg-surface--${variant}`);
+    if (interactive) element.dataset.lgInteractive = 'true';
     return element;
   }
 
+  function selectLiquidEngine() {
+    const chromium = /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent) && !/(?:Firefox|FxiOS)\//.test(navigator.userAgent);
+    const referenceParsed = CSS.supports('backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)')
+      || CSS.supports('-webkit-backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)');
+    const enhanced = root.getAttribute('data-lg-enable-svg') === 'true' && chromium && referenceParsed;
+    root.setAttribute('data-liquid-engine', enhanced ? 'svg-backdrop-refraction' : 'optical-fallback');
+    root.setAttribute('data-lg-backdrop-supported', String(CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)')));
+    root.setAttribute('data-lg-svg-reference-enabled', String(enhanced));
+  }
+
+  function syncMobileNavigationMaterials() {
+    document.querySelectorAll('[data-lg-mobile-panel]').forEach((navigation) => {
+      navigation.classList.toggle('lg-surface', mobileNavigationQuery.matches);
+      navigation.classList.toggle('lg-surface--panel', mobileNavigationQuery.matches);
+    });
+  }
+
   ensureLiquidGlassFilterDefs();
+  selectLiquidEngine();
+  syncMobileNavigationMaterials();
+  mobileNavigationQuery.addEventListener('change', syncMobileNavigationMaterials);
   window.LaTeXSnipperLiquid = Object.freeze({ ensureLiquidGlassFilterDefs, decorateLiquidSurface });
 
   const icons = {
@@ -135,7 +159,7 @@
     });
   });
 
-  const highlightSelector = '.liquid-surface[data-liquid-interactive="true"]';
+  const highlightSelector = '.lg-surface[data-lg-interactive="true"]';
 
   let frame = 0;
   let pending = null;
@@ -149,10 +173,10 @@
     if (!rect.width || !rect.height) return;
     const x = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
     const y = Math.max(0, Math.min(100, ((clientY - rect.top) / rect.height) * 100));
-    element.style.setProperty('--glass-x', `${x.toFixed(2)}%`);
-    element.style.setProperty('--glass-y', `${y.toFixed(2)}%`);
-    element.style.setProperty('--glass-dx', ((x - 50) / 50).toFixed(3));
-    element.style.setProperty('--glass-dy', ((y - 50) / 50).toFixed(3));
+    element.style.setProperty('--lg-pointer-x', `${x.toFixed(2)}%`);
+    element.style.setProperty('--lg-pointer-y', `${y.toFixed(2)}%`);
+    element.style.setProperty('--lg-pointer-dx', ((x - 50) / 50).toFixed(3));
+    element.style.setProperty('--lg-pointer-dy', ((y - 50) / 50).toFixed(3));
     element.classList.add('is-pointer-lit');
   }
 
@@ -168,9 +192,9 @@
     const element = event.target.closest(highlightSelector);
     if (!element || element.contains(event.relatedTarget)) return;
     element.classList.remove('is-pointer-lit');
-    element.style.removeProperty('--glass-x');
-    element.style.removeProperty('--glass-y');
-    element.style.removeProperty('--glass-dx');
-    element.style.removeProperty('--glass-dy');
+    element.style.removeProperty('--lg-pointer-x');
+    element.style.removeProperty('--lg-pointer-y');
+    element.style.removeProperty('--lg-pointer-dx');
+    element.style.removeProperty('--lg-pointer-dy');
   }, { passive: true });
 })();

@@ -29,13 +29,14 @@ const conversionExamples = {
 function LiquidGlassSurface({ as: Tag = 'div', className = '', thickness = 'floating', children, interactive = false, ...props }) {
   const ContentTag = Tag === 'span' ? 'span' : 'div';
   return (
-    <Tag className={`liquid-surface liquid-surface--${thickness} ${className}`.trim()} data-liquid-interactive={interactive ? 'true' : undefined} {...props}>
-      <span className="liquid-glass__optics" aria-hidden="true">
-        <span className="liquid-glass__tint" />
-        <span className="liquid-glass__shine" />
-        <span className="liquid-glass__edge" />
+    <Tag className={`lg-surface lg-surface--${thickness} ${className}`.trim()} data-lg-interactive={interactive ? 'true' : undefined} {...props}>
+      <span className="lg-backdrop" aria-hidden="true" />
+      <span className="lg-optics" aria-hidden="true">
+        <span className="lg-caustic" />
+        <span className="lg-specular" />
+        <span className="lg-rim" />
       </span>
-      <ContentTag className="liquid-glass__content">{children}</ContentTag>
+      <ContentTag className="lg-content">{children}</ContentTag>
     </Tag>
   );
 }
@@ -44,9 +45,9 @@ function LiquidGlassFilter() {
   return (
     <svg className="liquid-filter-defs" width="0" height="0" aria-hidden="true" focusable="false">
       <defs>
-        <filter id="liquid-edge-refraction" x="-8%" y="-8%" width="116%" height="116%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="1" seed="7" result="edgeNoise" />
-          <feDisplacementMap in="SourceGraphic" in2="edgeNoise" scale="1.6" xChannelSelector="R" yChannelSelector="B" />
+        <filter id="liquid-backdrop-refraction" x="-6%" y="-6%" width="112%" height="112%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.006 0.009" numOctaves="1" seed="7" result="backdropNoise" />
+          <feDisplacementMap in="SourceGraphic" in2="backdropNoise" scale="1.4" xChannelSelector="R" yChannelSelector="B" />
         </filter>
       </defs>
     </svg>
@@ -105,6 +106,7 @@ function ThemeIcon({ theme }) {
 function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuMaterial, setMobileMenuMaterial] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
@@ -114,11 +116,19 @@ function SiteHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 820px)');
+    const sync = () => setMobileMenuMaterial(query.matches);
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
-      <LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation">
+      <LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation" data-lg-condense="true">
         <a className="site-brand" href="/" aria-label="LaTeXSnipper 首页">
           <img src="/assets/images/icon-96.png" width="32" height="32" alt="" />
           <span>LaTeXSnipper</span>
@@ -133,7 +143,10 @@ function SiteHeader() {
           <span className="sr-only">打开或关闭导航</span>
           <span /><span /><span />
         </button>
-        <LiquidGlassSurface as="nav" thickness="panel" id="site-navigation" className={`site-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="主导航" data-liquid-mobile="true">
+        <nav id="site-navigation" className={`site-navigation ${mobileMenuMaterial ? 'lg-surface lg-surface--panel' : ''} ${menuOpen ? 'is-open' : ''}`.trim()} aria-label="主导航">
+          <span className="lg-backdrop" aria-hidden="true" />
+          <span className="lg-optics" aria-hidden="true"><span className="lg-caustic" /><span className="lg-specular" /><span className="lg-rim" /></span>
+          <div className="lg-content">
           <a href="#product" onClick={closeMenu}>产品</a>
           <a href="#workflow" onClick={closeMenu}>工作流</a>
           <a href="#ecosystem" onClick={closeMenu}>生态</a>
@@ -143,7 +156,8 @@ function SiteHeader() {
             <ThemeIcon theme={theme} />
           </button>
           <a className="site-download-link" href="/download.html" onClick={closeMenu}>下载</a>
-        </LiquidGlassSurface>
+          </div>
+        </nav>
       </LiquidGlassSurface>
     </header>
   );
@@ -188,9 +202,9 @@ function HeroSection() {
               <div className="formula-source">\int_0^\infty e^&#123;-x^2&#125;\,dx</div>
               <div className="formula-sheet-status"><span /> Editable mathematical semantics</div>
             </div>
-            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-latex">LaTeX</LiquidGlassSurface>
-            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-typst">Typst</LiquidGlassSurface>
-            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-omml">OMML</LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-latex">LaTeX</LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-typst">Typst</LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="clear" interactive className="format-node node-omml">OMML</LiquidGlassSurface>
             <LiquidGlassSurface thickness="floating" interactive className="hero-float-card float-ocr"><strong>MathCraft OCR</strong><span>Local-first recognition</span></LiquidGlassSurface>
             <LiquidGlassSurface thickness="floating" interactive className="hero-float-card float-core"><strong>Core 3</strong><span>Unified Document AST</span></LiquidGlassSurface>
           </div>

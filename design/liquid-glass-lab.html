@@ -1,33 +1,64 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-lg-enable-svg="true">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liquid Glass Lab — LaTeXSnipper</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Liquid Glass Engine V2 Lab</title>
   <link rel="stylesheet" href="/styles/site-tokens.css">
   <link rel="stylesheet" href="/styles/liquid-glass.css">
   <link rel="stylesheet" href="/styles/liquid-glass-lab.css">
   <script src="/js/product-shell.js" defer></script>
 </head>
-<body class="lab-page">
-  <main class="lab-main">
-    <header class="lab-heading"><p>DEVELOPMENT MATERIAL REFERENCE</p><h1>Liquid Glass Lab</h1><span>主页 Header 是唯一 Golden Reference；本页不进入主导航。</span></header>
-    <div class="lab-themes">
-      <section class="lab-theme lab-theme--light" aria-labelledby="lab-light-title">
-        <h2 id="lab-light-title">Light environment</h2><div class="lab-ambient lab-ambient--one"></div><div class="lab-ambient lab-ambient--two"></div>
-        <div class="lab-navigation liquid-surface liquid-surface--navigation" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Navigation</strong><span>Golden material</span></div></div>
-        <div class="lab-row"><button class="lab-control liquid-surface liquid-surface--control" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">Control</span></button><div class="lab-floating liquid-surface liquid-surface--floating" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Floating</strong><span>High rim</span></div></div></div>
-        <div class="lab-panel liquid-surface liquid-surface--panel"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Panel</strong><p>Readable content over transmitted ambient fields.</p></div></div>
-        <div class="lab-overlay liquid-surface liquid-surface--overlay"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">Overlay</div></div>
-      </section>
-      <section class="lab-theme lab-theme--dark" aria-labelledby="lab-dark-title">
-        <h2 id="lab-dark-title">Dark environment</h2><div class="lab-ambient lab-ambient--one"></div><div class="lab-ambient lab-ambient--two"></div>
-        <div class="lab-navigation liquid-surface liquid-surface--navigation" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Navigation</strong><span>Golden material</span></div></div>
-        <div class="lab-row"><button class="lab-control liquid-surface liquid-surface--control" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">Control</span></button><div class="lab-floating liquid-surface liquid-surface--floating" data-liquid-interactive="true"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Floating</strong><span>High rim</span></div></div></div>
-        <div class="lab-panel liquid-surface liquid-surface--panel"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><strong>Panel</strong><p>Readable content over transmitted ambient fields.</p></div></div>
-        <div class="lab-overlay liquid-surface liquid-surface--overlay"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">Overlay</div></div>
-      </section>
-    </div>
+<body>
+  <main class="lab-shell">
+    <header class="lab-heading">
+      <div><p>DEVELOPMENT MATERIAL LAB</p><h1>Liquid Glass Engine V2</h1></div>
+      <aside class="engine-readout" aria-live="polite"><strong>Current Engine</strong><code id="engineName">检测中</code><span id="engineDetails"></span></aside>
+    </header>
+
+    <section class="lab-controls standard-surface" aria-label="材质调试开关">
+      <label><input type="checkbox" data-debug-toggle="blur" checked> Blur</label>
+      <label><input type="checkbox" data-debug-toggle="refraction" checked> Refraction</label>
+      <label><input type="checkbox" data-debug-toggle="optics" checked> Optics</label>
+      <label><input type="checkbox" data-debug-toggle="tint" checked> Tint</label>
+    </section>
+
+    <section class="lab-scene" aria-label="深色材质测试场景">
+      <div class="scene-grid" aria-hidden="true"></div><div class="scene-orb orb-a" aria-hidden="true"></div><div class="scene-orb orb-b" aria-hidden="true"></div>
+      <div class="scene-word" aria-hidden="true">TRANSMISSION</div>
+      <img class="scene-image" src="/assets/images/product/hero-workspace.webp" alt="用于检查玻璃透射与折射的工作台截图">
+      <div class="scene-line line-a" aria-hidden="true"></div><div class="scene-line line-b" aria-hidden="true"></div>
+
+      <div class="material-stack">
+        <div class="lab-navigation lg-surface lg-surface--navigation" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><strong>Navigation · Regular</strong><span>7px stabilization</span></div></div>
+        <div class="lab-row">
+          <button class="lab-control lg-surface lg-surface--clear" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">Clear Control</span></button>
+          <button class="lab-control lg-surface lg-surface--control" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">Regular Control</span></button>
+          <div class="lab-floating lg-surface lg-surface--floating" data-lg-interactive="true"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><strong>Floating</strong><span>High transmission</span></div></div>
+        </div>
+        <div class="lab-panel lg-surface lg-surface--panel"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content"><strong>Text-heavy Panel</strong><p>关闭 Blur 后，背景网格、细线与大字仍应通过 rim、specular、caustic 和高透射材质保持清晰的表面定义。</p></div></div>
+      </div>
+    </section>
   </main>
+  <script>
+    addEventListener('DOMContentLoaded', function () {
+      var root = document.documentElement;
+      var name = document.getElementById('engineName');
+      var details = document.getElementById('engineDetails');
+      function refresh() {
+        name.textContent = (root.dataset.liquidEngine || 'optical-fallback').toUpperCase().replaceAll('-', '_');
+        details.textContent = 'Backdrop filter: ' + (root.dataset.lgBackdropSupported || 'false') + ' · SVG backdrop reference: ' + (root.dataset.lgSvgReferenceEnabled || 'false') + ' · Reduced motion: ' + matchMedia('(prefers-reduced-motion: reduce)').matches;
+      }
+      document.querySelectorAll('[data-debug-toggle]').forEach(function (input) {
+        input.addEventListener('change', function () {
+          var key = input.dataset.debugToggle;
+          var attr = key === 'blur' ? 'data-lg-blur' : key === 'refraction' ? 'data-lg-refraction' : key === 'optics' ? 'data-lg-optics' : 'data-lg-tint';
+          if (input.checked) root.removeAttribute(attr); else root.setAttribute(attr, 'off');
+          if (key === 'blur') { if (input.checked) root.removeAttribute('data-liquid-debug'); else root.setAttribute('data-liquid-debug', 'no-blur'); }
+        });
+      });
+      setTimeout(refresh, 0);
+    });
+  </script>
 </body>
 </html>

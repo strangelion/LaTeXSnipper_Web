@@ -103,7 +103,7 @@ textarea:focus-visible,
   transition: transform 240ms var(--site-ease), box-shadow 240ms ease, background-color 240ms ease;
 }
 
-.site-header-inner:not(.liquid-surface),
+.site-header-inner:not(.lg-surface),
 .top-nav > .inner {
   border: 1px solid transparent;
 }
@@ -114,17 +114,8 @@ textarea:focus-visible,
   transform: translateY(2px);
 }
 
-.site-header:not(.is-scrolled) .site-header-inner > .liquid-glass__optics {
-  opacity: 0;
-}
-
-.site-header-inner > .liquid-glass__content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
+.site-header-inner > .lg-content {
+  display: contents;
 }
 
 .site-brand,
@@ -156,7 +147,7 @@ textarea:focus-visible,
   margin-left: auto;
 }
 
-.site-navigation > .liquid-glass__content {
+.site-navigation > .lg-content {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -216,7 +207,7 @@ textarea:focus-visible,
   background: currentColor;
 }
 
-.site-menu-toggle > .liquid-glass__content {
+.site-menu-toggle > .lg-content {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,9 +225,9 @@ textarea:focus-visible,
 }
 
 .site-download-link,
-.button:not(.liquid-surface),
-.download-btn:not(.liquid-surface),
-.primary-button:not(.liquid-surface) {
+.button:not(.lg-surface),
+.download-btn:not(.lg-surface),
+.primary-button:not(.lg-surface) {
   min-height: 44px;
   padding: 0 18px;
   display: inline-flex;
@@ -256,9 +247,9 @@ textarea:focus-visible,
 }
 
 .site-download-link:hover,
-.button:not(.liquid-surface):hover,
-.download-btn:not(.liquid-surface):hover,
-.primary-button:not(.liquid-surface):hover {
+.button:not(.lg-surface):hover,
+.download-btn:not(.lg-surface):hover,
+.primary-button:not(.lg-surface):hover {
   color: var(--site-blue-ink);
   transform: translateY(-2px);
   filter: brightness(1.04);
@@ -372,7 +363,7 @@ textarea:focus-visible,
     transition: opacity 180ms ease, transform 180ms var(--site-ease), visibility 180ms;
   }
 
-  .site-navigation > .liquid-glass__content {
+  .site-navigation > .lg-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 5px;

@@ -108,8 +108,6 @@ main {
   color: var(--muted);
   font-size: 0.85rem;
   background: var(--ftr-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .brand {
@@ -183,7 +181,6 @@ main {
   gap: 6px;
   color: var(--fg);
   transition: background 0.2s, border-color 0.2s;
-  backdrop-filter: blur(4px);
 }
 
 .theme-toggle:hover {
@@ -210,7 +207,6 @@ main {
   font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
-  backdrop-filter: blur(4px);
   appearance: auto;
 }
 
@@ -242,8 +238,6 @@ main {
 /* --- Header --- */
 .hero-header {
   background: var(--hdr-bg);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   position: sticky;
   top: 0;
   left: 0;
@@ -354,7 +348,6 @@ main {
 .btn:not(.primary) {
   background: rgba(128, 128, 128, 0.06);
   color: var(--fg);
-  backdrop-filter: blur(8px);
   border: 1px solid var(--border-color);
 }
 
@@ -513,8 +506,6 @@ main {
   color: var(--muted);
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 
@@ -592,8 +583,6 @@ main {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   padding: clamp(1.5rem, 5vw, 4rem) clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
@@ -639,7 +628,6 @@ main {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--card-shadow);
-  backdrop-filter: blur(16px);
   padding: clamp(1.5rem, 3.5vw, 3rem) clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
@@ -706,7 +694,6 @@ main {
   color: var(--accent);
   cursor: pointer;
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-  backdrop-filter: blur(4px);
 }
 
 .carousel-flip-btn:hover {
@@ -735,7 +722,6 @@ main {
   border-radius: 50%;
   border: 1px solid var(--border-color);
   background: var(--card-bg);
-  backdrop-filter: blur(12px);
   color: var(--fg);
   cursor: pointer;
   display: flex;
@@ -867,8 +853,6 @@ main {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--fg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.3s ease, border-color 0.3s ease;
   will-change: transform, opacity;
 }
@@ -1168,7 +1152,6 @@ main {
   color: var(--fg);
   background: var(--card-bg);
   border: 1px solid var(--border-color);
-  backdrop-filter: blur(8px);
   padding: 3px 8px;
   border-radius: 6px;
   pointer-events: none;

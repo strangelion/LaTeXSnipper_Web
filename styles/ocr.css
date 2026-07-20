@@ -1,3 +1,4 @@
+
 .ocr-page {
   background:
     radial-gradient(780px 440px at 74% 2%, color-mix(in srgb, var(--site-blue) 10%, transparent), transparent 72%),
@@ -43,7 +44,7 @@
   text-align: center;
 }
 
-.status-bar > .liquid-glass__content {
+.status-bar > .lg-content {
   min-height: 32px;
   display: flex;
   align-items: center;
@@ -89,7 +90,7 @@
   padding: 7px;
 }
 
-.runtime-strip > .liquid-glass__content {
+.runtime-strip > .lg-content {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -163,8 +164,8 @@
   padding: 4px;
 }
 
-.mode-tabs > .liquid-glass__content,
-.model-tabs > .liquid-glass__content {
+.mode-tabs > .lg-content,
+.model-tabs > .lg-content {
   width: 100%;
   display: flex;
   align-items: center;
@@ -309,7 +310,7 @@
   transition: color 160ms ease, transform 160ms ease;
 }
 
-.cam-trigger-btn > .liquid-glass__content {
+.cam-trigger-btn > .lg-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -394,7 +395,7 @@
   padding: 7px;
 }
 
-.hw-toolbar > .liquid-glass__content {
+.hw-toolbar > .lg-content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -425,8 +426,8 @@
   margin-left: auto;
 }
 
-.hw-recognize-btn > .liquid-glass__content,
-.ocr-copy > .liquid-glass__content {
+.hw-recognize-btn > .lg-content,
+.ocr-copy > .lg-content {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -595,8 +596,8 @@ pre.result-code {
   padding: 6px;
 }
 
-.cam-actions > .liquid-glass__content,
-.cam-segmented > .liquid-glass__content {
+.cam-actions > .lg-content,
+.cam-segmented > .lg-content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -664,7 +665,7 @@ pre.result-code {
     font-size: 0.84rem;
   }
 
-  .status-bar > .liquid-glass__content {
+  .status-bar > .lg-content {
     flex-wrap: wrap;
   }
 
@@ -682,7 +683,7 @@ pre.result-code {
     flex: 0 0 auto;
   }
 
-  .runtime-strip > .liquid-glass__content {
+  .runtime-strip > .lg-content {
     justify-content: flex-start;
     flex-wrap: nowrap;
   }
@@ -714,7 +715,7 @@ pre.result-code {
     gap: 5px;
   }
 
-  .hw-toolbar > .liquid-glass__content {
+  .hw-toolbar > .lg-content {
     gap: 5px;
   }
 
@@ -746,7 +747,7 @@ pre.result-code {
     width: 100%;
   }
 
-  .cam-actions > .liquid-glass__content {
+  .cam-actions > .lg-content {
     width: 100%;
     justify-content: center;
   }
@@ -775,3 +776,5 @@ pre.result-code {
     flex: 1 1 120px;
   }
 }
+
+

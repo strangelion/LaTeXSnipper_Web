@@ -6,180 +6,228 @@
   pointer-events: none;
 }
 
-.liquid-surface {
-  --glass-x: 28%;
-  --glass-y: 18%;
-  --glass-blur: 24px;
-  --glass-saturate: 145%;
-  --glass-tint-opacity: 0.64;
-  --glass-edge-opacity: 0.64;
-  --glass-shadow-alpha: 0.16;
+.lg-surface {
+  --lg-pointer-x: 28%;
+  --lg-pointer-y: 18%;
+  --lg-pointer-dx: 0;
+  --lg-pointer-dy: 0;
+  --lg-blur: 7px;
+  --lg-saturate: 118%;
+  --lg-tint-strength: 0.12;
+  --lg-rim-strength: 0.58;
+  --lg-specular-strength: 0.48;
+  --lg-shadow-strength: 0.14;
+  --lg-material-strength: 1;
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--site-glass-edge) calc(var(--glass-edge-opacity) * 100%), transparent);
-  border-radius: var(--site-radius-md);
-  background:
-    radial-gradient(220px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.16), transparent 72%),
-    linear-gradient(145deg, color-mix(in srgb, var(--site-glass-tint-strong) calc(var(--glass-tint-opacity) * 100%), transparent), color-mix(in srgb, var(--site-glass-tint) 48%, transparent));
+  border: 0;
+  border-radius: var(--site-radius-md, 18px);
+  color: inherit;
+  background: transparent;
   box-shadow:
-    0 24px 64px rgb(10 20 36 / var(--glass-shadow-alpha)),
-    0 4px 14px rgba(10, 20, 36, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.26),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(1.06) contrast(0.97);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(1.06) contrast(0.97);
+    0 20px 52px rgb(8 18 32 / calc(var(--lg-shadow-strength) * var(--lg-material-strength))),
+    inset 0 1px 0 rgb(255 255 255 / calc(0.08 * var(--lg-material-strength)));
+  transition: box-shadow 320ms ease, transform 320ms ease;
 }
 
-.liquid-surface--navigation {
-  --glass-blur: 24px;
-  --glass-tint-opacity: 0.64;
-  --glass-edge-opacity: 0.58;
-  --glass-shadow-alpha: 0.14;
-  border-radius: 18px;
+.lg-surface--navigation,
+.lg-surface--regular {
+  --lg-blur: 7px;
+  --lg-tint-strength: 0.13;
+  --lg-rim-strength: 0.54;
+  --lg-specular-strength: 0.38;
+  --lg-shadow-strength: 0.12;
 }
 
-.liquid-surface--control {
-  --glass-blur: 16px;
-  --glass-tint-opacity: 0.52;
-  --glass-edge-opacity: 0.7;
-  --glass-shadow-alpha: 0.1;
-  border-radius: var(--site-radius-sm);
+.lg-surface--clear {
+  --lg-blur: 2px;
+  --lg-tint-strength: 0.065;
+  --lg-rim-strength: 0.8;
+  --lg-specular-strength: 0.7;
+  --lg-shadow-strength: 0.09;
 }
 
-.liquid-surface--floating {
-  --glass-blur: 32px;
-  --glass-tint-opacity: 0.72;
-  --glass-edge-opacity: 0.84;
-  --glass-shadow-alpha: 0.22;
+.lg-surface--control {
+  --lg-blur: 4px;
+  --lg-tint-strength: 0.09;
+  --lg-rim-strength: 0.72;
+  --lg-specular-strength: 0.68;
+  --lg-shadow-strength: 0.08;
+  border-radius: var(--site-radius-sm, 12px);
 }
 
-.liquid-surface--panel {
-  --glass-blur: 26px;
-  --glass-tint-opacity: 0.54;
-  --glass-edge-opacity: 0.62;
-  --glass-shadow-alpha: 0.13;
+.lg-surface--floating {
+  --lg-blur: 3px;
+  --lg-tint-strength: 0.085;
+  --lg-rim-strength: 0.86;
+  --lg-specular-strength: 0.78;
+  --lg-shadow-strength: 0.16;
 }
 
-.liquid-surface--overlay {
-  --glass-blur: 28px;
-  --glass-tint-opacity: 0.76;
-  --glass-edge-opacity: 0.68;
-  --glass-shadow-alpha: 0.25;
+.lg-surface--panel {
+  --lg-blur: 10px;
+  --lg-tint-strength: 0.15;
+  --lg-rim-strength: 0.5;
+  --lg-specular-strength: 0.34;
+  --lg-shadow-strength: 0.14;
 }
 
-.liquid-surface[data-liquid-accent="blue"] {
-  --glass-tint-opacity: 0.72;
-  color: var(--site-blue-ink);
-  background:
-    radial-gradient(180px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.34), transparent 68%),
-    linear-gradient(145deg, color-mix(in srgb, var(--site-blue-bright) 68%, transparent), color-mix(in srgb, var(--site-blue) 76%, var(--site-glass-tint)));
+.lg-surface--overlay {
+  --lg-blur: 12px;
+  --lg-tint-strength: 0.18;
+  --lg-rim-strength: 0.56;
+  --lg-specular-strength: 0.38;
+  --lg-shadow-strength: 0.2;
 }
 
-@media (min-width: 821px) {
-  .liquid-surface[data-liquid-mobile="true"] {
-    overflow: visible;
-    border-color: transparent;
-    background: transparent;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .liquid-surface[data-liquid-mobile="true"] > .liquid-glass__optics {
-    display: none;
-  }
-}
-
-.liquid-surface .liquid-surface {
-  --glass-blur: 0px;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.liquid-glass__optics,
-.liquid-glass__tint,
-.liquid-glass__shine,
-.liquid-glass__edge {
+.lg-backdrop,
+.lg-optics,
+.lg-caustic,
+.lg-specular,
+.lg-rim {
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
 }
 
-.liquid-glass__optics {
+.lg-backdrop {
   z-index: 0;
+  background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 100%), transparent);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.025);
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.025);
+  transition: background-color 320ms ease, backdrop-filter 320ms ease, -webkit-backdrop-filter 320ms ease, opacity 320ms ease;
+}
+
+html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"]) .lg-surface > .lg-backdrop {
+  backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.025);
+  -webkit-backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.025);
+}
+
+.lg-optics {
+  z-index: 1;
   overflow: hidden;
+  opacity: var(--lg-material-strength);
+  transition: opacity 320ms ease;
 }
 
-.liquid-glass__tint {
+.lg-caustic {
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.11), transparent 46%),
-    radial-gradient(circle at 82% 72%, rgba(78, 174, 224, 0.1), transparent 58%);
+    radial-gradient(160px circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / 0.2), transparent 58%),
+    radial-gradient(120px circle at calc(100% - var(--lg-pointer-x)) calc(100% - var(--lg-pointer-y)), rgb(55 132 211 / 0.1), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: calc(var(--lg-specular-strength) * 0.52);
+  transform: translate(calc(var(--lg-pointer-dx) * 1.5px), calc(var(--lg-pointer-dy) * 1.5px));
 }
 
-.liquid-glass__shine {
-  background: radial-gradient(240px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 34%, transparent 70%);
+.lg-specular {
+  background:
+    radial-gradient(220px circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.06) 28%, transparent 62%),
+    linear-gradient(126deg, rgb(255 255 255 / 0.16), transparent 32% 68%, rgb(89 180 222 / 0.12));
   mix-blend-mode: screen;
-  opacity: 0.46;
+  opacity: calc(var(--lg-specular-strength) * 0.48);
   transition: opacity 180ms ease;
 }
 
-.liquid-glass__edge {
+.lg-rim {
   padding: 1px;
-  background: linear-gradient(132deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.12) 31%, rgba(255, 255, 255, 0.015) 63%, rgba(108, 211, 230, 0.3));
-  filter: url("#liquid-edge-refraction");
+  background:
+    conic-gradient(from 215deg at var(--lg-pointer-x) var(--lg-pointer-y),
+      rgb(255 255 255 / 0.88),
+      rgb(255 255 255 / 0.16) 20%,
+      rgb(91 174 224 / 0.2) 47%,
+      rgb(255 255 255 / 0.04) 68%,
+      rgb(255 255 255 / 0.7));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
+  opacity: var(--lg-rim-strength);
+  filter: drop-shadow(calc(var(--lg-pointer-dx) * -1px) calc(var(--lg-pointer-dy) * -1px) 1px rgb(255 255 255 / 0.18));
 }
 
-.liquid-glass__content {
+.lg-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
-.liquid-surface.is-pointer-lit > .liquid-glass__optics > .liquid-glass__shine {
-  opacity: 0.86;
+.lg-surface[data-lg-accent="blue"] > .lg-backdrop {
+  background: color-mix(in srgb, var(--site-blue, #79a8ff) 22%, transparent);
 }
 
-.standard-surface,
-.site-surface {
-  position: relative;
-  isolation: isolate;
-  border: 1px solid var(--site-line);
-  border-radius: var(--site-radius-md);
-  background: var(--site-surface);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+.lg-surface[data-lg-accent="blue"] .lg-caustic {
+  background:
+    radial-gradient(170px circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / 0.32), transparent 58%),
+    linear-gradient(145deg, rgb(121 168 255 / 0.18), rgb(77 132 225 / 0.08));
+}
+
+.lg-surface.is-pointer-lit > .lg-optics > .lg-specular {
+  opacity: calc(var(--lg-specular-strength) * 0.82);
+}
+
+.lg-surface.is-pointer-lit > .lg-optics > .lg-rim {
+  opacity: min(1, calc(var(--lg-rim-strength) + 0.12));
+}
+
+/* Nested controls keep optical decoration but never process the backdrop twice. */
+.lg-surface .lg-surface > .lg-backdrop,
+.lg-surface [data-lg-inset] > .lg-backdrop {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) 7%, transparent);
+}
+
+.lg-surface .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
+  background: color-mix(in srgb, var(--site-blue, #79a8ff) 38%, transparent);
+}
+
+.lg-surface[data-lg-condense="true"] {
+  --lg-material-strength: 0;
+  --lg-blur: 0px;
+  --lg-tint-strength: 0;
+  --lg-shadow-strength: 0;
+}
+
+.is-scrolled .lg-surface[data-lg-condense="true"],
+.lg-surface[data-lg-condense="true"].is-condensed {
+  --lg-material-strength: 1;
+  --lg-blur: 7px;
+  --lg-tint-strength: 0.13;
+  --lg-shadow-strength: 0.12;
+}
+
+html[data-liquid-debug="no-blur"] .lg-backdrop,
+html[data-lg-blur="off"] .lg-backdrop {
+  backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(1.025) !important;
+  -webkit-backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(1.025) !important;
+}
+
+html[data-lg-optics="off"] .lg-optics {
+  opacity: 0 !important;
+}
+
+html[data-lg-tint="off"] .lg-backdrop {
+  background: transparent !important;
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .liquid-surface {
-    background: color-mix(in srgb, var(--site-bg-elevated) 92%, transparent);
+  .lg-backdrop {
+    background: color-mix(in srgb, var(--site-bg-elevated, #eef3f8) 78%, transparent);
   }
 }
 
 @media (max-width: 720px) {
-  .liquid-surface {
-    --glass-blur: 18px;
-  }
-
-  .liquid-surface--control {
-    --glass-blur: 12px;
-  }
-}
-
-@media (max-width: 820px) {
-  .liquid-surface[data-liquid-mobile="true"] {
-    --glass-blur: 18px;
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(1.06) contrast(0.97);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) brightness(1.06) contrast(0.97);
+  .lg-surface--panel,
+  .lg-surface--overlay {
+    --lg-blur: 10px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .liquid-surface,
-  .liquid-glass__shine {
+  .lg-surface,
+  .lg-backdrop,
+  .lg-optics,
+  .lg-specular {
     transition: none !important;
   }
 }

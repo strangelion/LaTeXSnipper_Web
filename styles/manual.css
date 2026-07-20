@@ -1,3 +1,4 @@
+
 .manual {
   --manual-sidebar-width: clamp(300px, 22vw, 360px);
   min-height: 100vh;
@@ -31,7 +32,7 @@
   color: var(--site-blue);
 }
 
-.download-pdf-link > .liquid-glass__content {
+.download-pdf-link > .lg-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -247,8 +248,8 @@
   pointer-events: none;
 }
 
-.float-arrow > .liquid-glass__content,
-.back-to-top > .liquid-glass__content {
+.float-arrow > .lg-content,
+.back-to-top > .lg-content {
   display: grid;
   place-items: center;
 }
@@ -368,3 +369,5 @@
     bottom: 12px;
   }
 }
+
+

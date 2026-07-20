@@ -15,12 +15,12 @@
 </head>
 <body>
   <header class="site-header" data-shell-header>
-    <div class="site-header-inner liquid-surface liquid-surface--navigation">
-      <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
-      <div class="liquid-glass__content">
+    <div class="site-header-inner lg-surface lg-surface--navigation" data-lg-condense="true">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+      <div class="lg-content">
       <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
-      <nav class="site-navigation liquid-surface liquid-surface--panel" data-liquid-mobile="true" id="siteNavigation" aria-label="主导航">
-        <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
+      <nav class="site-navigation" data-lg-mobile-panel id="siteNavigation" aria-label="主导航">
+        <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
         <a href="/#product">产品</a>
         <a href="/#workflow">工作流</a>
         <a href="/#ecosystem">生态</a>
@@ -28,8 +28,8 @@
         <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
         </div></nav>
       <div class="site-header-actions">
-        <button class="theme-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><span data-theme-icon></span></span></button>
-        <button class="site-menu-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
+        <button class="theme-toggle lg-surface lg-surface--control" data-lg-inset data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+        <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-inset data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
       </div>
       </div>
     </div>
@@ -220,7 +220,7 @@
       }
 
       document.querySelectorAll('.download-btn:not(.disabled)').forEach(function (button) {
-        button.dataset.liquidAccent = 'blue'
+        button.dataset.lgAccent = 'blue'
         window.LaTeXSnipperLiquid.decorateLiquidSurface(button, 'control', true)
       })
 

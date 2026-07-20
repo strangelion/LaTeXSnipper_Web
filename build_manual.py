@@ -1228,9 +1228,9 @@ def main():
     toc_html = render_toc_items(toc_items, vol_divisions, 'toc')
     right_toc_html = render_toc_items(toc_items, vol_divisions, 'rs')
 
-    sidebar_html = f"""<nav class="sidebar liquid-surface liquid-surface--panel" id="sidebar">
-  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
-  <div class="liquid-glass__content sidebar-material-content">
+    sidebar_html = f"""<nav class="sidebar lg-surface lg-surface--panel" id="sidebar">
+  <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+  <div class="lg-content sidebar-material-content">
     <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="sidebar-inner">
     <ul class="toc-list">
@@ -1240,9 +1240,9 @@ def main():
 </div>
 </nav>"""
 
-    right_sidebar_html = f"""<aside class="right-sidebar liquid-surface liquid-surface--panel" id="rightSidebar">
-  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
-  <div class="liquid-glass__content sidebar-material-content">
+    right_sidebar_html = f"""<aside class="right-sidebar lg-surface lg-surface--panel" id="rightSidebar">
+  <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+  <div class="lg-content sidebar-material-content">
     <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
   <div class="rs-inner">
     <ul class="rs-list" id="rsList">
@@ -1251,66 +1251,6 @@ def main():
   </div>
 </div>
 </aside>"""
-
-    # ── 增强分卷分隔（将卷标题替换为醒目分割条）──
-    sidebar_css = """\
-  /* ── 左右导航栏共用 ── */
-  .sidebar, .right-sidebar { position: fixed; top: 0; bottom: 0; width: 260px; z-index: 1100; background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-color: var(--border-color); border-style: solid; border-width: 0; box-shadow: var(--card-shadow); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease; opacity: 0; overflow-y: auto; display: flex; flex-direction: column; }
-  .sidebar { left: 0; border-right-width: 1px; transform: translateX(-100%); }
-  .right-sidebar { right: 0; border-left-width: 1px; transform: translateX(100%); }
-  .sidebar.open { transform: translateX(0); opacity: 1; }
-  .right-sidebar.open { transform: translateX(0); opacity: 1; }
-  /* 目录头和叉号 sticky 固定，不随目录滚动 */
-  .sidebar-header, .rs-header { position: sticky; top: 0; z-index: 2; background: var(--card-bg); font-weight: 700; font-size: 0.95rem; color: var(--fg); padding: 0.75rem 0.75rem; margin: 0; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; gap: 6px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-  /* 叉号绝对定位在内侧：左栏叉号在右，右栏叉号在左 */
-  .sidebar-close { position: absolute; right: 0.75rem; }
-  .rs-close { position: absolute; left: 0.75rem; }
-  .sidebar-icon { flex-shrink: 0; }
-  .sidebar-inner, .rs-inner { flex: 1; overflow-y: auto; padding: 0.5rem 0.75rem 1rem; }
-  .toc-list, .rs-list { list-style: none; margin: 0; padding: 0; }
-  .toc-list li, .rs-list li { margin: 0; }
-  .toc-list a, .rs-list a { display: block; padding: 0.3rem 0.5rem; color: var(--muted); text-decoration: none; font-size: 0.82rem; border-radius: 6px; transition: background 0.15s, color 0.15s; line-height: 1.4; }
-  .toc-list a:hover, .rs-list a:hover { background: rgba(128,128,128,0.08); color: var(--fg); }
-  .toc-list a.active, .rs-list a.active { color: var(--accent); background: rgba(59,130,246,0.08); font-weight: 600; }
-  .toc-h2, .rs-h2 { padding-left: 1rem; }
-  .toc-h3, .rs-h3 { padding-left: 2rem; }
-  .toc-h2 a, .rs-h2 a { font-size: 0.8rem; }
-  .toc-h3 a, .rs-h3 a { font-size: 0.78rem; }
-  /* ── 分卷分割线 ── */
-  .toc-vol-divider, .rs-vol-divider { padding: 0.6rem 0.5rem 0.3rem; border-top: 1px solid var(--border-color); margin-top: 0.3rem; }
-  .toc-vol-divider span, .rs-vol-divider span { font-size: 0.72rem; font-weight: 600; color: var(--accent); opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
-  /* ── 顶栏自动隐藏 ── */
-  .top-nav-trigger { position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 1001; cursor: default; }
-  .top-nav { transform: translateY(-100%) !important; opacity: 0; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease !important; }
-  .top-nav-trigger:hover ~ .top-nav, .top-nav:hover { transform: translateY(0) !important; opacity: 1; }
-  .at-top .top-nav { transform: translateY(0) !important; opacity: 1; }
-  .spacer-top { height: 56px; }
-    /* ── 浮动可拖动箭头按钮 ── */
-  .float-arrow { position: fixed; z-index: 1080; width: 42px; height: 42px; border-radius: 50%; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: 0 2px 16px rgba(0,0,0,0.10); cursor: grab; display: flex; align-items: center; justify-content: center; user-select: none; -webkit-user-select: none; touch-action: none; transition: box-shadow 0.2s, border-color 0.2s, left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), right 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  .float-arrow:active { cursor: grabbing; }
-  .float-arrow.dragging { box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-color: var(--accent); transform: scale(1.08); transition: none; }
-  .float-arrow:hover { border-color: var(--accent); }
-  .float-arrow svg { width: 20px; height: 20px; color: var(--accent); pointer-events: none; transition: transform 0.3s ease; }
-  .float-arrow.side-left svg { transform: rotate(0deg); }
-  .float-arrow.side-right svg { transform: rotate(180deg); }
-  @media (max-width: 768px) { .float-arrow { width: 38px; height: 38px; } .float-arrow svg { width: 18px; height: 18px; } }
-  /* ── 鼠标靠边悬停触发区域（隐形） ── */
-  .edge-hover-left { position: fixed; top: 0; left: 0; width: 20px; bottom: 0; z-index: 1090; cursor: default; }
-  .edge-hover-right { position: fixed; top: 0; right: 0; width: 20px; bottom: 0; z-index: 1090; cursor: default; }
-  /* ── 收起按钮 ── */
-  .sidebar-close, .rs-close { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--muted); padding: 0.2rem; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; width: 26px; height: 26px; flex-shrink: 0; }
-  .sidebar-close:hover, .rs-close:hover { background: rgba(128,128,128,0.1); color: var(--fg); }
-  /* ── PDF 下载链接 ── */
-  .download-pdf-link { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--muted); text-decoration: none; padding: 4px 10px; border-radius: 6px; transition: background 0.15s, color 0.15s; }
-  .download-pdf-link:hover { background: rgba(128,128,128,0.08); color: var(--fg); }
-  .dl-icon { flex-shrink: 0; display: block; }
-  /* ── 分卷分隔条 ── */
-  .volume-divider { margin: 2rem 0; position: relative; }
-  .volume-divider-inner { display: flex; align-items: center; justify-content: center; position: relative; }
-  .volume-divider-inner::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), var(--accent), transparent); opacity: 0.25; }
-  .volume-label { position: relative; z-index: 1; background: var(--card-bg); padding: 0.4rem 1.5rem; font-size: 1rem; font-weight: 700; color: var(--accent); border-radius: 20px; border: 1px solid var(--border-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-  @media (max-width: 768px) { .sidebar, .right-sidebar { width: 220px; } .toc-list a, .rs-list a { font-size: 0.78rem; } }
-"""
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1328,26 +1268,26 @@ def main():
 </head>
 <body class="manual">
 <header class="site-header" data-shell-header>
-  <div class="site-header-inner liquid-surface liquid-surface--navigation">
-    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
-    <div class="liquid-glass__content">
+  <div class="site-header-inner lg-surface lg-surface--navigation" data-lg-condense="true">
+    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+    <div class="lg-content">
     <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
-    <nav class="site-navigation liquid-surface liquid-surface--panel" data-liquid-mobile="true" id="siteNavigation" aria-label="主导航">
-      <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
+    <nav class="site-navigation" data-lg-mobile-panel id="siteNavigation" aria-label="主导航">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
       <a href="/#product">产品</a><a href="/#workflow">工作流</a><a href="/#ecosystem">生态</a><a href="user_manual.html" aria-current="page">文档</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
       </div></nav>
     <div class="site-header-actions">
-      <a class="download-pdf-link liquid-surface liquid-surface--control" data-liquid-interactive="true" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></span></a>
-      <button class="theme-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><span data-theme-icon></span></span></button>
-      <button class="site-menu-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
+      <a class="download-pdf-link lg-surface lg-surface--control" data-lg-interactive="true" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></span></a>
+      <button class="theme-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+      <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
     </div>
     </div>
   </div>
 </header>
 
 <!-- 浮动可拖动箭头按钮 -->
-<div class="float-arrow side-left liquid-surface liquid-surface--floating" data-liquid-interactive="true" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
-  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+<div class="float-arrow side-left lg-surface lg-surface--floating" data-lg-interactive="true" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
+  <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
 </div>
 
 <!-- 鼠标靠边悬停触发区域 -->
@@ -1364,7 +1304,7 @@ def main():
 {content}
 </main>
 
-<button class="back-to-top liquid-surface liquid-surface--floating" data-liquid-interactive="true" id="backToTop" title="回到顶部" aria-label="回到顶部"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">
+<button class="back-to-top lg-surface lg-surface--floating" data-lg-interactive="true" id="backToTop" title="回到顶部" aria-label="回到顶部"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">
     <svg class="btt-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 19V5" />
       <path d="M5 12l7-7 7 7" />
@@ -1529,3 +1469,5 @@ function copyCode(btn) {{
 
 if __name__ == '__main__':
     main()
+
+

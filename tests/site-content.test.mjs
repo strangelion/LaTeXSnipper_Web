@@ -125,16 +125,21 @@ test('homepage keeps mobile navigation text visually hidden and constrains hero 
   assert.match(landingStyles, /@media \(max-width: 720px\)[\s\S]*\.hero-mascot\s*\{[\s\S]*display:\s*block/);
 });
 
-test('liquid glass uses layered refraction and respects reduced motion', () => {
+test('liquid glass V2 separates backdrop processing from foreground optics', () => {
   assert.match(landingSource, /function LiquidGlassSurface/);
-  assert.match(landingSource, /id="liquid-edge-refraction"/);
-  assert.match(liquidGlassStyles, /backdrop-filter:\s*blur\(var\(--glass-blur\)\) saturate\(var\(--glass-saturate\)\)/);
-  assert.match(liquidGlassStyles, /filter:\s*url\("#liquid-edge-refraction"\)/);
-  assert.match(liquidGlassStyles, /\.liquid-surface--control/);
-  assert.match(liquidGlassStyles, /\.liquid-surface--navigation/);
-  assert.match(liquidGlassStyles, /\.liquid-surface--floating/);
-  assert.match(liquidGlassStyles, /\.liquid-surface--panel/);
-  assert.match(liquidGlassStyles, /\.liquid-surface--overlay/);
+  assert.match(landingSource, /id="liquid-backdrop-refraction"/);
+  assert.match(landingSource, /className="lg-backdrop"/);
+  assert.match(landingSource, /className="lg-caustic"/);
+  assert.match(liquidGlassStyles, /\.lg-backdrop[\s\S]*backdrop-filter:\s*blur\(var\(--lg-blur\)\)/);
+  assert.match(liquidGlassStyles, /\.lg-surface > \.lg-backdrop[\s\S]*url\("#liquid-backdrop-refraction"\)/);
+  assert.doesNotMatch(liquidGlassStyles, /liquid-edge-refraction/);
+  assert.match(liquidGlassStyles, /\.lg-surface--clear/);
+  assert.match(liquidGlassStyles, /\.lg-surface--control/);
+  assert.match(liquidGlassStyles, /\.lg-surface--navigation/);
+  assert.match(liquidGlassStyles, /\.lg-surface--floating/);
+  assert.match(liquidGlassStyles, /\.lg-surface--panel/);
+  assert.match(liquidGlassStyles, /\.lg-surface--overlay/);
+  assert.match(liquidGlassStyles, /html\[data-liquid-debug="no-blur"\]/);
   assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(landingSource, /className="formula-sheet standard-surface"/);
   assert.match(landingSource, /assets\/formula-gaussian-integral\.svg/);
@@ -194,25 +199,27 @@ test('liquid controls use a reduced-motion-safe pointer highlight', () => {
   assert.match(productShellScript, /prefers-reduced-motion: reduce/);
   assert.match(productShellScript, /pointer: fine/);
   assert.match(productShellScript, /requestAnimationFrame\(updateHighlight\)/);
-  assert.match(productShellScript, /--glass-x/);
-  assert.match(productShellScript, /\.liquid-surface\[data-liquid-interactive=/);
+  assert.match(productShellScript, /--lg-pointer-x/);
+  assert.match(productShellScript, /\.lg-surface\[data-lg-interactive=/);
   assert.doesNotMatch(productShellScript, /'\.platform-card'/);
   assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.doesNotMatch(downloadStyles, /backdrop-filter/);
   assert.match(downloadStyles, /\.recommended-badge[\s\S]*position:\s*absolute/);
 });
 
-test('static liquid surfaces follow the complete optics and content contract', () => {
+test('static liquid surfaces follow the V2 backdrop, optics, and content contract', () => {
   for (const [name, source] of [
     ['download', downloadSource],
     ['ocr', ocrSource],
     ['manual', generatedManualSource],
     ['lab', liquidLabSource],
   ]) {
-    const surfaces = source.match(/class="[^"]*\bliquid-surface\b[^"]*"/g) || [];
-    const optics = source.match(/class="liquid-glass__optics"/g) || [];
-    const contents = source.match(/class="[^"]*\bliquid-glass__content\b[^"]*"/g) || [];
+    const surfaces = source.match(/(?:class="[^"]*\blg-surface\b[^"]*"|data-lg-mobile-panel)/g) || [];
+    const backdrops = source.match(/class="lg-backdrop"/g) || [];
+    const optics = source.match(/class="lg-optics"/g) || [];
+    const contents = source.match(/class="[^"]*\blg-content\b[^"]*"/g) || [];
     assert.ok(surfaces.length > 0, `${name} must include liquid surfaces`);
+    assert.equal(backdrops.length, surfaces.length, `${name} backdrop count must match surface count`);
     assert.equal(optics.length, surfaces.length, `${name} optics count must match surface count`);
     assert.equal(contents.length, surfaces.length, `${name} content count must match surface count`);
   }
@@ -220,12 +227,31 @@ test('static liquid surfaces follow the complete optics and content contract', (
 
 test('static pages share one filter injector and no fake glass shortcuts', () => {
   assert.match(productShellScript, /function ensureLiquidGlassFilterDefs/);
-  assert.match(productShellScript, /id="liquid-edge-refraction"/);
-  assert.match(productShellScript, /baseFrequency="0\.012 0\.018"/);
+  assert.match(productShellScript, /id="liquid-backdrop-refraction"/);
+  assert.match(productShellScript, /baseFrequency="0\.006 0\.009"/);
+  assert.match(productShellScript, /svg-backdrop-refraction/);
+  assert.match(productShellScript, /optical-fallback/);
   for (const source of [downloadSource, ocrSource, generatedManualSource, liquidLabSource]) {
     assert.match(source, /js\/product-shell\.js/);
     assert.doesNotMatch(source, /class="[^"]*\bglass-(?:control|panel|float)\b/);
+    assert.doesNotMatch(source, /liquid-surface|liquid-glass__/);
   }
+});
+
+test('homepage header keeps a plain desktop navigation inside one condensing material surface', () => {
+  assert.match(landingSource, /data-lg-condense="true"/);
+  assert.match(landingSource, /<nav id="site-navigation" className=/);
+  assert.doesNotMatch(landingSource, /<LiquidGlassSurface as="nav"/);
+  assert.match(liquidGlassStyles, /\.lg-surface\[data-lg-condense="true"\][\s\S]*--lg-blur:\s*0px/);
+  assert.match(liquidGlassStyles, /\.is-scrolled \.lg-surface\[data-lg-condense="true"\]/);
+});
+
+test('lab exposes blur, refraction, optics, and tint debug switches', () => {
+  assert.match(liquidLabSource, /data-debug-toggle="blur"/);
+  assert.match(liquidLabSource, /data-debug-toggle="refraction"/);
+  assert.match(liquidLabSource, /data-debug-toggle="optics"/);
+  assert.match(liquidLabSource, /data-debug-toggle="tint"/);
+  assert.match(liquidLabSource, /Current Engine/);
 });
 
 test('business styles do not reimplement the liquid material engine', () => {

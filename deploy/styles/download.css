@@ -1,3 +1,4 @@
+
 .download-page {
   width: min(1180px, calc(100% - 40px));
   margin-inline: auto;
@@ -96,7 +97,7 @@
   transition: transform 220ms var(--site-ease), border-color 180ms ease, background-color 180ms ease, box-shadow 220ms ease;
 }
 
-.platform-card:not(.liquid-surface):hover {
+.platform-card:not(.lg-surface):hover {
   z-index: 2;
   transform: translateY(-3px);
   border-color: var(--site-line-strong);
@@ -113,7 +114,7 @@
   text-align: left;
 }
 
-.platform-card.recommended > .liquid-glass__content {
+.platform-card.recommended > .lg-content {
   width: 100%;
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr) minmax(190px, auto);
@@ -233,7 +234,7 @@
   margin-top: auto;
 }
 
-.download-btn > .liquid-glass__content {
+.download-btn > .lg-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -437,7 +438,7 @@
     text-align: center;
   }
 
-  .platform-card.recommended > .liquid-glass__content {
+  .platform-card.recommended > .lg-content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -498,3 +499,5 @@
     left: 12px;
   }
 }
+
+
