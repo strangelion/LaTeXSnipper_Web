@@ -230,20 +230,10 @@
   white-space: nowrap;
 }
 
-.formula-display img {
+.formula-gaussian-integral {
   width: min(100%, 560px);
   height: auto;
   display: block;
-}
-
-[data-theme='dark'] .formula-display img {
-  filter: invert(1) hue-rotate(180deg) brightness(1.04);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .formula-display img {
-    filter: invert(1) hue-rotate(180deg) brightness(1.04);
-  }
 }
 
 .formula-integral {

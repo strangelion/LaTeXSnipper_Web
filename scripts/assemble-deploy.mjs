@@ -21,13 +21,19 @@ const DEPLOY_DIR = path.resolve(root, 'deploy');
 const DIST_DIR = path.resolve(root, 'dist');
 const PUBLIC_DIR = path.resolve(root, 'public');
 
+// Homepage assets directly referenced by URL must be present in every deploy.
+const HOMEPAGE_CRITICAL_ASSETS = [
+  'assets/brand/snipper-girl.webp',
+  'assets/brand/snipper-girl-640.webp',
+  'assets/brand/snipper-girl-960.webp',
+  'assets/images/icon-96.png',
+];
+
 // Required paths that must exist in final deploy
 const REQUIRED_PATHS = [
   'index.html',
   'assets/',
-  'assets/brand/snipper-girl.webp',
-  'assets/brand/snipper-girl-640.webp',
-  'assets/brand/snipper-girl-960.webp',
+  ...HOMEPAGE_CRITICAL_ASSETS,
   'assets/hero-workspace-',
   'ocr.html',
   'js/ocr.js',
@@ -47,7 +53,6 @@ const REQUIRED_PATHS = [
   'core-models.lock.json',
   'release-manifest.json',
   'schemas/release-manifest-v1.schema.json',
-  'assets/images/icon-96.png',
   'open-source.html',
   'styles/product-shell.css',
   'styles/site-tokens.css',

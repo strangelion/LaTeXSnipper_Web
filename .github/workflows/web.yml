@@ -40,6 +40,12 @@ jobs:
 
       - name: Verify deploy artifacts
         run: |
+          test -f deploy/index.html
+          test -f deploy/styles/liquid-glass.css
+          test -f deploy/assets/brand/snipper-girl.webp
+          test -f deploy/assets/brand/snipper-girl-640.webp
+          test -f deploy/assets/brand/snipper-girl-960.webp
+          test -f deploy/assets/images/icon-96.png
           test -f deploy/core-wasm/latexsnipper_wasm_bg.wasm
           test -f deploy/core-wasm/core-build.json
           test -f deploy/vendor/onnxruntime/ort.all.min.js

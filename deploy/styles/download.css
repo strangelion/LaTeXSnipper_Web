@@ -111,20 +111,17 @@
   width: 100%;
   min-height: 190px;
   padding: 30px 34px;
-  text-align: left;
+  text-align: center;
 }
 
 .platform-card.recommended > .lg-content {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr) minmax(190px, auto);
-  grid-template-areas:
-    "icon name action"
-    "icon desc action"
-    "icon owner hash";
-  column-gap: 26px;
-  row-gap: 5px;
+  width: min(100%, 720px);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 11px;
 }
 
 .recommended-badge {
@@ -148,47 +145,31 @@
 }
 
 .recommended .platform-icon {
-  grid-area: icon;
   width: 64px;
   height: 64px;
-  margin: 0;
+  margin: 0 auto;
 }
 
 .recommended .platform-name {
-  grid-area: name;
-  align-self: end;
   font-size: clamp(1.85rem, 3vw, 2.55rem);
-}
-
-.recommended .platform-desc {
-  grid-area: desc;
-}
-
-.recommended .platform-owner {
-  grid-area: owner;
-  align-self: start;
 }
 
 .recommended .platform-desc,
 .recommended .platform-owner {
-  max-width: none;
-  margin: 0;
-  text-align: left;
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .recommended .download-btn,
 .recommended .download-btn:not([hidden]) {
-  grid-area: action;
-  align-self: end;
-  justify-self: stretch;
+  align-self: center;
   margin: 0;
 }
 
 .recommended .sha256:not([hidden]) {
-  grid-area: hash;
-  align-self: start;
-  justify-self: stretch;
-  margin: 5px 0 0;
+  align-self: center;
+  margin: 5px auto 0;
   text-align: center;
 }
 
@@ -292,7 +273,6 @@
 .installation-notes {
   max-width: 900px;
   margin-inline: auto;
-  text-align: left;
 }
 
 .other-info {
@@ -301,6 +281,7 @@
   color: var(--site-muted);
   border-block: 1px solid var(--site-line);
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .other-info p {
@@ -318,6 +299,7 @@
   padding: 0;
   border: 0;
   background: transparent;
+  text-align: center;
 }
 
 .project-boundary h2,
@@ -345,9 +327,11 @@
   padding: 18px 16px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3px;
   color: var(--site-ink);
   border-bottom: 1px solid var(--site-line);
+  text-align: center;
   text-decoration: none;
   transition: color 160ms ease, background-color 160ms ease;
 }
@@ -368,6 +352,7 @@
 
 .installation-notes {
   margin-top: 48px;
+  text-align: left;
 }
 
 @media (max-width: 1040px) {
@@ -384,6 +369,7 @@
 
 .installation-notes h2 {
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .installation-notes details {

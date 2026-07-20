@@ -4,7 +4,7 @@
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const mobileNavigationQuery = window.matchMedia('(max-width: 820px)');
+  const mobileNavigationQuery = window.matchMedia('(max-width: 720px)');
 
   function ensureLiquidGlassFilterDefs() {
     if (document.getElementById('liquid-backdrop-refraction')) return;
@@ -41,7 +41,8 @@
     const chromium = /(?:Chrome|Chromium|Edg)\//.test(navigator.userAgent) && !/(?:Firefox|FxiOS)\//.test(navigator.userAgent);
     const referenceParsed = CSS.supports('backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)')
       || CSS.supports('-webkit-backdrop-filter', 'url("#liquid-backdrop-refraction") blur(1px)');
-    const enhanced = root.getAttribute('data-lg-enable-svg') === 'true' && chromium && referenceParsed;
+    const refractionDisabled = root.getAttribute('data-lg-refraction') === 'off';
+    const enhanced = !refractionDisabled && chromium && referenceParsed;
     root.setAttribute('data-liquid-engine', enhanced ? 'svg-backdrop-refraction' : 'optical-fallback');
     root.setAttribute('data-lg-backdrop-supported', String(CSS.supports('backdrop-filter', 'blur(1px)') || CSS.supports('-webkit-backdrop-filter', 'blur(1px)')));
     root.setAttribute('data-lg-svg-reference-enabled', String(enhanced));
@@ -138,9 +139,19 @@
   updateHeaders();
   window.addEventListener('scroll', updateHeaders, { passive: true });
 
+  function closeStaticNavigation(navigation) {
+    if (!navigation || navigation.dataset.menuOwner === 'react') return;
+    navigation.classList.remove('is-open');
+    document.querySelector(`[aria-controls="${navigation.id}"]`)?.setAttribute('aria-expanded', 'false');
+  }
+
+  function closeStaticNavigations() {
+    document.querySelectorAll('.site-navigation.is-open:not([data-menu-owner="react"])').forEach(closeStaticNavigation);
+  }
+
   document.querySelectorAll('[data-shell-menu]').forEach((toggle) => {
     const navigation = document.getElementById(toggle.getAttribute('aria-controls'));
-    if (!navigation) return;
+    if (!navigation || navigation.dataset.menuOwner === 'react') return;
     toggle.addEventListener('click', () => {
       const open = !navigation.classList.contains('is-open');
       navigation.classList.toggle('is-open', open);
@@ -148,19 +159,24 @@
     });
     navigation.addEventListener('click', (event) => {
       if (!event.target.closest('a')) return;
-      navigation.classList.remove('is-open');
-      toggle.setAttribute('aria-expanded', 'false');
+      closeStaticNavigation(navigation);
     });
   });
 
   document.addEventListener('click', (event) => {
-    document.querySelectorAll('.site-navigation.is-open').forEach((navigation) => {
+    document.querySelectorAll('.site-navigation.is-open:not([data-menu-owner="react"])').forEach((navigation) => {
       const toggle = document.querySelector(`[aria-controls="${navigation.id}"]`);
       if (navigation.contains(event.target) || toggle?.contains(event.target)) return;
-      navigation.classList.remove('is-open');
-      toggle?.setAttribute('aria-expanded', 'false');
+      closeStaticNavigation(navigation);
     });
   });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeStaticNavigations();
+  });
+
+  mobileNavigationQuery.addEventListener('change', closeStaticNavigations);
+  window.addEventListener('orientationchange', closeStaticNavigations);
 
   const highlightSelector = '.lg-surface[data-lg-interactive="true"]';
 

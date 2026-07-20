@@ -142,7 +142,10 @@ test('liquid glass V2.1 separates backdrop processing from restrained foreground
   assert.match(liquidGlassStyles, /html\[data-liquid-debug="no-blur"\]/);
   assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(landingSource, /<LiquidGlassSurface className="formula-sheet" thickness="panel">/);
-  assert.match(landingSource, /assets\/formula-gaussian-integral\.svg/);
+  assert.match(landingSource, /function GaussianIntegralFormula/);
+  assert.match(landingSource, /className="formula-gaussian-integral"/);
+  assert.match(landingSource, /fill="currentColor"/);
+  assert.doesNotMatch(landingSource, /assets\/formula-gaussian-integral\.svg/);
   assert.doesNotMatch(liquidGlassStyles, /radial-gradient/);
   assert.match(liquidGlassStyles, /\.lg-specular\s*\{[\s\S]*linear-gradient/);
   assert.match(landingStyles, /\.download-cta-panel > \.lg-content\s*\{[\s\S]*display:\s*flex/);
@@ -243,10 +246,12 @@ test('static pages share one filter injector and no fake glass shortcuts', () =>
 test('homepage header uses the regular material at rest and on scroll', () => {
   assert.doesNotMatch(landingSource, /data-lg-condense="true"/);
   assert.match(landingSource, /<LiquidGlassSurface className="ls-container site-header-inner" thickness="navigation">/);
-  assert.match(landingSource, /<nav id="site-navigation" className=/);
+  assert.match(landingSource, /<nav id="site-navigation"[\s\S]*className=/);
   assert.doesNotMatch(landingSource, /<LiquidGlassSurface as="nav"/);
-  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-blur:\s*6px/);
-  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-tint-strength:\s*0\.1/);
+  assert.match(landingSource, /data-menu-owner="react"/);
+  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-blur:\s*3px/);
+  assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-tint-strength:\s*0\.055/);
+  assert.match(siteShellStyles, /\.site-header-inner\.lg-surface\s*\{[\s\S]*overflow:\s*visible/);
 });
 
 test('lab exposes blur, refraction, optics, and tint debug switches', () => {

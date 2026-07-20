@@ -12,9 +12,9 @@
   --lg-pointer-y: 50%;
   --lg-pointer-dx: 0;
   --lg-pointer-dy: 0;
-  --lg-blur: 6px;
+  --lg-blur: 3px;
   --lg-saturate: 112%;
-  --lg-tint-strength: 0.1;
+  --lg-tint-strength: 0.055;
   --lg-rim-strength: 0.38;
   --lg-specular-strength: 0.16;
   --lg-shadow-strength: 0.1;
@@ -34,24 +34,24 @@
 
 .lg-surface--navigation,
 .lg-surface--regular {
-  --lg-blur: 6px;
-  --lg-tint-strength: 0.1;
+  --lg-blur: 3px;
+  --lg-tint-strength: 0.055;
   --lg-rim-strength: 0.36;
   --lg-specular-strength: 0.14;
   --lg-shadow-strength: 0.09;
 }
 
 .lg-surface--clear {
-  --lg-blur: 2px;
-  --lg-tint-strength: 0.045;
+  --lg-blur: 0px;
+  --lg-tint-strength: 0.018;
   --lg-rim-strength: 0.4;
   --lg-specular-strength: 0.16;
   --lg-shadow-strength: 0.06;
 }
 
 .lg-surface--control {
-  --lg-blur: 3px;
-  --lg-tint-strength: 0.06;
+  --lg-blur: 2px;
+  --lg-tint-strength: 0.04;
   --lg-rim-strength: 0.46;
   --lg-specular-strength: 0.18;
   --lg-shadow-strength: 0.07;
@@ -60,15 +60,15 @@
 
 .lg-surface--floating {
   --lg-blur: 4px;
-  --lg-tint-strength: 0.07;
+  --lg-tint-strength: 0.05;
   --lg-rim-strength: 0.5;
   --lg-specular-strength: 0.22;
   --lg-shadow-strength: 0.13;
 }
 
 .lg-surface--panel {
-  --lg-blur: 8px;
-  --lg-tint-strength: 0.1;
+  --lg-blur: 5px;
+  --lg-tint-strength: 0.06;
   --lg-rim-strength: 0.34;
   --lg-specular-strength: 0.12;
   --lg-shadow-strength: 0.12;
@@ -76,7 +76,7 @@
 
 .lg-surface--overlay {
   --lg-blur: 10px;
-  --lg-tint-strength: 0.12;
+  --lg-tint-strength: 0.075;
   --lg-rim-strength: 0.38;
   --lg-specular-strength: 0.14;
   --lg-shadow-strength: 0.16;
@@ -97,8 +97,8 @@
   z-index: 0;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 116%), transparent),
-    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 68%), transparent)
+    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 88%), transparent),
+    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 44%), transparent)
   );
   backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
   -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
@@ -203,8 +203,8 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 .is-scrolled .lg-surface[data-lg-condense="true"],
 .lg-surface[data-lg-condense="true"].is-condensed {
   --lg-material-strength: 1;
-  --lg-blur: 6px;
-  --lg-tint-strength: 0.1;
+  --lg-blur: 3px;
+  --lg-tint-strength: 0.055;
   --lg-shadow-strength: 0.09;
 }
 
@@ -219,13 +219,13 @@ html[data-lg-tint="off"] .lg-backdrop { background: transparent !important; }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .lg-backdrop {
-    background: color-mix(in srgb, var(--site-bg-elevated, #eef3f8) 28%, transparent);
+    background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) 8%, transparent);
   }
 }
 
 @media (max-width: 720px) {
   .lg-surface--panel,
-  .lg-surface--overlay { --lg-blur: 8px; }
+  .lg-surface--overlay { --lg-blur: 5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
