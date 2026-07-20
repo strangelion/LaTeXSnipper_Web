@@ -1,0 +1,27 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-sans); }
+.lab-page { min-height: 100vh; background: #111722; color: #edf3fb; }
+.lab-main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 72px; }
+.lab-heading { margin-bottom: 34px; }
+.lab-heading p { margin: 0; color: #8fb6ff; font: 700 0.72rem/1.3 var(--site-mono); letter-spacing: 0.14em; }
+.lab-heading h1 { margin: 10px 0; font: 550 clamp(2.5rem, 6vw, 5rem)/1 var(--site-serif); }
+.lab-heading span { color: #a6b3c5; }
+.lab-themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.lab-theme { position: relative; isolation: isolate; min-height: 680px; padding: 26px; overflow: hidden; border-radius: 30px; }
+.lab-theme--light { --site-ink: #122037; --site-muted: #56677f; --site-glass-tint: rgba(255,255,255,.34); --site-glass-tint-strong: rgba(255,255,255,.54); --site-glass-edge: rgba(255,255,255,.78); background: linear-gradient(145deg,#dbe9f7,#eef5fb); color: var(--site-ink); }
+.lab-theme--dark { --site-ink: #edf3fb; --site-muted: #a6b3c5; --site-glass-tint: rgba(33,50,72,.28); --site-glass-tint-strong: rgba(61,86,116,.36); --site-glass-edge: rgba(190,215,246,.36); background: linear-gradient(145deg,#111722,#1b2a3d); color: var(--site-ink); }
+.lab-theme h2 { position: relative; z-index: 2; margin: 0 0 22px; font: 650 1rem/1.3 var(--site-sans); }
+.lab-ambient { position: absolute; z-index: -1; border-radius: 50%; filter: blur(6px); }
+.lab-ambient--one { width: 320px; height: 320px; right: -80px; top: 70px; background: rgba(80,151,233,.32); }
+.lab-ambient--two { width: 240px; height: 240px; left: -70px; bottom: 30px; background: rgba(78,194,177,.2); }
+.lab-navigation { padding: 18px 20px; }
+.lab-navigation > .liquid-glass__content { display: flex; justify-content: space-between; gap: 20px; }
+.lab-navigation span, .lab-floating span { color: var(--site-muted); font-size: .78rem; }
+.lab-row { margin: 18px 0; display: grid; grid-template-columns: .7fr 1.3fr; gap: 14px; }
+.lab-control { min-height: 74px; color: var(--site-ink); font-weight: 750; }
+.lab-floating, .lab-panel, .lab-overlay { padding: 20px; }
+.lab-floating > .liquid-glass__content { display: flex; flex-direction: column; gap: 5px; }
+.lab-panel { min-height: 190px; }
+.lab-panel p { max-width: 320px; color: var(--site-muted); line-height: 1.7; }
+.lab-overlay { width: 150px; margin: 18px 0 0 auto; text-align: center; }
+@media (max-width: 800px) { .lab-themes { grid-template-columns: 1fr; } .lab-theme { min-height: 620px; padding: 20px; } }

@@ -5,6 +5,37 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
 
+  function ensureLiquidGlassFilterDefs() {
+    if (document.getElementById('liquid-edge-refraction')) return;
+    const namespace = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(namespace, 'svg');
+    svg.setAttribute('class', 'liquid-filter-defs');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.innerHTML = '<defs><filter id="liquid-edge-refraction" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="1" seed="7" result="edgeNoise"></feTurbulence><feDisplacementMap in="SourceGraphic" in2="edgeNoise" scale="1.6" xChannelSelector="R" yChannelSelector="B"></feDisplacementMap></filter></defs>';
+    document.body.prepend(svg);
+  }
+
+  function decorateLiquidSurface(element, variant = 'panel', interactive = false) {
+    if (!element || element.classList.contains('liquid-surface')) return element;
+    const optics = document.createElement('span');
+    optics.className = 'liquid-glass__optics';
+    optics.setAttribute('aria-hidden', 'true');
+    optics.innerHTML = '<span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span>';
+    const content = document.createElement(element.tagName === 'SPAN' ? 'span' : 'div');
+    content.className = 'liquid-glass__content';
+    while (element.firstChild) content.appendChild(element.firstChild);
+    element.append(optics, content);
+    element.classList.add('liquid-surface', `liquid-surface--${variant}`);
+    if (interactive) element.dataset.liquidInteractive = 'true';
+    return element;
+  }
+
+  ensureLiquidGlassFilterDefs();
+  window.LaTeXSnipperLiquid = Object.freeze({ ensureLiquidGlassFilterDefs, decorateLiquidSurface });
+
   const icons = {
     light: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>',
     dark: '<svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
@@ -29,7 +60,8 @@
     const theme = activeTheme();
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
       const next = theme === 'dark' ? 'light' : 'dark';
-      button.innerHTML = icons[next];
+      const iconHost = button.querySelector('[data-theme-icon]') || button;
+      iconHost.innerHTML = icons[next];
       button.setAttribute('aria-label', next === 'dark' ? '切换到暗色模式' : '切换到亮色模式');
       button.setAttribute('title', next === 'dark' ? '切换到暗色模式' : '切换到亮色模式');
     });
@@ -103,27 +135,7 @@
     });
   });
 
-  const highlightSelector = [
-    '.liquid-surface',
-    '.liquid-glass',
-    '.glass-panel',
-    '.glass-control',
-    '.glass-float',
-    '.button',
-    '.site-download-link',
-    '.download-btn',
-    '.platform-card.recommended',
-    '.ocr-copy',
-    '.cam-trigger-btn',
-    '.cam-btn',
-    '.hw-recognize-btn',
-    '.mode-tab',
-    '.model-tab',
-    '.theme-toggle',
-    '.theme-icon-button',
-    '.download-pdf-link',
-    '.float-arrow',
-  ].join(',');
+  const highlightSelector = '.liquid-surface[data-liquid-interactive="true"]';
 
   let frame = 0;
   let pending = null;

@@ -14,7 +14,7 @@ const GITHUB_URL = 'https://github.com/SakuraMathcraft/LaTeXSnipper';
 const mascot = {
   src: '/assets/brand/snipper-girl.webp',
   srcSet: '/assets/brand/snipper-girl-640.webp 640w, /assets/brand/snipper-girl-960.webp 960w',
-  sizes: '(min-width: 1200px) 30vw, (min-width: 780px) 28vw, 0px',
+  sizes: '(min-width: 1200px) 30vw, (min-width: 780px) 28vw, 52vw',
   enabled: true,
 };
 
@@ -26,10 +26,10 @@ const conversionExamples = {
   OMML: '<m:oMath><m:int>…</m:int></m:oMath>',
 };
 
-function LiquidGlassSurface({ as: Tag = 'div', className = '', thickness = 'floating', children }) {
+function LiquidGlassSurface({ as: Tag = 'div', className = '', thickness = 'floating', children, interactive = false, ...props }) {
   const ContentTag = Tag === 'span' ? 'span' : 'div';
   return (
-    <Tag className={`liquid-surface liquid-surface--${thickness} ${className}`.trim()}>
+    <Tag className={`liquid-surface liquid-surface--${thickness} ${className}`.trim()} data-liquid-interactive={interactive ? 'true' : undefined} {...props}>
       <span className="liquid-glass__optics" aria-hidden="true">
         <span className="liquid-glass__tint" />
         <span className="liquid-glass__shine" />
@@ -133,7 +133,7 @@ function SiteHeader() {
           <span className="sr-only">打开或关闭导航</span>
           <span /><span /><span />
         </button>
-        <nav id="site-navigation" className={`site-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="主导航">
+        <LiquidGlassSurface as="nav" thickness="panel" id="site-navigation" className={`site-navigation ${menuOpen ? 'is-open' : ''}`} aria-label="主导航" data-liquid-mobile="true">
           <a href="#product" onClick={closeMenu}>产品</a>
           <a href="#workflow" onClick={closeMenu}>工作流</a>
           <a href="#ecosystem" onClick={closeMenu}>生态</a>
@@ -143,7 +143,7 @@ function SiteHeader() {
             <ThemeIcon theme={theme} />
           </button>
           <a className="site-download-link" href="/download.html" onClick={closeMenu}>下载</a>
-        </nav>
+        </LiquidGlassSurface>
       </LiquidGlassSurface>
     </header>
   );
@@ -188,11 +188,11 @@ function HeroSection() {
               <div className="formula-source">\int_0^\infty e^&#123;-x^2&#125;\,dx</div>
               <div className="formula-sheet-status"><span /> Editable mathematical semantics</div>
             </div>
-            <LiquidGlassSurface as="span" thickness="control" className="format-node node-latex">LaTeX</LiquidGlassSurface>
-            <LiquidGlassSurface as="span" thickness="control" className="format-node node-typst">Typst</LiquidGlassSurface>
-            <LiquidGlassSurface as="span" thickness="control" className="format-node node-omml">OMML</LiquidGlassSurface>
-            <LiquidGlassSurface thickness="floating" className="hero-float-card float-ocr"><strong>MathCraft OCR</strong><span>Local-first recognition</span></LiquidGlassSurface>
-            <LiquidGlassSurface thickness="floating" className="hero-float-card float-core"><strong>Core 3</strong><span>Unified Document AST</span></LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-latex">LaTeX</LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-typst">Typst</LiquidGlassSurface>
+            <LiquidGlassSurface as="span" thickness="control" interactive className="format-node node-omml">OMML</LiquidGlassSurface>
+            <LiquidGlassSurface thickness="floating" interactive className="hero-float-card float-ocr"><strong>MathCraft OCR</strong><span>Local-first recognition</span></LiquidGlassSurface>
+            <LiquidGlassSurface thickness="floating" interactive className="hero-float-card float-core"><strong>Core 3</strong><span>Unified Document AST</span></LiquidGlassSurface>
           </div>
         </div>
       </div>

@@ -19,18 +19,17 @@
       <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
       <div class="liquid-glass__content">
       <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
-      <nav class="site-navigation" id="siteNavigation" aria-label="主导航">
+      <nav class="site-navigation liquid-surface liquid-surface--panel" data-liquid-mobile="true" id="siteNavigation" aria-label="主导航">
+        <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
         <a href="/#product">产品</a>
         <a href="/#workflow">工作流</a>
         <a href="/#ecosystem">生态</a>
         <a href="user_manual.html">文档</a>
         <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
-      </nav>
+        </div></nav>
       <div class="site-header-actions">
-        <button class="theme-toggle glass-control" type="button" data-theme-toggle aria-label="切换主题"></button>
-        <button class="site-menu-toggle glass-control" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航">
-          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
+        <button class="theme-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><span data-theme-icon></span></span></button>
+        <button class="site-menu-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
       </div>
       </div>
     </div>
@@ -212,11 +211,18 @@
       function markRecommended(card, label) {
         if (!card) return
         card.classList.add('recommended')
+        window.LaTeXSnipperLiquid.decorateLiquidSurface(card, 'panel', true)
         var badge = document.createElement('span')
         badge.className = 'recommended-badge'
         badge.textContent = label
-        card.prepend(badge)
+        window.LaTeXSnipperLiquid.decorateLiquidSurface(badge, 'control', false)
+        card.append(badge)
       }
+
+      document.querySelectorAll('.download-btn:not(.disabled)').forEach(function (button) {
+        button.dataset.liquidAccent = 'blue'
+        window.LaTeXSnipperLiquid.decorateLiquidSurface(button, 'control', true)
+      })
 
       try {
         var response = await fetch('/release-manifest.json', {
@@ -237,7 +243,9 @@
 
         var dateEl = document.getElementById('releaseDate')
         if (dateEl) {
-          dateEl.textContent = formatDate(manifest.publishedAt)
+          var publishedDate = formatDate(manifest.publishedAt)
+          dateEl.textContent = publishedDate
+          dateEl.hidden = !publishedDate
         }
 
         var assets = Array.isArray(manifest.assets) ? manifest.assets : []

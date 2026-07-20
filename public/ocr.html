@@ -21,19 +21,18 @@
     <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
     <div class="liquid-glass__content">
     <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
-    <nav class="site-navigation" id="siteNavigation" aria-label="主导航">
+    <nav class="site-navigation liquid-surface liquid-surface--panel" data-liquid-mobile="true" id="siteNavigation" aria-label="主导航">
+      <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
       <a href="/#product">产品</a>
       <a href="/#workflow">工作流</a>
       <a href="/#ecosystem">生态</a>
       <a href="/user_manual.html">文档</a>
       <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
-    </nav>
+      </div></nav>
     <div class="site-header-actions">
       <a class="site-download-link" href="/download.html">下载</a>
-      <button class="theme-toggle glass-control" type="button" data-theme-toggle aria-label="切换主题"></button>
-      <button class="site-menu-toggle glass-control" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航">
-        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
+      <button class="theme-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><span data-theme-icon></span></span></button>
+      <button class="site-menu-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
     </div>
     </div>
   </div>
@@ -45,17 +44,19 @@
   <p class="demo-sub">LaTeXSnipper Core v3 · WASM / Tract 本地推理 · 模型按需下载并缓存</p>
 
   <!-- ═══ 状态栏 ═══ -->
-  <div class="status-bar" id="statusBar">
+  <div class="status-bar liquid-surface liquid-surface--panel" id="statusBar">
+    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
     <span id="statusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
     <span id="statusText">正在加载识别引擎…</span>
     <div class="spinner show" id="spinner"></div>
     <div id="modelProgress" class="model-progress"></div>
-  </div>
-  <div class="runtime-strip" aria-label="浏览器运行时状态">
+    </div></div>
+  <div class="runtime-strip liquid-surface liquid-surface--panel" aria-label="浏览器运行时状态">
+    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
     <span class="runtime-badge" id="coreRuntimeStatus">Core Conversion：正在初始化</span>
     <span class="runtime-badge" data-state="ready">单公式识别：Core WASM</span>
     <span class="runtime-badge">兼容回退：ONNX Runtime Web</span>
-  </div>
+    </div></div>
 
   <!-- ═══ 下载进度 ═══ -->
   <div class="progress-wrap" id="progressWrap">
@@ -64,20 +65,23 @@
   </div>
 
   <!-- ═══ 模式切换 ═══ -->
-  <div class="mode-tabs">
+  <div class="mode-tabs liquid-surface liquid-surface--control" data-liquid-interactive="true">
+    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
     <button class="mode-tab active" id="tabImage">图片识别</button>
     <button class="mode-tab" id="tabHandwrite">手写识别</button>
-  </div>
+    </div></div>
 
   <!-- ═══ 模型选择 ═══ -->
-  <div class="model-tabs" id="modelTabs">
+  <div class="model-tabs liquid-surface liquid-surface--control" data-liquid-interactive="true" id="modelTabs">
+    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
     <button class="model-tab active" data-mode="formula">公式</button>
     <button class="model-tab" data-mode="text" disabled title="真实文字模型通过浏览器回归测试后开放">文字（开发中）</button>
     <button class="model-tab" data-mode="mixed" disabled title="真实混合流水线通过浏览器回归测试后开放">混合（开发中）</button>
-  </div>
+    </div></div>
 
   <!-- ═══ 图片识别模式：拖拽区 + 拍照 ═══ -->
-  <div class="drop-zone" id="dropZone">
+  <div class="ocr-workspace-shell liquid-surface liquid-surface--panel"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
+  <div class="drop-zone standard-surface" id="dropZone">
     <input type="file" id="fileInput" accept="image/*,.pdf">
     <div id="dropContent">
       <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
@@ -85,28 +89,28 @@
       <div class="drop-help">Win+Shift+S 截图后在此页面按 Ctrl+V 即可识别<br>也可上传 PDF（最多100页），逐页识别公式<br>网页版提供基础识别效果，桌面客户端内置专属优化引擎</div>
     </div>
     <img id="preview" style="display:none;" alt="预览">
-    <button class="cam-trigger-btn" id="camTrigger" type="button">
+    <button class="cam-trigger-btn liquid-surface liquid-surface--control" data-liquid-interactive="true" id="camTrigger" type="button"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       拍照识别
-    </button>
-  </div>
+    </span></button>
+  </div></div></div>
 
   <!-- ═══ 相机 Modal ═══ -->
   <div class="cam-modal" id="camModal">
     <video id="camVideo" autoplay playsinline></video>
     <canvas id="camCropCanvas" class="cam-crop-canvas" style="display:none;"></canvas>
-    <div class="cam-actions" id="camActions">
+    <div class="cam-actions liquid-surface liquid-surface--floating" id="camActions"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
       <button class="cam-btn cam-capture" id="camCapture">拍照识别</button>
       <button class="cam-btn cam-close" id="camClose">关闭</button>
-    </div>
-    <div class="cam-actions" id="camCropActions" style="display:none;">
-      <div class="cam-segmented">
+    </div></div>
+    <div class="cam-actions liquid-surface liquid-surface--floating" id="camCropActions" style="display:none;"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
+      <div class="cam-segmented liquid-surface liquid-surface--control"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
         <button class="cam-seg-btn active" id="camCropModeRect">矩形框选</button>
         <button class="cam-seg-btn" id="camCropModeLasso">自由绘制</button>
-      </div>
+      </div></div>
       <button class="cam-btn cam-capture" id="camCropConfirm">确认识别</button>
       <button class="cam-btn cam-close" id="camCropRetake">重拍</button>
-    </div>
+    </div></div>
   </div>
 
   <!-- ═══ 手写识别模式 ═══ -->
@@ -115,17 +119,17 @@
       <canvas id="hwCanvas" width="800" height="500"></canvas>
       <div class="hw-resize-handle" id="hwResizeHandle"></div>
     </div>
-    <div class="hw-toolbar">
+    <div class="hw-toolbar liquid-surface liquid-surface--floating"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
       <button class="hw-tool-btn active" id="hwPen"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>笔</button>
       <button class="hw-tool-btn" id="hwEraser"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16c-.8-.8-.8-2 0-2.8L14.6 1.6c.8-.8 2-.8 2.8 0L21 5.2c.8.8.8 2 0 2.8L12 17"/><line x1="6" y1="20" x2="10" y2="20"/></svg>橡皮</button>
       <button class="hw-tool-btn" id="hwUndo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>撤销</button>
       <button class="hw-tool-btn" id="hwClear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>清空</button>
-      <button class="hw-recognize-btn" id="hwRecognize">识别</button>
-    </div>
+      <button class="hw-recognize-btn liquid-surface liquid-surface--control" data-liquid-accent="blue" data-liquid-interactive="true" id="hwRecognize"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">识别</span></button>
+    </div></div>
   </div>
 
   <!-- ═══ 识别结果 ═══ -->
-  <div class="result-card" id="resultCard">
+  <div class="result-card liquid-surface liquid-surface--panel" id="resultCard"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content"><div class="result-standard standard-surface">
     <div class="result-header">
       <span class="label">识别结果</span>
       <div class="result-tools">
@@ -138,8 +142,8 @@
     </div>
     <pre class="result-code" id="resultCode"></pre>
     <div class="math-preview" id="mathPreview"></div>
-  </div>
-  <button class="ocr-copy" id="copyBtn" type="button" style="display:none;">复制 LaTeX 代码</button>
+  </div></div></div>
+  <button class="ocr-copy liquid-surface liquid-surface--control" data-liquid-accent="blue" data-liquid-interactive="true" id="copyBtn" type="button" style="display:none;"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">复制 LaTeX 代码</span></button>
 
   <div class="error-msg" id="errorMsg" style="display:none;"></div>
 
@@ -163,4 +167,3 @@ MathJax = {
 <script type="module" src="js/ocr.js"></script>
 </body>
 </html>
-

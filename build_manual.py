@@ -970,7 +970,7 @@ def enhance_volumes(html_content):
             result.append(m.group(0))
         else:
             title = m.group(2)
-            result.append(f'<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label">{title}</span></div></div>')
+            result.append(f'<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">{title}</span></div></div>')
         pos = end
     result.append(html_content[pos:])
     return ''.join(result)
@@ -1228,22 +1228,28 @@ def main():
     toc_html = render_toc_items(toc_items, vol_divisions, 'toc')
     right_toc_html = render_toc_items(toc_items, vol_divisions, 'rs')
 
-    sidebar_html = f"""<nav class="sidebar" id="sidebar">
+    sidebar_html = f"""<nav class="sidebar liquid-surface liquid-surface--panel" id="sidebar">
+  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
+  <div class="liquid-glass__content sidebar-material-content">
     <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="sidebar-inner">
     <ul class="toc-list">
 {toc_html}
     </ul>
   </div>
+</div>
 </nav>"""
 
-    right_sidebar_html = f"""<aside class="right-sidebar" id="rightSidebar">
+    right_sidebar_html = f"""<aside class="right-sidebar liquid-surface liquid-surface--panel" id="rightSidebar">
+  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
+  <div class="liquid-glass__content sidebar-material-content">
     <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
   <div class="rs-inner">
     <ul class="rs-list" id="rsList">
 {right_toc_html}
     </ul>
   </div>
+</div>
 </aside>"""
 
     # ── 增强分卷分隔（将卷标题替换为醒目分割条）──
@@ -1326,21 +1332,22 @@ def main():
     <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
     <div class="liquid-glass__content">
     <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
-    <nav class="site-navigation" id="siteNavigation" aria-label="主导航">
+    <nav class="site-navigation liquid-surface liquid-surface--panel" data-liquid-mobile="true" id="siteNavigation" aria-label="主导航">
+      <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><div class="liquid-glass__content">
       <a href="/#product">产品</a><a href="/#workflow">工作流</a><a href="/#ecosystem">生态</a><a href="user_manual.html" aria-current="page">文档</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
-    </nav>
+      </div></nav>
     <div class="site-header-actions">
-      <a class="download-pdf-link glass-control" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></a>
-      <button class="theme-toggle glass-control" type="button" data-theme-toggle aria-label="切换主题"></button>
-      <button class="site-menu-toggle glass-control" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <a class="download-pdf-link liquid-surface liquid-surface--control" data-liquid-interactive="true" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></span></a>
+      <button class="theme-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><span data-theme-icon></span></span></button>
+      <button class="site-menu-toggle liquid-surface liquid-surface--control" data-liquid-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
     </div>
     </div>
   </div>
 </header>
 
 <!-- 浮动可拖动箭头按钮 -->
-<div class="float-arrow side-left" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+<div class="float-arrow side-left liquid-surface liquid-surface--floating" data-liquid-interactive="true" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
+  <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
 </div>
 
 <!-- 鼠标靠边悬停触发区域 -->
@@ -1357,12 +1364,12 @@ def main():
 {content}
 </main>
 
-<button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部">
+<button class="back-to-top liquid-surface liquid-surface--floating" data-liquid-interactive="true" id="backToTop" title="回到顶部" aria-label="回到顶部"><span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span><span class="liquid-glass__content">
     <svg class="btt-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 19V5" />
       <path d="M5 12l7-7 7 7" />
     </svg>
-  </button>
+  </span></button>
 <script>
 // 主题切换
 (function() {{

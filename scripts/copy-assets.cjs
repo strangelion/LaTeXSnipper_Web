@@ -39,6 +39,8 @@ const assets = [
   'styles/download.css',
   'styles/ocr.css',
   'styles/manual.css',
+  'styles/liquid-glass-lab.css',
+  'design/liquid-glass-lab.html',
   'js/script.js',
   'js/product-shell.js',
   'js/device-detection.js',

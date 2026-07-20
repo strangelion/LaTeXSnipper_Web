@@ -1,4 +1,5 @@
 .manual {
+  --manual-sidebar-width: clamp(300px, 22vw, 360px);
   min-height: 100vh;
   padding-top: var(--site-header-height);
   background:
@@ -30,42 +31,46 @@
   color: var(--site-blue);
 }
 
+.download-pdf-link > .liquid-glass__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .sidebar,
 .right-sidebar {
   position: fixed;
   z-index: 950;
-  top: var(--site-header-height);
-  bottom: 0;
-  width: min(310px, 86vw);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-color: var(--site-line-strong);
-  border-style: solid;
-  border-width: 0;
+  top: calc(var(--site-header-height) + 8px);
+  bottom: 12px;
+  width: min(var(--manual-sidebar-width), calc(100vw - 44px));
   color: var(--site-ink-soft);
-  background:
-    linear-gradient(150deg, color-mix(in srgb, var(--site-glass-tint-strong) 88%, transparent), var(--site-glass-tint));
-  box-shadow: var(--site-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(30px) saturate(145%);
-  -webkit-backdrop-filter: blur(30px) saturate(145%);
   opacity: 0;
   pointer-events: none;
   transition: transform 280ms var(--site-ease), opacity 220ms ease;
 }
 
 .sidebar {
-  left: 0;
-  border-right-width: 1px;
-  border-radius: 0 22px 22px 0;
+  left: 12px;
   transform: translateX(-102%);
 }
 
 .right-sidebar {
-  right: 0;
-  border-left-width: 1px;
-  border-radius: 22px 0 0 22px;
+  right: 12px;
   transform: translateX(102%);
+}
+
+.manual:has(.site-header.is-auto-hidden) .sidebar,
+.manual:has(.site-header.is-auto-hidden) .right-sidebar {
+  top: 12px;
+}
+
+.sidebar-material-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .sidebar.open,
@@ -88,11 +93,9 @@
   gap: 7px;
   border-bottom: 1px solid var(--site-line);
   color: var(--site-ink);
-  background: color-mix(in srgb, var(--site-glass-tint-strong) 84%, transparent);
+  background: color-mix(in srgb, var(--site-surface) 58%, transparent);
   font-size: 0.84rem;
   font-weight: 750;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 
 .sidebar-close,
@@ -211,13 +214,8 @@
   height: 44px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--site-glass-edge);
   border-radius: 50%;
   color: var(--site-blue);
-  background: var(--site-glass-tint-strong);
-  box-shadow: var(--site-shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(22px) saturate(145%);
-  -webkit-backdrop-filter: blur(22px) saturate(145%);
   cursor: grab;
   user-select: none;
   touch-action: none;
@@ -225,11 +223,11 @@
 }
 
 .manual:has(.sidebar.open) .float-arrow.side-left {
-  left: min(288px, calc(86vw - 22px)) !important;
+  left: min(calc(var(--manual-sidebar-width) - 10px), calc(100vw - 54px)) !important;
 }
 
 .manual:has(.right-sidebar.open) .float-arrow.side-right {
-  right: min(288px, calc(86vw - 22px)) !important;
+  right: min(calc(var(--manual-sidebar-width) - 10px), calc(100vw - 54px)) !important;
 }
 
 .float-arrow:hover {
@@ -247,6 +245,12 @@
   width: 20px;
   height: 20px;
   pointer-events: none;
+}
+
+.float-arrow > .liquid-glass__content,
+.back-to-top > .liquid-glass__content {
+  display: grid;
+  place-items: center;
 }
 
 .float-arrow.side-right svg {
@@ -305,13 +309,8 @@
   padding: 0;
   display: grid;
   place-items: center;
-  border: 1px solid var(--site-glass-edge);
   border-radius: 50%;
   color: var(--site-blue);
-  background: var(--site-glass-tint-strong);
-  box-shadow: var(--site-shadow-sm);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   opacity: 0;
   pointer-events: none;
   transform: translateY(10px);
@@ -353,8 +352,9 @@
 
   .sidebar,
   .right-sidebar {
-    top: var(--site-header-height);
-    width: min(310px, calc(100vw - 34px));
+    top: calc(var(--site-header-height) + 6px);
+    bottom: 8px;
+    width: calc(100vw - 44px);
   }
 
   .float-arrow,

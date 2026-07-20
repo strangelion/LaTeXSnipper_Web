@@ -1103,19 +1103,29 @@
 
   .hero-math-layer,
   .hero-visual.has-mascot .hero-math-layer {
-    width: 100%;
+    width: 69%;
     min-height: 400px;
+    margin-right: auto;
   }
 
-  .hero-mascot,
+  .hero-mascot {
+    display: block;
+    right: -6%;
+    width: 52%;
+    height: 94%;
+  }
+
   .hero-character-glow {
-    display: none;
+    display: block;
+    right: -10%;
+    width: 62%;
+    height: 88%;
   }
 
   .hero-orbit-one { width: 90%; height: 250px; }
   .hero-orbit-two { width: 68%; height: 340px; }
   .formula-sheet {
-    width: calc(100% - 34px);
+    width: calc(100% - 12px);
     max-width: 470px;
     min-width: 0;
     min-height: 246px;
@@ -1286,16 +1296,23 @@
   }
 
   .hero-visual {
-    min-height: 300px;
+    min-height: 340px;
   }
 
   .hero-math-layer,
   .hero-visual.has-mascot .hero-math-layer {
-    min-height: 300px;
+    width: 70%;
+    min-height: 340px;
+  }
+
+  .hero-mascot {
+    right: -9%;
+    width: 56%;
+    height: 96%;
   }
 
   .formula-sheet {
-    width: calc(100% - 20px);
+    width: calc(100% - 8px);
     min-height: 200px;
     padding: 18px 14px;
   }

@@ -39,18 +39,16 @@
 .status-bar {
   min-height: 62px;
   padding: 14px 18px;
+  color: var(--site-muted);
+  text-align: center;
+}
+
+.status-bar > .liquid-glass__content {
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--site-muted);
-  border: 1px solid var(--site-line-strong);
-  border-radius: var(--site-radius-md);
-  background: var(--site-glass-tint);
-  box-shadow: var(--site-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  text-align: center;
 }
 
 #statusIcon {
@@ -88,6 +86,10 @@
 
 .runtime-strip {
   margin: 10px 0 24px;
+  padding: 7px;
+}
+
+.runtime-strip > .liquid-glass__content {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -159,13 +161,15 @@
   max-width: 100%;
   margin: 0 auto 10px;
   padding: 4px;
+}
+
+.mode-tabs > .liquid-glass__content,
+.model-tabs > .liquid-glass__content {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  border: 1px solid var(--site-line);
-  border-radius: 14px;
-  background: var(--site-surface);
 }
 
 .model-tabs {
@@ -200,10 +204,14 @@
 
 .mode-tab.active,
 .model-tab.active {
-  color: var(--site-blue-ink);
-  border-color: color-mix(in srgb, var(--site-blue) 64%, white 36%);
-  background: linear-gradient(145deg, var(--site-blue-bright), var(--site-blue));
-  box-shadow: 0 6px 18px color-mix(in srgb, var(--site-blue) 19%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  color: var(--site-blue);
+  border-color: color-mix(in srgb, var(--site-blue) 30%, transparent);
+  background: color-mix(in srgb, var(--site-blue-soft) 76%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 4px 14px color-mix(in srgb, var(--site-blue) 11%, transparent);
+}
+
+.ocr-workspace-shell {
+  padding: 10px;
 }
 
 .model-tab:disabled {
@@ -295,12 +303,17 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid var(--site-line-strong);
   border-radius: 10px;
   color: var(--site-ink-soft);
-  background: var(--site-surface-strong);
   cursor: pointer;
-  transition: color 160ms ease, border-color 160ms ease, transform 160ms ease, background-color 160ms ease;
+  transition: color 160ms ease, transform 160ms ease;
+}
+
+.cam-trigger-btn > .liquid-glass__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .cam-trigger-btn {
@@ -378,6 +391,10 @@
 }
 
 .hw-toolbar {
+  padding: 7px;
+}
+
+.hw-toolbar > .liquid-glass__content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -399,11 +416,7 @@
 .cam-capture {
   min-height: 42px;
   padding: 9px 18px;
-  border: 1px solid color-mix(in srgb, var(--site-blue) 68%, white 32%);
   border-radius: 11px;
-  color: var(--site-blue-ink);
-  background: linear-gradient(145deg, var(--site-blue-bright), var(--site-blue));
-  box-shadow: 0 9px 24px color-mix(in srgb, var(--site-blue) 21%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   font-weight: 750;
   cursor: pointer;
 }
@@ -412,17 +425,25 @@
   margin-left: auto;
 }
 
+.hw-recognize-btn > .liquid-glass__content,
+.ocr-copy > .liquid-glass__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .result-card {
   margin-top: 18px;
-  padding: 24px;
+  padding: 9px;
   display: none;
-  border: 1px solid var(--site-line);
-  border-radius: var(--site-radius-lg);
-  background: var(--site-surface);
 }
 
 .result-card.show {
   display: block;
+}
+
+.result-standard {
+  padding: 22px;
 }
 
 .result-header {
@@ -510,7 +531,6 @@ pre.result-code {
 
 .ocr-copy.copied {
   border-color: var(--site-success);
-  background: var(--site-success);
 }
 
 .error-msg {
@@ -572,6 +592,11 @@ pre.result-code {
 
 .cam-actions,
 .cam-segmented {
+  padding: 6px;
+}
+
+.cam-actions > .liquid-glass__content,
+.cam-segmented > .liquid-glass__content {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -596,10 +621,7 @@ pre.result-code {
 }
 
 .cam-segmented {
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 13px;
-  background: rgba(255, 255, 255, 0.05);
 }
 
 .cam-seg-btn {
@@ -611,8 +633,9 @@ pre.result-code {
 
 .cam-seg-btn.active,
 .cam-seg-btn.lasso-active {
-  color: #0b1220;
-  background: #9bbcff;
+  color: var(--site-blue);
+  background: color-mix(in srgb, var(--site-blue-soft) 82%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 @media (max-width: 680px) {
@@ -638,14 +661,15 @@ pre.result-code {
   .status-bar {
     min-height: 0;
     padding: 13px 14px;
-    flex-wrap: wrap;
     font-size: 0.84rem;
   }
 
+  .status-bar > .liquid-glass__content {
+    flex-wrap: wrap;
+  }
+
   .runtime-strip {
-    justify-content: flex-start;
     overflow-x: auto;
-    flex-wrap: nowrap;
     padding-bottom: 4px;
     scrollbar-width: none;
   }
@@ -656,6 +680,11 @@ pre.result-code {
 
   .runtime-badge {
     flex: 0 0 auto;
+  }
+
+  .runtime-strip > .liquid-glass__content {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
   }
 
   .mode-tabs,
@@ -685,6 +714,10 @@ pre.result-code {
     gap: 5px;
   }
 
+  .hw-toolbar > .liquid-glass__content {
+    gap: 5px;
+  }
+
   .hw-tool-btn {
     min-height: 36px;
     padding-inline: 9px;
@@ -697,8 +730,12 @@ pre.result-code {
   }
 
   .result-card {
-    padding: 17px;
+    padding: 8px;
     border-radius: 20px;
+  }
+
+  .result-standard {
+    padding: 16px;
   }
 
   .cam-modal {
@@ -707,6 +744,11 @@ pre.result-code {
 
   .cam-actions {
     width: 100%;
+  }
+
+  .cam-actions > .liquid-glass__content {
+    width: 100%;
+    justify-content: center;
   }
 }
 
