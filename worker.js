@@ -7,11 +7,35 @@ const GITHUB_OWNER = "strangelion";
 const GITHUB_REPO = "LaTeXSnipper_Web";
 const WORKER_SERVICE_VERSION = "2026.07.19";
 
-// 允许的文件扩展名白名单（防止路径遍历和信息泄露）
-const ALLOWED_EXTENSIONS = new Set([
-  "html", "css", "js", "mjs", "json", "xml", "txt", "png", "jpg", "jpeg", "gif", "svg",
-  "ico", "wasm", "mp4", "webm", "otf", "ttf", "woff2", "typ", "pdf",
-]);
+// Keep extension safety, MIME handling, binary reads, and caching in one table.
+const ASSET_TYPES = Object.freeze({
+  html: { mime: "text/html; charset=utf-8" },
+  css: { mime: "text/css; charset=utf-8" },
+  js: { mime: "application/javascript; charset=utf-8" },
+  mjs: { mime: "application/javascript; charset=utf-8" },
+  json: { mime: "application/json; charset=utf-8" },
+  xml: { mime: "text/xml; charset=utf-8" },
+  txt: { mime: "text/plain; charset=utf-8" },
+  typ: { mime: "text/plain; charset=utf-8" },
+  png: { mime: "image/png", binary: true, static: true },
+  jpg: { mime: "image/jpeg", binary: true, static: true },
+  jpeg: { mime: "image/jpeg", binary: true, static: true },
+  gif: { mime: "image/gif", binary: true, static: true },
+  webp: { mime: "image/webp", binary: true, static: true },
+  avif: { mime: "image/avif", binary: true, static: true },
+  svg: { mime: "image/svg+xml", binary: true, static: true },
+  ico: { mime: "image/x-icon", binary: true, static: true },
+  wasm: { mime: "application/wasm", binary: true, static: true },
+  mp4: { mime: "video/mp4", binary: true },
+  webm: { mime: "video/webm", binary: true },
+  otf: { mime: "font/otf", binary: true, static: true },
+  ttf: { mime: "font/ttf", binary: true, static: true },
+  woff: { mime: "font/woff", binary: true, static: true },
+  woff2: { mime: "font/woff2", binary: true, static: true },
+  pdf: { mime: "application/pdf", binary: true, static: true },
+});
+
+const ALLOWED_EXTENSIONS = new Set(Object.keys(ASSET_TYPES));
 
 // 禁止的路径模式
 const BLOCKED_PATH_PATTERNS = [
@@ -40,30 +64,9 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (c) => map[c]);
 }
 
-const MIME_TYPES = {
-  html: "text/html; charset=utf-8",
-  css: "text/css; charset=utf-8",
-  js: "application/javascript; charset=utf-8",
-  mjs: "application/javascript; charset=utf-8",
-  json: "application/json; charset=utf-8",
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  gif: "image/gif",
-  svg: "image/svg+xml",
-  ico: "image/x-icon",
-  wasm: "application/wasm",
-  mp4: "video/mp4",
-  webm: "video/webm",
-  otf: "font/otf",
-  ttf: "font/ttf",
-  woff2: "font/woff2",
-  xml: "text/xml; charset=utf-8",
-};
-
 function getMimeType(p) {
   const ext = p.split(".").pop().toLowerCase();
-  return MIME_TYPES[ext] || "text/plain; charset=utf-8";
+  return ASSET_TYPES[ext]?.mime || "text/plain; charset=utf-8";
 }
 
 function isHashedAsset(p) {
@@ -71,7 +74,13 @@ function isHashedAsset(p) {
 }
 
 function isStaticAsset(p) {
-  return /\.(png|jpe?g|gif|svg|ico|otf|ttf|woff2|pdf|wasm)$/i.test(p);
+  const ext = p.split(".").pop().toLowerCase();
+  return ASSET_TYPES[ext]?.static === true;
+}
+
+function isBinaryAsset(p) {
+  const ext = p.split(".").pop().toLowerCase();
+  return ASSET_TYPES[ext]?.binary === true;
 }
 
 function cacheControl(p) {
@@ -674,6 +683,9 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
 
 export {
   getMimeType,
+  isBinaryAsset,
+  isSafePath,
+  isStaticAsset,
   proxyBinary,
   securityHeaders,
 };
@@ -946,8 +958,7 @@ export default {
 
     const mimeType = getMimeType(filePath);
     const isHtml = filePath.endsWith(".html");
-    const isBinary = /\.(png|jpe?g|gif|svg|ico|otf|ttf|woff2|wasm|pdf)$/i.test(filePath);
-    let content = isBinary ? await resp.arrayBuffer() : await resp.text();
+    let content = isBinaryAsset(filePath) ? await resp.arrayBuffer() : await resp.text();
 
     // 页面访问统计
     if (isHtml) { await pvEnsureLoadedBeforeTrack(env); trackPageView(env, ctx, path); }

@@ -25,6 +25,10 @@ const PUBLIC_DIR = path.resolve(root, 'public');
 const REQUIRED_PATHS = [
   'index.html',
   'assets/',
+  'assets/brand/snipper-girl.webp',
+  'assets/brand/snipper-girl-640.webp',
+  'assets/brand/snipper-girl-960.webp',
+  'assets/hero-workspace-',
   'ocr.html',
   'js/ocr.js',
   'js/core-runtime.js',

@@ -4,6 +4,9 @@ import test from 'node:test';
 
 import {
   getMimeType,
+  isBinaryAsset,
+  isSafePath,
+  isStaticAsset,
   proxyBinary,
   securityHeaders,
 } from '../worker.js';
@@ -72,6 +75,48 @@ test('WASM and module scripts use correct MIME types', () => {
     getMimeType('/vendor/runtime.mjs'),
     'application/javascript; charset=utf-8',
   );
+});
+
+test('WebP and AVIF are safe binary static assets with correct MIME types', () => {
+  for (const [extension, mime] of [
+    ['webp', 'image/webp'],
+    ['avif', 'image/avif'],
+  ]) {
+    const path = `/assets/test.${extension}`;
+    assert.equal(isSafePath(path.slice(1)), true);
+    assert.equal(getMimeType(path), mime);
+    assert.equal(isBinaryAsset(path), true);
+    assert.equal(isStaticAsset(path), true);
+  }
+});
+
+test('Worker returns brand and hashed WebP bytes without text decoding', async () => {
+  const expected = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0xff, 0x80, 0x57]);
+  let requestedPath = '';
+  const env = {
+    ASSETS: {
+      fetch(request) {
+        requestedPath = new URL(request.url).pathname;
+        return Promise.resolve(new Response(expected, {
+          headers: { 'Content-Type': 'application/octet-stream' },
+        }));
+      },
+    },
+  };
+  for (const path of [
+    '/assets/brand/snipper-girl.webp',
+    '/assets/hero-workspace-DFGCPZpQ.webp',
+  ]) {
+    const request = new Request(`https://example.test${path}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 LaTeXSnipper test browser' },
+    });
+    const response = await worker.fetch(request, env, { waitUntil() {} });
+
+    assert.equal(response.status, 200);
+    assert.equal(requestedPath, path);
+    assert.equal(response.headers.get('Content-Type'), 'image/webp');
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()), expected);
+  }
 });
 
 test('model proxy forwards Range and streams the upstream response', async () => {
