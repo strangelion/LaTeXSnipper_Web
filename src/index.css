@@ -179,7 +179,7 @@ main {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--fg);
+  color: var(--site-ink-soft);
   transition: background 0.2s, border-color 0.2s;
 }
 
