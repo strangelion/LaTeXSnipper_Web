@@ -50,6 +50,12 @@ const REQUIRED_PATHS = [
   'assets/images/icon-96.png',
   'open-source.html',
   'styles/product-shell.css',
+  'styles/site-tokens.css',
+  'styles/liquid-glass.css',
+  'styles/site-shell.css',
+  'styles/download.css',
+  'styles/ocr.css',
+  'styles/manual.css',
   'js/product-shell.js',
   'js/device-detection.js',
 ];

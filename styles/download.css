@@ -1,0 +1,494 @@
+.download-page {
+  width: min(1180px, calc(100% - 40px));
+  margin-inline: auto;
+  padding-bottom: 96px;
+  text-align: center;
+}
+
+.download-page::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 42px;
+  left: 50%;
+  width: min(940px, 92vw);
+  height: 340px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--site-blue) 11%, transparent), transparent 68%);
+  pointer-events: none;
+}
+
+.download-title {
+  max-width: 760px;
+  margin: 44px auto 0;
+  color: var(--site-ink);
+  font: 500 clamp(2.8rem, 6vw, 4.9rem)/1 var(--site-serif);
+  letter-spacing: -0.048em;
+  text-wrap: balance;
+}
+
+.download-sub {
+  max-width: 680px;
+  margin: 18px auto 22px;
+  color: var(--site-muted);
+  font-size: clamp(0.98rem, 1.5vw, 1.13rem);
+  line-height: 1.75;
+}
+
+.release-summary {
+  margin: 0 auto 34px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.release-summary span:not([hidden]) {
+  min-height: 34px;
+  padding: 7px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--site-muted);
+  background: var(--site-surface);
+  font: 600 0.75rem/1.1 var(--site-mono);
+}
+
+#deviceHint:not([hidden]) {
+  color: var(--site-blue);
+  border-color: color-mix(in srgb, var(--site-blue) 24%, transparent);
+  background: var(--site-blue-soft);
+}
+
+.platform-grid {
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.platform-card:not(.recommended) {
+  grid-column: span 2;
+}
+
+.platform-card[data-platform="office"] {
+  grid-column: 2 / span 2;
+}
+
+.platform-card[data-platform="wps"] {
+  grid-column: 4 / span 2;
+}
+
+.platform-card {
+  min-width: 0;
+  min-height: 268px;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+  text-align: center;
+  transition: transform 220ms var(--site-ease), border-color 180ms ease, background-color 180ms ease, box-shadow 220ms ease;
+}
+
+.platform-card:hover {
+  z-index: 2;
+  transform: translateY(-3px);
+  border-color: var(--site-line-strong);
+  background: var(--site-surface-strong);
+  box-shadow: var(--site-shadow-sm);
+}
+
+.platform-card.recommended {
+  --glass-blur: 34px;
+  order: -1;
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 190px;
+  padding: 30px 34px;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) minmax(190px, auto);
+  grid-template-areas:
+    "icon name action"
+    "icon desc action"
+    "icon owner hash";
+  column-gap: 26px;
+  row-gap: 5px;
+  align-items: center;
+  text-align: left;
+  border-color: color-mix(in srgb, var(--site-blue) 28%, var(--site-glass-edge));
+  background:
+    radial-gradient(320px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.18), transparent 70%),
+    linear-gradient(145deg, color-mix(in srgb, var(--site-glass-tint-strong) 86%, var(--site-blue-soft)), var(--site-glass-tint));
+  box-shadow: var(--site-shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+.recommended-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--site-blue) 42%, transparent);
+  border-radius: 999px;
+  color: var(--site-blue);
+  background: color-mix(in srgb, var(--site-blue-soft) 82%, var(--site-surface-strong));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  font: 750 0.7rem/1 var(--site-sans);
+  letter-spacing: 0.04em;
+}
+
+.platform-icon {
+  width: 48px;
+  height: 48px;
+  margin: 2px auto 4px;
+  display: grid;
+  place-items: center;
+  color: var(--site-blue);
+}
+
+.recommended .platform-icon {
+  grid-area: icon;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+}
+
+.recommended .platform-name {
+  grid-area: name;
+  align-self: end;
+  font-size: clamp(1.85rem, 3vw, 2.55rem);
+}
+
+.recommended .platform-desc {
+  grid-area: desc;
+}
+
+.recommended .platform-owner {
+  grid-area: owner;
+  align-self: start;
+}
+
+.recommended .platform-desc,
+.recommended .platform-owner {
+  max-width: none;
+  margin: 0;
+  text-align: left;
+}
+
+.recommended .download-btn,
+.recommended .download-btn:not([hidden]) {
+  grid-area: action;
+  align-self: end;
+  justify-self: stretch;
+  margin: 0;
+}
+
+.recommended .sha256:not([hidden]) {
+  grid-area: hash;
+  align-self: start;
+  justify-self: stretch;
+  margin: 5px 0 0;
+  text-align: center;
+}
+
+.platform-icon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.platform-name {
+  margin: 0;
+  color: var(--site-ink);
+  font: 550 clamp(1.5rem, 3vw, 2.1rem)/1.15 var(--site-serif);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.platform-desc,
+.platform-owner,
+.platform-note,
+.platform-meta {
+  max-width: 560px;
+  margin: 0 auto;
+  color: var(--site-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.platform-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.platform-owner,
+.platform-note,
+.platform-meta {
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.platform-card .download-btn,
+.platform-card .download-btn:not([hidden]) {
+  margin-top: auto;
+}
+
+.download-btn.disabled {
+  color: var(--site-muted);
+  border-color: var(--site-line);
+  background: var(--site-surface);
+  box-shadow: none;
+  cursor: not-allowed;
+  filter: none;
+  opacity: 0.68;
+}
+
+.sha256 {
+  max-width: 100%;
+  margin: 5px auto 0;
+  padding: 6px 10px;
+  overflow: hidden;
+  border: 1px solid var(--site-line);
+  border-radius: 9px;
+  color: var(--site-blue);
+  background: var(--site-surface-soft);
+  font: 600 0.72rem/1.45 var(--site-mono);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: copy;
+}
+
+.sha256:hover {
+  border-color: var(--site-line-strong);
+  background: var(--site-surface-strong);
+}
+
+.sha256.copied::after {
+  content: " · 已复制";
+}
+
+.other-info,
+.project-boundary,
+.installation-notes {
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: left;
+}
+
+.other-info {
+  margin-top: 42px;
+  padding: 24px 0;
+  color: var(--site-muted);
+  border-block: 1px solid var(--site-line);
+  font-size: 0.9rem;
+}
+
+.other-info p {
+  margin: 4px 0;
+}
+
+.other-info a {
+  color: var(--site-blue);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.project-boundary {
+  margin-top: 42px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.project-boundary h2,
+.installation-notes h2 {
+  margin: 0 0 8px;
+  color: var(--site-ink);
+  font: 550 clamp(1.55rem, 3vw, 2.25rem)/1.2 var(--site-serif);
+  letter-spacing: -0.025em;
+}
+
+.project-boundary > p {
+  margin: 0 0 20px;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+}
+
+.project-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--site-line);
+}
+
+.project-links a {
+  min-width: 0;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--site-ink);
+  border-bottom: 1px solid var(--site-line);
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.project-links a:nth-child(odd) {
+  border-right: 1px solid var(--site-line);
+}
+
+.project-links a:hover {
+  color: var(--site-blue);
+  background: var(--site-surface);
+}
+
+.project-links span {
+  color: var(--site-muted);
+  font-size: 0.76rem;
+}
+
+.installation-notes {
+  margin-top: 48px;
+}
+
+@media (max-width: 1040px) {
+  .platform-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .platform-card:not(.recommended),
+  .platform-card[data-platform="office"],
+  .platform-card[data-platform="wps"] {
+    grid-column: auto;
+  }
+}
+
+.installation-notes h2 {
+  margin-bottom: 20px;
+}
+
+.installation-notes details {
+  border-top: 1px solid var(--site-line);
+}
+
+.installation-notes details:last-child {
+  border-bottom: 1px solid var(--site-line);
+}
+
+.installation-notes summary {
+  padding: 18px 4px;
+  color: var(--site-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.installation-notes details[open] summary {
+  color: var(--site-blue);
+}
+
+.installation-notes p {
+  max-width: 760px;
+  margin: 0;
+  padding: 0 4px 20px;
+  color: var(--site-muted);
+  line-height: 1.75;
+}
+
+.installation-notes code {
+  padding: 2px 5px;
+  border: 1px solid var(--site-line);
+  border-radius: 5px;
+  color: var(--site-ink-soft);
+  background: var(--site-surface);
+  font-family: var(--site-mono);
+}
+
+@media (max-width: 760px) {
+  .download-page {
+    width: calc(100% - 24px);
+    padding-bottom: 72px;
+  }
+
+  .download-title {
+    margin-top: 34px;
+    font-size: clamp(2.65rem, 13vw, 4rem);
+  }
+
+  .release-summary {
+    margin-bottom: 28px;
+  }
+
+  .platform-grid,
+  .project-links {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-card,
+  .platform-card.recommended {
+    grid-column: 1;
+    width: 100%;
+    min-height: 0;
+    padding: 28px 20px 24px;
+    display: flex;
+    text-align: center;
+  }
+
+  .recommended .platform-icon {
+    width: 58px;
+    height: 58px;
+    margin: 2px auto 4px;
+  }
+
+  .recommended .platform-desc,
+  .recommended .platform-owner {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .recommended .download-btn,
+  .recommended .download-btn:not([hidden]),
+  .recommended .sha256:not([hidden]) {
+    align-self: auto;
+    justify-self: auto;
+  }
+
+  .platform-card .download-btn,
+  .platform-card .download-btn:not([hidden]) {
+    margin-top: 10px;
+  }
+
+  .project-links a:nth-child(odd) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .download-page {
+    width: calc(100% - 20px);
+  }
+
+  .download-title {
+    font-size: clamp(2.35rem, 12vw, 3.2rem);
+  }
+
+  .download-sub {
+    margin-top: 16px;
+    font-size: 0.92rem;
+  }
+
+  .platform-card,
+  .platform-card.recommended {
+    border-radius: 22px;
+  }
+
+  .recommended-badge {
+    top: 12px;
+    left: 12px;
+  }
+}

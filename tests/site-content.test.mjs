@@ -52,6 +52,26 @@ const productShellStyles = await readFile(
   'utf8',
 );
 
+const siteShellStyles = await readFile(
+  new URL('../styles/site-shell.css', import.meta.url),
+  'utf8',
+);
+
+const liquidGlassStyles = await readFile(
+  new URL('../styles/liquid-glass.css', import.meta.url),
+  'utf8',
+);
+
+const downloadStyles = await readFile(
+  new URL('../styles/download.css', import.meta.url),
+  'utf8',
+);
+
+const ocrStyles = await readFile(
+  new URL('../styles/ocr.css', import.meta.url),
+  'utf8',
+);
+
 const releaseManifest = JSON.parse(await readFile(
   new URL('../public/release-manifest.json', import.meta.url),
   'utf8',
@@ -89,7 +109,7 @@ test('homepage has one platform-neutral download CTA and no compatibility tables
 });
 
 test('homepage keeps mobile navigation text visually hidden and constrains hero media', () => {
-  assert.match(landingStyles, /\.sr-only\s*\{[\s\S]*clip-path:\s*inset\(50%\)/);
+  assert.match(siteShellStyles, /\.sr-only\s*\{[\s\S]*clip-path:\s*inset\(50%\)/);
   assert.match(landingStyles, /@media \(max-width: 720px\)[\s\S]*\.hero-visual\s*\{[\s\S]*overflow:\s*hidden/);
   assert.match(landingStyles, /@media \(max-width: 420px\)[\s\S]*\.formula-sheet\s*\{[\s\S]*width:\s*calc\(100% - 20px\)/);
 });
@@ -97,16 +117,14 @@ test('homepage keeps mobile navigation text visually hidden and constrains hero 
 test('liquid glass uses layered refraction and respects reduced motion', () => {
   assert.match(landingSource, /function LiquidGlassSurface/);
   assert.match(landingSource, /id="liquid-edge-refraction"/);
-  assert.match(landingStyles, /backdrop-filter:\s*blur\(var\(--glass-blur\)\) saturate\(145%\) brightness\(1\.08\) contrast\(96%\)/);
-  assert.match(landingStyles, /filter:\s*url\('#liquid-edge-refraction'\)/);
-  assert.match(landingStyles, /\.liquid-surface--control/);
-  assert.match(landingStyles, /\.liquid-surface--navigation/);
-  assert.match(landingStyles, /\.liquid-surface--floating/);
-  assert.match(landingStyles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(liquidGlassStyles, /backdrop-filter:\s*blur\(var\(--glass-blur\)\) saturate\(var\(--glass-saturate\)\)/);
+  assert.match(liquidGlassStyles, /filter:\s*url\("#liquid-edge-refraction"\)/);
+  assert.match(liquidGlassStyles, /\.liquid-surface--control/);
+  assert.match(liquidGlassStyles, /\.liquid-surface--navigation/);
+  assert.match(liquidGlassStyles, /\.liquid-surface--floating/);
+  assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(landingSource, /className="formula-sheet standard-surface"/);
-  assert.doesNotMatch(landingSource, /glass-panel/);
-  assert.match(landingSource, /className="formula-integral-limits"/);
-  assert.match(landingSource, /className="formula-fraction"/);
+  assert.match(landingSource, /assets\/formula-gaussian-integral\.svg/);
   assert.match(landingStyles, /\.download-cta-panel\s*\{[\s\S]*background:\s*var\(--ls-surface-strong\)/);
 });
 
@@ -135,22 +153,28 @@ test('download page distinguishes Desktop packages from independent ecosystem pr
   assert.match(downloadSource, /latexsnipper-core[\s\S]*v3\.0\.1 · strangelion · AGPL-3\.0/);
 });
 
-test('download and generated manual share the product shell', () => {
-  assert.match(downloadSource, /styles\/product-shell\.css/);
-  assert.match(manualBuilderSource, /styles\/product-shell\.css/);
-  assert.match(generatedManualSource, /styles\/product-shell\.css/);
+test('download and generated manual share the unified site shell', () => {
+  assert.match(downloadSource, /styles\/site-tokens\.css/);
+  assert.match(downloadSource, /styles\/site-shell\.css/);
+  assert.match(downloadSource, /styles\/download\.css/);
+  assert.match(manualBuilderSource, /styles\/manual\.css/);
+  assert.match(generatedManualSource, /styles\/manual\.css/);
+  assert.doesNotMatch(generatedManualSource, /<style>/);
   assert.match(manualBuilderSource, /assets\/images\/icon-96\.png/);
   assert.match(downloadSource, /js\/product-shell\.js/);
   assert.match(manualBuilderSource, /js\/product-shell\.js/);
+  assert.match(productShellStyles, /site-tokens\.css/);
+  assert.match(productShellStyles, /liquid-glass\.css/);
 });
 
 test('OCR workspace shares the product shell without changing runtime hooks', () => {
   assert.match(ocrSource, /class="ocr-page"/);
-  assert.match(ocrSource, /styles\/product-shell\.css/);
+  assert.match(ocrSource, /styles\/site-shell\.css/);
+  assert.match(ocrSource, /styles\/ocr\.css/);
   assert.match(ocrSource, /js\/product-shell\.js/);
   assert.match(ocrSource, /id="dropZone"/);
   assert.match(ocrSource, /id="coreRuntimeStatus"/);
-  assert.match(productShellStyles, /\.ocr-page \.drop-zone[\s\S]*backdrop-filter:\s*none/);
+  assert.match(ocrStyles, /\.drop-zone[\s\S]*border:\s*1px dashed var\(--site-line-strong\)/);
 });
 
 test('liquid controls use a reduced-motion-safe pointer highlight', () => {
@@ -159,8 +183,9 @@ test('liquid controls use a reduced-motion-safe pointer highlight', () => {
   assert.match(productShellScript, /requestAnimationFrame\(updateHighlight\)/);
   assert.match(productShellScript, /--glass-x/);
   assert.doesNotMatch(productShellScript, /'\.platform-card'/);
-  assert.match(productShellStyles, /\.platform-card[\s\S]*backdrop-filter:\s*none/);
-  assert.match(productShellStyles, /\.platform-card > \.recommended-badge[\s\S]*position:\s*absolute/);
+  assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(downloadStyles, /\.platform-card\.recommended[\s\S]*backdrop-filter:\s*blur\(var\(--glass-blur\)\)/);
+  assert.match(downloadStyles, /\.recommended-badge[\s\S]*position:\s*absolute/);
 });
 
 test('manual documents the current Mobile runtime boundary and ecosystem ownership', () => {

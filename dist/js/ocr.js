@@ -734,7 +734,14 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
   // ═══════════════════════════════════════════════
   // 9. 手写板
   // ═══════════════════════════════════════════════
-  function hwPenColor() { return document.documentElement.getAttribute('data-theme') === 'dark' ? '#e2e8f0' : '#1e293b'; }
+  function currentThemeIsDark() {
+    var explicit = document.documentElement.getAttribute('data-theme');
+    if (explicit === 'dark') return true;
+    if (explicit === 'light') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  function hwPenColor() { return currentThemeIsDark() ? '#e2e8f0' : '#1e293b'; }
 
   function hwSaveState() {
     hwStrokes.push(hwCtx.getImageData(0, 0, hwCanvas.width, hwCanvas.height));
@@ -791,7 +798,7 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
     tctx.fillRect(0, 0, tmp.width, tmp.height);
     tctx.drawImage(hwCanvas, 0, 0);
     // 深色模式：白字变黑字（反色非纯白像素）
-    if (document.documentElement.getAttribute('data-theme') === 'dark') {
+    if (currentThemeIsDark()) {
       var imgData = tctx.getImageData(0, 0, tmp.width, tmp.height);
       var d = imgData.data;
       for (var i = 0; i < d.length; i += 4) {
@@ -1232,33 +1239,11 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
   });
 
   // ═══════════════════════════════════════════════
-  // 13. 主题切换
+  // 13. Theme integration
   // ═══════════════════════════════════════════════
-  var themeBtn = document.getElementById('themeToggle');
-  themeBtn.addEventListener('click', function() {
-    var root = document.documentElement;
-    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    try { localStorage.setItem('latexSnipper-theme', next); } catch(e) {}
-    updateThemeBtn(next); updateHwTheme(next);
+  window.addEventListener('latexsnipper:themechange', function() {
+    // Canvas colors are resolved lazily by currentThemeIsDark().
   });
-  function updateThemeBtn(theme) {
-    var sun = '<svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-    var moon = '<svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-    themeBtn.innerHTML = theme === 'dark' ? sun + '<span class="theme-label">白天</span>' : moon + '<span class="theme-label">黑夜</span>';
-  }
-  function updateHwTheme(theme) {
-    var wrap = document.querySelector('.hw-canvas-wrap');
-    if (wrap) {
-      wrap.style.backgroundColor = theme === 'dark' ? '#1e293b' : '#ffffff';
-      wrap.style.backgroundImage = theme === 'dark'
-        ? 'linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)'
-        : 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)';
-      wrap.style.backgroundSize = '20px 20px';
-    }
-    document.documentElement.style.backgroundColor = theme === 'dark' ? '#0f111a' : '#f8fafc';
-  }
-  (function() { var isDark = document.documentElement.getAttribute('data-theme') === 'dark'; updateThemeBtn(isDark ? 'dark' : 'light'); updateHwTheme(isDark ? 'dark' : 'light'); })();
 
   // ═══════════════════════════════════════════════
   // 启动

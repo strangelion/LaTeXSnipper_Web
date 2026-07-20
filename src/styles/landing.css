@@ -1,4 +1,7 @@
+
 @import './tokens.css';
+@import url('/styles/liquid-glass.css');
+@import url('/styles/site-shell.css');
 
 .landing-main,
 #main-content {
@@ -14,286 +17,6 @@
 
 .section-space {
   padding: clamp(88px, 10vw, 148px) 0;
-}
-
-.sr-only {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  clip-path: inset(50%) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
-}
-
-.standard-surface {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border: 1px solid var(--ls-line-strong);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--ls-surface-strong) 94%, white 6%), var(--ls-surface-strong));
-  box-shadow:
-    0 22px 58px rgba(31, 57, 101, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
-.liquid-filter-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
-.liquid-surface {
-  --glass-x: 28%;
-  --glass-y: 20%;
-  --glass-blur: 28px;
-  --glass-tint-light: 0.09;
-  --glass-shadow-alpha: 0.18;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border: 0;
-  background: transparent;
-  box-shadow:
-    0 24px 64px rgb(10 20 36 / var(--glass-shadow-alpha)),
-    0 4px 14px rgb(10 20 36 / 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(var(--glass-blur)) saturate(145%) brightness(1.08) contrast(96%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(145%) brightness(1.08) contrast(96%);
-}
-
-.liquid-surface--control {
-  --glass-blur: 16px;
-  --glass-tint-light: 0.05;
-  --glass-shadow-alpha: 0.1;
-}
-
-.liquid-surface--navigation {
-  --glass-blur: 24px;
-  --glass-tint-light: 0.07;
-  --glass-shadow-alpha: 0.14;
-}
-
-.liquid-surface--floating {
-  --glass-blur: 32px;
-  --glass-tint-light: 0.1;
-  --glass-shadow-alpha: 0.21;
-}
-
-.liquid-glass__optics,
-.liquid-glass__tint,
-.liquid-glass__shine,
-.liquid-glass__edge {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-.liquid-glass__optics {
-  z-index: 0;
-}
-
-.liquid-glass__tint {
-  background:
-    linear-gradient(145deg, rgb(255 255 255 / var(--glass-tint-light)), rgba(255, 255, 255, 0.018)),
-    radial-gradient(circle at 78% 70%, rgba(68, 169, 219, 0.08), transparent 60%);
-}
-
-.liquid-glass__shine {
-  background: radial-gradient(
-    220px circle at var(--glass-x) var(--glass-y),
-    rgba(255, 255, 255, 0.24),
-    rgba(255, 255, 255, 0.075) 34%,
-    transparent 69%
-  );
-  mix-blend-mode: screen;
-  opacity: 0.56;
-  transition: opacity 180ms ease;
-}
-
-.liquid-surface.is-pointer-lit .liquid-glass__shine {
-  opacity: 0.82;
-}
-
-.liquid-glass__edge {
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.62),
-    rgba(255, 255, 255, 0.13) 31%,
-    rgba(255, 255, 255, 0.025) 61%,
-    rgba(108, 211, 230, 0.25)
-  );
-  filter: url('#liquid-edge-refraction');
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-.liquid-glass__content {
-  position: relative;
-  z-index: 1;
-}
-
-.site-header {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 50;
-  height: 76px;
-  pointer-events: none;
-}
-
-.site-header.is-scrolled {
-  background: transparent;
-}
-
-.site-header-inner {
-  height: 60px;
-  margin-top: 8px;
-  padding: 0 16px;
-  border-radius: 18px;
-  overflow: visible;
-  pointer-events: auto;
-  transition: box-shadow 260ms ease, transform 260ms ease, backdrop-filter 260ms ease;
-}
-
-.site-header-inner > .liquid-glass__content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-}
-
-.site-header:not(.is-scrolled) .site-header-inner {
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transform: translateY(0);
-}
-
-.site-header:not(.is-scrolled) .site-header-inner > .liquid-glass__optics {
-  opacity: 0;
-}
-
-.site-header.is-scrolled .site-header-inner {
-  transform: translateY(2px);
-}
-
-.site-header-inner > .liquid-glass__optics {
-  transition: opacity 240ms ease;
-}
-
-.site-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--ls-ink);
-  font: 650 1rem/1 var(--ls-sans);
-  letter-spacing: -0.02em;
-  text-decoration: none;
-}
-
-.site-brand img {
-  border-radius: 9px;
-}
-
-.site-navigation {
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  font: 520 0.86rem/1 var(--ls-sans);
-}
-
-.site-navigation > a:not(.site-download-link) {
-  color: var(--ls-muted);
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.site-navigation > a:hover {
-  color: var(--ls-ink);
-}
-
-.theme-icon-button,
-.site-menu-toggle {
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 11px;
-  color: var(--ls-muted);
-  background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.theme-icon-button:hover {
-  color: var(--ls-ink);
-  background: var(--ls-blue-soft);
-}
-
-.theme-icon-button svg {
-  width: 20px;
-  height: 20px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.site-download-link {
-  --glass-x: 50%;
-  --glass-y: 20%;
-  min-height: 42px;
-  padding: 0 19px;
-  display: inline-flex;
-  align-items: center;
-  border-radius: 11px;
-  color: var(--ls-nav-cta-ink);
-  border: 1px solid color-mix(in srgb, var(--ls-nav-cta-bg) 72%, white);
-  background:
-    radial-gradient(90px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.26), transparent 58%),
-    color-mix(in srgb, var(--ls-nav-cta-bg) 88%, transparent);
-  text-decoration: none;
-  font-weight: 720;
-  isolation: isolate;
-  overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 12px 28px rgba(31, 57, 101, 0.12);
-  backdrop-filter: blur(14px) saturate(145%);
-  -webkit-backdrop-filter: blur(14px) saturate(145%);
-}
-
-.site-download-link:hover {
-  color: var(--ls-nav-cta-ink) !important;
-  border-color: color-mix(in srgb, var(--ls-nav-cta-bg-hover) 65%, white);
-  background:
-    radial-gradient(90px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.34), transparent 58%),
-    color-mix(in srgb, var(--ls-nav-cta-bg-hover) 92%, transparent);
-}
-
-.site-download-link:focus-visible {
-  color: var(--ls-nav-cta-ink);
-  outline: 3px solid color-mix(in srgb, var(--ls-blue) 55%, white);
-  outline-offset: 3px;
-}
-
-.site-download-link[aria-disabled='true'] {
-  color: var(--ls-nav-cta-ink);
-  opacity: 0.62;
-}
-
-.site-menu-toggle {
-  display: none;
 }
 
 .hero-section {
@@ -394,67 +117,6 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 34px;
-}
-
-.button {
-  --glass-x: 50%;
-  --glass-y: 20%;
-  min-height: 48px;
-  padding: 0 22px;
-  border: 1px solid transparent;
-  border-radius: 11px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font: 650 0.9rem/1 var(--ls-sans);
-  text-decoration: none;
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  backdrop-filter: blur(14px) saturate(145%);
-  -webkit-backdrop-filter: blur(14px) saturate(145%);
-  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-.button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(110px circle at var(--glass-x) var(--glass-y), rgba(255, 255, 255, 0.34), transparent 58%),
-    linear-gradient(118deg, rgba(255, 255, 255, 0.1), transparent 48% 70%, rgba(95, 205, 226, 0.1));
-  opacity: 0.68;
-  transition: opacity 180ms ease;
-}
-
-.button.is-pointer-lit::before {
-  opacity: 1;
-}
-
-.button:hover {
-  transform: translateY(-2px);
-}
-
-.button-primary {
-  color: var(--ls-primary-ink);
-  border-color: color-mix(in srgb, var(--ls-blue) 72%, white);
-  background: color-mix(in srgb, var(--ls-blue) 88%, transparent);
-  box-shadow: 0 14px 32px rgba(40, 100, 215, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.28);
-}
-
-.button-primary:hover {
-  color: var(--ls-primary-ink);
-  background: color-mix(in srgb, var(--ls-blue-deep) 92%, transparent);
-  box-shadow: 0 18px 36px rgba(40, 100, 215, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.34);
-}
-
-.button-secondary {
-  color: var(--ls-ink);
-  background: color-mix(in srgb, var(--ls-surface-strong) 72%, transparent);
-  border-color: var(--ls-line-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .hero-trust {
@@ -566,6 +228,22 @@
   color: var(--ls-ink);
   font: 500 clamp(1.6rem, 3vw, 2.35rem)/1.35 var(--ls-serif);
   white-space: nowrap;
+}
+
+.formula-display img {
+  width: min(100%, 560px);
+  height: auto;
+  display: block;
+}
+
+[data-theme='dark'] .formula-display img {
+  filter: invert(1) hue-rotate(180deg) brightness(1.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .formula-display img {
+    filter: invert(1) hue-rotate(180deg) brightness(1.04);
+  }
 }
 
 .formula-integral {
@@ -1181,8 +859,16 @@
 }
 
 .faq-section {
-  padding-top: 36px;
+  padding: clamp(68px, 7vw, 96px) 0 clamp(76px, 8vw, 108px);
   background: var(--ls-bg);
+}
+
+.faq-section .section-heading {
+  margin-bottom: 34px;
+}
+
+.faq-section .section-heading h2 {
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
 }
 
 .faq-list {
@@ -1232,28 +918,38 @@
 }
 
 .site-footer {
-  padding: 60px 0;
+  padding: 34px 0 28px;
   border-top: 1px solid var(--ls-line);
   color: var(--ls-muted);
   background: var(--ls-bg-warm);
 }
 
 .footer-grid {
-  display: grid;
-  grid-template-columns: 1.4fr 0.8fr 1fr;
-  align-items: start;
-  gap: 54px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px 42px;
+}
+
+.footer-grid > div {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .footer-grid > div > p,
 .footer-note {
+  margin: 0;
   color: var(--ls-muted);
   font: 400 0.78rem/1.7 var(--ls-sans);
 }
 
 .footer-grid nav {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 22px;
 }
 
 .footer-grid nav a {
@@ -1264,6 +960,13 @@
 
 .footer-grid nav a:hover {
   color: var(--ls-ink);
+}
+
+.footer-note {
+  width: 100%;
+  padding-top: 18px;
+  border-top: 1px solid var(--ls-line);
+  text-align: right;
 }
 
 .reveal {
@@ -1301,64 +1004,7 @@
   outline-offset: 3px;
 }
 
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .liquid-surface,
-  .site-navigation {
-    background: var(--ls-surface-strong);
-  }
-}
-
 @media (max-width: 980px) {
-  .site-menu-toggle {
-    display: grid;
-    grid-template-rows: repeat(3, 1.5px);
-    align-content: center;
-    justify-items: center;
-    gap: 4px;
-  }
-
-  .site-menu-toggle > span:not(.sr-only) {
-    width: 20px;
-    height: 1.5px;
-    background: currentColor;
-  }
-
-  .site-navigation {
-    display: none;
-    position: absolute;
-    top: 66px;
-    left: 20px;
-    right: 20px;
-    padding: 18px;
-    border: 1px solid var(--ls-line);
-    border-radius: 16px;
-    background: var(--ls-surface-strong);
-    box-shadow: var(--ls-shadow);
-    backdrop-filter: blur(20px) saturate(140%);
-    -webkit-backdrop-filter: blur(20px) saturate(140%);
-  }
-
-  .site-navigation.is-open {
-    display: grid;
-    gap: 6px;
-  }
-
-  .site-navigation > a:not(.site-download-link) {
-    min-height: 44px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-  }
-
-  .theme-icon-button {
-    position: absolute;
-    right: 18px;
-    top: 18px;
-  }
-
-  .site-download-link {
-    margin-top: 8px;
-  }
 
   .hero-grid,
   .conversion-grid {
@@ -1425,22 +1071,6 @@
     overflow: clip;
   }
 
-  .site-header {
-    height: 72px;
-  }
-
-  .site-header.is-scrolled {
-    background: transparent;
-  }
-
-  .site-brand span {
-    font-size: 0.94rem;
-  }
-
-  .site-brand img {
-    width: 30px;
-    height: 30px;
-  }
 
   .hero-grid {
     gap: 42px;
@@ -1596,7 +1226,23 @@
   }
 
   .footer-grid {
-    gap: 30px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .footer-grid > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-grid nav {
+    justify-content: flex-start;
+  }
+
+  .footer-note {
+    text-align: left;
   }
 }
 

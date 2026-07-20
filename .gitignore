@@ -8,6 +8,7 @@ public/core-wasm/
 public/vendor/
 
 *.svg
+!public/assets/formula-gaussian-integral.svg
 user_manual.md
 user_manual.pdf
 

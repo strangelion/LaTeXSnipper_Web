@@ -54,22 +54,40 @@ function LiquidGlassFilter() {
 }
 
 function useTheme() {
-  const [theme, setTheme] = useState('light');
+  const resolveTheme = () => {
+    try {
+      const saved = localStorage.getItem('latexSnipper-theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {
+      // Fall through to the system preference.
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const [theme, setTheme] = useState(resolveTheme);
 
   useEffect(() => {
-    const saved = localStorage.getItem('latexSnipper-theme');
-    const preferredDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const next = saved === 'dark' || saved === 'light'
-      ? saved
-      : preferredDark ? 'dark' : 'light';
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    const next = resolveTheme();
     document.documentElement.setAttribute('data-theme', next);
     setTheme(next);
+
+    const onSystemTheme = () => {
+      let saved = null;
+      try { saved = localStorage.getItem('latexSnipper-theme'); } catch {}
+      if (saved === 'dark' || saved === 'light') return;
+      const systemTheme = media.matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', systemTheme);
+      setTheme(systemTheme);
+    };
+    media.addEventListener('change', onSystemTheme);
+    return () => media.removeEventListener('change', onSystemTheme);
   }, []);
 
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('latexSnipper-theme', next);
+    try { localStorage.setItem('latexSnipper-theme', next); } catch {}
     setTheme(next);
   }
 
@@ -78,9 +96,9 @@ function useTheme() {
 
 function ThemeIcon({ theme }) {
   return theme === 'dark' ? (
-    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" /></svg>
   ) : (
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></svg>
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></svg>
   );
 }
 
@@ -164,15 +182,8 @@ function HeroSection() {
             <div className="hero-orbit hero-orbit-two" aria-hidden="true" />
             <div className="formula-sheet standard-surface">
               <span className="formula-sheet-label">DOCUMENT AST</span>
-              <div className="formula-display" aria-label="从零到无穷的 e 的负 x 平方积分，等于根号派除以二">
-                <span className="formula-integral" aria-hidden="true">
-                  <span className="formula-integral-glyph">∫</span>
-                  <span className="formula-integral-limits"><span>∞</span><span>0</span></span>
-                </span>
-                <span className="formula-term" aria-hidden="true">e<sup>−x²</sup></span>
-                <span className="formula-differential" aria-hidden="true">d<span>x</span></span>
-                <span className="formula-equals" aria-hidden="true">=</span>
-                <span className="formula-fraction" aria-hidden="true"><span>√π</span><span>2</span></span>
+              <div className="formula-display">
+                <img src="/assets/formula-gaussian-integral.svg" alt="从零到无穷的 e 的负 x 平方积分，等于根号派除以二" />
               </div>
               <div className="formula-source">\int_0^\infty e^&#123;-x^2&#125;\,dx</div>
               <div className="formula-sheet-status"><span /> Editable mathematical semantics</div>

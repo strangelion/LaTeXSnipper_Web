@@ -1229,7 +1229,7 @@ def main():
     right_toc_html = render_toc_items(toc_items, vol_divisions, 'rs')
 
     sidebar_html = f"""<nav class="sidebar" id="sidebar">
-    <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起">✕</button></div>
+    <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="sidebar-inner">
     <ul class="toc-list">
 {toc_html}
@@ -1238,7 +1238,7 @@ def main():
 </nav>"""
 
     right_sidebar_html = f"""<aside class="right-sidebar" id="rightSidebar">
-    <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起">✕</button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
+    <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
   <div class="rs-inner">
     <ul class="rs-list" id="rsList">
 {right_toc_html}
@@ -1313,18 +1313,30 @@ def main():
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LaTeXSnipper 用户手册 v2.4.0 LTS</title>
 {theme_script}
-<link rel="stylesheet" href="styles/styles.css">
-<style>
-@media (max-width: 600px) {{  html {{ overflow-x: hidden; }}  body.manual {{ overflow-x: hidden; width: 100%; max-width: 100vw; }}  .code-block pre {{ word-break: break-word; white-space: pre-wrap; }}  pre code {{ word-break: break-word; }}  img {{ max-width: 100% !important; height: auto; }}  .code-block {{ max-width: 100%; }} }}
-{sidebar_css}
-</style>
+<link rel="stylesheet" href="styles/site-tokens.css">
+<link rel="stylesheet" href="styles/liquid-glass.css">
+<link rel="stylesheet" href="styles/site-shell.css">
 <link rel="stylesheet" href="styles/editorial.css">
-<link rel="stylesheet" href="styles/product-shell.css">
+<link rel="stylesheet" href="styles/manual.css">
+<script src="js/product-shell.js" defer></script>
 </head>
 <body class="manual">
-<div class="top-nav-trigger" id="topNavTrigger"></div>
-<nav class="top-nav"><div class="inner"><a href="/" class="brand-link" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="32" height="32" alt=""><span>LaTeXSnipper</span></a><a href="user_manual.html" class="active-link">用户手册</a><a href="ocr.html">单公式识别</a><a href="download.html">下载</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a><a class="download-pdf-link" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg class="dl-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</a><button class="theme-toggle" id="themeToggle" title="切换日/夜模式"><svg class="theme-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><span class="theme-label">黑夜</span></button></div></nav>
-<div class="spacer-top"></div>
+<header class="site-header" data-shell-header>
+  <div class="site-header-inner liquid-surface liquid-surface--navigation">
+    <span class="liquid-glass__optics" aria-hidden="true"><span class="liquid-glass__tint"></span><span class="liquid-glass__shine"></span><span class="liquid-glass__edge"></span></span>
+    <div class="liquid-glass__content">
+    <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
+    <nav class="site-navigation" id="siteNavigation" aria-label="主导航">
+      <a href="/#product">产品</a><a href="/#workflow">工作流</a><a href="/#ecosystem">生态</a><a href="user_manual.html" aria-current="page">文档</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <div class="site-header-actions">
+      <a class="download-pdf-link glass-control" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></a>
+      <button class="theme-toggle glass-control" type="button" data-theme-toggle aria-label="切换主题"></button>
+      <button class="site-menu-toggle glass-control" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+    </div>
+  </div>
+</header>
 
 <!-- 浮动可拖动箭头按钮 -->
 <div class="float-arrow side-left" id="floatArrow" title="拖动到左右两边 | 点击打开目录">
@@ -1341,7 +1353,9 @@ def main():
 <!-- 右侧导航栏（鼠标悬停打开） -->
 {right_sidebar_html}
 
+<main class="manual-content" id="manualContent">
 {content}
+</main>
 
 <button class="back-to-top" id="backToTop" title="回到顶部" aria-label="回到顶部">
     <svg class="btt-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1478,7 +1492,6 @@ function copyCode(btn) {{
 }}
 </script>
 {sidebar_script}
-<script src="js/product-shell.js" defer></script>
 </body>
 </html>
 """
