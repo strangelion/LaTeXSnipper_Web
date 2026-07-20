@@ -13,9 +13,30 @@ export class CoreOcrRuntime {
     this.sequence = 0;
     this.pending = new Map();
     this.worker.onmessage = (event) => this.handleMessage(event.data);
-    this.worker.onerror = (event) => this.failAll(
-      new CoreOcrError(event.message || 'Core OCR Worker 崩溃', 'CORE_OCR_WORKER_CRASH'),
-    );
+    this.worker.onerror = (event) => {
+      console.error('[Core OCR Worker fatal]', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error,
+      });
+      this.failAll(
+        new CoreOcrError(
+          event.message || 'Core OCR Worker 启动失败',
+          'CORE_OCR_WORKER_CRASH',
+          {
+            filename: event.filename || null,
+            lineno: event.lineno || null,
+            colno: event.colno || null,
+            error: event.error?.stack || event.error?.message || null,
+          },
+        ),
+      );
+    };
+    this.worker.onmessageerror = (event) => {
+      console.error('[Core OCR Worker message error]', event);
+    };
     this.readyPromise = this.call('initialize');
   }
 

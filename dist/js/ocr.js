@@ -51,6 +51,7 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
   const mathPreview = document.getElementById('mathPreview');
   const outputFormat = document.getElementById('outputFormat');
   const coreRuntimeStatus = document.getElementById('coreRuntimeStatus');
+  const coreOcrStatus = document.getElementById('coreOcrStatus');
 
   // -- 相机 DOM --
   const camModal = document.getElementById('camModal');
@@ -135,15 +136,33 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
       outputFormat.value = formats.includes('latex') ? 'latex' : formats[0];
       outputFormat.disabled = formats.length === 0;
       coreRuntimeStatus.dataset.state = 'ready';
-      coreOcrBridge = await import('/js/core-ocr-runtime.js');
-      coreOcrRuntime = await coreOcrBridge.loadCoreOcrRuntime();
-      coreRuntimeStatus.textContent = 'Core WASM：Ready · v' + coreRuntime.version + ' · 模型按需加载';
+      coreRuntimeStatus.textContent = 'Core Conversion：Ready · v' + coreRuntime.version;
       coreRuntimeStatus.title = coreRuntime.buildInfo.gitCommit;
+
+      /* OCR Worker is a separate runtime — load and report independently */
+      coreOcrStatus.dataset.state = 'loading';
+      coreOcrStatus.textContent = 'Core OCR：正在初始化';
+      try {
+        coreOcrBridge = await import('/js/core-ocr-runtime.js');
+        coreOcrRuntime = await coreOcrBridge.loadCoreOcrRuntime();
+        coreOcrStatus.dataset.state = 'ready';
+        coreOcrStatus.textContent = 'Core OCR：Ready · 模型按需加载';
+      } catch (ocrError) {
+        coreOcrStatus.dataset.state = 'error';
+        coreOcrStatus.textContent = 'Core OCR：不可用（兼容引擎回退）';
+        coreOcrStatus.title = ocrError.message || String(ocrError);
+      }
+
       return coreRuntime;
     } catch (error) {
       coreRuntimeStatus.dataset.state = 'error';
-      coreRuntimeStatus.textContent = 'Core WASM：不可用（兼容引擎回退）';
+      coreRuntimeStatus.textContent = 'Core Conversion：不可用（兼容引擎回退）';
       coreRuntimeStatus.title = error.message || String(error);
+      if (coreOcrStatus) {
+        coreOcrStatus.dataset.state = 'error';
+        coreOcrStatus.textContent = 'Core OCR：不可用';
+        coreOcrStatus.title = 'Core Conversion 初始化失败，OCR 不可用';
+      }
       outputFormat.innerHTML = '<option value="latex">LaTeX</option>';
       outputFormat.disabled = true;
       return null;
@@ -461,9 +480,11 @@ import * as pdfjsLib from '/vendor/pdfjs/pdf.min.mjs';
       progressWrap.classList.remove('show');
       return { latex: repairLatex(latex), confidence: null, engine: 'core-wasm' };
     } catch (coreError) {
-      coreRuntimeStatus.dataset.state = 'fallback';
-      coreRuntimeStatus.textContent = 'Core WASM：模型加载失败 · 使用兼容引擎';
-      coreRuntimeStatus.title = coreError.message || String(coreError);
+      if (coreOcrStatus) {
+        coreOcrStatus.dataset.state = 'fallback';
+        coreOcrStatus.textContent = 'Core OCR：模型加载失败 · 使用兼容引擎';
+        coreOcrStatus.title = coreError.message || String(coreError);
+      }
       await ensureLegacyOrtModels();
       recognizing = false;
       var fallback = await recognizeLegacyOrt(img);
