@@ -7,6 +7,7 @@
 <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">
+<link rel="stylesheet" href="styles/liquid-environment.css">
 <link rel="stylesheet" href="styles/site-shell.css">
 <link rel="stylesheet" href="styles/editorial.css">
 <link rel="stylesheet" href="styles/manual.css">
@@ -14,7 +15,7 @@
 </head>
 <body class="manual">
 <header class="site-header" data-shell-header>
-  <div class="site-header-inner lg-surface lg-surface--navigation">
+  <div class="site-header-inner lg-surface lg-surface--navigation" data-lg-condense="true">
     <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
     <div class="lg-content">
     <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
@@ -41,7 +42,7 @@
 <div class="edge-hover-right" id="edgeHoverRight"></div>
 
 <!-- 左侧导航栏（鼠标悬停打开） -->
-<nav class="sidebar lg-surface lg-surface--panel" id="sidebar">
+<nav class="sidebar lg-surface lg-surface--regular" id="sidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
   <div class="lg-content sidebar-material-content">
     <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
@@ -217,7 +218,7 @@
 </nav>
 
 <!-- 右侧导航栏（鼠标悬停打开） -->
-<aside class="right-sidebar lg-surface lg-surface--panel" id="rightSidebar">
+<aside class="right-sidebar lg-surface lg-surface--regular" id="rightSidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
   <div class="lg-content sidebar-material-content">
     <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
@@ -452,7 +453,7 @@
 </div>
 <div class="spacer-lg"></div>
 <div class="center">
-<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label" data-lg-surface="clear">第一卷 · LaTeXSnipper 用户指南</span></div></div>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第一卷 · LaTeXSnipper 用户指南</span></div></div>
 
 </div>
 <h1 id="sec-quick">开始使用前（必读）</h1>
@@ -1159,7 +1160,7 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 </div>
 <div class="spacer-lg"></div>
 <div class="center">
-<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label" data-lg-surface="clear">第二卷 · Office 加载项指南</span></div></div>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第二卷 · Office 加载项指南</span></div></div>
 
 </div>
 <h1 id="sec-office-intro">加载项介绍与系统要求</h1>
@@ -1688,7 +1689,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p><strong>说明：</strong> 这些是 VSTO ClickOnce 部署的注册痕迹，属于正常现象。加载项安装程序已将其标记为系统组件，通常不会在用户界面上显示。如果仍然可见，不影响加载项的正常使用。</p>
 <div class="spacer-lg"></div>
 <div class="center">
-<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label" data-lg-surface="clear">第三卷 · 移动端使用指南</span></div></div>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第三卷 · 移动端使用指南</span></div></div>
 
 </div>
 <h1 id="sec-mobile-intro">LaTeXSnipper Mobile 介绍</h1>
@@ -2147,7 +2148,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </div>
 <div class="spacer-lg"></div>
 <div class="center">
-<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label" data-lg-surface="clear">第四卷 · MathCraft 内部模型介绍</span></div></div>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第四卷 · MathCraft 内部模型介绍</span></div></div>
 
 </div>
 <h1 id="sec-mathcraft-intro">MathCraft OCR 项目介绍</h1>

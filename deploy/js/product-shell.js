@@ -143,6 +143,23 @@
     if (!navigation || navigation.dataset.menuOwner === 'react') return;
     navigation.classList.remove('is-open');
     document.querySelector(`[aria-controls="${navigation.id}"]`)?.setAttribute('aria-expanded', 'false');
+    document.querySelector(`[data-static-menu-scrim="${navigation.id}"]`)?.remove();
+  }
+
+  function openStaticNavigation(navigation, toggle) {
+    navigation.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+
+    const header = navigation.closest('.site-header-inner');
+    if (!header || document.querySelector(`[data-static-menu-scrim="${navigation.id}"]`)) return;
+
+    const scrim = document.createElement('button');
+    scrim.className = 'site-navigation-scrim';
+    scrim.type = 'button';
+    scrim.setAttribute('aria-label', '关闭导航');
+    scrim.dataset.staticMenuScrim = navigation.id;
+    scrim.addEventListener('click', () => closeStaticNavigation(navigation));
+    header.append(scrim);
   }
 
   function closeStaticNavigations() {
@@ -154,8 +171,8 @@
     if (!navigation || navigation.dataset.menuOwner === 'react') return;
     toggle.addEventListener('click', () => {
       const open = !navigation.classList.contains('is-open');
-      navigation.classList.toggle('is-open', open);
-      toggle.setAttribute('aria-expanded', String(open));
+      if (open) openStaticNavigation(navigation, toggle);
+      else closeStaticNavigation(navigation);
     });
     navigation.addEventListener('click', (event) => {
       if (!event.target.closest('a')) return;

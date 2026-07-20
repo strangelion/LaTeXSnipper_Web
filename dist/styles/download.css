@@ -1,22 +1,11 @@
 
 .download-page {
+  position: relative;
+  isolation: isolate;
   width: min(1180px, calc(100% - 40px));
   margin-inline: auto;
   padding-bottom: 96px;
   text-align: center;
-}
-
-.download-page::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: 42px;
-  left: 50%;
-  width: min(940px, 92vw);
-  height: 340px;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse, color-mix(in srgb, var(--site-blue) 11%, transparent), transparent 68%);
-  pointer-events: none;
 }
 
 .download-title {

@@ -1228,7 +1228,7 @@ def main():
     toc_html = render_toc_items(toc_items, vol_divisions, 'toc')
     right_toc_html = render_toc_items(toc_items, vol_divisions, 'rs')
 
-    sidebar_html = f"""<nav class="sidebar lg-surface lg-surface--panel" id="sidebar">
+    sidebar_html = f"""<nav class="sidebar lg-surface lg-surface--regular" id="sidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
   <div class="lg-content sidebar-material-content">
     <div class="sidebar-header"><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录<button class="sidebar-close" id="sidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
@@ -1240,7 +1240,7 @@ def main():
 </div>
 </nav>"""
 
-    right_sidebar_html = f"""<aside class="right-sidebar lg-surface lg-surface--panel" id="rightSidebar">
+    right_sidebar_html = f"""<aside class="right-sidebar lg-surface lg-surface--regular" id="rightSidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
   <div class="lg-content sidebar-material-content">
     <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
@@ -1261,6 +1261,7 @@ def main():
 {theme_script}
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">
+<link rel="stylesheet" href="styles/liquid-environment.css">
 <link rel="stylesheet" href="styles/site-shell.css">
 <link rel="stylesheet" href="styles/editorial.css">
 <link rel="stylesheet" href="styles/manual.css">

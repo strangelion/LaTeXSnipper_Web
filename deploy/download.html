@@ -9,6 +9,7 @@
   <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
   <link rel="stylesheet" href="styles/site-tokens.css">
   <link rel="stylesheet" href="styles/liquid-glass.css">
+  <link rel="stylesheet" href="styles/liquid-environment.css">
   <link rel="stylesheet" href="styles/site-shell.css">
   <link rel="stylesheet" href="styles/download.css">
   <script src="js/product-shell.js" defer></script>
@@ -36,6 +37,13 @@
   </header>
 
   <main class="download-page site-page">
+    <div class="liquid-environment download-environment" aria-hidden="true">
+      <span class="liquid-environment__word">DOWNLOAD</span>
+      <span class="liquid-environment__orb env-orb-a"></span>
+      <span class="liquid-environment__orb env-orb-b"></span>
+      <span class="liquid-environment__line env-line-a"></span>
+      <span class="liquid-environment__line env-line-b"></span>
+    </div>
     <h1 class="download-title">下载 LaTeXSnipper</h1>
     <p class="download-sub">下载 SakuraMathcraft 维护的 Desktop v2.4.0 LTS，或前往其他生态项目</p>
 
@@ -221,6 +229,7 @@
 
       document.querySelectorAll('.download-btn:not(.disabled)').forEach(function (button) {
         button.dataset.lgAccent = 'blue'
+        button.dataset.lgAction = 'primary'
         window.LaTeXSnipperLiquid.decorateLiquidSurface(button, 'control', true)
       })
 

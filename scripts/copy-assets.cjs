@@ -35,6 +35,7 @@ const assets = [
   'styles/product-shell.css',
   'styles/site-tokens.css',
   'styles/liquid-glass.css',
+  'styles/liquid-environment.css',
   'styles/site-shell.css',
   'styles/download.css',
   'styles/ocr.css',

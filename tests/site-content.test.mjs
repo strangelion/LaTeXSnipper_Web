@@ -140,6 +140,7 @@ test('liquid glass V2.1 separates backdrop processing from restrained foreground
   assert.match(liquidGlassStyles, /\.lg-surface--panel/);
   assert.match(liquidGlassStyles, /\.lg-surface--overlay/);
   assert.match(liquidGlassStyles, /html\[data-liquid-debug="no-blur"\]/);
+  assert.match(liquidGlassStyles, /data-lg-action="primary"/);
   assert.match(liquidGlassStyles, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(landingSource, /<LiquidGlassSurface className="formula-sheet" thickness="panel">/);
   assert.match(landingSource, /function GaussianIntegralFormula/);
@@ -252,6 +253,10 @@ test('homepage header uses the regular material at rest and on scroll', () => {
   assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-blur:\s*3px/);
   assert.match(liquidGlassStyles, /\.lg-surface--navigation,[\s\S]*--lg-tint-strength:\s*0\.055/);
   assert.match(siteShellStyles, /\.site-header-inner\.lg-surface\s*\{[\s\S]*overflow:\s*visible/);
+  assert.match(siteShellStyles, /position:\s*absolute !important/);
+  assert.match(siteShellStyles, /\.site-navigation-scrim\s*\{[\s\S]*height:\s*100dvh/);
+  assert.match(productShellScript, /data-static-menu-scrim/);
+  assert.match(downloadSource, /button\.dataset\.lgAction = 'primary'/);
 });
 
 test('lab exposes blur, refraction, optics, and tint debug switches', () => {

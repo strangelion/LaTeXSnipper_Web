@@ -172,6 +172,16 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
   background: linear-gradient(130deg, rgb(181 212 255 / 0.18), transparent 32% 72%, rgb(80 145 240 / 0.16));
 }
 
+/* Primary actions remain glass-built, but keep a readable blue signal on any backdrop. */
+.lg-surface[data-lg-action="primary"] {
+  --lg-rim-strength: 0.52;
+  --lg-shadow-strength: 0.16;
+}
+
+.lg-surface[data-lg-action="primary"] > .lg-backdrop {
+  background: linear-gradient(145deg, var(--site-blue), var(--site-blue-strong));
+}
+
 .lg-surface.is-pointer-lit > .lg-optics > .lg-specular {
   opacity: calc(var(--lg-specular-strength) * 1.05);
 }
@@ -190,6 +200,10 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 
 .lg-surface .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
   background: color-mix(in srgb, var(--site-blue, #79a8ff) 22%, transparent);
+}
+
+.lg-surface .lg-surface[data-lg-action="primary"] > .lg-backdrop {
+  background: linear-gradient(145deg, var(--site-blue), var(--site-blue-strong));
 }
 
 /* Retained for lab comparison and any scroll-condensed integration. */

@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="dark" data-lg-enable-svg="true">
+<html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Liquid Glass Engine V2.1 Lab</title>
   <link rel="stylesheet" href="/styles/site-tokens.css">
   <link rel="stylesheet" href="/styles/liquid-glass.css">
+  <link rel="stylesheet" href="/styles/liquid-environment.css">
   <link rel="stylesheet" href="/styles/liquid-glass-lab.css">
   <script src="/js/product-shell.js" defer></script>
 </head>
@@ -13,7 +14,13 @@
   <main class="lab-shell">
     <header class="lab-heading">
       <div><p>DEVELOPMENT MATERIAL LAB</p><h1>Liquid Glass Engine V2.1</h1></div>
-      <aside class="engine-readout" aria-live="polite"><strong>Current Engine</strong><code id="engineName">检测中</code><span id="engineDetails"></span></aside>
+      <aside class="engine-readout" aria-live="polite">
+        <strong>Current Engine</strong><code id="engineName">检测中</code>
+        <strong>Backdrop Filter Supported</strong><code id="backdropSupported">检测中</code>
+        <strong>SVG Backdrop Refraction Enabled</strong><code id="svgRefraction">检测中</code>
+        <strong>True Displacement Available</strong><code id="trueDisplacement">检测中</code>
+        <span id="engineDetails"></span>
+      </aside>
     </header>
 
     <section class="lab-controls" data-lg-surface="control" aria-label="材质调试开关">
@@ -45,9 +52,18 @@
       var root = document.documentElement;
       var name = document.getElementById('engineName');
       var details = document.getElementById('engineDetails');
+      var backdropEl = document.getElementById('backdropSupported');
+      var svgEl = document.getElementById('svgRefraction');
+      var dispEl = document.getElementById('trueDisplacement');
       function refresh() {
-        name.textContent = (root.dataset.liquidEngine || 'optical-fallback').toUpperCase().replaceAll('-', '_');
-        details.textContent = 'Backdrop filter: ' + (root.dataset.lgBackdropSupported || 'false') + ' · SVG backdrop reference: ' + (root.dataset.lgSvgReferenceEnabled || 'false') + ' · Reduced motion: ' + matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var engine = root.dataset.liquidEngine || 'optical-fallback';
+        name.textContent = engine.toUpperCase().replaceAll('-', '_');
+        var backdropSupported = root.dataset.lgBackdropSupported === 'true';
+        var svgEnabled = root.dataset.lgSvgReferenceEnabled === 'true';
+        backdropEl.textContent = backdropSupported ? 'YES' : 'NO';
+        svgEl.textContent = svgEnabled ? 'YES' : 'NO';
+        dispEl.textContent = svgEnabled ? 'YES (Chromium SVG)' : 'NO (' + (engine === 'optical-fallback' ? 'OPTICAL_FALLBACK' : 'N/A') + ')';
+        details.textContent = 'Reduced motion: ' + matchMedia('(prefers-reduced-motion: reduce)').matches;
       }
       document.querySelectorAll('[data-debug-toggle]').forEach(function (input) {
         input.addEventListener('change', function () {

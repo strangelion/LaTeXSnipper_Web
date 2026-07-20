@@ -1,0 +1,182 @@
+/*
+ * Liquid Environment System
+ *
+ * Provides low-intensity spatial information behind Liquid Glass surfaces
+ * so that backdrop-filter has enough content to produce transmission.
+ *
+ * These elements are purely decorative and sit BEHIND the glass layer.
+ * They must never become the visual subject.
+ */
+
+.liquid-environment {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Ambient color fields — large, soft, low-opacity radial gradients */
+.liquid-environment__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+/* Thin decorative lines — subtle spatial markers */
+.liquid-environment__line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--site-line-strong), transparent);
+  transform-origin: left;
+}
+
+/* Faint background typography — barely perceptible large words */
+.liquid-environment__word {
+  position: absolute;
+  color: var(--site-ink);
+  opacity: 0.035;
+  font: 800 clamp(3rem, 8vw, 7rem) / 0.85 var(--site-sans);
+  letter-spacing: -0.06em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ─── Download Environment ─── */
+
+.download-environment {
+  top: 0;
+  left: 50%;
+  width: min(940px, 92vw);
+  height: 520px;
+  transform: translateX(-50%);
+}
+
+.download-environment .liquid-environment__word {
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  opacity: 0.03;
+}
+
+.download-environment .env-orb-a {
+  left: -60px;
+  top: 40px;
+  width: 320px;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 35% 35%, var(--site-blue), color-mix(in srgb, var(--site-blue) 30%, transparent) 60%, transparent 75%);
+  opacity: 0.08;
+}
+
+.download-environment .env-orb-b {
+  right: -80px;
+  bottom: 30px;
+  width: 280px;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 40% 30%, var(--site-success), color-mix(in srgb, var(--site-success) 28%, transparent) 58%, transparent 72%);
+  opacity: 0.07;
+}
+
+.download-environment .env-line-a {
+  top: 38%;
+  left: 8%;
+  width: 84%;
+  transform: rotate(4deg);
+  opacity: 0.08;
+}
+
+.download-environment .env-line-b {
+  top: 70%;
+  left: 12%;
+  width: 76%;
+  transform: rotate(-3deg);
+  opacity: 0.06;
+}
+
+/* ─── OCR Environment ─── */
+
+.ocr-environment {
+  top: 0;
+  left: 50%;
+  width: min(960px, 94vw);
+  height: 480px;
+  transform: translateX(-50%);
+}
+
+.ocr-environment .liquid-environment__word {
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  font-size: clamp(2.6rem, 6.5vw, 5rem);
+  opacity: 0.028;
+}
+
+.ocr-environment .env-orb-a {
+  left: -40px;
+  top: 60px;
+  width: 260px;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 38% 32%, var(--site-blue), color-mix(in srgb, var(--site-blue) 25%, transparent) 55%, transparent 70%);
+  opacity: 0.06;
+}
+
+.ocr-environment .env-orb-b {
+  right: -50px;
+  bottom: 50px;
+  width: 220px;
+  aspect-ratio: 1;
+  background: radial-gradient(circle at 42% 35%, var(--site-success), color-mix(in srgb, var(--site-success) 22%, transparent) 52%, transparent 68%);
+  opacity: 0.05;
+}
+
+.ocr-environment .env-line-a {
+  top: 32%;
+  left: 10%;
+  width: 80%;
+  transform: rotate(5deg);
+  opacity: 0.07;
+}
+
+.ocr-environment .env-line-b {
+  top: 68%;
+  left: 14%;
+  width: 72%;
+  transform: rotate(-4deg);
+  opacity: 0.05;
+}
+
+/* Math curve for OCR environment */
+.ocr-environment .env-curve {
+  position: absolute;
+  right: 8%;
+  top: 25%;
+  width: 180px;
+  height: 180px;
+  border: 1px solid var(--site-line-strong);
+  border-radius: 50%;
+  opacity: 0.05;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* ─── Manual sidebar environment ─── */
+
+.sidebar.lg-surface--regular,
+.right-sidebar.lg-surface--regular {
+  --lg-blur: 2px;
+  --lg-tint-strength: 0.035;
+  --lg-rim-strength: 0.32;
+  --lg-specular-strength: 0.12;
+  --lg-shadow-strength: 0.07;
+}
+
+/* ─── Reduced motion ─── */
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-environment,
+  .liquid-environment__orb,
+  .liquid-environment__line,
+  .liquid-environment__word {
+    transition: none !important;
+  }
+}
