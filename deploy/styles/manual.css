@@ -1,11 +1,28 @@
 
+html.manual-page {
+  min-height: 100%;
+  background:
+    radial-gradient(
+      760px 420px at 80% 0%,
+      color-mix(in srgb, var(--site-blue) 8%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      var(--site-bg),
+      var(--site-bg-alt)
+    );
+}
+
+body.manual {
+  min-height: 100vh;
+  background: transparent;
+}
+
 .manual {
   --manual-sidebar-width: clamp(300px, 22vw, 360px);
   min-height: 100vh;
   padding-top: var(--site-header-height);
-  background:
-    radial-gradient(760px 420px at 80% 0%, color-mix(in srgb, var(--site-blue) 8%, transparent), transparent 72%),
-    linear-gradient(180deg, var(--site-bg), var(--site-bg-alt));
 }
 
 .manual-content {
@@ -370,4 +387,128 @@
   }
 }
 
+/* =========================================================
+   Manual responsive layout
+   ========================================================= */
 
+.manual-cover {
+  margin: 2.5rem auto 2rem;
+  text-align: center;
+}
+
+.manual-cover p {
+  margin: 0;
+}
+
+.manual-cover p:nth-child(1) {
+  color: var(--site-ink);
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.manual-cover p:nth-child(2) {
+  margin-top: 1rem;
+  color: var(--site-ink-soft);
+  font-size: 1.25rem;
+}
+
+.manual-cover p:nth-child(3) {
+  margin-top: 0.8rem;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+}
+
+.manual-cover-visual {
+  margin: 1.5rem 0 2.5rem;
+}
+
+.manual-cover-visual > .center {
+  margin: 0;
+}
+
+
+/* =========================================================
+   Mobile manual
+   ========================================================= */
+
+@media (max-width: 720px) {
+  .manual-content {
+    width: calc(100% - 28px);
+    padding-top: 24px;
+    padding-bottom: 80px;
+  }
+
+  /* 封面压缩垂直空间 */
+  .manual-cover {
+    margin: 1.25rem auto 1.5rem;
+  }
+
+  .manual-cover p:nth-child(1) {
+    font-size: 1.55rem;
+  }
+
+  .manual-cover p:nth-child(2) {
+    margin-top: 0.6rem;
+    font-size: 1.08rem;
+  }
+
+  .manual-cover p:nth-child(3) {
+    margin-top: 0.45rem;
+    font-size: 0.82rem;
+  }
+
+  /* 桌面截图允许横向浏览，不再压缩到无法看清 */
+  .manual-cover-visual {
+    width: calc(100vw - 20px);
+    margin-left: calc(50% - 50vw + 10px);
+    margin-top: 1rem;
+    margin-bottom: 1.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .manual-cover-visual > .center {
+    width: max-content;
+    margin: 0;
+  }
+
+  .manual-cover-visual img {
+    width: 620px;
+    max-width: none;
+    height: auto;
+  }
+
+  /* 手机已经有浮动目录抽屉，不再显示巨大的正文目录 */
+  .manual-inline-toc {
+    display: none;
+  }
+
+  /* 手机没有 hover，禁用桌面端靠边悬停区域 */
+  .edge-hover-left,
+  .edge-hover-right {
+    display: none;
+  }
+
+  /* 手机上只保留左侧目录 */
+  .right-sidebar {
+    display: none;
+  }
+
+  .sidebar {
+    top: calc(var(--site-header-height) + 6px);
+    bottom: 8px;
+    left: 8px;
+    width: min(88vw, 340px);
+  }
+
+  /* 减少正文标题的超大间距 */
+  .manual-content h1 {
+    margin-top: 3rem;
+    padding-top: 1rem;
+  }
+
+  .manual-content h2 {
+    margin-top: 2.1rem;
+  }
+}

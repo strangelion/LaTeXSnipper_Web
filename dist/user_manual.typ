@@ -1270,14 +1270,10 @@ py -3.11 -m venv tools\deps\python311
 
 == 什么是 Office 加载项
 
-本卷介绍的是 LaTeXSnipper Desktop 仓库随桌面版发布的 Windows 原生 VSTO 加载项。安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象和 Word OMML 公式都由本地组件处理；本机 Bridge 仅用于与 LaTeXSnipper 桌面端通信并读取截图 OCR 识别结果。
+LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象和 Word OMML 公式都由本地组件处理；本机 Bridge 仅用于与 LaTeXSnipper 桌面端通信并读取截图 OCR 识别结果。
 
 #info-block("与桌面端的关系", [
   OLE 公式对象和 Word OMML 公式不依赖桌面端 Bridge。只有截图 OCR 需要本机运行的 LaTeXSnipper 桌面端提供识别结果；使用截图识别前，请确保桌面端已启动并开启了 Office 插件功能。
-])
-
-#warn-block("不要与独立 Office 项目混淆", [
-  本卷插件属于 SakuraMathcraft 维护的 LaTeXSnipper Desktop（GPL-3.0），只覆盖 Windows Word / PowerPoint。strangelion 维护的独立 LaTeXSnipper Office（AGPL-3.0）是另一个仓库，提供原生 Office/OLE/VSTO、Office.js、WPS、Obsidian、VS Code 和浏览器扩展等接入；两者版本号、安装包和问题追踪均不共用。
 ])
 
 == 系统要求
@@ -1849,40 +1845,29 @@ Word 侧边栏包含行间公式、自动编号、自定义编号输入框等 Wo
 
 #heading(level: 1)[LaTeXSnipper Mobile 介绍] <sec-mobile-intro>
 
-LaTeXSnipper Mobile 是以 Android 为当前原生 OCR 主路径的移动端识别应用，基于 Capacitor + Vite 构建。Android 端通过 Java ONNX Runtime 完成公式、文字和混合内容的本地离线推理；仓库保留 iOS/浏览器构建路径，但目前没有与 Android 等价的原生 OCR 适配，浏览器开发模式使用外部 API 回退。
+LaTeXSnipper Mobile 是面向 Android 和 iOS 的移动端公式 OCR 识别应用，基于 Capacitor + Vite 构建，前端为纯 Web 技术栈（HTML/CSS/JS），后端使用 Java ONNX Runtime 进行本地离线推理。
 
 == 项目地址与版本
 
 - GitHub：https://github.com/strangelion/LaTeXSnipper_mobile
-- 当前版本：#text(weight: "bold")[v1.3.0]
-- 作者 / 维护者：strangelion
-- 构建方式：Vite + Capacitor；Android 原生 OCR 使用 Java ONNX Runtime
-- 许可证：AGPL-3.0
+- 当前版本：#text(weight: "bold")[v1.2.2]
+- 构建方式：Vite 8 + Capacitor 8（Android/iOS）
+- 许可证：Apache License 2.0
 
 == 与桌面版的关系
 
 #info-block("全平台生态", [
   LaTeXSnipper Mobile 是独立的应用，不依赖桌面版 LaTeXSnipper。
-  两者使用兼容的 MathCraft OCR 模型体系，但 Mobile 的 Android 原生路径使用 Java ONNX Runtime（而非 Python），推理在 Android 设备本地完成。
+  两者共享相同的 MathCraft OCR 模型体系，但移动版使用 Java ONNX Runtime（而非 Python），所有推理在手机本地完成。
   桌面版的 Office 插件、Pandoc 导出高级功能、数学工作台等不在移动版中提供。
 ])
 
-== 生态项目与作者边界
-
-- *LaTeXSnipper Desktop：* v2.4.0 LTS；SakuraMathcraft；GPL-3.0
-- *LaTeXSnipper Mobile：* v1.3.0；strangelion；AGPL-3.0
-- *LaTeXSnipper Office：* v1.4.2；strangelion；AGPL-3.0；独立的多宿主公式编辑与 Office 集成项目
-- *latexsnipper-core：* v3.0.1；strangelion；AGPL-3.0；提供 Document AST、转换、原生/WASM 运行时、CLI 和 Rust SDK
-
-这些项目名称相近，但不是同一仓库，也不共享版本号和许可证。Core 的 WASM 转换接口可在浏览器使用；OCR 是否就绪由加载的模型和运行时能力决定，不能只凭 WASM 文件存在就视为模型已加载。
-
 == 系统要求
 
-- Android 7.0+（API 24；推荐使用较新的 64 位 Android 设备）
+- Android 10+（推荐 Android 12+）
 - 存储空间：安装包约 120MB，解压后约 350MB（含全部 ONNX 模型）
 - RAM：推荐 6GB 以上（低端设备可能出现模型加载缓慢或 OOM）
 - 可选：网络连接（仅用于自动更新检查、AI 整理和 Pandoc WASM 首次加载）
-- iOS / 浏览器：可构建前端壳层，但当前原生离线 OCR 能力以 Android 为准
 
 #pagebreak()
 
@@ -1980,7 +1965,7 @@ MathLive 所见即所得公式编辑器，支持中文界面和本地化：
   - *更多视觉皮肤：* 7 套皮肤（桌面端仅有浅色/深色主题）
   - *自动更新检查：* 启动时检测 GitHub Release，移动端弹出系统更新提示
   - *离线 PWA：* 可通过 Service Worker 缓存，支持离线使用
-  - *系统分享集成：* Android 端可通过系统分享菜单将结果发送到其他应用
+  - *系统分享集成：* 结果可通过 Android/iOS 系统分享菜单发送到其他应用
   - *三态键盘：* MathLive 虚拟键盘 / 系统原生键盘 / 关闭键盘的灵活切换
 ]
 
@@ -2006,7 +1991,7 @@ MathLive 所见即所得公式编辑器，支持中文界面和本地化：
 
 == 识别引擎架构
 
-Android 原生路径使用 Java ONNX Runtime 引擎，推理在手机本地完成：
+移动端使用纯 Java ONNX Runtime 引擎，所有推理在手机本地完成：
 
 - *公式检测（YOLOv8）：* `mathcraft-mfd.onnx`，输入 [1,3,768,768]，768×768 letterbox
 - *公式识别（TrOCR）：* `encoder_model.onnx`（DeiT 编码器）+ `decoder_model.onnx`（束搜索解码，beam=3）
