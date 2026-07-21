@@ -510,9 +510,31 @@ def parse_typ(source):
 
         # #align(center)[...]
         if tt == 'HASH' and tv == '#align':
-            consume(); skip_callout_args()
+            consume()
+            skip_callout_args()
             body = read_bracket_body()
-            out.append(f'<div class="center">\n{process_body_text(body)}\n</div>\n')
+            body_html = process_body_text(body)
+
+            # 手册封面
+            if (
+                'LaTeXSnipper' in body
+                and '用户手册' in body
+                and '长期支持版' in body
+            ):
+                cls = 'manual-cover'
+
+            # 手册封面截图
+            elif 'LaTeXSnipper.png' in body:
+                cls = 'manual-cover-visual'
+
+            else:
+                cls = 'center'
+
+            out.append(
+                f'<div class="{cls}">\n'
+                f'{body_html}\n'
+                f'</div>\n'
+            )
             continue
 
         # #image(...)
@@ -666,10 +688,27 @@ def parse_typ(source):
                 out.append(f'<div class="warn-box">\n{process_body_text(body)}\n</div>\n')
             else:
                 cls = 'block'
-                if '#FFF3E0' in args: cls = 'block block-orange'
-                elif '#F5F5F5' in args or '#FAFAFA' in args: cls = 'block block-gray'
-                out.append(f'<div class="{cls}">\n{process_body_text(body)}\n</div>\n')
-            continue
+
+                # 用户手册正文目录
+                if (
+                    '目录' in body
+                    and 'sec-quick' in body
+                    and 'sec-office-intro' in body
+                ):
+                    cls = 'block block-gray manual-inline-toc'
+
+                elif '#FFF3E0' in args:
+                    cls = 'block block-orange'
+
+                elif '#F5F5F5' in args or '#FAFAFA' in args:
+                    cls = 'block block-gray'
+
+                out.append(
+                    f'<div class="{cls}">\n'
+                    f'{process_body_text(body)}\n'
+                    f'</div>\n'
+                )
+                continue
 
         # #table(...) — convert Typst table to HTML table
         if tt == 'HASH' and tv == '#table':
