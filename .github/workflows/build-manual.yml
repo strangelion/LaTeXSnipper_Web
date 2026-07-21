@@ -214,7 +214,14 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add user_manual.typ user_manual.html dist/user_manual.html release/LaTeXSnipper_Manual.pdf dist/LaTeXSnipper_Manual.pdf assets/images/*.png dist/assets/images/*.png .release_state.json
+          git add \
+            user_manual.typ \
+            user_manual.html \
+            dist \
+            deploy \
+            release/LaTeXSnipper_Manual.pdf \
+            assets/images \
+            .release_state.json
           if git diff --staged --quiet; then
             echo "No changes."
           else
