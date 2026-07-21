@@ -23,7 +23,7 @@ jobs:
       needs_update: ${{ steps.check.outputs.needs_update }}
       upstream_sha: ${{ steps.check.outputs.upstream_sha }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 检查上游用户手册是否更新
         id: check
@@ -69,7 +69,7 @@ jobs:
     if: needs.check.outputs.needs_update == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Sync all files from upstream LaTeXSnipper
         run: |

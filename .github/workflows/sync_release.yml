@@ -24,7 +24,7 @@ jobs:
       asset_timestamps: ${{ steps.decide.outputs.asset_timestamps }}
       should_build_manual: ${{ steps.check_manual.outputs.manual_updated }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 检查各 Release 文件时间戳
         id: decide
@@ -144,7 +144,7 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: 下载并上传变更文件到 R2
         env:
