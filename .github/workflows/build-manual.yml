@@ -190,13 +190,18 @@ jobs:
             echo "PDF uploaded to R2: release/LaTeXSnipper_Manual.pdf"
           fi
 
-      - name: Copy to dist
+      - name: Refresh manual deployment assets
         run: |
-          cp user_manual.html dist/user_manual.html
-          mkdir -p release dist/assets/images
+          # 将最新手册 HTML、CSS、JS 和图片同步到 dist
+          npm run build:manual
+
+          # PDF 由前面的 WeasyPrint 步骤生成
+          mkdir -p release dist
           cp LaTeXSnipper_User_Manual.pdf release/LaTeXSnipper_Manual.pdf
           cp LaTeXSnipper_User_Manual.pdf dist/LaTeXSnipper_Manual.pdf
-          cp assets/images/*.png dist/assets/images/ 2>/dev/null || true
+
+          # 根据最新 dist 重新生成最终 Cloudflare 部署目录
+          npm run assemble
 
       - name: 更新状态文件并提交变更
         run: |
