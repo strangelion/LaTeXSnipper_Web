@@ -92,77 +92,79 @@ jobs:
       - name: Build manual HTML
         run: python3 build_manual.py
 
-            - name: Generate PDF
-            run: |
-              pip install "weasyprint==69.0" -q
-              sudo apt-get update -qq
-              sudo apt-get install -y -qq fonts-noto-cjk
+      - name: Generate PDF
+        run: |
+          pip install "weasyprint==69.0" -q
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
 
-              python3 <<'PY'
-              from pathlib import Path
-              from weasyprint import HTML
+          python3 <<'PY'
+          from pathlib import Path
+          from weasyprint import HTML
 
-              source = Path("user_manual.html")
-              pdf_source = Path("user_manual_pdf.html")
+          source = Path("user_manual.html")
+          pdf_source = Path("user_manual_pdf.html")
 
-              html = source.read_text(encoding="utf-8")
+          html = source.read_text(encoding="utf-8")
 
-              print_css = """
-              <style>
-              @media print {
-                .site-header,
-                .float-arrow,
-                .edge-hover-left,
-                .edge-hover-right,
-                .sidebar,
-                .right-sidebar,
-                .back-to-top {
-                  display: none !important;
-                }
-    
-                .manual {
-                  padding-top: 0 !important;
-                }
-    
-                .manual-content {
-                  width: auto !important;
-                  max-width: none !important;
-                  padding: 0 !important;
-                }
+          print_css = """
+          <style>
+          @media print {
+            .site-header,
+            .float-arrow,
+            .edge-hover-left,
+            .edge-hover-right,
+            .sidebar,
+            .right-sidebar,
+            .back-to-top {
+              display: none !important;
+            }
 
-                body {
-                  font-family:
-                    "Noto Sans CJK SC",
-                    "Noto Sans SC",
-                    sans-serif !important;
-                }
+            .manual {
+              padding-top: 0 !important;
+            }
 
-                code,
-                pre {
-                  font-family: "Cascadia Code", monospace;
-                }
-              }
-              </style>
-              """
+            .manual-content {
+              width: auto !important;
+              max-width: none !important;
+              padding: 0 !important;
+            }
 
-              html = html.replace(
-                  "</head>",
-                  print_css + "\n</head>",
-                  1,
-              )
+            body {
+              font-family:
+                "Noto Sans CJK SC",
+                "Noto Sans SC",
+                sans-serif !important;
+            }
 
-              pdf_source.write_text(html, encoding="utf-8")
+            code,
+            pre {
+              font-family: "Cascadia Code", monospace;
+            }
+          }
+          </style>
+          """
 
-              HTML(
-                  filename=str(pdf_source),
-                  base_url=str(Path.cwd()),
-              ).write_pdf("LaTeXSnipper_User_Manual.pdf")
-    
-              pdf_source.unlink(missing_ok=True)
-              PY
+          html = html.replace(
+              "</head>",
+              print_css + "\n</head>",
+              1,
+          )
 
-              ls -lh LaTeXSnipper_User_Manual.pdf
+          pdf_source.write_text(html, encoding="utf-8")
 
+          HTML(
+              filename=str(pdf_source),
+              base_url=str(Path.cwd()),
+          ).write_pdf("LaTeXSnipper_User_Manual.pdf")
+
+          pdf_source.unlink(missing_ok=True)
+          PY
+
+          ls -lh LaTeXSnipper_User_Manual.pdf
+
+      - name: Upload PDF to R2（仅在 PDF 变化时上传）
+            
       - name: Upload PDF to R2（仅在 PDF 变化时上传）
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
