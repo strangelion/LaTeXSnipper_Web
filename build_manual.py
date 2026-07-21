@@ -1292,7 +1292,7 @@ def main():
 </aside>"""
 
     html = f"""<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="manual-page">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
