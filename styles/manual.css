@@ -1,11 +1,28 @@
 
+html.manual-page {
+  min-height: 100%;
+  background:
+    radial-gradient(
+      760px 420px at 80% 0%,
+      color-mix(in srgb, var(--site-blue) 8%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      var(--site-bg),
+      var(--site-bg-alt)
+    );
+}
+
+body.manual {
+  min-height: 100vh;
+  background: transparent;
+}
+
 .manual {
   --manual-sidebar-width: clamp(300px, 22vw, 360px);
   min-height: 100vh;
   padding-top: var(--site-header-height);
-  background:
-    radial-gradient(760px 420px at 80% 0%, color-mix(in srgb, var(--site-blue) 8%, transparent), transparent 72%),
-    linear-gradient(180deg, var(--site-bg), var(--site-bg-alt));
 }
 
 .manual-content {
