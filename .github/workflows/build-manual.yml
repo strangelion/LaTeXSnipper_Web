@@ -162,9 +162,7 @@ jobs:
           PY
 
           ls -lh LaTeXSnipper_User_Manual.pdf
-
-      - name: Upload PDF to R2（仅在 PDF 变化时上传）
-            
+     
       - name: Upload PDF to R2（仅在 PDF 变化时上传）
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
