@@ -708,7 +708,7 @@ def parse_typ(source):
                     f'{process_body_text(body)}\n'
                     f'</div>\n'
                 )
-                continue
+            continue
 
         # #table(...) — convert Typst table to HTML table
         if tt == 'HASH' and tv == '#table':
