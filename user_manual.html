@@ -164,7 +164,6 @@
 <li class="toc-h1"><a href="#sec-mobile-intro">LaTeXSnipper Mobile 介绍</a></li>
   <li class="toc-h2"><a href="#xiangmudiyuben">项目地址与版本</a></li>
   <li class="toc-h2"><a href="#yuguan">与桌面版的关系</a></li>
-  <li class="toc-h2"><a href="#xiangmuyuzhe">生态项目与作者边界</a></li>
   <li class="toc-h2"><a href="#heading">系统要求</a></li>
 <li class="toc-h1"><a href="#sec-mobile-features">功能与页面结构</a></li>
   <li class="toc-h2"><a href="#shibieocr">识别页面（OCR）</a></li>
@@ -340,7 +339,6 @@
 <li class="rs-h1"><a href="#sec-mobile-intro">LaTeXSnipper Mobile 介绍</a></li>
   <li class="rs-h2"><a href="#xiangmudiyuben">项目地址与版本</a></li>
   <li class="rs-h2"><a href="#yuguan">与桌面版的关系</a></li>
-  <li class="rs-h2"><a href="#xiangmuyuzhe">生态项目与作者边界</a></li>
   <li class="rs-h2"><a href="#heading">系统要求</a></li>
 <li class="rs-h1"><a href="#sec-mobile-features">功能与页面结构</a></li>
   <li class="rs-h2"><a href="#shibieocr">识别页面（OCR）</a></li>
@@ -394,19 +392,19 @@
 </aside>
 
 <main class="manual-content" id="manualContent">
-<div class="center">
+<div class="manual-cover">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
 <p>适用于 v2.4.0-LTS | 长期支持版</p>
 
 </div>
-<div class="center">
+<div class="manual-cover-visual">
 <div class="center"><img src="assets/images/LaTeXSnipper.png" alt="" loading="lazy" decoding="async"></div>
 
 </div>
-<div class="block block-gray">
+<div class="block block-gray manual-inline-toc">
 <p><strong>目录</strong></p>
-<p><strong>第一卷 · LaTeXSnipper 用户指南</strong></p>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第一卷 · LaTeXSnipper 用户指南</span></div></div>
 <ul>
 <li><a href="#sec-quick">开始使用前（必读）</a></li>
 <li><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
@@ -421,7 +419,7 @@
 <li><a href="#sec-source">从源码运行与开发者常见问题</a></li>
 <li><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
 </ul>
-<p><strong>第二卷 · Office 加载项指南</strong></p>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第二卷 · Office 加载项指南</span></div></div>
 <ul>
 <li><a href="#sec-office-intro">加载项介绍与系统要求</a></li>
 <li><a href="#sec-office-install">安装与注册</a></li>
@@ -431,7 +429,7 @@
 <li><a href="#sec-office-settings">设置与帮助</a></li>
 <li><a href="#sec-office-trouble">常见问题排查</a></li>
 </ul>
-<p><strong>第三卷 · 移动端使用指南</strong></p>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第三卷 · 移动端使用指南</span></div></div>
 <ul>
 <li><a href="#sec-mobile-intro">LaTeXSnipper Mobile 介绍</a></li>
 <li><a href="#sec-mobile-features">功能与页面结构</a></li>
@@ -441,7 +439,7 @@
 <li><a href="#sec-mobile-export">导出与分享</a></li>
 <li><a href="#sec-mobile-issues">移动端常见问题</a></li>
 </ul>
-<p><strong>第四卷 · MathCraft 内部模型介绍</strong></p>
+<div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第四卷 · MathCraft 内部模型介绍</span></div></div>
 <ul>
 <li><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
 <li><a href="#sec-mathcraft-models">模型集与识别配置</a></li>
@@ -1165,15 +1163,10 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 </div>
 <h1 id="sec-office-intro">加载项介绍与系统要求</h1>
 <h2 id="office-xiang">什么是 Office 加载项</h2>
-<p>本卷介绍的是 LaTeXSnipper Desktop 仓库随桌面版发布的 Windows 原生 VSTO 加载项。安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象和 Word OMML 公式都由本地组件处理；本机 Bridge 仅用于与 LaTeXSnipper 桌面端通信并读取截图 OCR 识别结果。</p>
+<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象和 Word OMML 公式都由本地组件处理；本机 Bridge 仅用于与 LaTeXSnipper 桌面端通信并读取截图 OCR 识别结果。</p>
 <div class="callout info">
 <div class="callout-title">与桌面端的关系</div>
 <div class="callout-body"><p>OLE 公式对象和 Word OMML 公式不依赖桌面端 Bridge。只有截图 OCR 需要本机运行的 LaTeXSnipper 桌面端提供识别结果；使用截图识别前，请确保桌面端已启动并开启了 Office 插件功能。</p>
-</div>
-</div>
-<div class="callout warn">
-<div class="callout-title">不要与独立 Office 项目混淆</div>
-<div class="callout-body"><p>本卷插件属于 SakuraMathcraft 维护的 LaTeXSnipper Desktop（GPL-3.0），只覆盖 Windows Word / PowerPoint。strangelion 维护的独立 LaTeXSnipper Office（AGPL-3.0）是另一个仓库，提供原生 Office/OLE/VSTO、Office.js、WPS、Obsidian、VS Code 和浏览器扩展等接入；两者版本号、安装包和问题追踪均不共用。</p>
 </div>
 </div>
 <h2 id="heading">系统要求</h2>
@@ -1693,38 +1686,28 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h1 id="sec-mobile-intro">LaTeXSnipper Mobile 介绍</h1>
-<p>LaTeXSnipper Mobile 是以 Android 为当前原生 OCR 主路径的移动端识别应用，基于 Capacitor +Vite 构建。Android 端通过 Java ONNX Runtime 完成公式、文字和混合内容的本地离线推理；仓库保留 iOS/浏览器构建路径，但目前没有与 Android 等价的原生 OCR 适配，浏览器开发模式使用外部 API 回退。</p>
+<p>LaTeXSnipper Mobile 是面向 Android 和 iOS 的移动端公式 OCR 识别应用，基于 Capacitor +Vite 构建，前端为纯 Web 技术栈（HTML/CSS/JS），后端使用 Java ONNX Runtime 进行本地离线推理。</p>
 <h2 id="xiangmudiyuben">项目地址与版本</h2>
 <ul>
 <li>GitHub：https://github.com/strangelion/LaTeXSnipper_mobile</li>
-<li>当前版本：<strong>v1.3.0</strong></li>
-<li>作者 / 维护者：strangelion</li>
-<li>构建方式：Vite +Capacitor；Android 原生 OCR 使用 Java ONNX Runtime</li>
-<li>许可证：AGPL-3.0</li>
+<li>当前版本：<strong>v1.2.2</strong></li>
+<li>构建方式：Vite 8 +Capacitor 8（Android/iOS）</li>
+<li>许可证：Apache License 2.0</li>
 </ul>
 <h2 id="yuguan">与桌面版的关系</h2>
 <div class="callout info">
 <div class="callout-title">全平台生态</div>
 <div class="callout-body"><p>LaTeXSnipper Mobile 是独立的应用，不依赖桌面版 LaTeXSnipper。</p>
-<p>两者使用兼容的 MathCraft OCR 模型体系，但 Mobile 的 Android 原生路径使用 Java ONNX Runtime（而非 Python），推理在 Android 设备本地完成。</p>
+<p>两者共享相同的 MathCraft OCR 模型体系，但移动版使用 Java ONNX Runtime（而非 Python），所有推理在手机本地完成。</p>
 <p>桌面版的 Office 插件、Pandoc 导出高级功能、数学工作台等不在移动版中提供。</p>
 </div>
 </div>
-<h2 id="xiangmuyuzhe">生态项目与作者边界</h2>
-<ul>
-<li><strong>LaTeXSnipper Desktop：</strong> v2.4.0 LTS；SakuraMathcraft；GPL-3.0</li>
-<li><strong>LaTeXSnipper Mobile：</strong> v1.3.0；strangelion；AGPL-3.0</li>
-<li><strong>LaTeXSnipper Office：</strong> v1.4.2；strangelion；AGPL-3.0；独立的多宿主公式编辑与 Office 集成项目</li>
-<li><strong>latexsnipper-core：</strong> v3.0.1；strangelion；AGPL-3.0；提供 Document AST、转换、原生/WASM 运行时、CLI 和 Rust SDK</li>
-</ul>
-<p>这些项目名称相近，但不是同一仓库，也不共享版本号和许可证。Core 的 WASM 转换接口可在浏览器使用；OCR 是否就绪由加载的模型和运行时能力决定，不能只凭 WASM 文件存在就视为模型已加载。</p>
 <h2 id="heading">系统要求</h2>
 <ul>
-<li>Android 7.0+（API 24；推荐使用较新的 64 位 Android 设备）</li>
+<li>Android 10+（推荐 Android 12+）</li>
 <li>存储空间：安装包约 120MB，解压后约 350MB（含全部 ONNX 模型）</li>
 <li>RAM：推荐 6GB 以上（低端设备可能出现模型加载缓慢或 OOM）</li>
 <li>可选：网络连接（仅用于自动更新检查、AI 整理和 Pandoc WASM 首次加载）</li>
-<li>iOS / 浏览器：可构建前端壳层，但当前原生离线 OCR 能力以 Android 为准</li>
 </ul>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-features">功能与页面结构</h1>
@@ -1802,7 +1785,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li><strong>更多视觉皮肤：</strong> 7 套皮肤（桌面端仅有浅色/深色主题）</li>
 <li><strong>自动更新检查：</strong> 启动时检测 GitHub Release，移动端弹出系统更新提示</li>
 <li><strong>离线 PWA：</strong> 可通过 Service Worker 缓存，支持离线使用</li>
-<li><strong>系统分享集成：</strong> Android 端可通过系统分享菜单将结果发送到其他应用</li>
+<li><strong>系统分享集成：</strong> 结果可通过 Android/iOS 系统分享菜单发送到其他应用</li>
 <li><strong>三态键盘：</strong> MathLive 虚拟键盘 / 系统原生键盘 / 关闭键盘的灵活切换</li>
 </ul>
 
@@ -1827,7 +1810,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-ocr">OCR 识别与输入方式</h1>
 <h2 id="shibie">识别引擎架构</h2>
-<p>Android 原生路径使用 Java ONNX Runtime 引擎，推理在手机本地完成：</p>
+<p>移动端使用纯 Java ONNX Runtime 引擎，所有推理在手机本地完成：</p>
 <ul>
 <li><strong>公式检测（YOLOv8）：</strong> <code>mathcraft-mfd.onnx</code>，输入 [1,3,768,768]，768×768 letterbox</li>
 <li><strong>公式识别（TrOCR）：</strong> <code>encoder_model.onnx</code>（DeiT 编码器）+<code>decoder_model.onnx</code>（束搜索解码，beam=3）</li>
