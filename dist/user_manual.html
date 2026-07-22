@@ -132,6 +132,7 @@
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
   <li class="toc-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
   <li class="toc-h2"><a href="#rumoshi">三种插入模式</a></li>
+  <li class="toc-h2"><a href="#shixi">公式解析</a></li>
   <li class="toc-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
   <li class="toc-h2"><a href="#bianyubian">添加编号与重编号</a></li>
   <li class="toc-h2"><a href="#fenyubian">章/节分隔符与层级编号</a></li>
@@ -307,6 +308,7 @@
   <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
   <li class="rs-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
   <li class="rs-h2"><a href="#rumoshi">三种插入模式</a></li>
+  <li class="rs-h2"><a href="#shixi">公式解析</a></li>
   <li class="rs-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
   <li class="rs-h2"><a href="#bianyubian">添加编号与重编号</a></li>
   <li class="rs-h2"><a href="#fenyubian">章/节分隔符与层级编号</a></li>
@@ -1163,12 +1165,7 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 </div>
 <h1 id="sec-office-intro">加载项介绍与系统要求</h1>
 <h2 id="office-xiang">什么是 Office 加载项</h2>
-<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。OLE 公式对象和 Word OMML 公式都由本地组件处理；本机 Bridge 仅用于与 LaTeXSnipper 桌面端通信并读取截图 OCR 识别结果。</p>
-<div class="callout info">
-<div class="callout-title">与桌面端的关系</div>
-<div class="callout-body"><p>OLE 公式对象和 Word OMML 公式不依赖桌面端 Bridge。只有截图 OCR 需要本机运行的 LaTeXSnipper 桌面端提供识别结果；使用截图识别前，请确保桌面端已启动并开启了 Office 插件功能。</p>
-</div>
-</div>
+<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。截图 OCR 通过本机 Bridge 与 LaTeXSnipper 桌面端通信并读取识别结果。</p>
 <h2 id="heading">系统要求</h2>
 <div class="block">
 <ul>
@@ -1176,7 +1173,7 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 <li><strong>Office 版本：</strong> Microsoft 365 应用（当前通道或月度企业通道）、Office 2024 / 2021 / 2019 零售版或批量许可版、Office LTSC 2024 / 2021</li>
 <li><strong>运行时：</strong> .NET Framework 4.8；Microsoft Edge WebView2 Runtime（Windows 11 已内置；M365 会自动安装）</li>
 <li><strong>Office 体系：</strong> 仅支持 32 位和 64 位桌面版 Office；不支持网页版、移动版和 macOS 版 Office</li>
-<li><strong>LaTeXSnipper 桌面端：</strong> 只有截图 OCR 需要本机运行并开启 Office 插件功能；普通公式插入、加载、更新、转换、编号和引用均由插件本地完成</li>
+<li><strong>LaTeXSnipper 桌面端：</strong> 使用截图 OCR 时需在本机运行并开启 Office 插件功能</li>
 </ul>
 
 </div>
@@ -1230,12 +1227,13 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
-<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含 8 个功能组：</p>
+<p>安装后，Word 功能区的最后位置会出现 <strong>LaTeXSnipper</strong> 标签页，包含 9 个功能组：</p>
 <div class="block">
 <ul>
 <li><strong>公式组：</strong> 行内公式、行间公式、带编号公式、截图识别</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
 <li><strong>转换组：</strong> 转为 OLE、转为 Word</li>
+<li><strong>公式解析组：</strong> 解析所选、解析全文</li>
 <li><strong>引用组：</strong> 插入引用</li>
 <li><strong>编号组：</strong> 添加编号、重编号</li>
 <li><strong>边界组：</strong> 插入章分隔符、插入节边界</li>
@@ -1245,7 +1243,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h2 id="ru-omml-shi">插入 OMML 公式</h2>
-<p>Word 加载项通过本地 OMML 转换引擎将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）公式，不依赖桌面端 Bridge。OMML 公式是 Word 原生格式，可以像手动插入的公式一样编辑。</p>
+<p>Word 加载项通过本地 OMML 转换引擎将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）公式。OMML 公式是 Word 原生格式，可以像手动插入的公式一样编辑。</p>
 <div class="callout info">
 <div class="callout-title">OMML 公式</div>
 <div class="callout-body"><p>OMML 公式是 Word 原生格式，卸载加载项后公式仍然可以正常显示和编辑。加载项插入的公式会附带 LaTeXSnipper 管理元数据（LaTeX 源码、显示模式、编号模式），用于后续加载、更新和重编号。普通 Word 公式没有 LaTeXSnipper 元数据，插件不会猜测其 LaTeX 来源。</p>
@@ -1260,6 +1258,9 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 </ul>
 
 </div>
+<h2 id="shixi">公式解析</h2>
+<p>“解析所选”和“解析全文”可将正文及表格单元格中完整且非空的 <code>$...$</code>、<code>\(...\)</code>、<code>$$...$$</code> 和 <code>\[...\]</code> 转换为 LaTeXSnipper 管理公式。<code>$...$</code> 与 <code>\(...\)</code> 生成无编号行内公式；<code>$$...$$</code> 与 <code>\[...\]</code> 生成行间公式，并使用当前插入方式、字体、颜色、缩放和编号选项。</p>
+<p>行间公式中的有效顶层 <code>\tag{...}</code> 优先作为自定义编号，解析本身不执行全文重编号。已有 LaTeXSnipper 公式、Word 原生公式、字段、引用和受保护内容会被跳过；单个公式失败时保留原文并继续处理。批量解析分批显示进度并支持 Word 撤销，取消或超时后可再次执行以继续处理剩余公式。</p>
 <h2 id="gengxinhe">加载、更新和删除</h2>
 <p>选中由 LaTeXSnipper 插入的公式后：</p>
 <div class="block">
@@ -1406,49 +1407,57 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <td>查找目标公式、定位编号书签并创建 Word REF 域</td>
 </tr>
 <tr>
+<td>公式解析</td>
+<td><code>O(c +n * (s +r +replace))</code></td>
+<td>不适用</td>
+</tr>
+<tr>
+<td>安全范围扫描、公式渲染和 Office 对象替换</td>
 <td>转 OLE（插件 OMML）</td>
 <td><code>O(n * (s +r +ole))</code></td>
-<td><code>O(n * (s +r +ole))</code>（PNG → OLE）</td>
 </tr>
 <tr>
+<td><code>O(n * (s +r +ole))</code>（PNG → OLE）</td>
 <td>渲染、OLE 创建、逐个 COM 替换</td>
 <td>Word 原生 OMath 转 OLE</td>
-<td><code>O(n * (s +xsl +r +ole))</code></td>
 </tr>
 <tr>
+<td><code>O(n * (s +xsl +r +ole))</code></td>
 <td>不适用</td>
 <td>OMML2MML XSL、MathJax 按 MathML 渲染、OLE 创建</td>
-<td>转 Word OMML / PNG</td>
 </tr>
 <tr>
+<td>转 Word OMML / PNG</td>
 <td><code>O(n * (s +r +xsl +xml))</code></td>
 <td><code>O(n * (s +r +png))</code></td>
-<td>OLE/PNG 重新生成和 Office 对象替换</td>
 </tr>
 <tr>
+<td>OLE/PNG 重新生成和 Office 对象替换</td>
 <td>格式化所选</td>
 <td><code>O(n * (s +r +replace)+p)</code></td>
-<td><code>O(n * (s +r +replace))</code></td>
 </tr>
 <tr>
+<td><code>O(n * (s +r +replace))</code></td>
 <td>只有属性不同或尺寸被改过时才重新渲染/重置；Word 行内基线只扫描当前段落</td>
 <td>格式化全部</td>
-<td><code>O(m)</code></td>
 </tr>
 <tr>
+<td><code>O(m)</code></td>
 <td><code>O(m)</code></td>
 <td>扫描全文公式并恢复被用户缩放过的自然尺寸</td>
-<td>截图识别</td>
 </tr>
 <tr>
+<td>截图识别</td>
 <td><code>O(ocr +s +r)</code></td>
 <td><code>O(ocr +s +r)</code></td>
+</tr>
+<tr>
 <td>桌面端 OCR 和后续公式插入</td>
 </tr>
 </tbody>
 </table>
 <div class="block">
-<p>多选转换和多选格式化所选会先收集稳定快照（公式 ID、起始位置、渲染类型和必要元数据），不跨批持有 live COM object。转换和涉及替换的格式化按文档位置倒序分批执行，每批 5 个公式，每批更新一次状态窗格；Word 每批使用短 undo record。长公式或大量公式时，主要耗时仍来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换）。建议长文档批量清理时分段执行并保存文档。</p>
+<p>多选转换、公式解析和多选格式化所选会分批执行并更新状态窗格；Word 每批使用短 undo record。长公式或大量公式时，主要耗时仍来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换）。建议长文档批量处理时分段执行并保存文档。</p>
 <p>Word 原生 OMath 转 OLE 保存的是 MathML 源码，不是 LaTeX 源码；它用于保真转换，不进入 LaTeX 格式化链路。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
 
 </div>
@@ -1570,7 +1579,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p>通过功能区"设置"按钮打开。设置窗口支持完整的公式参数配置：</p>
 <div class="block">
 <ul>
-<li><strong>公式插入方式：</strong> OLE 对象（默认，不依赖 Bridge）或 Word OMML（本地转换，不依赖 Bridge）</li>
+<li><strong>公式插入方式：</strong> OLE 对象（默认）或 Word OMML（本地转换）</li>
 <li><strong>编号位置：</strong> 右编号（默认）或左编号</li>
 <li><strong>外框：</strong> 无、圆括号（()）、方括号（[]）、花括号（{}）</li>
 <li><strong>层级分隔符：</strong> <code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code></li>
@@ -1648,7 +1657,7 @@ OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>检查杀毒软件是否拦截了安装</li>
 </ol>
 <h2 id="heading">连接桌面端失败</h2>
-<p><strong>现象：</strong> 使用截图识别或 OMML 公式插入时提示"无法连接到 LaTeXSnipper"（OLE 公式对象渲染不依赖 Bridge 连接）。</p>
+<p><strong>现象：</strong> 点击"连接"按钮后提示"无法连接到 LaTeXSnipper"。</p>
 <p><strong>解决：</strong></p>
 <ol>
 <li>确认 LaTeXSnipper 桌面端正在运行</li>
