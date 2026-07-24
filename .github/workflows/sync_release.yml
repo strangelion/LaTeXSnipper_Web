@@ -146,6 +146,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci --ignore-scripts
+
       - name: 下载并上传变更文件到 R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -191,9 +200,9 @@ jobs:
               item['sha256'] = sha
               item['size'] = human_size(size_bytes)
 
-              subprocess.run(['npx', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
+              subprocess.run(['npx', '--no-install', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
                           capture_output=True, timeout=60000)
-              subprocess.run(['npx', 'wrangler', 'r2', 'object', 'put', f'release/{name}', '--file', out, '--remote'],
+              subprocess.run(['npx', '--no-install', 'wrangler', 'r2', 'object', 'put', f'release/{name}', '--file', out, '--remote'],
                           check=True, timeout=120000)
               print(f'  Uploaded release/{name}')
           # Do not publish a partially-updated manifest: this file is written
