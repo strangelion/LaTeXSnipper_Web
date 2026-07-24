@@ -174,6 +174,6 @@ test('lab debug page is present', () => {
 
 test('manual documents current version', () => {
   assert.match(manualSource, /Android/);
-  assert.match(manualSource, /AGPL-3\.0/);
+  assert.match(manualSource, /\bGPL-3\.0(?:-only)?\b/);
   assert.match(manualSource, /不要与独立 Office 项目混淆/);
 });
