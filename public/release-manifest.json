@@ -14,8 +14,8 @@
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipperSetup-2.4.0.exe",
-      "sha256": "49c4d5640167bfe73dc71662d3a083ee7fd65bdfa54705481c95632be131b0c7",
-      "size": ""
+      "sha256": "d1f299a5b77d557a9d0a338a6de14240289bf0a4f2a7b318a8cb9d0e82d83ba0",
+      "size": "115.6 MB"
     },
     {
       "id": "linux-amd64",
@@ -24,8 +24,8 @@
       "architecture": "x86_64",
       "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_amd64.deb",
-      "sha256": "b8f0bb8cc7dd48c17bd1070f120bfae07499ccd1a3087c1d5ab2a37b997c4204",
-      "size": ""
+      "sha256": "b23123658d23e897b180f54b7937a30c41cce85676d1ebfbe3f0a5b668293c71",
+      "size": "172.3 MB"
     },
     {
       "id": "macos-arm64",
@@ -34,8 +34,8 @@
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_arm64.dmg",
-      "sha256": "fd6509ff2f8c67c326eef1cb412c4a2314ed5998a4e1805cacb11e240d15caff",
-      "size": ""
+      "sha256": "c136de58f9c321d019ce4aa690ef2910ce29d34f7b767fa5828d2a59cfc91336",
+      "size": "194.2 MB"
     },
     {
       "id": "office-plugin-windows",
@@ -44,8 +44,8 @@
       "architecture": "x86_64",
       "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
       "href": "/dl/OfficePluginSetup-2.4.0.exe",
-      "sha256": "88d73332e6307d271ad617aee29ffc25765a8b404de5f7342ba767cf80828b3b",
-      "size": ""
+      "sha256": "df536a2a52010019cb3c13f0f038efe7c7acbac71c2f1c8097af62ae3b267100",
+      "size": "7.0 MB"
     }
   ]
 }

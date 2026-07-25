@@ -5,28 +5,34 @@
   "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.4.0-LTS",
   "downloads": {
     "windows": {
+      "id": "windows-x86_64",
+      "platform": "windows",
       "label": "Windows",
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipperSetup-2.4.0.exe",
-      "sha256": "",
-      "size": ""
+      "sha256": "d1f299a5b77d557a9d0a338a6de14240289bf0a4f2a7b318a8cb9d0e82d83ba0",
+      "size": "115.6 MB"
     },
     "linux": {
+      "id": "linux-amd64",
+      "platform": "linux",
       "label": "Linux",
       "architecture": "x86_64",
-      "requirements": "Debian / Ubuntu 及兼容发行版",
+      "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_amd64.deb",
-      "sha256": "",
-      "size": ""
+      "sha256": "b23123658d23e897b180f54b7937a30c41cce85676d1ebfbe3f0a5b668293c71",
+      "size": "172.3 MB"
     },
     "macos": {
+      "id": "macos-arm64",
+      "platform": "macos",
       "label": "macOS",
       "architecture": "Apple Silicon",
-      "requirements": "macOS 11 或更高版本",
+      "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_arm64.dmg",
-      "sha256": "",
-      "size": ""
+      "sha256": "c136de58f9c321d019ce4aa690ef2910ce29d34f7b767fa5828d2a59cfc91336",
+      "size": "194.2 MB"
     }
   }
 }
