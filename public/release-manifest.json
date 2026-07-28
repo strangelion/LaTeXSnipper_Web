@@ -14,7 +14,7 @@
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipperSetup-2.4.0.exe",
-      "sha256": "cddf20c2158faec9921922f76a4139d754555ae3d5710905cb1ea5c4f8b2bb8b",
+      "sha256": "6a87b0eaedf4325852588134d3d9f712f80b491edff837492af3cd9b4030ff7e",
       "size": "115.6 MB"
     },
     {
@@ -24,7 +24,7 @@
       "architecture": "x86_64",
       "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_amd64.deb",
-      "sha256": "84a1e6889244a15c2397964acf784617286e7f2cd4db11a44eeca37a0e258fdd",
+      "sha256": "280315a6150e9d5400e09ab94f983840752e8b96c1d0e989b7b8cab2b490b770",
       "size": "172.3 MB"
     },
     {
@@ -34,7 +34,7 @@
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_2.4.0_arm64.dmg",
-      "sha256": "d8f69e77615ff2aafd352cae2d312b710ec16fa49f4d6bc8f29b0b74d50c1dc1",
+      "sha256": "6f937df8bb291ba90876bc8c5f57582219a1449cf56713e06fdc5b0bd47fa521",
       "size": "194.2 MB"
     },
     {
