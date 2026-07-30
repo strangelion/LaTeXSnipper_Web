@@ -1,0 +1,65 @@
+/* Mobile-only hardening for the generated user manual. */
+html.manual-page,
+body.manual {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: none;
+}
+
+/* Never let the generated cover/version tag be clipped by a narrow viewport. */
+.manual-cover,
+.manual-cover p,
+.manual-cover p:nth-child(3) {
+  max-width: 100%;
+  overflow: visible;
+}
+
+.manual-cover p:nth-child(3) {
+  padding-inline: 8px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+@media (max-width: 720px) {
+  .manual .site-header-inner {
+    min-width: 0;
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .manual .site-brand {
+    min-width: 0;
+    max-width: calc(100vw - 164px);
+    gap: 7px;
+  }
+
+  .manual .site-brand span {
+    min-width: 0;
+    display: block;
+    overflow: visible;
+    white-space: nowrap;
+    text-overflow: clip;
+    font-size: clamp(0.78rem, 3.5vw, 0.94rem);
+  }
+
+  .manual .site-header-actions {
+    flex: 0 0 auto;
+    gap: 5px;
+  }
+
+  .manual-cover p:nth-child(3) {
+    width: 100%;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 390px) {
+  .manual .site-brand {
+    max-width: calc(100vw - 150px);
+  }
+
+  .manual .site-brand img {
+    width: 28px;
+    height: 28px;
+  }
+}
