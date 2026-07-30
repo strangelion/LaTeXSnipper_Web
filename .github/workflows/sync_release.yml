@@ -220,14 +220,24 @@ jobs:
           state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PYEOF
 
-      - name: 提交发布 manifest
+      - name: 同步网页版本文案
+        run: npm run sync:release-copy
+
+      - name: 提交发布 manifest 与版本文案
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/release-manifest.json public/release.json .release_state.json
+          git add \
+            public/release-manifest.json \
+            public/release.json \
+            .release_state.json \
+            index.html \
+            download.html \
+            src/data/siteContent.js \
+            src/components/HeroSection.jsx
           if git diff --staged --quiet; then
-            echo "No manifest changes"
+            echo "No release metadata or website copy changes"
             exit 0
           fi
           git commit -m "chore: sync upstream release"
