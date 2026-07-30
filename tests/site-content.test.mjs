@@ -172,8 +172,13 @@ test('lab debug page is present', () => {
   assert.match(liquidLabSource, /data-debug-toggle/);
 });
 
-test('manual documents current version', () => {
+test('manual documents mobile and Office integrations', () => {
   assert.match(manualSource, /Android/);
-  assert.match(manualSource, /\bGPL-3\.0(?:-only)?\b/);
-  assert.match(manualSource, /不要与独立 Office 项目混淆/);
+  assert.match(manualSource, /LaTeXSnipper Mobile/);
+  assert.match(manualSource, /Office 加载项指南/);
+});
+
+test('manual mobile hardening stays enabled', () => {
+  assert.match(productShellScript, /user-scalable=no/);
+  assert.match(productShellScript, /manual-mobile-fixes\.css/);
 });
