@@ -6,6 +6,25 @@
   const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
   const mobileNavigationQuery = window.matchMedia('(max-width: 720px)');
 
+  function hardenManualMobile() {
+    if (!root.classList.contains('manual-page')) return;
+
+    let viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) {
+      viewport = document.createElement('meta');
+      viewport.name = 'viewport';
+      document.head.append(viewport);
+    }
+    viewport.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+
+    if (!document.querySelector('link[href="styles/manual-mobile-fixes.css"]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'styles/manual-mobile-fixes.css';
+      document.head.append(link);
+    }
+  }
+
   function ensureLiquidGlassFilterDefs() {
     if (document.getElementById('liquid-backdrop-refraction')) return;
     const namespace = 'http://www.w3.org/2000/svg';
@@ -55,6 +74,7 @@
     });
   }
 
+  hardenManualMobile();
   ensureLiquidGlassFilterDefs();
   selectLiquidEngine();
   document.querySelectorAll('[data-lg-surface]').forEach((element) => {
