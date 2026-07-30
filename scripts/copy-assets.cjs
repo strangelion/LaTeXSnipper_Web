@@ -40,6 +40,7 @@ const assets = [
   'styles/download.css',
   'styles/ocr.css',
   'styles/manual.css',
+  'styles/manual-mobile-fixes.css',
   'styles/liquid-glass-lab.css',
   'design/liquid-glass-lab.html',
   'js/script.js',
