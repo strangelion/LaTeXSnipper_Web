@@ -18,10 +18,11 @@
     "wrangler": "^4.112.0"
   },
   "scripts": {
+    "sync:release-copy": "node scripts/apply-release-version.mjs",
     "check:core": "node scripts/check-core-version.mjs",
     "build:core": "node scripts/fetch-core-wasm.mjs",
     "build:runtime": "node scripts/copy-runtime-assets.mjs",
-    "prepare:web": "npm run check:core && npm run build:core && npm run build:runtime",
+    "prepare:web": "npm run sync:release-copy && npm run check:core && npm run build:core && npm run build:runtime",
     "dev": "npm run prepare:web && vite",
     "build:web": "vite build",
     "build": "npm run prepare:web && npm run build:web && npm run build:manual && npm run assemble",
