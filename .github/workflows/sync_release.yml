@@ -22,120 +22,47 @@ jobs:
       should_sync: ${{ steps.decide.outputs.should_sync }}
       changed_assets: ${{ steps.decide.outputs.changed_assets }}
       asset_timestamps: ${{ steps.decide.outputs.asset_timestamps }}
+      resolved_release: ${{ steps.decide.outputs.resolved_release }}
       should_build_manual: ${{ steps.check_manual.outputs.manual_updated }}
     steps:
       - uses: actions/checkout@v6
 
-      - name: 检查各 Release 文件时间戳
+      - name: 自动解析最新完整稳定版 Release
         id: decide
         env:
-          GH_TOKEN: ${{ secrets.PAT_GITHUB }}
-        run: |
-          python3 << 'PYEOF'
-          import json, os, subprocess
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: python3 scripts/resolve-upstream-release.py
 
-          with open("public/release-manifest.json", encoding="utf-8") as f:
-              manifest = json.load(f)
-          ASSETS = [item["href"].removeprefix("/dl/") for item in manifest["assets"]]
-          release_tag = manifest["releaseNotesUrl"].rstrip("/").rsplit("/", 1)[-1]
-
-          # Fetch release assets information
-          # Step 1: get release_id from tag endpoint
-          tag_url = f"https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/tags/{release_tag}"
-          result = subprocess.run(
-              ["curl", "-sL", "--retry", "2",
-               "-H", "Accept: application/vnd.github+json",
-               "-H", f"Authorization: Bearer {os.environ['GH_TOKEN']}",
-               tag_url],
-              capture_output=True, text=True
-          )
-          release = json.loads(result.stdout)
-          release_id = release.get("id")
-          if not release_id:
-              print("ERROR: could not get release_id from tag endpoint")
-              print(json.dumps(release, indent=2)[:500])
-              raise SystemExit(1)
-
-          # Step 2: fetch all assets via the dedicated endpoint (supports pagination)
-          assets_url = f"https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/releases/{release_id}/assets?per_page=100"
-          result = subprocess.run(
-              ["curl", "-sL", "--retry", "2",
-               "-H", "Accept: application/vnd.github+json",
-               "-H", f"Authorization: Bearer {os.environ['GH_TOKEN']}",
-               assets_url],
-              capture_output=True, text=True
-          )
-          all_assets = json.loads(result.stdout)
-          # Validate we got a list (not a dict with error message)
-          if isinstance(all_assets, dict):
-              print("WARNING: assets endpoint returned an object instead of list:", json.dumps(all_assets)[:200])
-              all_assets = release.get("assets", [])
-          api_assets = {a["name"]: a["updated_at"] for a in all_assets if a.get("name") in ASSETS}
-          print("Fetched all_assets count:", len(all_assets) if isinstance(all_assets, list) else "N/A")
-          print("API asset timestamps:", json.dumps(api_assets, indent=2))
-
-          # Read stored state (single file, merged with manual state)
-          state = {}
-          if os.path.exists(".release_state.json"):
-              with open(".release_state.json") as f:
-                  state = json.load(f)
-
-          stored = state.get("assets", {})
-          is_manual = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
-
-          # Determine changed assets by comparing timestamps per-file
-          changed = []
-          for name in ASSETS:
-              api_ts = api_assets.get(name)
-              if not api_ts or api_ts == "null":
-                  print(f"  {name}: no timestamp in API, skip")
-                  continue
-              stored_ts = stored.get(name)
-              if is_manual or api_ts != stored_ts:
-                  print(f"  {name}: changed  {stored_ts or '(none)'}  ->  {api_ts}")
-                  changed.append(name)
-              else:
-                  print(f"  {name}: unchanged  ({api_ts})")
-
-          if is_manual:
-              # A manually-dispatched sync validates every declared asset. This
-              # also handles a maintainer replacing files under the same tag.
-              changed = ASSETS
-          should_sync = "true" if changed else "false"
-
-          # Write outputs for subsequent jobs
-          github_output = os.environ.get("GITHUB_OUTPUT")
-          if github_output:
-              with open(github_output, "a") as f:
-                  f.write(f"should_sync={should_sync}\n")
-                  f.write(f"changed_assets={json.dumps(changed)}\n")
-                  f.write(f"asset_timestamps={json.dumps(api_assets)}\n")
-
-          print(f"should_sync={should_sync}")
-          print(f"changed_assets={json.dumps(changed)}")
-          PYEOF
-
-      - name: 检查上游用户手册是否更新（仅检测，不写入；由 build-manual 构建成功后写入）
+      - name: 检查上游用户手册是否更新
         id: check_manual
         if: github.event_name == 'schedule'
+        shell: bash
         run: |
-          UPSTREAM_SHA=$(curl -sL -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \
+          set -euo pipefail
+          UPSTREAM_SHA=$(curl -fsSL --retry 2 \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/SakuraMathcraft/LaTeXSnipper/contents/user_manual/user_manual.typ" \
-            | jq -r '.sha')
-          echo "Upstream SHA: $UPSTREAM_SHA"
+            | jq -r '.sha // empty')
 
-          MANUAL_UPDATED=false
-          if [ -f .release_state.json ]; then
-              LAST_SHA=$(jq -r '.last_manual_sha // empty' .release_state.json)
-              if [ "$UPSTREAM_SHA" != "$LAST_SHA" ] && [ "$UPSTREAM_SHA" != "null" ] && [ -n "$UPSTREAM_SHA" ]; then
-                  MANUAL_UPDATED=true
-                  echo "Manual updated: $LAST_SHA -> $UPSTREAM_SHA"
-              else
-                  echo "Manual unchanged"
-              fi
+          echo "Upstream SHA: $UPSTREAM_SHA"
+          if [[ -z "$UPSTREAM_SHA" ]]; then
+            echo "Unable to resolve upstream manual SHA" >&2
+            exit 1
           fi
-          echo "manual_updated=$MANUAL_UPDATED" >> $GITHUB_OUTPUT
+
+          LAST_SHA=""
+          if [[ -f .release_state.json ]]; then
+            LAST_SHA=$(jq -r '.last_manual_sha // empty' .release_state.json)
+          fi
+
+          if [[ "$UPSTREAM_SHA" != "$LAST_SHA" ]]; then
+            echo "Manual updated: ${LAST_SHA:-'(none)'} -> $UPSTREAM_SHA"
+            echo "manual_updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Manual unchanged"
+            echo "manual_updated=false" >> "$GITHUB_OUTPUT"
+          fi
 
   sync:
     needs: check
@@ -159,113 +86,161 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CHANGED: ${{ needs.check.outputs.changed_assets }}
-          ASSET_TIMESTAMPS: ${{ needs.check.outputs.asset_timestamps }}
+          RESOLVED_RELEASE: ${{ needs.check.outputs.resolved_release }}
         run: |
-          python3 << PYEOF
-          import json, os, subprocess, hashlib, sys
+          python3 << 'PYEOF'
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import shutil
+          import subprocess
 
-          changed = json.loads(os.environ.get('CHANGED', '[]'))
-          if not changed:
-              print('No changed files to sync, exiting')
-              sys.exit(0)
+          changed = set(json.loads(os.environ.get("CHANGED", "[]")))
+          resolved = json.loads(os.environ["RESOLVED_RELEASE"])
 
-          with open('public/release-manifest.json', encoding='utf-8') as f:
-              manifest = json.load(f)
-          release_tag = manifest['releaseNotesUrl'].rstrip('/').rsplit('/', 1)[-1]
-          assets_by_name = {
-              item['href'].removeprefix('/dl/'): item
-              for item in manifest['assets']
-          }
+          with open("public/release-manifest.json", encoding="utf-8") as f:
+              current = json.load(f)
+          existing = {item.get("id"): item for item in current.get("assets", [])}
 
           def human_size(size_bytes):
               value = float(size_bytes)
-              for unit in ["B", "KB", "MB", "GB"]:
+              for unit in ("B", "KB", "MB", "GB"):
                   if value < 1024 or unit == "GB":
                       return f"{value:.1f} {unit}"
                   value /= 1024
 
-          os.makedirs('.sync_tmp', exist_ok=True)
-          for name in changed:
-              item = assets_by_name.get(name)
-              if item is None:
-                  raise SystemExit(f'Asset is not declared by the release manifest: {name}')
-              url = f'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/{release_tag}/{name}'
-              out = f'.sync_tmp/{name}'
-              print(f'Downloading {name}...')
-              subprocess.run(['curl', '-sL', '--retry', '2', url, '-o', out], check=True)
-              sha = hashlib.sha256(open(out, 'rb').read()).hexdigest()
-              size_bytes = os.path.getsize(out)
-              print(f'  SHA256: {sha}')
+          tmp = pathlib.Path(".sync_tmp")
+          shutil.rmtree(tmp, ignore_errors=True)
+          tmp.mkdir(parents=True)
+          new_assets = []
 
-              item['sha256'] = sha
-              item['size'] = human_size(size_bytes)
+          for asset in resolved["assets"]:
+              name = asset["name"]
+              old = existing.get(asset["id"], {})
+              sha256 = old.get("sha256", "")
+              size = old.get("size", "")
 
-              subprocess.run(['npx', '--no-install', 'wrangler', 'r2', 'object', 'delete', f'release/{name}', '--remote'],
-                          capture_output=True, timeout=60000)
-              subprocess.run(['npx', '--no-install', 'wrangler', 'r2', 'object', 'put', f'release/{name}', '--file', out, '--remote'],
-                          check=True, timeout=120000)
-              print(f'  Uploaded release/{name}')
-          # Do not publish a partially-updated manifest: this file is written
-          # only after every changed asset has downloaded, verified, and uploaded.
-          with open('/tmp/release-manifest.json', 'w', encoding='utf-8') as f:
+              if name in changed:
+                  out = tmp / name
+                  print(f"Downloading {name} from {asset['url']}...")
+                  subprocess.run(
+                      ["curl", "-fL", "--retry", "2", "--retry-all-errors", asset["url"], "-o", str(out)],
+                      check=True,
+                  )
+                  if not out.is_file() or out.stat().st_size == 0:
+                      raise SystemExit(f"Downloaded asset is empty: {name}")
+
+                  sha256 = hashlib.sha256(out.read_bytes()).hexdigest()
+                  size = human_size(out.stat().st_size)
+                  print(f"  SHA256: {sha256}")
+                  print(f"  Size: {size}")
+
+                  subprocess.run(
+                      ["npx", "--no-install", "wrangler", "r2", "object", "delete", f"release/{name}", "--remote"],
+                      capture_output=True,
+                      timeout=60,
+                  )
+                  subprocess.run(
+                      ["npx", "--no-install", "wrangler", "r2", "object", "put", f"release/{name}", "--file", str(out), "--remote"],
+                      check=True,
+                      timeout=180,
+                  )
+                  print(f"  Uploaded release/{name}")
+
+              if not sha256 or not size:
+                  raise SystemExit(f"No integrity metadata available for unchanged asset: {name}")
+
+              new_assets.append({
+                  "id": asset["id"],
+                  "platform": asset["platform"],
+                  "label": asset["label"],
+                  "architecture": asset["architecture"],
+                  "requirements": asset["requirements"],
+                  "href": f"/dl/{name}",
+                  "sha256": sha256,
+                  "size": size,
+              })
+
+          manifest = {
+              "$schema": current.get("$schema", "/schemas/release-manifest-v1.schema.json"),
+              "schemaVersion": current.get("schemaVersion", 1),
+              "product": current.get("product", "LaTeXSnipper Desktop"),
+              "version": resolved["version"],
+              "channel": resolved["channel"],
+              "publishedAt": resolved["publishedAt"],
+              "releaseNotesUrl": resolved["releaseNotesUrl"],
+              "assets": new_assets,
+          }
+
+          with open("/tmp/release-manifest.json", "w", encoding="utf-8") as f:
               json.dump(manifest, f, ensure_ascii=False, indent=2)
-              f.write('\n')
-          desktop_downloads = {}
-          for item in manifest['assets']:
-              if item['platform'] in ('windows', 'linux', 'macos') and item['platform'] not in desktop_downloads:
-                  desktop_downloads[item['platform']] = item
-          legacy = {key: manifest[key] for key in ('version', 'channel', 'publishedAt', 'releaseNotesUrl')}
-          legacy['downloads'] = desktop_downloads
-          with open('/tmp/release.json', 'w', encoding='utf-8') as f:
-              json.dump(legacy, f, ensure_ascii=False, indent=2)
-              f.write('\n')
+              f.write("\n")
 
-          subprocess.run(['rm', '-rf', '.sync_tmp'])
+          desktop_downloads = {}
+          for item in new_assets:
+              if item["platform"] in ("windows", "linux", "macos") and item["platform"] not in desktop_downloads:
+                  desktop_downloads[item["platform"]] = item
+          legacy = {
+              "version": manifest["version"],
+              "channel": manifest["channel"],
+              "publishedAt": manifest["publishedAt"],
+              "releaseNotesUrl": manifest["releaseNotesUrl"],
+              "downloads": desktop_downloads,
+          }
+          with open("/tmp/release.json", "w", encoding="utf-8") as f:
+              json.dump(legacy, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+
+          shutil.rmtree(tmp, ignore_errors=True)
           PYEOF
 
       - name: 原子更新发布 manifest
         env:
           ASSET_TIMESTAMPS: ${{ needs.check.outputs.asset_timestamps }}
         run: |
-          if [ -f /tmp/release-manifest.json ] && [ -f /tmp/release.json ]; then
-            cp /tmp/release-manifest.json public/release-manifest.json
-            cp /tmp/release.json public/release.json
-            node scripts/validate-release-manifest.mjs public/release-manifest.json
-            python3 - << 'PYEOF'
-          import json, os
-          with open('.release_state.json', encoding='utf-8') as f:
-              state = json.load(f)
-          timestamps = json.loads(os.environ.get('ASSET_TIMESTAMPS', '{}'))
-          stored = state.setdefault('assets', {})
-          stored.update({name: value for name, value in timestamps.items() if value})
-          values = [value for value in stored.values() if value]
-          state['last_sync'] = max(values) if values else ''
-          with open('.release_state.json', 'w', encoding='utf-8') as f:
-              json.dump(state, f, ensure_ascii=False, indent=2)
-              f.write('\n')
+          set -euo pipefail
+          test -f /tmp/release-manifest.json
+          test -f /tmp/release.json
+          cp /tmp/release-manifest.json public/release-manifest.json
+          cp /tmp/release.json public/release.json
+          node scripts/validate-release-manifest.mjs public/release-manifest.json
+
+          python3 - << 'PYEOF'
+          import json
+          import os
+          from pathlib import Path
+
+          state_path = Path(".release_state.json")
+          state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+          timestamps = json.loads(os.environ.get("ASSET_TIMESTAMPS", "{}"))
+          state["assets"] = {name: value for name, value in timestamps.items() if value}
+          values = list(state["assets"].values())
+          state["last_sync"] = max(values) if values else ""
+          state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PYEOF
-            echo "Release manifest updated"
-          else
-            echo "No release manifest generated, skipping"
-            exit 1
-          fi
 
       - name: 提交发布 manifest
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/release-manifest.json public/release.json .release_state.json
-          git diff --staged --quiet && echo "No manifest changes" || (
-            git commit -m "chore: sync release manifest" &&
-            for i in 1 2 3; do
-              if git pull --rebase && git push; then
-                echo "Push succeeded on attempt $i"
-                break
-              fi
-              echo "Push failed on attempt $i, retrying..."
-              sleep 2
-            done
-          )
+          if git diff --staged --quiet; then
+            echo "No manifest changes"
+            exit 0
+          fi
+          git commit -m "chore: sync upstream release"
+          for i in 1 2 3; do
+            if git pull --rebase && git push; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push failed on attempt $i, retrying..."
+            sleep 2
+          done
+          echo "Push failed after 3 attempts" >&2
+          exit 1
 
   build-manual:
     needs: check
@@ -273,10 +248,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 触发用户手册构建
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -sL -X POST \
-            -H "Authorization: Bearer ${{ secrets.PAT_GITHUB }}" \
-            -H "Accept: application/vnd.github.v3+json" \
+          curl -fsSL --retry 2 -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-manual.yml/dispatches" \
             -d '{"ref":"master"}'
           echo "Triggered build-manual workflow"
