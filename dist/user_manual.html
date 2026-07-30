@@ -2,8 +2,8 @@
 <html lang="zh-CN" class="manual-page">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LaTeXSnipper 用户手册 v2.4.0 LTS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>LaTeXSnipper 用户手册 v2.5.0 LTS</title>
 <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">
@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="styles/site-shell.css">
 <link rel="stylesheet" href="styles/editorial.css">
 <link rel="stylesheet" href="styles/manual.css">
+<link rel="stylesheet" href="styles/manual-mobile-fixes.css">
 <script src="js/product-shell.js" defer></script>
 </head>
 <body class="manual">
@@ -397,7 +398,7 @@
 <div class="manual-cover">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
-<p>适用于 v2.4.0-LTS | 长期支持版</p>
+<p>适用于 v2.5.0-LTS | 长期支持版</p>
 
 </div>
 <div class="manual-cover-visual">
@@ -1217,13 +1218,13 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 <h2 id="xinganzhuang">命令行静默安装</h2>
 <p>安装包支持 Inno Setup 标准静默参数：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#静默安装（显示进度条）
-OfficePluginSetup-2.4.0.exe /silent
+OfficePluginSetup-2.5.0.exe /silent
 
 #完全静默（无界面）
-OfficePluginSetup-2.4.0.exe /verysilent
+OfficePluginSetup-2.5.0.exe /verysilent
 
 #自定义安装目录
-OfficePluginSetup-2.4.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
+OfficePluginSetup-2.5.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -2177,7 +2178,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.4</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.5</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
