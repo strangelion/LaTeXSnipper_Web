@@ -2,14 +2,26 @@
 """Apply durable website-only fixes to the generated manual HTML."""
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
 HTML = Path("user_manual.html")
 TYP = Path("user_manual.typ")
+MANIFEST = Path("public/release-manifest.json")
 
 
 def detect_version() -> tuple[str, str]:
+    if MANIFEST.exists():
+        try:
+            manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+            version = str(manifest.get("version") or "").strip()
+            channel = str(manifest.get("channel") or "").strip().upper()
+            if re.fullmatch(r"\d+\.\d+\.\d+", version):
+                return version, channel
+        except (json.JSONDecodeError, OSError):
+            pass
+
     text = TYP.read_text(encoding="utf-8") if TYP.exists() else ""
     match = re.search(r"版本:\s*v?(\d+\.\d+\.\d+)(?:[- ]?(LTS|stable))?", text, re.I)
     if match:
@@ -51,8 +63,20 @@ def main() -> None:
         title = f"<title>LaTeXSnipper 用户手册 v{version}{suffix}</title>"
         html = re.sub(r"<title>LaTeXSnipper 用户手册[^<]*</title>", title, html, count=1)
 
+        cover_suffix = f"-{channel}" if channel else ""
+        html = re.sub(
+            r"(适用于\s+v)\d+\.\d+\.\d+(?:[- ](?:LTS|stable))?",
+            rf"\g<1>{version}{cover_suffix}",
+            html,
+            count=1,
+            flags=re.I,
+        )
+
     HTML.write_text(html, encoding="utf-8")
-    print(f"Postprocessed {HTML}: viewport locked, mobile fixes linked, version={version or 'unknown'}")
+    print(
+        f"Postprocessed {HTML}: viewport locked, mobile fixes linked, "
+        f"release version={version or 'unknown'}"
+    )
 
 
 if __name__ == "__main__":
