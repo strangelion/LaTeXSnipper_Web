@@ -2,10 +2,10 @@
   "$schema": "/schemas/release-manifest-v1.schema.json",
   "schemaVersion": 1,
   "product": "LaTeXSnipper Desktop",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "channel": "LTS",
-  "publishedAt": "",
-  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.4.0-LTS",
+  "publishedAt": "2026-07-30T08:15:12Z",
+  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.5.0-LTS",
   "assets": [
     {
       "id": "windows-x86_64",
@@ -13,8 +13,8 @@
       "label": "Windows",
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
-      "href": "/dl/LaTeXSnipperSetup-2.4.0.exe",
-      "sha256": "6e6879cb05c48896a144b5dffd6c6cd8a848a74f9032ec0730318d1208f2df69",
+      "href": "/dl/LaTeXSnipperSetup-2.5.0.exe",
+      "sha256": "2e7faf1b2390ee39ac0418cb06eca26d1d02c3f0f04b9c74ae8afd30dcba99af",
       "size": "115.6 MB"
     },
     {
@@ -23,8 +23,8 @@
       "label": "Linux",
       "architecture": "x86_64",
       "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_2.4.0_amd64.deb",
-      "sha256": "42795f08867fb171a89abe847f92592c86303cda5f42f03f15e9e7729feae5f1",
+      "href": "/dl/LaTeXSnipper_2.5.0_amd64.deb",
+      "sha256": "fe394da3d46d05666d655b7025996f772035ebab76c7f8590bcaf88cfc633d68",
       "size": "172.4 MB"
     },
     {
@@ -33,8 +33,8 @@
       "label": "macOS",
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_2.4.0_arm64.dmg",
-      "sha256": "bf8f5474a892372d68c74eb28c9bb67bee2f8caa8aefa54b2d5942b281462bee",
+      "href": "/dl/LaTeXSnipper_2.5.0_arm64.dmg",
+      "sha256": "81519a7594ea116a7153217a4987669484e0c0a2b81f17acae1fd1d05c8eb9a0",
       "size": "194.2 MB"
     },
     {
@@ -43,8 +43,8 @@
       "label": "Desktop 内置 Office 插件",
       "architecture": "x86_64",
       "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
-      "href": "/dl/OfficePluginSetup-2.4.0.exe",
-      "sha256": "4b18ba9d4946867a1ed3f91578ee9f6165fe41c444c8291dd894ca399b95aea9",
+      "href": "/dl/OfficePluginSetup-2.5.0.exe",
+      "sha256": "374e604476f7de66e10b0635c7f2add2fb825313d0419f5b148ec3f453df96ba",
       "size": "7.0 MB"
     }
   ]
