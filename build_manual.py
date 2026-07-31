@@ -1296,7 +1296,7 @@ def main():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LaTeXSnipper 用户手册 v2.4.0 LTS</title>
+<title>LaTeXSnipper 用户手册 v2.5.0 LTS</title>
 {theme_script}
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">

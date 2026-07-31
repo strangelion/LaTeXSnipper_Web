@@ -1,4 +1,11 @@
-import { unzipSync } from '/vendor/fflate/fflate.js';
+/**
+ * Core OCR Worker V2
+ *
+ * Top-level: zero external imports.
+ * fflate is loaded on-demand only when unpacking model packages.
+ * This prevents Worker module-graph startup failures caused by
+ * stale cache, MIME issues, or missing exports in fflate.
+ */
 
 let core;
 let lock;
@@ -7,6 +14,36 @@ let formulaReady = false;
 const CACHE_NAME = 'latexsnipper-core-model-packages-v2';
 const CACHE_VERSION = 1;
 const CACHE_STORE = 'packages';
+
+/* ─── fflate lazy loader ─── */
+
+let unzipSyncImpl = null;
+
+async function getUnzipSync() {
+  if (unzipSyncImpl) return unzipSyncImpl;
+
+  let module;
+  try {
+    module = await import('/vendor/fflate/fflate.js');
+  } catch (cause) {
+    const error = new Error('无法加载模型解压运行时 fflate');
+    error.code = 'FFLATE_IMPORT_FAILED';
+    error.details = { cause: cause?.message || String(cause) };
+    throw error;
+  }
+
+  if (typeof module.unzipSync !== 'function') {
+    const error = new Error('fflate 模块缺少 unzipSync 导出');
+    error.code = 'FFLATE_EXPORT_MISSING';
+    error.details = { exports: Object.keys(module) };
+    throw error;
+  }
+
+  unzipSyncImpl = module.unzipSync;
+  return unzipSyncImpl;
+}
+
+/* ─── Message helpers ─── */
 
 function post(id, type, value) {
   self.postMessage({ id, type, ...value });
@@ -23,11 +60,15 @@ function parseEnvelope(value) {
   return envelope;
 }
 
+/* ─── Crypto ─── */
+
 async function sha256Hex(bytes) {
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   return Array.from(new Uint8Array(digest), (value) =>
     value.toString(16).padStart(2, '0')).join('');
 }
+
+/* ─── IndexedDB model cache ─── */
 
 function openCache() {
   return new Promise((resolve, reject) => {
@@ -81,6 +122,8 @@ async function cachePackage(key, bytes, sha256) {
   }
 }
 
+/* ─── Model download ─── */
+
 async function downloadPackage(id, entry, packageIndex, packageCount) {
   const key = `${lock.releaseTag}/${entry.asset}`;
   const cached = await readCachedPackage(key, entry.sha256).catch(() => null);
@@ -133,13 +176,18 @@ async function downloadPackage(id, entry, packageIndex, packageCount) {
   return bytes;
 }
 
-function loadPackageIntoCore(id, entry, bytes, packageIndex, packageCount) {
+/* ─── Model unpack + load ─── */
+
+async function loadPackageIntoCore(id, entry, bytes, packageIndex, packageCount) {
   post(id, 'progress', {
     stage: 'unpack',
     progress: (packageIndex + 0.92) / packageCount,
     message: `解包并装载 ${entry.asset}`,
   });
+
+  const unzipSync = await getUnzipSync();
   const files = unzipSync(bytes);
+
   const prefix = `${entry.variant}/`;
   let loaded = 0;
   for (const [archivePath, artifactBytes] of Object.entries(files)) {
@@ -153,8 +201,11 @@ function loadPackageIntoCore(id, entry, bytes, packageIndex, packageCount) {
   if (loaded === 0) throw new Error(`模型包内没有可装载文件：${entry.asset}`);
 }
 
+/* ─── Formula profile preparation ─── */
+
 async function prepareFormulaProfile(id) {
   if (formulaReady) return parseEnvelope(core.capabilities_v3()).data;
+
   const profile = lock.profiles.formula;
   parseEnvelope(core.set_model_memory_profile_v2('balanced'));
   parseEnvelope(core.begin_model_update_v2());
@@ -162,13 +213,14 @@ async function prepareFormulaProfile(id) {
     for (let index = 0; index < profile.packages.length; index += 1) {
       const entry = profile.packages[index];
       const bytes = await downloadPackage(id, entry, index, profile.packages.length);
-      loadPackageIntoCore(id, entry, bytes, index, profile.packages.length);
+      await loadPackageIntoCore(id, entry, bytes, index, profile.packages.length);
     }
     parseEnvelope(core.commit_model_update_v2());
   } catch (error) {
     try { parseEnvelope(core.rollback_model_update_v2()); } catch { /* best effort */ }
     throw error;
   }
+
   const capabilities = parseEnvelope(core.capabilities_v3()).data;
   const formula = capabilities.recognition?.find(
     (item) => item.profile === profile.coreRecognitionMode,
@@ -180,25 +232,64 @@ async function prepareFormulaProfile(id) {
   return capabilities;
 }
 
-async function handle(message) {
-  const { id, type } = message;
-  if (type === 'initialize') {
+/* ─── Initialize with staged error reporting ─── */
+
+async function initializeRuntime(message) {
+  const stages = [];
+
+  try {
+    stages.push('lock');
     lock = await fetch('/core-models.lock.json', { cache: 'no-cache' }).then((response) => {
       if (!response.ok) throw new Error(`模型锁文件加载失败：HTTP ${response.status}`);
       return response.json();
     });
+
+    stages.push('core-module');
     core = await import(message.moduleUrl || '/core-wasm/latexsnipper_wasm.js');
+
+    stages.push('wasm');
     await core.default(message.wasmUrl || '/core-wasm/latexsnipper_wasm_bg.wasm');
+
+    stages.push('core-init');
     core.init();
-    post(id, 'result', { data: parseEnvelope(core.api_info_v3()).data });
+
+    stages.push('api');
+    const api = parseEnvelope(core.api_info_v3()).data;
+
+    return { api, stages };
+  } catch (cause) {
+    const error = new Error(
+      `Core OCR 初始化失败于阶段 ${stages.at(-1) || 'bootstrap'}：${cause?.message || cause}`,
+    );
+    error.code = 'CORE_OCR_INIT_FAILED';
+    error.details = {
+      stage: stages.at(-1),
+      stages,
+      cause: cause?.stack || cause?.message || String(cause),
+    };
+    throw error;
+  }
+}
+
+/* ─── Message handler ─── */
+
+async function handle(message) {
+  const { id, type } = message;
+
+  if (type === 'initialize') {
+    const result = await initializeRuntime(message);
+    post(id, 'result', { data: result.api });
     return;
   }
+
   if (!core || !lock) throw new Error('Core OCR Worker 尚未初始化');
+
   if (type === 'prepare-profile') {
     const capabilities = await prepareFormulaProfile(id);
     post(id, 'result', { data: capabilities });
     return;
   }
+
   if (type === 'recognize') {
     await prepareFormulaProfile(id);
     const envelope = parseEnvelope(await core.recognize_v2_with_progress(
@@ -215,8 +306,11 @@ async function handle(message) {
     post(id, 'result', { data: envelope.data });
     return;
   }
+
   throw new Error(`未知 Worker 操作：${type}`);
 }
+
+/* ─── Bootstrap: register handlers immediately ─── */
 
 self.onmessage = (event) => {
   const id = event.data?.id;
@@ -228,5 +322,15 @@ self.onmessage = (event) => {
         details: error.details,
       },
     });
+  });
+};
+
+self.onerror = (event) => {
+  console.error('[Core OCR Worker fatal]', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    error: event.error,
   });
 };

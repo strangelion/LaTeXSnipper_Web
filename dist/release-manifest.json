@@ -2,10 +2,10 @@
   "$schema": "/schemas/release-manifest-v1.schema.json",
   "schemaVersion": 1,
   "product": "LaTeXSnipper Desktop",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "channel": "LTS",
-  "publishedAt": "",
-  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.4.0-LTS",
+  "publishedAt": "2026-07-30T08:15:12Z",
+  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.5.0-LTS",
   "assets": [
     {
       "id": "windows-x86_64",
@@ -13,9 +13,9 @@
       "label": "Windows",
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
-      "href": "/dl/LaTeXSnipperSetup-2.4.0.exe",
-      "sha256": "49c4d5640167bfe73dc71662d3a083ee7fd65bdfa54705481c95632be131b0c7",
-      "size": ""
+      "href": "/dl/LaTeXSnipperSetup-2.5.0.exe",
+      "sha256": "2e7faf1b2390ee39ac0418cb06eca26d1d02c3f0f04b9c74ae8afd30dcba99af",
+      "size": "115.6 MB"
     },
     {
       "id": "linux-amd64",
@@ -23,9 +23,9 @@
       "label": "Linux",
       "architecture": "x86_64",
       "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_2.4.0_amd64.deb",
-      "sha256": "b8f0bb8cc7dd48c17bd1070f120bfae07499ccd1a3087c1d5ab2a37b997c4204",
-      "size": ""
+      "href": "/dl/LaTeXSnipper_2.5.0_amd64.deb",
+      "sha256": "fe394da3d46d05666d655b7025996f772035ebab76c7f8590bcaf88cfc633d68",
+      "size": "172.4 MB"
     },
     {
       "id": "macos-arm64",
@@ -33,9 +33,9 @@
       "label": "macOS",
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_2.4.0_arm64.dmg",
-      "sha256": "fd6509ff2f8c67c326eef1cb412c4a2314ed5998a4e1805cacb11e240d15caff",
-      "size": ""
+      "href": "/dl/LaTeXSnipper_2.5.0_arm64.dmg",
+      "sha256": "81519a7594ea116a7153217a4987669484e0c0a2b81f17acae1fd1d05c8eb9a0",
+      "size": "194.2 MB"
     },
     {
       "id": "office-plugin-windows",
@@ -43,9 +43,9 @@
       "label": "Desktop 内置 Office 插件",
       "architecture": "x86_64",
       "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
-      "href": "/dl/OfficePluginSetup-2.4.0.exe",
-      "sha256": "88d73332e6307d271ad617aee29ffc25765a8b404de5f7342ba767cf80828b3b",
-      "size": ""
+      "href": "/dl/OfficePluginSetup-2.5.0.exe",
+      "sha256": "374e604476f7de66e10b0635c7f2add2fb825313d0419f5b148ec3f453df96ba",
+      "size": "7.0 MB"
     }
   ]
 }
