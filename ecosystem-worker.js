@@ -1,6 +1,8 @@
 import mainWorker from './worker.js';
 
 const ECOSYSTEM_CACHE_TTL_SECONDS = 60 * 60;
+const ECOSYSTEM_SCRIPT_PATH = '/js/ecosystem-metadata.js';
+const ECOSYSTEM_HTML_PATHS = new Set(['/', '/index.html', '/download', '/download.html']);
 
 const PROJECTS = Object.freeze([
   {
@@ -244,11 +246,44 @@ async function handleEcosystem(request, env, ctx) {
   return response;
 }
 
+async function serveEcosystemPage(request, env, ctx) {
+  if (request.method !== 'GET') return mainWorker.fetch(request, env, ctx);
+
+  const headers = new Headers(request.headers);
+  headers.delete('Accept-Encoding');
+  const plainRequest = new Request(request, { headers });
+  const response = await mainWorker.fetch(plainRequest, env, ctx);
+  const contentType = response.headers.get('Content-Type') || '';
+  if (!response.ok || !contentType.includes('text/html')) return response;
+
+  const html = await response.text();
+  if (html.includes(ECOSYSTEM_SCRIPT_PATH)) return response;
+
+  const script = `<script src="${ECOSYSTEM_SCRIPT_PATH}" defer></script>`;
+  const updatedHtml = html.includes('</body>')
+    ? html.replace('</body>', `  ${script}\n</body>`)
+    : `${html}\n${script}`;
+
+  const responseHeaders = new Headers(response.headers);
+  responseHeaders.delete('Content-Length');
+  responseHeaders.delete('Content-Encoding');
+  responseHeaders.delete('ETag');
+
+  return new Response(updatedHtml, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: responseHeaders,
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === '/api/ecosystem') {
       return handleEcosystem(request, env, ctx);
+    }
+    if (ECOSYSTEM_HTML_PATHS.has(url.pathname)) {
+      return serveEcosystemPage(request, env, ctx);
     }
     return mainWorker.fetch(request, env, ctx);
   },
