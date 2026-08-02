@@ -23,8 +23,19 @@ $fileItem = Get-Item -LiteralPath $File
 $fileName = $fileItem.Name
 $fullPath = $fileItem.FullName
 
+$RcloneRemote = $RcloneRemote.TrimEnd([char]':')
+$Bucket = $Bucket -replace '^/+|/+$', ''
+
+if ([string]::IsNullOrWhiteSpace($RcloneRemote)) {
+    throw "RcloneRemote cannot be empty. Run 'rclone listremotes' to find the configured remote name."
+}
+
+if ([string]::IsNullOrWhiteSpace($Bucket)) {
+    throw "Bucket cannot be empty."
+}
+
 if ($fileName -notmatch '^[A-Za-z0-9._-]+$') {
-    throw "文件名只能包含英文字母、数字、点、短横线和下划线。请先重命名：$fileName"
+    throw "The file name may contain only ASCII letters, numbers, dots, hyphens, and underscores: $fileName"
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
@@ -36,7 +47,11 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    throw "未能确定整合包版本。请使用 -Version 指定，例如 -Version 2.6.0。"
+    throw "Unable to determine the bundle version. Pass -Version, for example: -Version 2.6.0"
+}
+
+if ($Version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') {
+    throw "Version is not valid: $Version"
 }
 
 $hash = (Get-FileHash -LiteralPath $fullPath -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -44,28 +59,24 @@ $bytes = [double]$fileItem.Length
 $culture = [System.Globalization.CultureInfo]::InvariantCulture
 
 if ($bytes -ge 1GB) {
-    $size = [string]::Format($culture, "{0:0.0} GB", $bytes / 1GB)
+    $size = [string]::Format($culture, '{0:0.0} GB', ($bytes / 1GB))
 }
 elseif ($bytes -ge 1MB) {
-    $size = [string]::Format($culture, "{0:0.0} MB", $bytes / 1MB)
+    $size = [string]::Format($culture, '{0:0.0} MB', ($bytes / 1MB))
 }
 elseif ($bytes -ge 1KB) {
-    $size = [string]::Format($culture, "{0:0.0} KB", $bytes / 1KB)
+    $size = [string]::Format($culture, '{0:0.0} KB', ($bytes / 1KB))
 }
 else {
-    $size = [string]::Format($culture, "{0:0} B", $bytes)
+    $size = [string]::Format($culture, '{0:0} B', $bytes)
 }
 
 $metadata = [ordered]@{
     schemaVersion = 1
     enabled = $true
     id = "windows-x86_64-bundle"
-    label = "Windows 一键整合包（含模型）"
     version = $Version
     architecture = "x86_64"
-    requirements = "Windows 10 / 11，x86_64，已包含本地模型和必要运行环境，无需另外下载模型"
-    owner = "SakuraMathcraft 提供 · 本站 R2 托管 · GPL-3.0"
-    downloadText = "下载 Windows 一键整合包"
     href = "/dl/$fileName"
     sha256 = $hash
     size = $size
@@ -74,48 +85,60 @@ $metadata = [ordered]@{
 
 $metadataPath = Join-Path (Split-Path -Parent $fullPath) "windows-bundle.json"
 $json = $metadata | ConvertTo-Json -Depth 5
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText(
     $metadataPath,
     $json + [Environment]::NewLine,
-    [System.Text.UTF8Encoding]::new($false)
+    $utf8NoBom
 )
 
-Write-Host "已生成整合包元数据：$metadataPath"
-Write-Host "文件名：$fileName"
-Write-Host "版本：$Version"
-Write-Host "大小：$size"
-Write-Host "SHA256：$hash"
+Write-Host "Bundle metadata created: $metadataPath"
+Write-Host "File: $fileName"
+Write-Host "Version: $Version"
+Write-Host "Size: $size"
+Write-Host "SHA256: $hash"
 
 if ($Upload) {
     $rclone = Get-Command rclone -ErrorAction SilentlyContinue
     if (-not $rclone) {
-        throw "未找到 rclone。大型整合包建议使用 rclone 上传到 Cloudflare R2。"
+        throw "rclone was not found. Install it and configure a Cloudflare R2 remote first."
+    }
+
+    $remoteOutput = @(& $rclone.Source listremotes 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to read rclone remotes. Run 'rclone config' and try again."
+    }
+
+    $expectedRemote = "${RcloneRemote}:"
+    if (-not ($remoteOutput -contains $expectedRemote)) {
+        $available = ($remoteOutput | ForEach-Object { [string]$_ }) -join ', '
+        throw "rclone remote '$expectedRemote' was not found. Available remotes: $available"
     }
 
     if (-not $MetadataOnly) {
         $packageTarget = "${RcloneRemote}:$Bucket/$fileName"
-        Write-Host "正在上传整合包到 $packageTarget"
+        Write-Host "Uploading bundle to $packageTarget"
         & $rclone.Source copyto $fullPath $packageTarget --progress
         if ($LASTEXITCODE -ne 0) {
-            throw "整合包上传失败，rclone 退出码：$LASTEXITCODE"
+            throw "Bundle upload failed with rclone exit code $LASTEXITCODE"
         }
     }
 
     $metadataTarget = "${RcloneRemote}:$Bucket/windows-bundle.json"
-    Write-Host "正在上传元数据到 $metadataTarget"
+    Write-Host "Uploading metadata to $metadataTarget"
     & $rclone.Source copyto $metadataPath $metadataTarget --progress
     if ($LASTEXITCODE -ne 0) {
-        throw "元数据上传失败，rclone 退出码：$LASTEXITCODE"
+        throw "Metadata upload failed with rclone exit code $LASTEXITCODE"
     }
 
-    Write-Host "上传完成。网页会在最多约 5 分钟内显示整合包卡片。"
+    Write-Host "Upload completed. The website should show the bundle within about five minutes."
 }
 else {
-    Write-Host "尚未上传。请将以下两个文件上传到 R2 Bucket '$Bucket' 的根目录："
+    Write-Host "Nothing was uploaded. Upload both files to the root of R2 bucket '$Bucket':"
     Write-Host "  1. $fullPath"
-    Write-Host "  2. $metadataPath（对象名必须为 windows-bundle.json）"
-    Write-Host "也可以重新运行并添加 -Upload，由已配置的 rclone 自动上传。"
+    Write-Host "  2. $metadataPath as windows-bundle.json"
+    Write-Host "Or run this script again with -Upload after rclone is configured."
 }
 
-Write-Host "整合包地址：https://latexsnipper.interknot.dpdns.org/dl/$fileName"
-Write-Host "元数据地址：https://latexsnipper.interknot.dpdns.org/dl/windows-bundle.json"
+Write-Host "Bundle URL: https://latexsnipper.interknot.dpdns.org/dl/$fileName"
+Write-Host "Metadata URL: https://latexsnipper.interknot.dpdns.org/dl/windows-bundle.json"
