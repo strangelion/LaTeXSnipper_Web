@@ -118,7 +118,7 @@ if ($Upload) {
     if (-not $MetadataOnly) {
         $packageTarget = "${RcloneRemote}:$Bucket/$fileName"
         Write-Host "Uploading bundle to $packageTarget"
-        & $rclone.Source copyto $fullPath $packageTarget --progress
+        & $rclone.Source copyto $fullPath $packageTarget --progress --s3-no-check-bucket
         if ($LASTEXITCODE -ne 0) {
             throw "Bundle upload failed with rclone exit code $LASTEXITCODE"
         }
@@ -126,7 +126,7 @@ if ($Upload) {
 
     $metadataTarget = "${RcloneRemote}:$Bucket/windows-bundle.json"
     Write-Host "Uploading metadata to $metadataTarget"
-    & $rclone.Source copyto $metadataPath $metadataTarget --progress
+    & $rclone.Source copyto $metadataPath $metadataTarget --progress --s3-no-check-bucket
     if ($LASTEXITCODE -ne 0) {
         throw "Metadata upload failed with rclone exit code $LASTEXITCODE"
     }
