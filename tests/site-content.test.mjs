@@ -82,6 +82,8 @@ const releaseManifest = JSON.parse(await readFile(
   'utf8',
 ));
 
+const releaseLabel = `v${releaseManifest.version}${releaseManifest.channel ? ` ${releaseManifest.channel}` : ''}`;
+
 test('homepage lists all project entries', () => {
   assert.match(contentSource, /name: 'LaTeXSnipper Desktop'/);
   assert.match(contentSource, /name: 'LaTeXSnipper Mobile'/);
@@ -133,6 +135,20 @@ test('download page renders from release manifest', () => {
   assert.match(downloadSource, /release-manifest\.json/);
   assert.match(downloadSource, /data-asset-id="windows-x86_64"/);
   assert.match(downloadSource, /detectCurrentDevice/);
+});
+
+test('download page keeps desktop release labels aligned', () => {
+  const desktopLabels = Array.from(
+    downloadSource.matchAll(/<strong>LaTeXSnipper Desktop<\/strong><span>([^<]+)<\/span>/g),
+    (match) => match[1],
+  );
+  assert.deepEqual(desktopLabels, [
+    `${releaseLabel} · SakuraMathcraft · GPL-3.0`,
+  ]);
+  assert.match(
+    downloadSource,
+    new RegExp(`下载 SakuraMathcraft 维护的 Desktop ${releaseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+  );
 });
 
 test('download page lists ecosystem projects', () => {
