@@ -36,6 +36,15 @@ test('download page can render the separately hosted Windows bundle', () => {
   ));
 });
 
+test('Windows bundle uses a full-width responsive card and a valid liquid control', () => {
+  assert.ok(ecosystemMetadataSource.includes("card.classList.add('windows-bundle-card')"));
+  assert.ok(ecosystemMetadataSource.includes('grid-column: 1 / -1 !important'));
+  assert.ok(ecosystemMetadataSource.includes('grid-template-areas:'));
+  assert.ok(ecosystemMetadataSource.includes('repairLiquidControl'));
+  assert.ok(ecosystemMetadataSource.includes('setControlText'));
+  assert.ok(ecosystemMetadataSource.includes("liquid.decorateLiquidSurface(link, 'control', true)"));
+});
+
 test('committed deploy assets include the Windows bundle runtime', () => {
   assert.equal(deployedEcosystemMetadataSource, ecosystemMetadataSource);
   assert.ok(deployedEcosystemMetadataSource.includes('syncWindowsBundle();'));
