@@ -47,10 +47,18 @@ rewrite('index.html', (source) => source.replace(
   `$1${version}$2`,
 ));
 
-rewrite('download.html', (source) => source.replace(
-  /(下载 SakuraMathcraft 维护的 Desktop )v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?/,
-  `$1${releaseLabel}`,
-));
+rewrite('download.html', (source) => {
+  let next = source;
+  next = next.replace(
+    /(下载 SakuraMathcraft 维护的 Desktop )v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?/,
+    `$1${releaseLabel}`,
+  );
+  next = next.replace(
+    /(<a href="https:\/\/github\.com\/SakuraMathcraft\/LaTeXSnipper"[^>]*><strong>LaTeXSnipper Desktop<\/strong><span>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(\s*·\s*SakuraMathcraft\s*·\s*GPL-3\.0<\/span><\/a>)/,
+    `$1${releaseLabel}$2`,
+  );
+  return next;
+});
 
 rewrite('src/components/HeroSection.jsx', (source) => source.replace(
   /(<div className="hero-badge">)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(\s*·)/,
