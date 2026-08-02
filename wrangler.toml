@@ -3,6 +3,9 @@ main = "ecosystem-worker.js"
 compatibility_date = "2026-05-20"
 workers_dev = false
 
+# The top-level Worker is the production service bound to the custom domain.
+vars = { GITHUB_BRANCH = "master", DEPLOY_ENV = "production" }
+
 # ── 静态资源 + Worker-first ──
 [assets]
 directory = "deploy"
@@ -27,35 +30,15 @@ not_found_handling = "none"
 #   wrangler r2 object put latexSnipper-models/models/mathcraft-formula-rec/special_tokens_map.json --file=public/models/mathcraft-formula-rec/special_tokens_map.json
 #   wrangler r2 object put latexsnipper-models/models/mathcraft-formula-rec/tokenizer_config.json --file=public/models/mathcraft-formula-rec/tokenizer_config.json
 # 然后设置 R2 Bucket 为公开，或使用 R2 自定义域名
-# 将下面 vars 中的 R2_MODEL_BASE 替换为你的 R2 公开 URL
-
-# 将下面 vars 中的 R2_MODEL_BASE 替换为你的 R2 公开 URL
+# R2_MODEL_BASE 通过 wrangler secret put R2_MODEL_BASE 设置，不写在源码中。
 
 # ── KV 命名空间绑定 ──
 [[kv_namespaces]]
 binding = "USAGE_KV"
 id = "1afdc87d24624a80aa99722ebf7e1ec6"
 
-# ── 分支部署 ──
-# 非 master 分支自动部署为预览版本
-# 部署到 workers.dev，URL 格式：<分支名>.latexsnipper.<子域名>.workers.dev
-# 使用方式：wrangler deploy --branch <分支名>
-# 等价于：wrangler deploy --env preview
-
-# ── 生产环境 ──
-[env.production]
-workers_dev = false
-# routes = [
-#   "your-domain.com/*",
-# ]
-vars = { GITHUB_BRANCH = "master", DEPLOY_ENV = "production" }
-# 可选：wrangler secret put GITHUB_TOKEN，提高 GitHub API 速率限制；未配置时使用公开 API。
-# R2_MODEL_BASE 通过 wrangler secret put R2_MODEL_BASE 设置，不写在源码中
-[[env.production.kv_namespaces]]
-binding = "USAGE_KV"
-id = "1afdc87d24624a80aa99722ebf7e1ec6"
-
 # ── 预览环境 ──
+# Named environments deploy as separate Workers, so only preview uses --env.
 [env.preview]
 workers_dev = true
 vars = { DEPLOY_ENV = "preview" }

@@ -32,7 +32,7 @@
     "test": "node --test tests/*.test.mjs",
     "validate:release": "node scripts/validate-release-manifest.mjs",
     "test:core-models": "node scripts/verify-core-models.mjs",
-    "deploy": "npm run build && wrangler deploy --env production",
+    "deploy": "npm run build && wrangler deploy",
     "deploy:preview": "wrangler deploy --env preview",
     "deploy:branch": "wrangler deploy --branch"
   }
