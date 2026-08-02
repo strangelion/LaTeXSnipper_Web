@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: latexsnipper-web-${{ github.ref }}
+  group: latexsnipper-web-${{ github.event_name }}-${{ github.event.workflow_run.head_branch || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_run' && 'master' || github.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -64,7 +65,7 @@ jobs:
         run: npx wrangler deploy --env production --dry-run
 
       - name: Validate Cloudflare deployment credentials
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'workflow_run' || (github.event_name != 'pull_request' && github.ref == 'refs/heads/master')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -80,7 +81,7 @@ jobs:
           fi
 
       - name: Deploy production to Cloudflare
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name == 'workflow_run' || (github.event_name != 'pull_request' && github.ref == 'refs/heads/master')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
