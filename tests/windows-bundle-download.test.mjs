@@ -38,4 +38,8 @@ test('bundle helper generates and uploads package metadata independently', () =>
   assert.match(uploadHelperSource, /rclone/i);
   assert.ok(uploadHelperSource.includes('copyto'));
   assert.ok(uploadHelperSource.includes('$Bucket/windows-bundle.json'));
+  assert.equal(
+    uploadHelperSource.split('--s3-no-check-bucket').length - 1,
+    2,
+  );
 });
