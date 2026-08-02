@@ -9,11 +9,11 @@ export const productImages = {
 };
 
 export const FALLBACK_RELEASE = {
-  version: '2.5.0',
+  version: '2.6.0',
   channel: 'LTS',
   publishedAt: '',
   releaseNotesUrl:
-    'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.5.0-LTS',
+    'https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v2.6.0-LTS',
 };
 
 export const trustItems = [
@@ -131,7 +131,7 @@ export const ecosystemProjects = [
   {
     name: 'LaTeXSnipper Desktop',
     scope: '桌面数学工作台',
-    version: 'v2.5.0 LTS',
+    version: 'v2.6.0 LTS',
     status: '稳定发布',
     author: 'SakuraMathcraft',
     license: 'GPL-3.0',
