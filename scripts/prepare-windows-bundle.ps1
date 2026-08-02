@@ -85,7 +85,7 @@ $metadata = [ordered]@{
 
 $metadataPath = Join-Path (Split-Path -Parent $fullPath) "windows-bundle.json"
 $json = $metadata | ConvertTo-Json -Depth 5
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$utf8NoBom = New-Object System.Text.UTF8Encoding -ArgumentList $false
 [System.IO.File]::WriteAllText(
     $metadataPath,
     $json + [Environment]::NewLine,
