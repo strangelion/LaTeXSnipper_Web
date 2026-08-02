@@ -7,6 +7,11 @@ const ecosystemMetadataSource = await readFile(
   'utf8',
 );
 
+const deployedEcosystemMetadataSource = await readFile(
+  new URL('../deploy/js/ecosystem-metadata.js', import.meta.url),
+  'utf8',
+);
+
 const uploadHelperSource = await readFile(
   new URL('../scripts/prepare-windows-bundle.ps1', import.meta.url),
   'utf8',
@@ -29,6 +34,11 @@ test('download page can render the separately hosted Windows bundle', () => {
   assert.ok(ecosystemMetadataSource.includes(
     "!/^[a-fA-F0-9]{64}$/.test(bundle.sha256)",
   ));
+});
+
+test('committed deploy assets include the Windows bundle runtime', () => {
+  assert.equal(deployedEcosystemMetadataSource, ecosystemMetadataSource);
+  assert.ok(deployedEcosystemMetadataSource.includes('syncWindowsBundle();'));
 });
 
 test('bundle helper generates and uploads package metadata independently', () => {
