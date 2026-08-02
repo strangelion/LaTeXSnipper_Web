@@ -10,16 +10,16 @@ const responsiveCss = `
 
 ${cssMarker}
 /*
- * The bundle is an ordinary platform card everywhere by default.
- * It keeps the featured full-width treatment only after reliable Windows
- * detection sets data-detected-platform="windows" on the root element.
+ * The bundle is an ordinary platform card unless Windows is reliably
+ * detected. The full-width featured treatment is Windows-only.
  */
 :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
   grid-column: span 2 !important;
-  width: auto !important;
+  width: 100% !important;
   min-width: 0;
   min-height: 268px;
   padding: 26px 22px 22px !important;
+  text-align: center;
 }
 
 :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card > .lg-content {
@@ -34,6 +34,7 @@ ${cssMarker}
 }
 
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-icon {
+  grid-area: auto !important;
   width: 48px !important;
   height: 48px !important;
   margin: 2px auto 4px !important;
@@ -42,7 +43,9 @@ ${cssMarker}
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-name,
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-desc,
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-owner {
+  grid-area: auto !important;
   max-width: 560px;
+  min-width: 0;
   margin-inline: auto !important;
   text-align: center !important;
   overflow-wrap: anywhere;
@@ -54,6 +57,7 @@ ${cssMarker}
 
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn,
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn:not([hidden]) {
+  grid-area: auto !important;
   justify-self: auto !important;
   align-self: center !important;
   width: auto !important;
@@ -63,6 +67,7 @@ ${cssMarker}
 }
 
 :root:not([data-detected-platform="windows"]) .windows-bundle-card .sha256:not([hidden]) {
+  grid-area: auto !important;
   justify-self: auto !important;
   width: auto !important;
   min-width: 0;
@@ -70,11 +75,43 @@ ${cssMarker}
   margin: 5px auto 0 !important;
 }
 
-@media (max-width: 1040px) {
-  :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
-    grid-column: auto !important;
+/*
+ * A detected non-Windows desktop keeps the information-dense three-column
+ * layout. The recommended native platform occupies the first full row, and
+ * the six remaining cards flow as two complete rows of three.
+ */
+@media (min-width: 901px) {
+  :root:is(
+    [data-detected-platform="linux"],
+    [data-detected-platform="macos"],
+    [data-detected-platform="android"]
+  ) .platform-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-auto-flow: row dense;
   }
 
+  :root:is(
+    [data-detected-platform="linux"],
+    [data-detected-platform="macos"],
+    [data-detected-platform="android"]
+  ) .platform-grid > .platform-card.recommended {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  :root:is(
+    [data-detected-platform="linux"],
+    [data-detected-platform="macos"],
+    [data-detected-platform="android"]
+  ) .platform-grid > .platform-card:not(.recommended) {
+    grid-column: span 2 !important;
+    width: 100% !important;
+    min-width: 0;
+    justify-self: stretch !important;
+  }
+}
+
+@media (max-width: 1040px) {
   :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card > .lg-content {
     min-width: 0;
     grid-template-columns: 58px minmax(0, 1fr) !important;
@@ -106,7 +143,8 @@ ${cssMarker}
   .platform-grid > .platform-card,
   .platform-grid > .platform-card.recommended,
   .platform-grid > .platform-card[data-platform="office"],
-  .platform-grid > .platform-card[data-platform="wps"] {
+  .platform-grid > .platform-card[data-platform="wps"],
+  :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
     grid-column: 1 !important;
     width: 100% !important;
     min-width: 0;
@@ -169,9 +207,43 @@ ${cssMarker}
 const deviceDetectionScript = `
   <script type="module" ${htmlMarker}>
     import { detectCurrentDevice } from './js/device-detection.js';
+
+    function normalizeNonWindowsBundleCard() {
+      if (document.documentElement.dataset.detectedPlatform === 'windows') return true;
+
+      const card = document.querySelector('[data-asset-id="windows-x86_64-bundle"]');
+      if (!card) return false;
+
+      card.removeAttribute('data-lg-interactive');
+      card.classList.remove('lg-surface', 'lg-surface--panel', 'is-pointer-lit');
+      card.style.removeProperty('--lg-pointer-x');
+      card.style.removeProperty('--lg-pointer-y');
+      card.style.removeProperty('--lg-pointer-dx');
+      card.style.removeProperty('--lg-pointer-dy');
+
+      const content = card.querySelector(':scope > .lg-content');
+      if (content) {
+        while (content.firstChild) card.insertBefore(content.firstChild, content);
+        content.remove();
+      }
+
+      card.querySelectorAll(':scope > .lg-backdrop, :scope > .lg-optics')
+        .forEach((element) => element.remove());
+      return true;
+    }
+
     try {
       const detectedDevice = await detectCurrentDevice();
       document.documentElement.dataset.detectedPlatform = detectedDevice.platform || 'unknown';
+
+      if (!normalizeNonWindowsBundleCard()) {
+        const bundleObserver = new MutationObserver(() => {
+          if (!normalizeNonWindowsBundleCard()) return;
+          bundleObserver.disconnect();
+        });
+        bundleObserver.observe(document.documentElement, { childList: true, subtree: true });
+        window.setTimeout(() => bundleObserver.disconnect(), 10_000);
+      }
     } catch (error) {
       document.documentElement.dataset.detectedPlatform = 'unknown';
       console.warn('Unable to apply device-aware download presentation:', error);
