@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>LaTeXSnipper 用户手册 v2.5.0 LTS</title>
+<title>LaTeXSnipper 用户手册 v2.6.0 LTS</title>
 <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">
@@ -398,7 +398,7 @@
 <div class="manual-cover">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
-<p>适用于 v2.5.0-LTS | 长期支持版</p>
+<p>适用于 v2.6.0-LTS | 长期支持版</p>
 
 </div>
 <div class="manual-cover-visual">
@@ -1696,28 +1696,28 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h1 id="sec-mobile-intro">LaTeXSnipper Mobile 介绍</h1>
-<p>LaTeXSnipper Mobile 是面向 Android 和 iOS 的移动端公式 OCR 识别应用，基于 Capacitor +Vite 构建，前端为纯 Web 技术栈（HTML/CSS/JS），后端使用 Java ONNX Runtime 进行本地离线推理。</p>
+<p>LaTeXSnipper Mobile 是基于 Capacitor +Vite 构建的移动端公式 OCR 应用。前端采用 Web 技术栈（HTML/CSS/JS），Android 端通过 Java ONNX Runtime 执行本地推理，并提供 Capacitor iOS 工程。</p>
 <h2 id="xiangmudiyuben">项目地址与版本</h2>
 <ul>
 <li>GitHub：https://github.com/strangelion/LaTeXSnipper_mobile</li>
-<li>当前版本：<strong>v1.2.2</strong></li>
+<li>当前版本：<strong>v1.3.1</strong></li>
 <li>构建方式：Vite 8 +Capacitor 8（Android/iOS）</li>
-<li>许可证：Apache License 2.0</li>
+<li>许可证：GNU AGPL-3.0</li>
 </ul>
 <h2 id="yuguan">与桌面版的关系</h2>
 <div class="callout info">
 <div class="callout-title">全平台生态</div>
 <div class="callout-body"><p>LaTeXSnipper Mobile 是独立的应用，不依赖桌面版 LaTeXSnipper。</p>
-<p>两者共享相同的 MathCraft OCR 模型体系，但移动版使用 Java ONNX Runtime（而非 Python），所有推理在手机本地完成。</p>
-<p>桌面版的 Office 插件、Pandoc 导出高级功能、数学工作台等不在移动版中提供。</p>
+<p>两者共享 MathCraft OCR 模型体系，但不共享实现代码；Android 版使用 Java ONNX Runtime，而非桌面版的 Python 运行时。</p>
+<p>桌面版的 Office 加载项、数学工作台和扩展格式导出不在移动版中提供。</p>
 </div>
 </div>
 <h2 id="heading">系统要求</h2>
 <ul>
 <li>Android 10+（推荐 Android 12+）</li>
-<li>存储空间：安装包约 120MB，解压后约 350MB（含全部 ONNX 模型）</li>
+<li>存储空间：应用本体不再内嵌完整 OCR 模型；首次使用前需按需下载约 188MB 的完整模型包，Pandoc 导出另需下载约 58MB 的 WASM 运行时</li>
 <li>RAM：推荐 6GB 以上（低端设备可能出现模型加载缓慢或 OOM）</li>
-<li>可选：网络连接（仅用于自动更新检查、AI 整理和 Pandoc WASM 首次加载）</li>
+<li>网络连接：首次下载 OCR 模型或 Pandoc WASM 时需要；完成下载后本地识别和离线导出不再依赖网络。自动更新检查、AI 整理及外部 API 始终需要网络</li>
 </ul>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-features">功能与页面结构</h1>
@@ -1759,6 +1759,7 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <h2 id="shezhi">设置页面</h2>
 <ul>
 <li><strong>识别引擎：</strong> 内置 MathCraft ONNX（默认）或外部 API（OpenAI-compatible）</li>
+<li><strong>模型管理：</strong> 按识别任务下载、导入、切换或删除模型包，支持断点续传、镜像源和 SHA256 完整性校验</li>
 <li><strong>加速模式：</strong> ONNX Runtime 推理加速选项（CPU / NNAPI / GPU）</li>
 <li><strong>渲染引擎：</strong> KaTeX（轻量快速）或 MathJax（兼容性更好），完全离线</li>
 <li><strong>视觉皮肤：</strong> 7 套视觉主题（Material 蓝 / MIUI 渐变 / iOS 蓝 / 樱花和风 / 黑客矩阵 / 暖咖纸墨 / 极简纤白）</li>
@@ -1814,19 +1815,19 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>Vite 8 / Capacitor 8 / WebView</li>
 <li>Java ONNX Runtime Android（公式/文字/混合识别）</li>
 <li>KaTeX / MathJax（公式渲染）</li>
-<li>Pandoc WASM（格式转换，内嵌在 APK 中）</li>
-<li>pdfjs-dist 4.67（PDF 渲染）</li>
+<li>Pandoc WASM（格式转换，按需下载）</li>
+<li>pdfjs-dist 4.2.67（PDF 渲染）</li>
 </ul>
 <div class="spacer-lg"></div>
 <h1 id="sec-mobile-ocr">OCR 识别与输入方式</h1>
 <h2 id="shibie">识别引擎架构</h2>
-<p>移动端使用纯 Java ONNX Runtime 引擎，所有推理在手机本地完成：</p>
+<p>Android 端使用 Java ONNX Runtime 引擎，模型下载完成后在设备本地推理：</p>
 <ul>
-<li><strong>公式检测（YOLOv8）：</strong> <code>mathcraft-mfd.onnx</code>，输入 [1,3,768,768]，768×768 letterbox</li>
-<li><strong>公式识别（TrOCR）：</strong> <code>encoder_model.onnx</code>（DeiT 编码器）+<code>decoder_model.onnx</code>（束搜索解码，beam=3）</li>
-<li><strong>文字检测（DBNet）：</strong> <code>ppocrv5_mobile_det.onnx</code>，最长边 960，stride32 对齐</li>
-<li><strong>文字识别（CRNN）：</strong> <code>ppocrv5_mobile_rec.onnx</code>，BGR 48×320 输入，CTC 解码</li>
-<li><strong>方向检测：</strong> <code>pplcnet_doc_ori.onnx</code>，0°/90°/180°/270° 自动校正</li>
+<li><strong>公式检测（YOLOv8）：</strong> 标准模型包中的 <code>model.onnx</code>，输入 [1,3,768,768]，采用 768×768 letterbox</li>
+<li><strong>公式识别（TrOCR）：</strong> <code>encoder.onnx</code>（DeiT 编码器）+<code>decoder.onnx</code>（束搜索解码）</li>
+<li><strong>文字检测（DBNet）：</strong> 标准模型包中的 <code>model.onnx</code>，最长边 960，stride32 对齐</li>
+<li><strong>文字识别（CRNN）：</strong> 标准模型包中的 <code>model.onnx</code>，BGR 48×320 输入，CTC 解码</li>
+<li><strong>方向检测：</strong> 文档方向模型随应用内置，用于 0°/90°/180°/270° 自动校正</li>
 </ul>
 <p>识别流程：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>图片 → 自动旋转（EXIF +ONNX 方向检测）
@@ -1983,12 +1984,12 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <h2 id="pandoc-wasm-shuoming">Pandoc WASM 说明</h2>
 <div class="callout warn">
 <div class="callout-title">移动端 Pandoc 导出注意事项</div>
-<div class="callout-body"><p>Pandoc WASM 二进制（约 56MB）内嵌在 APK 中，首次导出时需加载 WASM 模块。</p>
+<div class="callout-body"><p>Pandoc WASM 二进制约 58MB，不再内嵌在 APK 中。首次使用依赖 Pandoc 的格式前，需在设置页下载并缓存 WASM 运行时。</p>
 <p>Android WebView 运行时有几点限制：</p>
 <ul>
 <li><code>wasi_snapshot_preview1</code> 模块在部分 WebView 中缺失，已通过 <code>@bjorn3/browser_wasi_shim</code> 垫片修复</li>
 <li>WASM 加载路径已处理为 Capacitor 兼容路径，绕开 vite-plugin-wasm 生成的路径问题</li>
-<li>Pandoc WASM 不需要网络连接（WASM 二进制已内嵌）</li>
+<li>下载并校验完成后，Pandoc WASM 导出不再需要网络连接</li>
 </ul>
 </div>
 </div>
@@ -1996,10 +1997,11 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <h1 id="sec-mobile-issues">移动端常见问题</h1>
 <h2 id="moxing-oomnei">模型加载失败或 OOM（内存不足）</h2>
 <p><strong>现象：</strong> 启动时进度条卡住，或识别时报"内存不足"直接闪退。</p>
-<p><strong>原因：</strong> 全部 ONNX 模型约 350MB 解压后大小，<code>encoder_model.onnx</code> 一个文件就 87MB。低端设备（4GB 以下 RAM）可能在同时加载多个模型时 OOM。</p>
+<p><strong>原因：</strong> OCR 模型体积较大，低端设备（4GB 以下 RAM）同时加载多个推理会话时可能 OOM；下载不完整或校验失败也会导致模型无法加载。</p>
 <p><strong>解决：</strong></p>
 <ul>
 <li>在设置页 <strong>加速模式</strong> 中切换到较低加速级别</li>
+<li>在模型管理中检查对应任务的模型是否已完整下载并通过 SHA256 校验</li>
 <li>避免在识别时同时运行大型应用（如游戏、视频编辑）</li>
 <li>如果频繁 OOM，尝试减少识别模式切换频率（避免频繁加载/卸载不同模型）</li>
 <li>应用已启用 <code>largeHeap</code>（AndroidManifest.xml），但仍有物理限制</li>
@@ -2033,7 +2035,7 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>PNG、SVG、Typst 三种格式 <strong>不依赖 Pandoc WASM</strong>，可直接导出</li>
 <li>如果 Pandoc 依赖的格式导出失败，先尝试使用不依赖 Pandoc 的格式</li>
 <li>重启应用后重试</li>
-<li>如果问题持续，尝试清除应用数据后重新安装 APK</li>
+<li>在设置页删除并重新下载 Pandoc WASM</li>
 <li>检查开发者日志面板是否有 WASM 相关错误信息</li>
 </ul>
 <h2 id="ai">AI 整理连接失败</h2>
@@ -2093,7 +2095,7 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p><strong>解决：</strong></p>
 <ul>
 <li>超过 100 页的 PDF 建议分卷处理或将长文档分段导出</li>
-<li>PDF 使用 pdfjs-dist 4.67 在 WebView 中逐页渲染为图片后识别，渲染目标 768px</li>
+<li>PDF 使用 pdfjs-dist 4.2.67 在 WebView 中逐页渲染为图片后识别，渲染目标 768px</li>
 <li>处理器密集，长文档建议在充电状态下操作</li>
 </ul>
 <h2 id="dongtedingxingwenti">移动端特定兼容性问题</h2>
@@ -2116,26 +2118,24 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="callout info">
 <div class="callout-title">关注存储占用</div>
 <div class="callout-body"><p>移动端所有文件（模型、日志、历史记录）均存储在应用内部目录。</p>
-<p>ONNX 模型约 220MB，Pandoc WASM 约 56MB，MathJax 字体约 20MB。</p>
+<p>完整模型下载包约 188MB，Pandoc WASM 约 58MB；两者均按需下载到应用内部目录。</p>
 <p>强烈不建议通过系统设置清除应用数据，否则所有模型和离线功能需要重新下载。</p>
 </div>
 </div>
 <div class="block block-gray">
 <p><strong>应用数据目录位置</strong></p>
 <ul>
-<li><strong>ONNX 模型：</strong> <code>public/models/</code>（内嵌在 APK 中，无需下载）</li>
-<li><strong>Pandoc WASM：</strong> <code>public/vendor/pandoc/</code>（内嵌在 APK 中）</li>
+<li><strong>ONNX 模型：</strong> 通过设置页模型管理下载或导入；仅文档方向模型和必要的 tokenizer/字典资源随应用提供</li>
+<li><strong>Pandoc WASM：</strong> 首次启用相关导出格式时从设置页下载并缓存</li>
 <li><strong>历史记录：</strong> IndexedDB（应用内部存储）</li>
 <li><strong>日志：</strong> localStorage（开发者日志面板查看）</li>
 <li><strong>设置：</strong> localStorage +Android SharedPreferences</li>
 </ul>
-<p><strong>APK 体积组成</strong></p>
+<p><strong>额外存储占用</strong></p>
 <ul>
-<li>Pandoc WASM：~56MB</li>
-<li>ONNX 模型：~220MB（APK 内压缩）</li>
-<li>KaTeX +MathLive +PDF.js：~15MB</li>
-<li>MathJax 可选：~20MB</li>
-<li>APK 总大小约 280MB，安装解压后约 400MB</li>
+<li>完整 OCR 模型包：约 188MB；也可按公式检测、公式识别、文字检测和文字识别分别下载</li>
+<li>Pandoc WASM：约 58MB，仅在需要 LaTeX、MathML、Markdown、HTML、Word 或纯文本导出时下载</li>
+<li>实际占用还包括模型解压文件、历史记录、日志和导出文件，以系统设置显示为准</li>
 </ul>
 
 </div>
@@ -2178,7 +2178,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.5</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.6</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
