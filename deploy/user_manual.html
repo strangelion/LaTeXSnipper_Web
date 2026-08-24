@@ -395,10 +395,10 @@
 </aside>
 
 <main class="manual-content" id="manualContent">
-<div class="manual-cover">
+<div class="center">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
-<p>适用于 v2.6.0-LTS | 长期支持版</p>
+<p>适用于 v2.6.0-LTS</p>
 
 </div>
 <div class="manual-cover-visual">
@@ -519,7 +519,7 @@
 <li><strong>Pandoc 扩展格式：</strong> Word <code>.docx</code>、ODT <code>.odt</code>、PowerPoint <code>.pptx</code>、EPUB <code>.epub</code>、PDF <code>.pdf</code>、HTML 独立页 <code>.html</code>、Typst <code>.typ</code>、纯文本 <code>.txt</code></li>
 </ul>
 <p>导出 Word、ODT、PowerPoint、EPUB 或 PDF 时，如果识别内容包含完整闭合的 SVG 源码块，程序会验证并按出现顺序保存原始 SVG 和 PNG 图像，将 PNG 嵌入目标文档，不额外添加图片标题或占位文字。图像保存在导出文件旁的 <code>&lt;文件名&gt;_assets_&lt;内容哈希&gt;</code> 目录；不同内容不会互相覆盖。无效、不完整或包含危险外部资源的 SVG 会被跳过。资源处理和 Pandoc 转换均在后台执行。</p>
-<p>托盘或菜单栏状态菜单还提供 <strong>截图屏幕模式</strong>：自动模式会按鼠标释放点选择屏幕，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。</p>
+<p>托盘或菜单栏状态菜单还提供 <strong>识别屏幕</strong>：默认按鼠标释放位置自动选择，也可以固定到某一块显示器。多屏截图位置不对时，优先检查这里。</p>
 <h2 id="shezhiqianji">设置页当前业务逻辑</h2>
 <p>设置页的"选择识别模型"只有两类入口：</p>
 <ul>
@@ -528,7 +528,7 @@
 </ul>
 <p>外部模型的 <strong>提示词模板</strong> 决定普通图片和截图识别的请求内容与结果类型，可选公式、Markdown 或纯文本。手写识别固定使用混合文档类型；内置模型及 OpenAI-compatible / Ollama 的 PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认提示词；MinerU Local 直接解析原 PDF，不使用提示词或渲染 DPI。</p>
 <p>普通图片和截图的确认窗口、历史记录及主窗口预览会按结果类型渲染：LaTeX 使用公式预览，Markdown 使用混合预览，纯文本使用文本预览。本地 MathCraft 的公式、混合和纯文字结果遵循相同映射。</p>
-<p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示日志窗口、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
+<p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示运行日志、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
 <h2 id="pdf-shibieliucheng">PDF 识别流程</h2>
 <p>点击 <strong>PDF识别</strong> 后，程序会按当前模型执行：</p>
 <ul>
@@ -593,7 +593,7 @@
 </ul>
 <p><strong>解决：</strong></p>
 <ul>
-<li><strong>如果不需要 GPU：</strong> 设置环境变量 <code>MATHCRAFT_FORCE_ORT_CPU=1</code> 强制 CPU 模式</li>
+<li><strong>如果不需要 GPU：</strong> 设置环境变量 <code>MATHCRAFT_PROVIDER=cpu</code> 使用 CPU 模式</li>
 <li><strong>如果需要 GPU：</strong> 确认 CUDA Toolkit 和 cuDNN 版本与 onnxruntime-gpu 匹配（查 onnxruntime 官方兼容表）</li>
 <li>更新显卡驱动</li>
 </ul>
@@ -612,7 +612,7 @@
 <p><strong>解决：</strong></p>
 <ul>
 <li>关闭其他占用 GPU 的程序</li>
-<li>设置 <code>MATHCRAFT_FORCE_ORT_CPU=1</code> 强制使用 CPU</li>
+<li>设置 <code>MATHCRAFT_PROVIDER=cpu</code> 使用 CPU</li>
 </ul>
 <div class="spacer-lg"></div>
 <h1 id="sec-external">外部模型相关问题</h1>
@@ -1097,7 +1097,7 @@ python -m mathcraft_ocr doctor --provider auto
 python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div>
 <ul>
 <li>如果 <code>models check</code> 显示缺文件或缓存不完整，问题通常在模型下载或缓存目录。</li>
-<li>如果 <code>doctor</code> 显示 ONNX Runtime providers 异常，优先说明是否安装 GPU 版、是否设置过 <code>MATHCRAFT_FORCE_ORT_CPU=1</code>。</li>
+<li>如果 <code>doctor</code> 显示 ONNX Runtime providers 异常，优先说明是否安装 GPU 版、是否设置过 <code>MATHCRAFT_PROVIDER=cpu</code>。</li>
 <li>如果命令行正常但 GUI 失败，请同时说明设置页中的依赖目录、日志目录和当前选择的识别模型。</li>
 </ul>
 <h1 id="sec-source">从源码运行与开发者常见问题</h1>
@@ -1166,7 +1166,7 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 </div>
 <h1 id="sec-office-intro">加载项介绍与系统要求</h1>
 <h2 id="office-xiang">什么是 Office 加载项</h2>
-<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。截图 OCR 通过本机 Bridge 与 LaTeXSnipper 桌面端通信并读取识别结果。</p>
+<p>LaTeXSnipper Office 加载项是一个 Windows 原生 VSTO 插件，安装后会在 Word 和 PowerPoint 的功能区（Ribbon）中添加 LaTeXSnipper 专用标签页。截图 OCR 作为普通客户端通过本机 Automation API 创建、查询和取消独立任务。</p>
 <h2 id="heading">系统要求</h2>
 <div class="block">
 <ul>
@@ -1174,7 +1174,7 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 <li><strong>Office 版本：</strong> Microsoft 365 应用（当前通道或月度企业通道）、Office 2024 / 2021 / 2019 零售版或批量许可版、Office LTSC 2024 / 2021</li>
 <li><strong>运行时：</strong> .NET Framework 4.8；Microsoft Edge WebView2 Runtime（Windows 11 已内置；M365 会自动安装）</li>
 <li><strong>Office 体系：</strong> 仅支持 32 位和 64 位桌面版 Office；不支持网页版、移动版和 macOS 版 Office</li>
-<li><strong>LaTeXSnipper 桌面端：</strong> 使用截图 OCR 时需在本机运行并开启 Office 插件功能</li>
+<li><strong>LaTeXSnipper 桌面端：</strong> 使用截图 OCR 时需在本机运行并开启"自动化接口"</li>
 </ul>
 
 </div>
@@ -1218,13 +1218,13 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 <h2 id="xinganzhuang">命令行静默安装</h2>
 <p>安装包支持 Inno Setup 标准静默参数：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#静默安装（显示进度条）
-OfficePluginSetup-2.6.0.exe /silent
+OfficePluginSetup-3.0.0.exe /silent
 
 #完全静默（无界面）
-OfficePluginSetup-2.6.0.exe /verysilent
+OfficePluginSetup-3.0.0.exe /verysilent
 
 #自定义安装目录
-OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
+OfficePluginSetup-3.0.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -1463,7 +1463,7 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 
 </div>
 <h2 id="shibie">截图识别</h2>
-<p>点击"截图识别"后，加载项等待桌面端完成下一次截图 OCR。若需取消，可点击功能区"取消识别"按钮或在等待过程中再次点击"截图识别"按钮。OCR 识别结果会自动填入公式编辑器。</p>
+<p>点击"截图识别"后，加载项等待 LaTeXSnipper 的下一次识别结果，但不会主动打开截图界面。用户仍需在桌面端自行发起识别；桌面端保持正常显示结果，同时将结果副本自动填入 Office 公式编辑器。若需取消，可点击功能区"取消识别"按钮或在等待过程中再次点击"截图识别"按钮。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-ppt">PowerPoint 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -1528,7 +1528,7 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <ul>
 <li><strong>MathLive 编辑器：</strong> 侧边栏顶部是可视化公式编辑器，支持所见即所得的公式编辑</li>
 <li><strong>LaTeX 源码：</strong> 编辑器下方是 LaTeX 源码输入区，编辑器和源码区双向同步</li>
-<li><strong>连接按钮：</strong> 测试与桌面端 Bridge 的连通性</li>
+<li><strong>连接按钮：</strong> 测试与桌面端 Automation API 的连通性</li>
 <li><strong>截图识别按钮：</strong> 触发截图 OCR 等待状态</li>
 <li><strong>插入按钮：</strong> 将当前侧边栏公式直接插入文档/幻灯片</li>
 </ul>
@@ -1662,9 +1662,9 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <p><strong>解决：</strong></p>
 <ol>
 <li>确认 LaTeXSnipper 桌面端正在运行</li>
-<li>在桌面端设置中确认"Office 插件功能"已开启</li>
+<li>在桌面端设置中确认"自动化接口"已开启</li>
 <li>检查防火墙是否拦截了 <code>127.0.0.1:28765</code> 端口</li>
-<li>如果桌面端改变了 Bridge 端口，设置环境变量 <code>LATEXSNIPPER_OFFICE_BRIDGE_URL</code> 指向正确地址</li>
+<li>Office 会读取当前用户状态目录中的 <code>automation-api.json</code>，无需设置端口或 token 环境变量</li>
 </ol>
 <h2 id="shibianjiqi">公式编辑器加载失败</h2>
 <p><strong>现象：</strong> 侧边栏或独立编辑器显示空白或加载错误。</p>
@@ -1675,9 +1675,9 @@ OfficePluginSetup-2.6.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 <li>Windows 11 和 Microsoft 365 通常已内置 WebView2</li>
 </ol>
 <h2 id="ocr-shizheng">截图 OCR 提示"正忙"</h2>
-<p><strong>现象：</strong> 点击截图识别后很快提示错误"截图识别正忙，请稍后再试"。</p>
-<p><strong>原因：</strong> 桌面端上一次 OCR 请求尚未完成或未正确取消。加载项会自动取消旧请求并重试一次。如果重试仍然失败，可能桌面端正在处理其他任务。</p>
-<p><strong>解决：</strong> 稍等片刻后重试。如果持续出现，关闭并重新打开桌面端的 Office 插件功能。</p>
+<p><strong>现象：</strong> 点击截图识别后提示已有客户端正在等待下一次识别结果。</p>
+<p><strong>原因：</strong> 同一时间只允许一个本机客户端等待下一次桌面识别结果，已有等待任务尚未完成、取消或超时。</p>
+<p><strong>解决：</strong> 完成或取消当前等待任务后重试；无需关闭自动化接口。</p>
 <h2 id="xiang-office-yong">加载项被 Office 禁用</h2>
 <p><strong>现象：</strong> 加载项之前正常使用，某次打开 Office 后消失了。</p>
 <p><strong>原因：</strong> Office 检测到加载项启动耗时过长或崩溃，将其自动禁用。</p>
@@ -2178,7 +2178,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.6</code>。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.7</code>；它使用自己的版本线，不与 LaTeXSnipper 3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
@@ -2247,19 +2247,19 @@ python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output re
 <h1 id="sec-envvar">环境变量设置指南</h1>
 <p>许多排障操作需要临时设置环境变量。注意：桌面端启动时会清理 <code>MATHCRAFT_HOME</code>、<code>PYTHONHOME</code> 和 <code>PYTHONPATH</code>，避免外部 Python 环境污染应用运行时；<code>MATHCRAFT_HOME</code> 主要用于命令行单独运行 <code>mathcraft_ocr</code> 时指定模型缓存目录。</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Windows 永久：Win+R → sysdm.cpl → 高级 → 环境变量 → 用户变量中新建
-Windows 当前终端：$env:MATHCRAFT_FORCE_ORT_CPU ="1"
+Windows 当前终端：$env:MATHCRAFT_PROVIDER ="cpu"
 Linux/macOS 永久：写入 ~/.bashrc 或 ~/.zshrc 后 source 对应文件
-Linux/macOS 当前终端：export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
+Linux/macOS 当前终端：export MATHCRAFT_PROVIDER=cpu</code></pre></div>
 <p><strong>常用环境变量一览：</strong></p>
 <div class="block">
 <ul>
-<li><code>MATHCRAFT_FORCE_ORT_CPU</code> — 设为 <code>1</code> 强制使用 CPU 推理（禁用 GPU）</li>
+<li><code>MATHCRAFT_PROVIDER</code> — 设为 <code>auto</code>、<code>cpu</code> 或 <code>gpu</code>，显式选择推理后端</li>
 <li><code>MATHCRAFT_HOME</code> — 命令行 <code>mathcraft_ocr</code> 使用的模型缓存目录；桌面端会清理该变量</li>
 <li><code>MATHCRAFT_BUNDLED_MODELS_DIR</code> — 定制包或调试时指定包内 MathCraft 模型目录；正式包未预置模型时不需要设置</li>
 <li><code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> — 设置代理服务器地址（用于模型下载）</li>
 <li><code>LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下强制启用 Qt/WebEngine 软件渲染兜底</li>
 <li><code>LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS</code> — Linux 下禁用图形兜底，尝试原生 Qt/GPU 路径</li>
-<li><code>LATEXSNIPPER_SHOW_CONSOLE</code> — Windows 打包版调试时显示或隐藏运行日志窗口</li>
+<li><code>LATEXSNIPPER_SHOW_RUNTIME_LOG</code> — 启动后显示或隐藏运行日志窗口</li>
 </ul>
 
 </div>
@@ -2272,7 +2272,7 @@ Linux/macOS 当前终端：export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
 <p>[命令行 <code>mathcraft_ocr</code> 默认缓存],[Windows：<code>%APPDATA%\MathCraft\models</code>；Linux：<code>${XDG_DATA_HOME:-~/.local/share}/LaTeXSnipper/MathCraft/models</code>；macOS：<code>~/Library/Application Support/LaTeXSnipper/MathCraft/models</code>],</p>
 <p>[桌面端 MathCraft worker],[启动子进程前会清理 <code>PYTHONHOME</code>、<code>PYTHONPATH</code>、<code>PYTHONSTARTUP</code>、<code>PYTHONEXECUTABLE</code> 和 <code>MATHCRAFT_HOME</code>，并设置 <code>PYTHONNOUSERSITE=1</code>],</p>
 <p>[可选包内模型目录],[如果可执行文件旁或包内实际存在 <code>MathCraft/models</code>，程序会自动设置 <code>MATHCRAFT_BUNDLED_MODELS_DIR</code> 并优先读取；当前发布包未预置模型时会直接使用用户模型缓存],</p>
-<p>[强制 CPU],[<code>MATHCRAFT_FORCE_ORT_CPU=1</code> 会被 ONNX Runtime provider 检测逻辑读取，可用于避开 GPU/CUDA 兼容性问题],</p>
+<p>[CPU 模式],[<code>MATHCRAFT_PROVIDER=cpu</code> 会被 ONNX Runtime provider 检测逻辑读取，可用于避开 GPU/CUDA 兼容性问题],</p>
 <p>)</p>
 
 </div>
@@ -2282,7 +2282,7 @@ Linux/macOS 当前终端：export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
 <li>检测到包内 <code>MathCraft/models</code> 时，模型查找顺序是 <strong>包内模型目录</strong> → <strong>用户模型缓存</strong>；包内模型完整时，用户缓存缺失通常不会影响识别。</li>
 <li>如果没有包内模型目录，<code>mathcraft_ocr</code> 会检查用户缓存；缺失或不完整时，运行时会按 manifest 下载或修复。</li>
 <li><code>models check</code> 用来确认模型文件是否完整，<code>doctor --provider auto</code> 用来确认 ONNX Runtime provider，<code>warmup --profile mixed</code> 用来验证公式、文字和混合识别链路。</li>
-<li><code>MATHCRAFT_FORCE_ORT_CPU=1</code> 只改变 ONNX Runtime provider 选择，不改变模型缓存目录；模型路径问题和 GPU/CUDA 问题要分开排查。</li>
+<li><code>MATHCRAFT_PROVIDER=cpu</code> 只改变 ONNX Runtime provider 选择，不改变模型缓存目录；模型路径问题和 GPU/CUDA 问题要分开排查。</li>
 </ul>
 </div>
 </div>
@@ -2303,7 +2303,7 @@ Linux/macOS 当前终端：export MATHCRAFT_FORCE_ORT_CPU=1</code></pre></div>
 </tr>
 <tr>
 <td>GPU / CUDA 异常</td>
-<td><code>doctor --provider auto</code> 与 <code>MATHCRAFT_FORCE_ORT_CPU=1</code>；先确认是否为 provider 问题。</td>
+<td><code>doctor --provider auto</code> 与 <code>MATHCRAFT_PROVIDER=cpu</code>；先确认是否为 provider 问题。</td>
 <td>Linux 黑屏或 WebView 异常</td>
 </tr>
 <tr>
