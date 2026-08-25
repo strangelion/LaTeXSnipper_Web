@@ -1,10 +1,10 @@
 {
-  "last_sync": "2026-08-22T14:13:47Z",
+  "last_sync": "2026-08-24T08:47:44Z",
   "assets": {
-    "LaTeXSnipperSetup-2.6.0.exe": "2026-08-22T14:13:45Z",
-    "LaTeXSnipper_2.6.0_amd64.deb": "2026-08-22T14:13:47Z",
-    "LaTeXSnipper_2.6.0_arm64.dmg": "2026-08-22T14:13:47Z",
-    "OfficePluginSetup-2.6.0.exe": "2026-08-22T14:13:40Z"
+    "LaTeXSnipperSetup-3.0.0.exe": "2026-08-24T08:47:41Z",
+    "LaTeXSnipper_3.0.0_amd64.deb": "2026-08-24T08:47:43Z",
+    "LaTeXSnipper_3.0.0_arm64.dmg": "2026-08-24T08:47:44Z",
+    "OfficePluginSetup-3.0.0.exe": "2026-08-24T08:47:36Z"
   },
   "last_manual_sha": "9f01093bebc33eb49ba0ab7fd1199065ef996de1"
 }
