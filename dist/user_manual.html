@@ -57,6 +57,11 @@
   <li class="toc-h2"><a href="#zhuchuangkoufenbie">主窗口按钮分别做什么</a></li>
   <li class="toc-h2"><a href="#shezhiqianji">设置页当前业务逻辑</a></li>
   <li class="toc-h2"><a href="#pdf-shibieliucheng">PDF 识别流程</a></li>
+<li class="toc-h1"><a href="#sec-automation">自动化接口与远程设备</a></li>
+  <li class="toc-h2"><a href="#benpeizhi">仅本机：推荐默认配置</a></li>
+  <li class="toc-h2"><a href="#chengshebeishiyong-tailscale-wireguard">远程设备：推荐使用 Tailscale 或 WireGuard</a></li>
+  <li class="toc-h2"><a href="#https-moshi">HTTPS 模式</a></li>
+  <li class="toc-h2"><a href="#shuomingyudong">字段说明与启动耗时</a></li>
 <li class="toc-h1"><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
   <li class="toc-h2"><a href="#moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</a></li>
   <li class="toc-h2"><a href="#onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</a></li>
@@ -233,6 +238,11 @@
   <li class="rs-h2"><a href="#zhuchuangkoufenbie">主窗口按钮分别做什么</a></li>
   <li class="rs-h2"><a href="#shezhiqianji">设置页当前业务逻辑</a></li>
   <li class="rs-h2"><a href="#pdf-shibieliucheng">PDF 识别流程</a></li>
+<li class="rs-h1"><a href="#sec-automation">自动化接口与远程设备</a></li>
+  <li class="rs-h2"><a href="#benpeizhi">仅本机：推荐默认配置</a></li>
+  <li class="rs-h2"><a href="#chengshebeishiyong-tailscale-wireguard">远程设备：推荐使用 Tailscale 或 WireGuard</a></li>
+  <li class="rs-h2"><a href="#https-moshi">HTTPS 模式</a></li>
+  <li class="rs-h2"><a href="#shuomingyudong">字段说明与启动耗时</a></li>
 <li class="rs-h1"><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
   <li class="rs-h2"><a href="#moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</a></li>
   <li class="rs-h2"><a href="#onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</a></li>
@@ -401,8 +411,8 @@
 <p>适用于 v2.6.0-LTS</p>
 
 </div>
-<div class="manual-cover-visual">
-<div class="center"><img src="assets/images/LaTeXSnipper.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center">
+<div class="center"><img src="assets/images/../docs/latexsnipper-3.0.0.png" alt="" loading="lazy" decoding="async"></div>
 
 </div>
 <div class="block block-gray manual-inline-toc">
@@ -411,6 +421,7 @@
 <ul>
 <li><a href="#sec-quick">开始使用前（必读）</a></li>
 <li><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
+<li><a href="#sec-automation">自动化接口与远程设备</a></li>
 <li><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
 <li><a href="#sec-external">外部模型相关问题</a></li>
 <li><a href="#sec-install">安装和环境问题</a></li>
@@ -539,6 +550,75 @@
 <li>内置模型及 OpenAI-compatible / Ollama 会询问 PDF 渲染 DPI，范围为 90-300；OpenAI-compatible / Ollama 默认 150 DPI，内置模型默认 200 DPI。MinerU Local 直接解析原 PDF，不显示 DPI 选择。</li>
 <li>识别结果会打开独立的 PDF 结果窗口，可编辑、复制或保存。Markdown 文档保存时，如果结构化结果包含图片资源，程序会尽量把相关 assets 一起复制到保存目录。</li>
 </ul>
+<h1 id="sec-automation">自动化接口与远程设备</h1>
+<p>自动化接口供 Office 加载项、本机脚本、批量程序、编辑器插件，以及经用户明确授权的远程设备提交现有图片进行识别。API 调用不会打开桌面截图遮罩，也不会改变桌面端窗口；远程设备不能订阅下一次桌面识别结果。</p>
+<h2 id="benpeizhi">仅本机：推荐默认配置</h2>
+<p>普通用户、Office 加载项和同一台电脑上的 Python、AutoHotkey、AutoKey、Hammerspoon 或 ShareX 应保持以下设置：</p>
+<table class="typst-table">
+<thead>
+<tr>
+<th>设置</th>
+<th>推荐值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>访问范围</td>
+<td>仅本机</td>
+<td>不接受其他设备连接</td>
+</tr>
+<tr>
+<td>端口</td>
+<td><code>28765</code></td>
+<td>只有端口冲突时才修改</td>
+</tr>
+<tr>
+<td>监听地址</td>
+<td><code>127.0.0.1</code></td>
+<td>不要填写路由器地址、其他设备地址或 <code>0.0.0.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>开启“自动化接口”后，本机客户端从应用状态目录中的 <code>automation-api.json</code> 自动读取实际地址和每次启动都会更新的本机会话 token。Office 加载项不需要手工填写端口或 token。关闭 API 后该发现文件会被删除。</p>
+<h2 id="chengshebeishiyong-tailscale-wireguard">远程设备：推荐使用 Tailscale 或 WireGuard</h2>
+<p>最简单、安全的家庭远程方案是让运行 LaTeXSnipper 的电脑和手机/远程电脑加入同一个 Tailscale 网络：</p>
+<ol>
+<li>在两台设备上安装并登录 Tailscale，确认它们可以互相访问。</li>
+<li>在运行 LaTeXSnipper 的电脑上查询 Tailscale 地址，例如执行 <code>tailscale ip -4</code>，得到类似 <code>100.x.x.x</code> 的地址。</li>
+<li>打开“设置 → 高级设置 → 自动化接口”，将“访问范围”改为“远程设备”。</li>
+<li>“安全方式”选择“安全隧道（推荐）”；“监听地址”填写本机的 Tailscale/WireGuard 接口地址，不能填写远程设备地址、普通局域网地址或 <code>0.0.0.0</code>。</li>
+<li>端口通常保留 <code>28765</code>；生成独立的远程访问密钥并安全复制到远程设备。</li>
+<li>“浏览器 Origin 白名单”通常留空；只有网页 JavaScript 直接跨域调用时才填写网页的准确 Origin。</li>
+<li>默认不要开启远程外部模型。只有确实需要调用桌面端已经配置好的 Ollama、MinerU 或在线接口，并接受资源/费用消耗时才开启。</li>
+<li>勾选安全确认项，保存配置，然后开启自动化接口。必要时只允许 VPN 网卡访问该端口的系统防火墙规则。</li>
+</ol>
+<p>远程设备使用 <code>http://&lt;隧道地址&gt;:28765</code> 作为基础地址，并在每个受保护请求中发送：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Authorization: Bearer &lt;远程访问密钥&gt;</code></pre></div>
+<p>可以先访问 <code>GET /api/v1/health</code> 检查连通性，再以 <code>multipart/form-data</code> 向 <code>/api/v1/recognition/jobs</code> 提交一个或多个 <code>images</code> 字段。iOS Shortcuts、Android Tasker、curl 和 Python 都不需要填写浏览器 Origin 白名单。手机远程调用要求家中电脑保持开机、LaTeXSnipper 正在运行且自动化接口已开启；识别结果直接返回调用端，不会唤起家中电脑的截图界面。</p>
+<p>例如，远程电脑可以使用以下命令提交一张图片。下面使用 macOS/Linux shell 的续行符；Windows PowerShell 应改用 <code>curl.exe</code>，并使用 PowerShell 反引号作为续行符：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>curl -sS "http://100.x.x.x:28765/api/v1/recognition/jobs"
+-H "Authorization: Bearer &lt;远程访问密钥&gt;"
+-H "Prefer: wait=30"
+-F backend=mathcraft 
+-F mode=formula 
+-F "images=@formula.png"</code></pre></div>
+<p>返回 <code>202</code> 表示任务仍在后台执行，应按响应中的 <code>Location</code> 查询结果；返回 <code>200</code> 表示等待期间已经完成。</p>
+<h2 id="https-moshi">HTTPS 模式</h2>
+<p>没有安全隧道时可以选择 HTTPS，但需要自行准备证书和私钥：监听地址填写这台电脑实际使用的非回环网卡 IP，证书的 SAN 必须覆盖远程设备访问时使用的主机名或 IP，并且远程设备必须信任该证书。不要把自签名证书错误或明文 HTTP 服务直接暴露到公网；家庭用户优先使用 Tailscale/WireGuard。</p>
+<h2 id="shuomingyudong">字段说明与启动耗时</h2>
+<ul>
+<li><strong>端口：</strong> 本机和远程调用地址的一部分。保持 <code>28765</code> 可以减少客户端配置；端口被其他程序占用时才更换。</li>
+<li><strong>监听地址：</strong> 指运行 LaTeXSnipper 这台电脑上的本地网卡地址，不是允许访问的客户端地址。本机模式固定使用回环地址；隧道模式必须是被识别出的 VPN 接口地址。</li>
+<li><strong>远程访问密钥：</strong> 与本机会话 token 完全独立，重启 API 后仍保持不变，除非点击重新生成或撤销。密钥只应保存在受信任设备中。</li>
+<li><strong>浏览器 Origin 白名单：</strong> 只控制浏览器 CORS，格式为 <code>协议://主机[:端口]</code>，多个地址用英文逗号分隔，不能包含路径。它不是设备 IP 白名单，也不会影响 Office、curl、Shortcuts、Tasker 或普通 Python 客户端。</li>
+<li><strong>允许远程设备调用外部模型：</strong> 只增加远程密钥的外部模型权限；远程端仍不能读取或覆盖桌面端保存的模型地址、模型名、API Key 和提示词。</li>
+</ul>
+<div class="callout info">
+<div class="callout-title">为什么保存或开关有时稍慢</div>
+<div class="callout-body"><p>API 开关在后台执行，开启本身不会加载或预热 MathCraft。服务正在运行时，如果端口、监听地址、安全方式、证书、密钥、CORS 或远程权限发生变化，保存操作必须停止并重新绑定一次服务，因此会比普通设置保存稍慢，本机会话 token 也会更新。没有实际变化的重复保存不会重启服务。不要在识别任务进行中连续修改网络配置或反复开关；正常启停通常很快，持续数秒时应检查端口占用、防火墙、证书/私钥以及运行日志。</p>
+</div>
+</div>
 <h1 id="sec-local">本地模型（MathCraft ONNX）相关问题</h1>
 <div class="callout tip">
 <div class="callout-title">MathCraft ONNX 用户提示</div>
@@ -2178,7 +2258,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.7</code>；它使用自己的版本线，不与 LaTeXSnipper 3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.8</code>；它使用自己的版本线，不与 LaTeXSnipper v3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
