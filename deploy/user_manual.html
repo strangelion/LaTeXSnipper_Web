@@ -50,7 +50,7 @@
   <div class="sidebar-inner">
     <ul class="toc-list">
 <li class="toc-h1"><a href="#sec-quick">开始使用前（必读）</a></li>
-  <li class="toc-h2"><a href="#anzhuangyunxing">安装后第一步：运行依赖向导</a></li>
+  <li class="toc-h2"><a href="#anzhuangkai">安装后第一步：打开依赖管理</a></li>
   <li class="toc-h2"><a href="#ruanjianbenliu">软件的基本工作流</a></li>
   <li class="toc-h2"><a href="#jianguanjian">日志文件在哪里（关键！）</a></li>
 <li class="toc-h1"><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
@@ -231,7 +231,7 @@
   <div class="rs-inner">
     <ul class="rs-list" id="rsList">
 <li class="rs-h1"><a href="#sec-quick">开始使用前（必读）</a></li>
-  <li class="rs-h2"><a href="#anzhuangyunxing">安装后第一步：运行依赖向导</a></li>
+  <li class="rs-h2"><a href="#anzhuangkai">安装后第一步：打开依赖管理</a></li>
   <li class="rs-h2"><a href="#ruanjianbenliu">软件的基本工作流</a></li>
   <li class="rs-h2"><a href="#jianguanjian">日志文件在哪里（关键！）</a></li>
 <li class="rs-h1"><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
@@ -469,8 +469,8 @@
 
 </div>
 <h1 id="sec-quick">开始使用前（必读）</h1>
-<h2 id="anzhuangyunxing">安装后第一步：运行依赖向导</h2>
-<p>LaTeXSnipper 首次启动或检测到关键依赖缺失时会弹出"依赖向导"。这不是可有可无的步骤——向导负责安装和配置内置 MathCraft OCR、PDF/Pandoc 等运行依赖层；外部模型服务本身仍需要用户另行部署或配置。</p>
+<h2 id="anzhuangkai">安装后第一步：打开依赖管理</h2>
+<p>LaTeXSnipper 首次启动或检测到关键依赖缺失时会打开“依赖管理”。这不是可有可无的步骤——依赖管理负责安装和配置内置 MathCraft OCR、PDF/Pandoc 等运行依赖层；外部模型服务本身仍需要用户另行部署或配置。</p>
 <div class="callout warn">
 <div class="callout-title">常见错误：跳过向导后直接使用内置识别</div>
 <div class="callout-body"><p>如果依赖层未完整安装，内置 MathCraft 截图识别、PDF 识别、手写识别和 Pandoc 导出可能不可用，或在首次调用时进入修复流程。</p>
@@ -539,7 +539,7 @@
 </ul>
 <p>外部模型的 <strong>提示词模板</strong> 决定普通图片和截图识别的请求内容与结果类型，可选公式、Markdown 或纯文本。手写识别固定使用混合文档类型；内置模型及 OpenAI-compatible / Ollama 的 PDF 入口会单独询问导出格式和 DPI。填写 <strong>自定义提示词</strong> 后，自定义提示词优先级最高，会覆盖图片、截图、手写以及 OpenAI-compatible / Ollama PDF 识别的默认提示词；MinerU Local 直接解析原 PDF，不使用提示词或渲染 DPI。</p>
 <p>普通图片和截图的确认窗口、历史记录及主窗口预览会按结果类型渲染：LaTeX 使用公式预览，Markdown 使用混合预览，纯文本使用文本预览。本地 MathCraft 的公式、混合和纯文字结果遵循相同映射。</p>
-<p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示运行日志、依赖管理向导、打开 MathCraft 缓存目录等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
+<p>设置页还包含外观主题、公式渲染引擎、LaTeX 路径验证、更新检查、启动时显示运行日志、环境终端、依赖管理、模型缓存等入口。MathCraft 依赖统一由主依赖环境管理，设置页不再提供单独的模型下载按钮。</p>
 <h2 id="pdf-shibieliucheng">PDF 识别流程</h2>
 <p>点击 <strong>PDF识别</strong> 后，程序会按当前模型执行：</p>
 <ul>
@@ -659,7 +659,7 @@
 <p><strong>解决：</strong></p>
 <ul>
 <li><code>pip uninstall onnxruntime onnxruntime-gpu</code> 全部卸载后重新安装</li>
-<li>LaTeXSnipper 用户优先通过依赖向导重装，向导会按 CUDA 11/12/13 选择官方稳定运行时</li>
+<li>LaTeXSnipper 用户优先通过依赖管理重装，程序会按 CUDA 11/12/13 选择官方稳定运行时</li>
 <li>手动安装 CUDA 13：<code>pip install "onnxruntime-gpu&gt;=1.27,&lt;1.30"</code>；CUDA 12：<code>pip install "onnxruntime-gpu&gt;=1.21,&lt;1.27"</code></li>
 <li>仅 CPU：<code>pip install "onnxruntime&gt;=1.20,&lt;1.30"</code></li>
 </ul>
@@ -831,7 +831,7 @@ pip install -r requirements-macos.txt</code></pre></div>
 <li><strong>如果是开发者：</strong> Windows 使用 <code>requirements.txt</code>；Linux/macOS 分别使用 <code>requirements-linux.txt</code> / <code>requirements-macos.txt</code>；需要打包或构建资源时再安装 <code>requirements-build.txt</code></li>
 </ul>
 <h2 id="huanjing">依赖环境创建在哪里</h2>
-<p>LaTeXSnipper 使用 <code>install_base_dir</code> 作为活动 Python 依赖根。用户在依赖向导或设置中切换依赖目录后，只有主 Python 依赖环境跟随新的依赖根；Pandoc 固定在应用状态目录的共享 <code>tools</code> 目录中，部署一次即可复用。</p>
+<p>LaTeXSnipper 使用 <code>install_base_dir</code> 作为活动 Python 依赖根。用户在依赖管理或设置中切换依赖目录后，只有主 Python 依赖环境跟随新的依赖根；Pandoc 固定在应用状态目录的共享 <code>tools</code> 目录中，部署一次即可复用。</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>&lt;安装目录&gt;\_internal\deps</code></pre></div>
 <p>Linux/macOS 安装包不会把构建机的 <code>tools/deps/python311</code> 或任意虚拟环境打进安装包。默认依赖根是用户可写目录：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Linux:  ~/.latexsnipper/deps
@@ -854,7 +854,7 @@ brew install python
 https://www.python.org/downloads/macos/</code></pre></div>
 <h2 id="pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</h2>
 <p><strong>现象：</strong> <code>pip install -r requirements.txt</code> 报错。</p>
-<p>依赖向导会先显示 UI；<code>ensurepip</code>、<code>pip</code> 升级以及 <code>setuptools</code> / <code>wheel</code> 修复只会在点击下载/安装后执行。若所选目录已有可用 Python 环境，向导会直接使用该环境。Windows 安装包默认使用内置 <code>python311</code> 模板；若用户切换到没有可复用 Python 的目录，三端都会使用系统 Python（3.10 到 3.13）创建隔离环境。</p>
+<p>依赖管理会先显示 UI；<code>ensurepip</code>、<code>pip</code> 升级以及 <code>setuptools</code> / <code>wheel</code> 修复只会在点击下载/安装后执行。若所选目录已有可用 Python 环境，程序会直接使用该环境。Windows 安装包默认使用内置 <code>python311</code> 模板；若用户切换到没有可复用 Python 的目录，三端都会使用系统 Python（3.10 到 3.13）创建隔离环境。</p>
 <p><strong>原因：</strong></p>
 <ul>
 <li><code>pywin32</code> 需要编译或特定 wheel</li>
@@ -963,7 +963,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <p><strong>原因：</strong> 这些格式依赖 Pandoc。Pandoc 是可选的外部工具；PDF 导出还需要系统中可用的 LaTeX PDF 引擎（XeLaTeX、LuaLaTeX 或 pdfLaTeX）。</p>
 <p><strong>解决：</strong></p>
 <ul>
-<li>打开依赖向导，安装 "PANDOC"层</li>
+<li>打开依赖管理，安装 "PANDOC"层</li>
 <li>或手动安装 Pandoc（https://pandoc.org）并确保在 PATH 中</li>
 <li>核心功能（LaTeX / Markdown / MathML / HTML / OMML / SVG 导出）不需要 Pandoc</li>
 <li>PDF 导出如果继续失败，请确认已安装 TeX Live / MiKTeX 等 LaTeX 发行版，并且 <code>xelatex</code>、<code>lualatex</code> 或 <code>pdflatex</code> 可在 PATH 中找到</li>
@@ -1061,7 +1061,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 </ul>
 <div class="callout info">
 <div class="callout-title">Linux 依赖提示</div>
-<div class="callout-body"><p>依赖向导只管理 Python 依赖层。<code>grim</code>、<code>maim</code>、<code>gnome-screenshot</code> 等系统工具需要用户自行通过包管理器安装。</p>
+<div class="callout-body"><p>依赖管理只管理 Python 依赖层。<code>grim</code>、<code>maim</code>、<code>gnome-screenshot</code> 等系统工具需要用户自行通过包管理器安装。</p>
 <p>这些工具是可选的回退方案——应用在 Qt 原生截图失败时自动尝试它们。</p>
 </div>
 </div>
@@ -1097,13 +1097,13 @@ libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxkbcommon-x11-0</code></
 <p><strong>结论：</strong> 通常不需要。</p>
 <p>LaTeXSnipper 在 macOS 上使用 Carbon 原生全局快捷键注册，不使用 pynput 或键盘事件监听线程。截图快捷键不生效时，优先检查快捷键是否被系统或其他软件占用，以及应用是否仍在运行。只有涉及低层键盘监听、模拟键鼠控制或其他辅助控制能力的软件通常才需要"辅助功能"权限。</p>
 <h2 id="macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</h2>
-<p><strong>现象：</strong> 依赖向导提示找不到 <code>pip</code>，或安装依赖时出现 <code>pip</code> / <code>setuptools</code> / <code>wheel</code> 版本过低。</p>
+<p><strong>现象：</strong> 依赖管理提示找不到 <code>pip</code>，或安装依赖时出现 <code>pip</code> / <code>setuptools</code> / <code>wheel</code> 版本过低。</p>
 <p><strong>原因：</strong> macOS 安装包不内置完整 Python 依赖环境，需要借助系统中可用的 Python <code>&gt;=3.10,&lt;3.14</code> 在活动依赖根下创建 <code>python</code>。默认依赖根是 <code>~/Library/Application Support/LaTeXSnipper/deps</code>。如果系统 Python 没有 <code>venv</code> / <code>ensurepip</code> / <code>pip</code>，依赖层无法自动初始化。</p>
 <p><strong>解决：</strong></p>
 <ul>
 <li>推荐安装 Homebrew Python：<code>brew install python</code></li>
 <li>或安装 python.org 官方 macOS Python 包</li>
-<li>重新启动 LaTeXSnipper 后再运行依赖向导</li>
+<li>重新启动 LaTeXSnipper 后再打开依赖管理</li>
 </ul>
 <h2 id="pingtaimu">各平台数据目录速查</h2>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>配置文件 &amp; 日志：
@@ -1112,7 +1112,7 @@ Linux:    ~/.latexsnipper/
 macOS:    ~/Library/Application Support/LaTeXSnipper/
 
 依赖根：
-Windows:  &lt;安装目录&gt;\_internal\deps（默认，可在依赖向导/设置中切换）
+Windows:  &lt;安装目录&gt;\_internal\deps（默认，可在依赖管理/设置中切换）
 Linux:    ~/.latexsnipper/deps（默认，可切换）
 macOS:    ~/Library/Application Support/LaTeXSnipper/deps（默认，可切换）
 
@@ -2245,7 +2245,7 @@ OfficePluginSetup-3.0.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
 pip install "mathcraft-ocr[gpu]"
 #CUDA 12：
 pip install "mathcraft-ocr[gpu-cu12]"</code></pre></div>
-<p>单独使用 PyPI 包时，请在干净环境中只选择一种 ONNX Runtime 后端；不要同时安装 <code>onnxruntime</code> 和 <code>onnxruntime-gpu</code>。CUDA 11 还需使用 ONNX Runtime 官方 CUDA 11 feed。在 LaTeXSnipper 中使用时，通常通过依赖向导自动安装。</p>
+<p>单独使用 PyPI 包时，请在干净环境中只选择一种 ONNX Runtime 后端；不要同时安装 <code>onnxruntime</code> 和 <code>onnxruntime-gpu</code>。CUDA 11 还需使用 ONNX Runtime 官方 CUDA 11 feed。在 LaTeXSnipper 中使用时，通常通过依赖管理自动安装。</p>
 <p><strong>命令行使用：</strong></p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#检查模型缓存状态
 python -m mathcraft_ocr models check
@@ -2261,7 +2261,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.8</code>；它使用自己的版本线，不与 LaTeXSnipper v3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.2.9</code>；它使用自己的版本线，不与 LaTeXSnipper v3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
