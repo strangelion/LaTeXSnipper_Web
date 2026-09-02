@@ -4,7 +4,7 @@
   "product": "LaTeXSnipper Desktop",
   "version": "3.0.0",
   "channel": "LTS",
-  "publishedAt": "2026-09-01T07:16:51Z",
+  "publishedAt": "2026-09-02T04:54:16Z",
   "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.0.0-LTS",
   "assets": [
     {
@@ -14,7 +14,7 @@
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipperSetup-3.0.0.exe",
-      "sha256": "776b5a50e6b918ced13498f7080a7a5f5e2ce044c358459460a529feabc23ac8",
+      "sha256": "15dab46871124e4d1e07d611cdb0b48766568077490481b8b729d587f2324461",
       "size": "120.5 MB"
     },
     {
@@ -24,8 +24,8 @@
       "architecture": "x86_64",
       "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_3.0.0_amd64.deb",
-      "sha256": "0ab430e814bdb4fe1555da1f3d9a5bb64fde54634265229f8387810df2c184b1",
-      "size": "175.7 MB"
+      "sha256": "fb04b0b77de631ef62f3f0daf5f048d66fac42de912a6fe54dc4660a0e5b1389",
+      "size": "175.6 MB"
     },
     {
       "id": "macos-arm64",
@@ -34,7 +34,7 @@
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_3.0.0_arm64.dmg",
-      "sha256": "558e81363012213b4803c04233ee4be4aa522e1eb1de4e3eb058f1707b763386",
+      "sha256": "b2aa035a4b9406e3591a327eccb68e898b6d85041a6c55ffa10e9caf96ec64fa",
       "size": "196.1 MB"
     },
     {
