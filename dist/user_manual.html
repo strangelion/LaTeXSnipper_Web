@@ -42,7 +42,7 @@
 <div class="edge-hover-left" id="edgeHoverLeft"></div>
 <div class="edge-hover-right" id="edgeHoverRight"></div>
 
-<!-- 左侧导航栏（鼠标悬停打开） -->
+<!-- 目录导航（单面板，可停靠左右两侧） -->
 <nav class="sidebar lg-surface lg-surface--regular" id="sidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
   <div class="lg-content sidebar-material-content">
@@ -222,187 +222,6 @@
   </div>
 </div>
 </nav>
-
-<!-- 右侧导航栏（鼠标悬停打开） -->
-<aside class="right-sidebar lg-surface lg-surface--regular" id="rightSidebar">
-  <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
-  <div class="lg-content sidebar-material-content">
-    <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
-  <div class="rs-inner">
-    <ul class="rs-list" id="rsList">
-<li class="rs-h1"><a href="#sec-quick">开始使用前（必读）</a></li>
-  <li class="rs-h2"><a href="#anzhuangkai">安装后第一步：打开依赖管理</a></li>
-  <li class="rs-h2"><a href="#ruanjianbenliu">软件的基本工作流</a></li>
-  <li class="rs-h2"><a href="#jianguanjian">日志文件在哪里（关键！）</a></li>
-<li class="rs-h1"><a href="#sec-workflows">主窗口功能入口与识别流程</a></li>
-  <li class="rs-h2"><a href="#zhuchuangkoufenbie">主窗口按钮分别做什么</a></li>
-  <li class="rs-h2"><a href="#shezhiqianji">设置页当前业务逻辑</a></li>
-  <li class="rs-h2"><a href="#pdf-shibieliucheng">PDF 识别流程</a></li>
-<li class="rs-h1"><a href="#sec-automation">自动化接口与远程设备</a></li>
-  <li class="rs-h2"><a href="#benpeizhi">仅本机：推荐默认配置</a></li>
-  <li class="rs-h2"><a href="#chengshebeishiyong-tailscale-wireguard">远程设备：推荐使用 Tailscale 或 WireGuard</a></li>
-  <li class="rs-h2"><a href="#https-moshi">HTTPS 模式</a></li>
-  <li class="rs-h2"><a href="#shuomingyudong">字段说明与启动耗时</a></li>
-<li class="rs-h1"><a href="#sec-local">本地模型（MathCraft ONNX）相关问题</a></li>
-  <li class="rs-h2"><a href="#moxingwangluowenti">模型下载失败（网络问题 / 代理 / 防火墙）</a></li>
-  <li class="rs-h2"><a href="#onnxruntime-anzhuangben">onnxruntime 安装不完整或版本不对</a></li>
-  <li class="rs-h2"><a href="#cuda-gpu-xiangguan">CUDA / GPU 相关错误</a></li>
-  <li class="rs-h2"><a href="#moxing-cheng">模型缓存损坏（下载一半断电 / 杀进程）</a></li>
-  <li class="rs-h2"><a href="#onnx-moxing">显存不足导致 ONNX 模型加载失败</a></li>
-<li class="rs-h1"><a href="#sec-external">外部模型相关问题</a></li>
-  <li class="rs-h2"><a href="#benpeizhiwaibumoxingshibie">根本没配置外部模型，直接点识别然后报错</a></li>
-  <li class="rs-h2"><a href="#base-url-di">Base URL 应该填服务根地址</a></li>
-  <li class="rs-h2"><a href="#moxingdongyong">模型没预热（冷启动），第一次调用巨慢或超时</a></li>
-  <li class="rs-h2"><a href="#ollama-dong-base-url">Ollama 已启动但 Base URL 填错</a></li>
-  <li class="rs-h2"><a href="#moxing">模型名拼写错误 / 大小写不对</a></li>
-  <li class="rs-h2"><a href="#api-yong-api-key">线上 API 用了但没填 API Key</a></li>
-  <li class="rs-h2"><a href="#mineru-local-pei">MinerU Local 协议选了但是服务端没配好</a></li>
-  <li class="rs-h2"><a href="#openai-compatible-ollama">选了 OpenAI-compatible 协议但服务是 Ollama</a></li>
-  <li class="rs-h2"><a href="#zidingshishishi">自定义提示词把系统提示覆盖了导致输出格式错乱</a></li>
-<li class="rs-h1"><a href="#sec-install">安装和环境问题</a></li>
-  <li class="rs-h2"><a href="#python-ben">Python 版本不对</a></li>
-  <li class="rs-h2"><a href="#pyinstaller-hekaifaxing">PyInstaller 打包版和开发版行为不同</a></li>
-  <li class="rs-h2"><a href="#huanjing">依赖环境创建在哪里</a></li>
-  <li class="rs-h2"><a href="#pip-anzhuangtebie-pywin32-pyqt6">pip 依赖安装失败（特别是 pywin32 / PyQt6）</a></li>
-  <li class="rs-h2"><a href="#wentiprogram-files-mu">权限问题（Program Files / 系统目录）</a></li>
-  <li class="rs-h2"><a href="#yonghemoxing">卸载后如何清理用户数据和模型缓存</a></li>
-  <li class="rs-h2"><a href="#yongte">中文路径 / 用户名包含特殊字符</a></li>
-<li class="rs-h1"><a href="#sec-network">网络与更新问题</a></li>
-  <li class="rs-h2"><a href="#windows-bendi">Windows 防火墙拦截本地服务</a></li>
-  <li class="rs-h2"><a href="#gengxinjian">更新检查失败</a></li>
-  <li class="rs-h2"><a href="#ruanjian">杀毒软件误报 / 拦截</a></li>
-<li class="rs-h1"><a href="#sec-pdf">PDF 与识别效果问题</a></li>
-  <li class="rs-h2"><a href="#pdf-shibieguo">PDF 识别结果很乱</a></li>
-  <li class="rs-h2"><a href="#moshiguo">切换了输出模式但结果没变</a></li>
-  <li class="rs-h2"><a href="#fenshibie">大图片 / 高分辨率截图识别失败</a></li>
-<li class="rs-h1"><a href="#sec-usage">使用技巧与功能问题</a></li>
-  <li class="rs-h2"><a href="#kuaijiejianxiao">截图快捷键不生效</a></li>
-  <li class="rs-h2"><a href="#gongnengyongpandoc-xiangguan">导出功能不可用（Pandoc 相关）</a></li>
-  <li class="rs-h2"><a href="#shibiefa">手写识别不触发 / 延迟太高</a></li>
-  <li class="rs-h2"><a href="#shibiezhuchuangkoushimoshi">手写识别为什么不跟随主窗口的公式/文字模式</a></li>
-  <li class="rs-h2"><a href="#zidongxing">手写自动排版后文字、中文或换行不符合预期</a></li>
-  <li class="rs-h2"><a href="#taiguo">数学工作台计算结果不对</a></li>
-  <li class="rs-h2"><a href="#zhutishichang">深色/浅色主题切换后显示异常</a></li>
-  <li class="rs-h2"><a href="#pandoc-ma">Pandoc 导出中文乱码</a></li>
-<li class="rs-h1"><a href="#sec-platform">平台特定问题（Linux / macOS）</a></li>
-  <li class="rs-h2"><a href="#zhu">三端主要差异速查</a></li>
-  <li class="rs-h2"><a href="#linux-wayland-gongnengchang">Linux: Wayland 下截图功能异常</a></li>
-  <li class="rs-h2"><a href="#linux-wayland-dong">Linux: 虚拟机或 Wayland 下启动后直接中止</a></li>
-  <li class="rs-h2"><a href="#macos-dong">macOS: 首次启动被阻止</a></li>
-  <li class="rs-h2"><a href="#macos-chuang">macOS: 截图权限弹窗</a></li>
-  <li class="rs-h2"><a href="#macos-kuaijiejiangongneng">macOS: 全局快捷键是否需要辅助功能权限</a></li>
-  <li class="rs-h2"><a href="#macos-youyong-pip-pip-ben">macOS: 没有可用 pip 或 pip 版本太低</a></li>
-  <li class="rs-h2"><a href="#pingtaimu">各平台数据目录速查</a></li>
-<li class="rs-h1"><a href="#sec-conflict">与其他软件冲突</a></li>
-  <li class="rs-h2"><a href="#duoben-python-yong">多版本 Python 共存导致调用错误</a></li>
-  <li class="rs-h2"><a href="#ru-ruanjian">输入法 / 屏幕取词软件干扰截图</a></li>
-<li class="rs-h1"><a href="#sec-bugreport">如何有效反馈 Bug</a></li>
-  <li class="rs-h2"><a href="#bi">必须提供的信息</a></li>
-  <li class="rs-h2"><a href="#fankui">去哪里反馈</a></li>
-  <li class="rs-h2"><a href="#heading">可附带的诊断输出</a></li>
-<li class="rs-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
-  <li class="rs-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
-  <li class="rs-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
-  <li class="rs-h2"><a href="#kaifazhexiang">开发者验证命令注意事项</a></li>
-  <li class="rs-h2"><a href="#pyrightconfig-json">pyrightconfig.json 中的路径</a></li>
-<li class="rs-vol-divider"><span>第二卷 · Office 加载项指南</span></li>
-<li class="rs-h1"><a href="#sec-office-intro">加载项介绍与系统要求</a></li>
-  <li class="rs-h2"><a href="#office-xiang">什么是 Office 加载项</a></li>
-  <li class="rs-h2"><a href="#heading">系统要求</a></li>
-  <li class="rs-h2"><a href="#anzhuangqianjian">安装前检查</a></li>
-<li class="rs-h1"><a href="#sec-office-install">安装与注册</a></li>
-  <li class="rs-h2"><a href="#anzhuangliucheng">安装流程</a></li>
-  <li class="rs-h2"><a href="#zidinganzhuang">自定义安装路径</a></li>
-  <li class="rs-h2"><a href="#heading">卸载</a></li>
-  <li class="rs-h2"><a href="#xinganzhuang">命令行静默安装</a></li>
-<li class="rs-h1"><a href="#sec-office-word">Word 功能详解</a></li>
-  <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="rs-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
-  <li class="rs-h2"><a href="#rumoshi">三种插入模式</a></li>
-  <li class="rs-h2"><a href="#shixi">公式解析</a></li>
-  <li class="rs-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
-  <li class="rs-h2"><a href="#bianyubian">添加编号与重编号</a></li>
-  <li class="rs-h2"><a href="#fenyubian">章/节分隔符与层级编号</a></li>
-  <li class="rs-h2"><a href="#yong">交叉引用</a></li>
-  <li class="rs-h2"><a href="#shi">公式转换</a></li>
-  <li class="rs-h2"><a href="#shizhi">格式重置</a></li>
-  <li class="rs-h2"><a href="#xingnengyucankao">性能与复杂度参考</a></li>
-  <li class="rs-h2"><a href="#shibie">截图识别</a></li>
-<li class="rs-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
-  <li class="rs-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="rs-h2"><a href="#rushi">插入公式图片</a></li>
-  <li class="rs-h2"><a href="#yu">加载与删除</a></li>
-  <li class="rs-h2"><a href="#shiyushizhi">公式转换与格式重置</a></li>
-  <li class="rs-h2"><a href="#shibie">截图识别</a></li>
-<li class="rs-h1"><a href="#sec-office-editor">公式编辑器与侧边栏</a></li>
-  <li class="rs-h2"><a href="#chuang">侧边栏（任务窗格）</a></li>
-  <li class="rs-h2"><a href="#shibianjiqi">独立公式编辑器</a></li>
-  <li class="rs-h2"><a href="#pingtai">平台界面差异</a></li>
-<li class="rs-h1"><a href="#sec-office-settings">设置与帮助</a></li>
-  <li class="rs-h2"><a href="#shezhichuangkou">设置窗口</a></li>
-  <li class="rs-h2"><a href="#chuangkou">帮助窗口</a></li>
-<li class="rs-h1"><a href="#sec-office-trouble">常见问题排查</a></li>
-  <li class="rs-h2"><a href="#xianggongneng">加载项未出现在功能区</a></li>
-  <li class="rs-h2"><a href="#heading">连接桌面端失败</a></li>
-  <li class="rs-h2"><a href="#shibianjiqi">公式编辑器加载失败</a></li>
-  <li class="rs-h2"><a href="#ocr-shizheng">截图 OCR 提示"正忙"</a></li>
-  <li class="rs-h2"><a href="#xiang-office-yong">加载项被 Office 禁用</a></li>
-  <li class="rs-h2"><a href="#anzhuangchengmu">安装后出现两个无图标程序条目</a></li>
-<li class="rs-vol-divider"><span>第三卷 · 移动端使用指南</span></li>
-<li class="rs-h1"><a href="#sec-mobile-intro">LaTeXSnipper Mobile 介绍</a></li>
-  <li class="rs-h2"><a href="#xiangmudiyuben">项目地址与版本</a></li>
-  <li class="rs-h2"><a href="#yuguan">与桌面版的关系</a></li>
-  <li class="rs-h2"><a href="#heading">系统要求</a></li>
-<li class="rs-h1"><a href="#sec-mobile-features">功能与页面结构</a></li>
-  <li class="rs-h2"><a href="#shibieocr">识别页面（OCR）</a></li>
-  <li class="rs-h2"><a href="#bianjiqi">编辑器页面</a></li>
-  <li class="rs-h2"><a href="#heading">历史记录页面</a></li>
-  <li class="rs-h2"><a href="#shezhi">设置页面</a></li>
-<li class="rs-h1"><a href="#sec-mobile-diff">与桌面版的差异</a></li>
-  <li class="rs-h2"><a href="#dongyougongneng">移动端没有的桌面功能</a></li>
-  <li class="rs-h2"><a href="#dongyouyougongneng">移动端独有的桌面没有的功能</a></li>
-  <li class="rs-h2"><a href="#ji">技术栈差异</a></li>
-<li class="rs-h1"><a href="#sec-mobile-ocr">OCR 识别与输入方式</a></li>
-  <li class="rs-h2"><a href="#shibie">识别引擎架构</a></li>
-  <li class="rs-h2"><a href="#shibie">拍照识别</a></li>
-  <li class="rs-h2"><a href="#shibie">手写识别</a></li>
-  <li class="rs-h2"><a href="#waibu-api-shibie">外部 API 识别</a></li>
-<li class="rs-h1"><a href="#sec-mobile-editor">公式编辑器与键盘策略</a></li>
-  <li class="rs-h2"><a href="#mathlive-bianjiqipeizhi">MathLive 编辑器配置</a></li>
-  <li class="rs-h2"><a href="#jianpan">三态键盘切换</a></li>
-  <li class="rs-h2"><a href="#heading">符号面板</a></li>
-  <li class="rs-h2"><a href="#heading">渲染引擎</a></li>
-<li class="rs-h1"><a href="#sec-mobile-export">导出与分享</a></li>
-  <li class="rs-h2"><a href="#9-shi">9 种导出格式</a></li>
-  <li class="rs-h2"><a href="#fengongneng">分享功能</a></li>
-  <li class="rs-h2"><a href="#pandoc-wasm-shuoming">Pandoc WASM 说明</a></li>
-<li class="rs-h1"><a href="#sec-mobile-issues">移动端常见问题</a></li>
-  <li class="rs-h2"><a href="#moxing-oomnei">模型加载失败或 OOM（内存不足）</a></li>
-  <li class="rs-h2"><a href="#shibie">拍照识别卡顿或无法对焦</a></li>
-  <li class="rs-h2"><a href="#heading">手写板延迟或误触</a></li>
-  <li class="rs-h2"><a href="#pandoc-wasm-xiangguanwenti">导出失败（Pandoc WASM 相关问题）</a></li>
-  <li class="rs-h2"><a href="#ai">AI 整理连接失败</a></li>
-  <li class="rs-h2"><a href="#gengxinjian">更新检查失败</a></li>
-  <li class="rs-h2"><a href="#waibu-api-shibiepeizhiwenti">外部 API 识别配置问题</a></li>
-  <li class="rs-h2"><a href="#katex-mathjax-chang">KaTeX / MathJax 渲染异常</a></li>
-  <li class="rs-h2"><a href="#heading">历史记录丢失</a></li>
-  <li class="rs-h2"><a href="#pdf-shibie">PDF 识别页数限制</a></li>
-  <li class="rs-h2"><a href="#dongtedingxingwenti">移动端特定兼容性问题</a></li>
-  <li class="rs-h2"><a href="#dongmu">移动端数据目录</a></li>
-<li class="rs-vol-divider"><span>第四卷 · MathCraft 内部模型介绍</span></li>
-<li class="rs-h1"><a href="#sec-mathcraft-intro">MathCraft OCR 项目介绍</a></li>
-<li class="rs-h1"><a href="#sec-mathcraft-models">模型集与识别配置</a></li>
-<li class="rs-h1"><a href="#sec-mathcraft-showcase">识别效果展示</a></li>
-    <li class="rs-h3"><a href="#abstract-algebra-p-18">英文数学论文：Abstract Algebra (p.18)</a></li>
-    <li class="rs-h3"><a href="#dynamics-journal-p-5">英文期刊：Dynamics Journal (p.5)</a></li>
-    <li class="rs-h3"><a href="#lecture-note-p-1">中文讲义：Lecture Note (p.1)</a></li>
-    <li class="rs-h3"><a href="#yulimits-and-series-p-1">极限与级数：Limits and Series (p.1)</a></li>
-<li class="rs-h1"><a href="#sec-mathcraft-performance">性能参考</a></li>
-<li class="rs-h1"><a href="#sec-envvar">环境变量设置指南</a></li>
-    </ul>
-  </div>
-</div>
-</aside>
 
 <main class="manual-content" id="manualContent">
 <div class="center">
@@ -2531,6 +2350,330 @@ function copyCode(btn) {
   });
 }
 </script>
-<script>!function(){var ls=document.getElementById("sidebar"),lc=document.getElementById("sidebarClose");var rs=document.getElementById("rightSidebar"),rc=document.getElementById("rightSidebarClose");var fa=document.getElementById("floatArrow");var el=document.getElementById("edgeHoverLeft"),er=document.getElementById("edgeHoverRight");function openLS(){if(rs)rs.classList.remove("open");if(ls){ls.style.pointerEvents="";ls.classList.add("open")}}function openRS(){if(ls)ls.classList.remove("open");if(rs){rs.style.pointerEvents="";rs.classList.add("open")}}function closeAll(){if(ls){ls.classList.remove("open");ls.style.pointerEvents="none"}if(rs){rs.classList.remove("open");rs.style.pointerEvents="none"}}if(el){el.addEventListener("mouseenter",function(){openLS()})}if(er){er.addEventListener("mouseenter",function(){openRS()})}if(ls){var h=null;ls.addEventListener("mouseenter",function(){openLS();clearTimeout(h);h=null});ls.addEventListener("mouseleave",function(){h=setTimeout(function(){ls.classList.remove("open")},300)});if(lc)lc.addEventListener("click",function(ev){ev.stopPropagation();ls.classList.remove("open");ls.style.pointerEvents="none";clearTimeout(h)});}if(rs){var h2=null;rs.addEventListener("mouseenter",function(){openRS();clearTimeout(h2);h2=null});rs.addEventListener("mouseleave",function(){h2=setTimeout(function(){rs.classList.remove("open")},300)});if(rc)rc.addEventListener("click",function(ev){ev.stopPropagation();rs.classList.remove("open");rs.style.pointerEvents="none";clearTimeout(h2)});}if(fa){var side="left",arrowY=window.innerHeight*0.5;var dragging=false,startX=0,startY=0,startArrowY=0,hasMoved=false;var saved=null;try{saved=JSON.parse(localStorage.getItem("latexSnipper-floatArrow"))}catch(e){}if(saved){side=saved.side||"left";arrowY=saved.y||arrowY;arrowY=Math.max(60,Math.min(window.innerHeight-60,arrowY))}function updateArrow(){fa.classList.remove("side-left","side-right");fa.classList.add("side-"+side);if(side==="left"){fa.style.left="6px";fa.style.right="auto"}else{fa.style.right="6px";fa.style.left="auto"}fa.style.top=arrowY+"px";}function savePos(){try{localStorage.setItem("latexSnipper-floatArrow",JSON.stringify({side:side,y:arrowY}))}catch(e){}}function onDown(e){e.preventDefault();dragging=true;hasMoved=false;var cx=e.touches?e.touches[0].clientX:e.clientX;var cy=e.touches?e.touches[0].clientY:e.clientY;startX=cx;startY=cy;startArrowY=arrowY;fa.classList.add("dragging");}function onMove(e){if(!dragging)return;var cx=e.touches?e.touches[0].clientX:e.clientX;var cy=e.touches?e.touches[0].clientY:e.clientY;var dx=cx-startX,dy=cy-startY;if(Math.abs(dx)>3||Math.abs(dy)>3)hasMoved=true;arrowY=Math.max(40,Math.min(window.innerHeight-40,startArrowY+dy));fa.style.top=arrowY+"px";if(cx<window.innerWidth*0.5){fa.classList.remove("side-right");fa.classList.add("side-left")}else{fa.classList.remove("side-left");fa.classList.add("side-right")}fa.style.left=(cx<window.innerWidth*0.5)?"6px":"auto";fa.style.right=(cx>=window.innerWidth*0.5)?"6px":"auto";}function onUp(e){if(!dragging)return;dragging=false;fa.classList.remove("dragging");var cx;if(e.changedTouches)cx=e.changedTouches[0].clientX;else cx=e.clientX;side=cx<window.innerWidth*0.5?"left":"right";updateArrow();savePos();if(!hasMoved){if(side==="left"){if(ls&&ls.classList.contains("open"))closeAll();else openLS()}else{if(rs&&rs.classList.contains("open"))closeAll();else openRS()}}}fa.addEventListener("touchstart",onDown,{passive:false});fa.addEventListener("touchmove",onMove,{passive:false});fa.addEventListener("touchend",onUp);fa.addEventListener("mousedown",onDown);window.addEventListener("mousemove",function(e){if(dragging)onMove(e)});window.addEventListener("mouseup",function(e){if(dragging)onUp(e)});updateArrow();}document.addEventListener("click",function(e){if(ls&&ls.classList.contains("open")&&!ls.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();if(rs&&rs.classList.contains("open")&&!rs.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();});}();function tb(a){var r=[];a.forEach(function(l){var i=l.getAttribute("href");if(i&&i[0]==="#"){var e=document.getElementById(i.slice(1));if(e)r.push({el:e,link:l})}});return r}function hu(h,a){var t=window.scrollY+120;var c=null;for(var i=0;i<h.length;i++){var o=h[i];if(o.el.offsetTop<=t)c=o;else break}a.forEach(function(l){l.classList.remove("active")});if(c)c.link.classList.add("active")}!function(){var s=document.getElementById("sidebar");if(!s)return;var a=s.querySelectorAll(".toc-list a,.toc-list span");a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);function u(){hu(h,a)}window.addEventListener("scroll",u,{passive:true});u()}();!function(){var s=document.getElementById("rightSidebar");if(!s)return;var a=s.querySelectorAll(".rs-list a,.rs-list span");a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);function u(){hu(h,a)}window.addEventListener("scroll",u,{passive:true});u()}();!function(){var s=document.getElementById("sidebar");if(!s)return;s.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}s.classList.remove("open")}})}();!function(){var s=document.getElementById("rightSidebar");if(!s)return;s.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}s.classList.remove("open")}})}();</script>
+<script>/* LaTeXSnipper manual — single TOC drawer.
+ *
+ * One #sidebar panel can dock on either screen edge:
+ *   - hovering the left/right edge zones opens it on that side;
+ *   - the floating arrow (floatArrow) toggles it on the arrow's side;
+ *   - on coarse pointers (no hover) the arrow is the only trigger, so it
+ *     always opens the drawer regardless of which half it sits on.
+ *
+ * Generated pages must contain: #sidebar (toc), #floatArrow,
+ * #edgeHoverLeft, #edgeHoverRight, #sidebarClose.
+ */
+(() => {
+  var sidebar = document.getElementById("sidebar");
+  var sidebarClose = document.getElementById("sidebarClose");
+  var arrow = document.getElementById("floatArrow");
+  var edgeL = document.getElementById("edgeHoverLeft");
+  var edgeR = document.getElementById("edgeHoverRight");
+
+  if (!sidebar) return;
+
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  var COARSE = !finePointer.matches;
+
+  // Current dock side of the drawer.
+  var dock = "left";
+
+  // ---- drawer state ----
+  function openDock(side) {
+    dock = side;
+    sidebar.classList.remove("dock-left", "dock-right");
+    sidebar.classList.add("dock-" + side);
+    sidebar.classList.add("open");
+    if (arrow) {
+      arrow.classList.remove("side-left", "side-right");
+      arrow.classList.add("side-" + side);
+    }
+  }
+
+  function closeDrawer() {
+    sidebar.classList.remove("open");
+  }
+
+  function isOpen() {
+    return sidebar.classList.contains("open");
+  }
+
+  function toggleDock(side) {
+    if (isOpen() && dock === side) closeDrawer();
+    else openDock(side);
+  }
+
+  // ---- edge hover zones (fine pointers only) ----
+  var edgeTimer = null;
+  function keepOpenTimer() {
+    if (edgeTimer) {
+      clearTimeout(edgeTimer);
+      edgeTimer = null;
+    }
+  }
+  function scheduleClose() {
+    keepOpenTimer();
+    edgeTimer = setTimeout(closeDrawer, 450);
+  }
+
+  if (finePointer.matches) {
+    if (edgeL) {
+      edgeL.addEventListener("mouseenter", () => {
+        keepOpenTimer();
+        openDock("left");
+      });
+    }
+    if (edgeR) {
+      edgeR.addEventListener("mouseenter", () => {
+        keepOpenTimer();
+        openDock("right");
+      });
+    }
+    // Keep the drawer open while the pointer is inside it.
+    sidebar.addEventListener("mouseenter", keepOpenTimer);
+    // Track the pointer globally: while the drawer is open, closing it is
+    // scheduled whenever the pointer sits outside the drawer / edge zones /
+    // arrow, and cancelled as soon as it returns inside one of them.
+    var pointerInside = false;
+    function pointerOverOpenRegion(x, y) {
+      var rect;
+      rect = sidebar.getBoundingClientRect();
+      if (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+      )
+        return true;
+      if (edgeL) {
+        rect = edgeL.getBoundingClientRect();
+        if (
+          x >= rect.left &&
+          x <= rect.right &&
+          y >= rect.top &&
+          y <= rect.bottom
+        )
+          return true;
+      }
+      if (edgeR) {
+        rect = edgeR.getBoundingClientRect();
+        if (
+          x >= rect.left &&
+          x <= rect.right &&
+          y >= rect.top &&
+          y <= rect.bottom
+        )
+          return true;
+      }
+      if (arrow) {
+        rect = arrow.getBoundingClientRect();
+        if (
+          x >= rect.left &&
+          x <= rect.right &&
+          y >= rect.top &&
+          y <= rect.bottom
+        )
+          return true;
+      }
+      return false;
+    }
+    window.addEventListener(
+      "mousemove",
+      (ev) => {
+        if (!isOpen()) return;
+        var inside = pointerOverOpenRegion(ev.clientX, ev.clientY);
+        if (inside) {
+          pointerInside = true;
+          keepOpenTimer();
+        } else if (pointerInside) {
+          pointerInside = false;
+          scheduleClose();
+        }
+      },
+      { passive: true },
+    );
+  }
+
+  if (sidebarClose) {
+    sidebarClose.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      keepOpenTimer();
+      closeDrawer();
+    });
+  }
+
+  // Clicking a toc link scrolls and closes the drawer.
+  sidebar.addEventListener("click", (ev) => {
+    var link =
+      ev.target && ev.target.closest ? ev.target.closest('a[href^="#"]') : null;
+    if (!link) return;
+    var target = document.getElementById(link.getAttribute("href").slice(1));
+    if (target) {
+      ev.preventDefault();
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    closeDrawer();
+  });
+
+  // ---- floating arrow (drag to re-position / click to toggle) ----
+  if (arrow) {
+    var side = "left";
+    var arrowY = Math.max(
+      80,
+      Math.min(window.innerHeight - 80, window.innerHeight * 0.5),
+    );
+    var dragging = false;
+    var startX = 0;
+    var startY = 0;
+    var startArrowY = 0;
+    var moved = false;
+
+    try {
+      var saved = JSON.parse(
+        localStorage.getItem("latexSnipper-floatArrow") || "null",
+      );
+      if (saved) {
+        side = saved.side === "right" ? "right" : "left";
+        if (typeof saved.y === "number") {
+          arrowY = Math.max(60, Math.min(window.innerHeight - 60, saved.y));
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+
+    function placeArrow() {
+      arrow.classList.remove("side-left", "side-right");
+      arrow.classList.add("side-" + side);
+      if (side === "left") {
+        arrow.style.left = "6px";
+        arrow.style.right = "auto";
+      } else {
+        arrow.style.right = "6px";
+        arrow.style.left = "auto";
+      }
+      arrow.style.top = arrowY + "px";
+    }
+    function saveArrow() {
+      try {
+        localStorage.setItem(
+          "latexSnipper-floatArrow",
+          JSON.stringify({ side: side, y: arrowY }),
+        );
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function onDown(ev) {
+      ev.preventDefault();
+      dragging = true;
+      moved = false;
+      var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      var cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      startX = cx;
+      startY = cy;
+      startArrowY = arrowY;
+      arrow.classList.add("dragging");
+    }
+    function onMove(ev) {
+      if (!dragging) return;
+      var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      var cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+      var dx = cx - startX,
+        dy = cy - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      arrowY = Math.max(
+        40,
+        Math.min(window.innerHeight - 40, startArrowY + dy),
+      );
+      arrow.style.top = arrowY + "px";
+      if (cx < window.innerWidth * 0.5) {
+        if (side !== "left") {
+          side = "left";
+          placeArrow();
+        }
+      } else if (side !== "right") {
+        side = "right";
+        placeArrow();
+      }
+    }
+    function onUp(ev) {
+      if (!dragging) return;
+      dragging = false;
+      arrow.classList.remove("dragging");
+      var cx;
+      if (ev.changedTouches) cx = ev.changedTouches[0].clientX;
+      else cx = ev.clientX;
+      side = cx < window.innerWidth * 0.5 ? "left" : "right";
+      placeArrow();
+      saveArrow();
+      if (!moved) {
+        // A plain click on the arrow toggles the drawer.
+        if (COARSE) openDock(side);
+        else toggleDock(side);
+      }
+    }
+
+    arrow.addEventListener("touchstart", onDown, { passive: false });
+    arrow.addEventListener("touchmove", onMove, { passive: false });
+    arrow.addEventListener("touchend", onUp);
+    arrow.addEventListener("mousedown", onDown);
+    window.addEventListener("mousemove", (ev) => {
+      if (dragging) onMove(ev);
+    });
+    window.addEventListener("mouseup", (ev) => {
+      if (dragging) onUp(ev);
+    });
+
+    // Show the drawer on the arrow's side without a drag on coarse screens.
+    if (COARSE) {
+      arrow.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        openDock(side);
+      });
+    }
+
+    placeArrow();
+  }
+
+  // Clicking anywhere else closes the drawer.
+  document.addEventListener("click", (ev) => {
+    if (!isOpen()) return;
+    var hit = ev.target;
+    if (sidebar.contains(hit)) return;
+    if (arrow && arrow.contains(hit)) return;
+    if ((edgeL && edgeL.contains(hit)) || (edgeR && edgeR.contains(hit)))
+      return;
+    closeDrawer();
+  });
+
+  // ---- scroll spy: highlight the heading currently in view ----
+  var links = Array.prototype.slice.call(
+    sidebar.querySelectorAll('a[href^="#"]'),
+  );
+  var anchors = links
+    .map((link) => {
+      var el = document.getElementById(link.getAttribute("href").slice(1));
+      return el ? { el: el, link: link } : null;
+    })
+    .filter(Boolean);
+
+  function highlight() {
+    if (!anchors.length) return;
+    var probe = window.scrollY + 140;
+    var current = null;
+    for (var i = 0; i < anchors.length; i++) {
+      if (anchors[i].el.offsetTop <= probe) current = anchors[i];
+      else break;
+    }
+    for (var j = 0; j < anchors.length; j++) {
+      anchors[j].link.classList.toggle("active", anchors[j] === current);
+    }
+  }
+  if (anchors.length) {
+    window.addEventListener("scroll", highlight, { passive: true });
+    highlight();
+  }
+})();
+</script>
 </body>
 </html>

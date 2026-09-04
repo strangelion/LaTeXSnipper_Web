@@ -1090,122 +1090,10 @@ def main():
         "setAttribute('data-theme',s)}catch(e){}</script>"
     )
 
-    sidebar_script = (
-        '<script>'
-        '!function(){'
-        'var ls=document.getElementById("sidebar"),lc=document.getElementById("sidebarClose");'
-        'var rs=document.getElementById("rightSidebar"),rc=document.getElementById("rightSidebarClose");'
-        'var fa=document.getElementById("floatArrow");'
-        'var el=document.getElementById("edgeHoverLeft"),er=document.getElementById("edgeHoverRight");'
-        'function openLS(){if(rs)rs.classList.remove("open");if(ls){ls.style.pointerEvents="";ls.classList.add("open")}}'
-        'function openRS(){if(ls)ls.classList.remove("open");if(rs){rs.style.pointerEvents="";rs.classList.add("open")}}'
-        'function closeAll(){if(ls){ls.classList.remove("open");ls.style.pointerEvents="none"}if(rs){rs.classList.remove("open");rs.style.pointerEvents="none"}}'
-        # Edge hover zones - mouse touches screen edge to open sidebar
-        'if(el){el.addEventListener("mouseenter",function(){openLS()})}'
-        'if(er){er.addEventListener("mouseenter",function(){openRS()})}'
-        # Sidebar self hover
-        'if(ls){'
-        'var h=null;'
-        'ls.addEventListener("mouseenter",function(){openLS();clearTimeout(h);h=null});'
-        'ls.addEventListener("mouseleave",function(){h=setTimeout(function(){ls.classList.remove("open")},300)});'
-        'if(lc)lc.addEventListener("click",function(ev){ev.stopPropagation();ls.classList.remove("open");ls.style.pointerEvents="none";clearTimeout(h)});'
-        '}'
-        'if(rs){'
-        'var h2=null;'
-        'rs.addEventListener("mouseenter",function(){openRS();clearTimeout(h2);h2=null});'
-        'rs.addEventListener("mouseleave",function(){h2=setTimeout(function(){rs.classList.remove("open")},300)});'
-        'if(rc)rc.addEventListener("click",function(ev){ev.stopPropagation();rs.classList.remove("open");rs.style.pointerEvents="none";clearTimeout(h2)});'
-        '}'
-        'if(fa){'
-        'var side="left",arrowY=window.innerHeight*0.5;'
-        'var dragging=false,startX=0,startY=0,startArrowY=0,hasMoved=false;'
-        'var saved=null;try{saved=JSON.parse(localStorage.getItem("latexSnipper-floatArrow"))}catch(e){}'
-        'if(saved){side=saved.side||"left";arrowY=saved.y||arrowY;arrowY=Math.max(60,Math.min(window.innerHeight-60,arrowY))}'
-        'function updateArrow(){'
-        'fa.classList.remove("side-left","side-right");'
-        'fa.classList.add("side-"+side);'
-        'if(side==="left"){fa.style.left="6px";fa.style.right="auto"}'
-        'else{fa.style.right="6px";fa.style.left="auto"}'
-        'fa.style.top=arrowY+"px";'
-        '}'
-        'function savePos(){try{localStorage.setItem("latexSnipper-floatArrow",JSON.stringify({side:side,y:arrowY}))}catch(e){}}'
-        'function onDown(e){'
-        'e.preventDefault();dragging=true;hasMoved=false;'
-        'var cx=e.touches?e.touches[0].clientX:e.clientX;'
-        'var cy=e.touches?e.touches[0].clientY:e.clientY;'
-        'startX=cx;startY=cy;startArrowY=arrowY;'
-        'fa.classList.add("dragging");'
-        '}'
-        'function onMove(e){'
-        'if(!dragging)return;'
-        'var cx=e.touches?e.touches[0].clientX:e.clientX;'
-        'var cy=e.touches?e.touches[0].clientY:e.clientY;'
-        'var dx=cx-startX,dy=cy-startY;'
-        'if(Math.abs(dx)>3||Math.abs(dy)>3)hasMoved=true;'
-        'arrowY=Math.max(40,Math.min(window.innerHeight-40,startArrowY+dy));'
-        'fa.style.top=arrowY+"px";'
-        'if(cx<window.innerWidth*0.5){fa.classList.remove("side-right");fa.classList.add("side-left")}'
-        'else{fa.classList.remove("side-left");fa.classList.add("side-right")}'
-        'fa.style.left=(cx<window.innerWidth*0.5)?"6px":"auto";'
-        'fa.style.right=(cx>=window.innerWidth*0.5)?"6px":"auto";'
-        '}'
-        'function onUp(e){'
-        'if(!dragging)return;'
-        'dragging=false;fa.classList.remove("dragging");'
-        'var cx;if(e.changedTouches)cx=e.changedTouches[0].clientX;else cx=e.clientX;'
-        'side=cx<window.innerWidth*0.5?"left":"right";'
-        'updateArrow();savePos();'
-        'if(!hasMoved){'
-        'if(side==="left"){if(ls&&ls.classList.contains("open"))closeAll();else openLS()}'
-        'else{if(rs&&rs.classList.contains("open"))closeAll();else openRS()}'
-        '}'
-        '}'
-        'fa.addEventListener("touchstart",onDown,{passive:false});'
-        'fa.addEventListener("touchmove",onMove,{passive:false});'
-        'fa.addEventListener("touchend",onUp);'
-        'fa.addEventListener("mousedown",onDown);'
-        'window.addEventListener("mousemove",function(e){if(dragging)onMove(e)});'
-        'window.addEventListener("mouseup",function(e){if(dragging)onUp(e)});'
-        'updateArrow();'
-        '}'
-        'document.addEventListener("click",function(e){'
-        'if(ls&&ls.classList.contains("open")&&!ls.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();'
-        'if(rs&&rs.classList.contains("open")&&!rs.contains(e.target)&&e.target!==fa&&!fa.contains(e.target))closeAll();'
-        '});'
-        '}();'
-        'function tb(a){var r=[];a.forEach(function(l){var i=l.getAttribute("href");if(i&&i[0]==="#"){var e=document.getElementById(i.slice(1));if(e)r.push({el:e,link:l})}});return r}'
-        'function hu(h,a){var t=window.scrollY+120;var c=null;for(var i=0;i<h.length;i++){var o=h[i];if(o.el.offsetTop<=t)c=o;else break}'
-        'a.forEach(function(l){l.classList.remove("active")});if(c)c.link.classList.add("active")}'
-        '!function(){'
-        'var s=document.getElementById("sidebar");if(!s)return;var a=s.querySelectorAll(".toc-list a,.toc-list span");'
-        'a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);'
-        'function u(){hu(h,a)}'
-        'window.addEventListener("scroll",u,{passive:true});u()'
-        '}();'
-        '!function(){'
-        'var s=document.getElementById("rightSidebar");if(!s)return;var a=s.querySelectorAll(".rs-list a,.rs-list span");'
-        'a=Array.from(a).filter(function(l){return l.tagName==="A"});if(!a.length)return;var h=tb(a);'
-        'function u(){hu(h,a)}'
-        'window.addEventListener("scroll",u,{passive:true});u()'
-        '}();'
-        '!function(){'
-        'var s=document.getElementById("sidebar");'
-        'if(!s)return;'
-        's.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){'
-        'var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}'
-        's.classList.remove("open")'
-        '}})'
-        '}();'
-        '!function(){'
-        'var s=document.getElementById("rightSidebar");'
-        'if(!s)return;'
-        's.addEventListener("click",function(e){var l=e.target.closest("a");if(l&&l.getAttribute("href")&&l.getAttribute("href")[0]==="#"){'
-        'var t=document.getElementById(l.getAttribute("href").slice(1));if(t){e.preventDefault();t.scrollIntoView({behavior:"smooth",block:"start"})}'
-        's.classList.remove("open")'
-        '}})'
-        '}();'
-        '</script>'
-    )
+    with open('js/manual-toc.js', encoding='utf-8') as _manual_toc_f:
+        _manual_toc_js = _manual_toc_f.read()
+    sidebar_script = '<script>' + _manual_toc_js + '</script>'
+
     manual_script = (
         '<script>'
         '!function(){'
@@ -1265,7 +1153,6 @@ def main():
         return '\n'.join(lines)
 
     toc_html = render_toc_items(toc_items, vol_divisions, 'toc')
-    right_toc_html = render_toc_items(toc_items, vol_divisions, 'rs')
 
     sidebar_html = f"""<nav class="sidebar lg-surface lg-surface--regular" id="sidebar">
   <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
@@ -1278,18 +1165,6 @@ def main():
   </div>
 </div>
 </nav>"""
-
-    right_sidebar_html = f"""<aside class="right-sidebar lg-surface lg-surface--regular" id="rightSidebar">
-  <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
-  <div class="lg-content sidebar-material-content">
-    <div class="rs-header"><button class="rs-close" id="rightSidebarClose" title="收起" aria-label="收起目录"><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button><svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 目录</div>
-  <div class="rs-inner">
-    <ul class="rs-list" id="rsList">
-{right_toc_html}
-    </ul>
-  </div>
-</div>
-</aside>"""
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN" class="manual-page">
@@ -1334,11 +1209,8 @@ def main():
 <div class="edge-hover-left" id="edgeHoverLeft"></div>
 <div class="edge-hover-right" id="edgeHoverRight"></div>
 
-<!-- 左侧导航栏（鼠标悬停打开） -->
+<!-- 目录导航（单面板，可停靠左右两侧） -->
 {sidebar_html}
-
-<!-- 右侧导航栏（鼠标悬停打开） -->
-{right_sidebar_html}
 
 <main class="manual-content" id="manualContent">
 {content}

@@ -13,10 +13,10 @@
   --text-shadow: none;
   --canvas-bg: #f6f5f1;
   --card-bg: #fbfaf7;
-  --card-border: rgba(24, 32, 44, 0.10);
+  --card-border: rgba(24, 32, 44, 0.1);
   --card-text: #475569;
   --card-shadow: 0 4px 16px rgba(24, 32, 44, 0.06);
-  --card-shadow-hover: 0 8px 28px rgba(24, 32, 44, 0.10);
+  --card-shadow-hover: 0 8px 28px rgba(24, 32, 44, 0.1);
 
   /* Canvas / grid */
   --bg1: #f6f5f1;
@@ -56,7 +56,11 @@ body {
 .back-to-top,
 .palette-selector,
 .theme-toggle {
-  transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    color 0.35s ease;
 }
 
 * {
@@ -64,7 +68,6 @@ body {
   -webkit-font-smoothing: inherit;
   -moz-osx-font-smoothing: inherit;
 }
-
 
 /* 跳过导航链接（无障碍） */
 .skip-link {
@@ -180,7 +183,9 @@ main {
   align-items: center;
   gap: 6px;
   color: var(--site-ink-soft);
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 
 .theme-toggle:hover {
@@ -206,7 +211,9 @@ main {
   padding: 0.4rem 0.6rem;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
   appearance: auto;
 }
 
@@ -244,7 +251,9 @@ main {
   right: 0;
   z-index: 40;
   border-bottom: 1px solid var(--border-color);
-  transition: background 0.4s ease, border-color 0.4s ease;
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease;
   will-change: transform;
   transform: translateZ(0);
 }
@@ -278,7 +287,7 @@ main {
 }
 
 .main-nav a::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -325,7 +334,10 @@ main {
   font-weight: 600;
   font-size: 0.95rem;
   text-decoration: none;
-  transition: background 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease;
   position: relative;
   overflow: hidden;
 }
@@ -420,14 +432,18 @@ main {
 
 /* 装饰性光晕 */
 .hero-layout::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: min(500px, 80vw);
   height: min(500px, 80vw);
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(37, 99, 235, 0.08) 0%,
+    transparent 70%
+  );
   border-radius: 50%;
   pointer-events: none;
   animation: heroGlow 6s ease-in-out infinite alternate;
@@ -449,7 +465,12 @@ main {
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0 0 0.6rem;
-  background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 50%, var(--fg) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--fg) 0%,
+    var(--accent) 50%,
+    var(--fg) 100%
+  );
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -460,8 +481,13 @@ main {
 }
 
 @keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .hero-sub {
@@ -483,8 +509,13 @@ main {
 }
 
 @keyframes blink {
-  0%, 100% { border-color: var(--accent); }
-  50% { border-color: transparent; }
+  0%,
+  100% {
+    border-color: var(--accent);
+  }
+  50% {
+    border-color: transparent;
+  }
 }
 
 .hero-ctas {
@@ -507,8 +538,6 @@ main {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
 }
-
-
 
 /* ===== Carousel (PPT-style horizontal slides) ===== */
 .carousel-section {
@@ -555,7 +584,9 @@ main {
   transform-style: preserve-3d;
   transform: scale(0.82);
   opacity: 0.88;
-  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease;
+  transition:
+    transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.4s ease;
   will-change: transform, opacity;
 }
 
@@ -589,11 +620,16 @@ main {
   justify-content: center;
   align-items: center;
   text-align: center;
-  transition: opacity 0.3s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  transition:
+    opacity 0.3s ease,
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
 }
 
 .carousel-card.active .carousel-front {
-  box-shadow: 0 12px 48px rgba(37, 99, 235, 0.1), var(--card-shadow);
+  box-shadow:
+    0 12px 48px rgba(37, 99, 235, 0.1),
+    var(--card-shadow);
   border-color: rgba(37, 99, 235, 0.15);
 }
 
@@ -693,7 +729,10 @@ main {
   background: var(--card-bg);
   color: var(--accent);
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .carousel-flip-btn:hover {
@@ -727,7 +766,10 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: var(--card-shadow);
   opacity: 0.85;
 }
@@ -768,7 +810,12 @@ main {
   background: var(--card-bg);
   color: var(--muted);
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   padding: 0;
   display: flex;
   align-items: center;
@@ -853,7 +900,11 @@ main {
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--fg);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.3s ease, border-color 0.3s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    background 0.3s ease,
+    border-color 0.3s ease;
   will-change: transform, opacity;
 }
 
@@ -1110,7 +1161,12 @@ main {
   border: 1px solid var(--border-color);
   background: var(--card-bg);
   color: var(--fg);
-  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    box-shadow 0.25s ease;
   box-shadow: var(--card-shadow);
 }
 
@@ -1160,10 +1216,15 @@ main {
 }
 
 @keyframes fadeInLabel {
-  from { opacity: 0; transform: translateX(4px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
-
 
 /* --- 回到顶部按钮 --- */
 .back-to-top {
@@ -1179,7 +1240,12 @@ main {
   cursor: pointer;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  transform: translateY(14px) scale(0.92);
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease,
+    transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+    box-shadow 0.3s ease;
   z-index: 1000;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -1198,7 +1264,8 @@ main {
 }
 
 @keyframes btt-scroll {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -1209,15 +1276,16 @@ main {
 .back-to-top.visible {
   opacity: 1;
   visibility: visible;
+  transform: translateY(0) scale(1);
 }
 
-.back-to-top:hover {
-  transform: scale(1.12);
+.back-to-top.visible:hover {
+  transform: translateY(0) scale(1.12);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
 }
 
-.back-to-top:active {
-  transform: scale(0.95);
+.back-to-top.visible:active {
+  transform: translateY(0) scale(0.95);
 }
 
 .back-to-top.faded {
@@ -1226,5 +1294,5 @@ main {
 
 .back-to-top.faded:hover {
   opacity: 1;
-  transform: scale(1.12);
+  transform: translateY(0) scale(1.12);
 }

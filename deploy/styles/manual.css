@@ -1,4 +1,3 @@
-
 html.manual-page {
   min-height: 100%;
   background:
@@ -7,11 +6,7 @@ html.manual-page {
       color-mix(in srgb, var(--site-blue) 8%, transparent),
       transparent 72%
     ),
-    linear-gradient(
-      180deg,
-      var(--site-bg),
-      var(--site-bg-alt)
-    );
+    linear-gradient(180deg, var(--site-bg), var(--site-bg-alt));
 }
 
 body.manual {
@@ -56,8 +51,7 @@ body.manual {
   gap: 6px;
 }
 
-.sidebar,
-.right-sidebar {
+.sidebar {
   position: fixed;
   z-index: 950;
   top: calc(var(--site-header-height) + 8px);
@@ -66,7 +60,9 @@ body.manual {
   color: var(--site-ink-soft);
   opacity: 0;
   pointer-events: none;
-  transition: transform 280ms var(--site-ease), opacity 220ms ease;
+  transition:
+    transform 280ms var(--site-ease),
+    opacity 220ms ease;
 }
 
 .sidebar {
@@ -74,13 +70,13 @@ body.manual {
   transform: translateX(-102%);
 }
 
-.right-sidebar {
+.sidebar.dock-right {
   right: 12px;
+  left: auto;
   transform: translateX(102%);
 }
 
-.manual:has(.site-header.is-auto-hidden) .sidebar,
-.manual:has(.site-header.is-auto-hidden) .right-sidebar {
+.manual:has(.site-header.is-auto-hidden) .sidebar {
   top: 12px;
 }
 
@@ -91,8 +87,7 @@ body.manual {
   overflow: hidden;
 }
 
-.sidebar.open,
-.right-sidebar.open {
+.sidebar.open {
   opacity: 1;
   pointer-events: auto;
   transform: translateX(0);
@@ -178,7 +173,9 @@ body.manual {
   font-size: 0.78rem;
   line-height: 1.42;
   text-decoration: none;
-  transition: color 140ms ease, background-color 140ms ease;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease;
 }
 
 .toc-list a:hover,
@@ -221,7 +218,7 @@ body.manual {
 .toc-vol-divider span,
 .rs-vol-divider span {
   color: var(--site-blue);
-  font: 700 0.66rem/1.35 var(--site-mono);
+  font: 700 0.66rem / 1.35 var(--site-mono);
   letter-spacing: 0.04em;
 }
 
@@ -237,15 +234,25 @@ body.manual {
   cursor: grab;
   user-select: none;
   touch-action: none;
-  transition: transform 180ms var(--site-ease), border-color 180ms ease, left 360ms var(--site-ease), right 360ms var(--site-ease);
+  transition:
+    transform 180ms var(--site-ease),
+    border-color 180ms ease,
+    left 360ms var(--site-ease),
+    right 360ms var(--site-ease);
 }
 
 .manual:has(.sidebar.open) .float-arrow.side-left {
-  left: min(calc(var(--manual-sidebar-width) - 10px), calc(100vw - 54px)) !important;
+  left: min(
+    calc(var(--manual-sidebar-width) - 10px),
+    calc(100vw - 54px)
+  ) !important;
 }
 
-.manual:has(.right-sidebar.open) .float-arrow.side-right {
-  right: min(calc(var(--manual-sidebar-width) - 10px), calc(100vw - 54px)) !important;
+.manual:has(.sidebar.dock-right.open) .float-arrow.side-right {
+  right: min(
+    calc(var(--manual-sidebar-width) - 10px),
+    calc(100vw - 54px)
+  ) !important;
 }
 
 .float-arrow:hover {
@@ -284,8 +291,12 @@ body.manual {
   width: 12px;
 }
 
-.edge-hover-left { left: 0; }
-.edge-hover-right { right: 0; }
+.edge-hover-left {
+  left: 0;
+}
+.edge-hover-right {
+  right: 0;
+}
 
 .volume-divider {
   margin: 4.8rem 0 2.4rem;
@@ -303,7 +314,12 @@ body.manual {
   position: absolute;
   inset: 50% 0 auto;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--site-line-strong), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--site-line-strong),
+    transparent
+  );
 }
 
 .volume-label {
@@ -314,7 +330,7 @@ body.manual {
   border-radius: 999px;
   color: var(--site-blue);
   background: var(--site-bg);
-  font: 700 0.73rem/1.25 var(--site-mono);
+  font: 700 0.73rem / 1.25 var(--site-mono);
 }
 
 .back-to-top {
@@ -331,19 +347,39 @@ body.manual {
   color: var(--site-blue);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(10px);
+  transform: translateY(16px) scale(0.9);
   cursor: pointer;
-  transition: opacity 180ms ease, transform 180ms var(--site-ease);
+  transition:
+    opacity 260ms ease,
+    transform 420ms var(--site-ease);
 }
 
 .back-to-top.visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .back-to-top.faded {
   opacity: 0.42;
+}
+
+.back-to-top .btt-icon {
+  transition: transform 220ms var(--site-ease);
+}
+
+@keyframes btt-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.back-to-top:hover .btt-icon {
+  animation: btt-float 900ms ease-in-out infinite;
 }
 
 @media (max-width: 820px) {
@@ -368,11 +404,14 @@ body.manual {
     padding: 30px 0 78px;
   }
 
-  .sidebar,
-  .right-sidebar {
+  .sidebar {
     top: calc(var(--site-header-height) + 6px);
     bottom: 8px;
     width: calc(100vw - 44px);
+  }
+
+  .sidebar.dock-right {
+    right: 8px;
   }
 
   .float-arrow,
@@ -425,7 +464,6 @@ body.manual {
 .manual-cover-visual > .center {
   margin: 0;
 }
-
 
 /* =========================================================
    Mobile manual
@@ -490,16 +528,16 @@ body.manual {
     display: none;
   }
 
-  /* 手机上只保留左侧目录 */
-  .right-sidebar {
-    display: none;
-  }
-
   .sidebar {
     top: calc(var(--site-header-height) + 6px);
     bottom: 8px;
     left: 8px;
     width: min(88vw, 340px);
+  }
+
+  .sidebar.dock-right {
+    right: 8px;
+    left: auto;
   }
 
   /* 减少正文标题的超大间距 */
