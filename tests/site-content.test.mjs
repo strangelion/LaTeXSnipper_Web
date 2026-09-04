@@ -85,10 +85,10 @@ const releaseManifest = JSON.parse(await readFile(
 const releaseLabel = `v${releaseManifest.version}${releaseManifest.channel ? ` ${releaseManifest.channel}` : ''}`;
 
 test('homepage lists all project entries', () => {
-  assert.match(contentSource, /name: 'LaTeXSnipper Desktop'/);
-  assert.match(contentSource, /name: 'LaTeXSnipper Mobile'/);
-  assert.match(contentSource, /name: 'LaTeXSnipper Office'/);
-  assert.match(contentSource, /name: 'LaTeXSnipper Core'/);
+  assert.match(contentSource, /name: "LaTeXSnipper Desktop"/);
+  assert.match(contentSource, /name: "LaTeXSnipper Mobile"/);
+  assert.match(contentSource, /name: "LaTeXSnipper Office"/);
+  assert.match(contentSource, /name: "LaTeXSnipper Core"/);
 });
 
 test('homepage images use imports, not inline paths', () => {
