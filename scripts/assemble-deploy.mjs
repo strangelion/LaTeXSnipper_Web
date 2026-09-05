@@ -33,6 +33,12 @@ const HOMEPAGE_CRITICAL_ASSETS = [
 const REQUIRED_PATHS = [
   'index.html',
   'assets/',
+  'assets/demos/screenshot-recognition.webp',
+  'assets/demos/screenshot-recognition-poster.jpg',
+  'assets/demos/image-recognition.webp',
+  'assets/demos/image-recognition-poster.jpg',
+  'assets/demos/pdf-recognition.webp',
+  'assets/demos/pdf-recognition-poster.jpg',
   ...HOMEPAGE_CRITICAL_ASSETS,
   'assets/hero-workspace-',
   'ocr.html',

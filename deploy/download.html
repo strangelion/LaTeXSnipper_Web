@@ -348,5 +348,50 @@
 
     initializeDownloadPage()
   </script>
+
+  <script type="module" data-download-device-presentation>
+    import { detectCurrentDevice } from './js/device-detection.js';
+
+    function normalizeNonWindowsBundleCard() {
+      if (document.documentElement.dataset.detectedPlatform === 'windows') return true;
+
+      const card = document.querySelector('[data-asset-id="windows-x86_64-bundle"]');
+      if (!card) return false;
+
+      card.removeAttribute('data-lg-interactive');
+      card.classList.remove('lg-surface', 'lg-surface--panel', 'is-pointer-lit');
+      card.style.removeProperty('--lg-pointer-x');
+      card.style.removeProperty('--lg-pointer-y');
+      card.style.removeProperty('--lg-pointer-dx');
+      card.style.removeProperty('--lg-pointer-dy');
+
+      const content = card.querySelector(':scope > .lg-content');
+      if (content) {
+        while (content.firstChild) card.insertBefore(content.firstChild, content);
+        content.remove();
+      }
+
+      card.querySelectorAll(':scope > .lg-backdrop, :scope > .lg-optics')
+        .forEach((element) => element.remove());
+      return true;
+    }
+
+    try {
+      const detectedDevice = await detectCurrentDevice();
+      document.documentElement.dataset.detectedPlatform = detectedDevice.platform || 'unknown';
+
+      if (!normalizeNonWindowsBundleCard()) {
+        const bundleObserver = new MutationObserver(() => {
+          if (!normalizeNonWindowsBundleCard()) return;
+          bundleObserver.disconnect();
+        });
+        bundleObserver.observe(document.documentElement, { childList: true, subtree: true });
+        window.setTimeout(() => bundleObserver.disconnect(), 10_000);
+      }
+    } catch (error) {
+      document.documentElement.dataset.detectedPlatform = 'unknown';
+      console.warn('Unable to apply device-aware download presentation:', error);
+    }
+  </script>
 </body>
 </html>
