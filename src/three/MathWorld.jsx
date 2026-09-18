@@ -6,7 +6,7 @@ import { memo, useEffect, useRef } from "react";
  * A 3D field of floating math-glyph sprites (∫ ∑ √ π ∞ λ θ ∂ Δ ∇ …) drifting in
  * a light volume, with:
  *   - mouse parallax on the camera (the world leans toward the pointer)
- *   - a scroll-driven "evolution" that gently concentrates the field
+ *   - an intersection-driven "evolution" that gently concentrates the field
  *   - theme-aware colour (blue on paper, light-blue on ink)
  *   - performance guards: capped DPR, pause off-screen / tab-hidden, a single
  *     static frame under `prefers-reduced-motion`, and three.js loaded lazily
@@ -78,8 +78,10 @@ function MathWorld() {
     const clock = { last: 0 };
 
     const onVisible = (entries) => {
+      const entry = entries[0];
+      state.spread = 0.55 + entry.intersectionRatio * 0.45;
       if (reducedMotion || !renderer) return;
-      entries[0].isIntersecting && !document.hidden ? start() : stop();
+      entry.isIntersecting && !document.hidden ? start() : stop();
     };
     const onVisibility = () => {
       if (reducedMotion || !renderer) return;
@@ -89,12 +91,6 @@ function MathWorld() {
       state.mouse.x = (e.clientX / state.w) * 2 - 1;
       state.mouse.y = -(e.clientY / state.h) * 2 + 1;
     };
-    const onScroll = () => {
-      const range = Math.max(1, state.h);
-      const p = Math.min(1, Math.max(0, window.scrollY / range));
-      state.spread = 1 - p * 0.45;
-    };
-
     const onResize = () => {
       if (cancelled || !renderer) return;
       const r = host.getBoundingClientRect();
@@ -176,7 +172,7 @@ function MathWorld() {
 
       scene.add(new THREE.AmbientLight(0xffffff, 1.4));
 
-      const color = isDark() ? "#a8c6ff" : "#2c66e8";
+      const color = isDark() ? "#8b7cff" : "#6c63ff";
       const count = state.w < 768 ? 18 : 30;
       const glyphSet = [...new Set(GLYPHS)];
 
@@ -214,11 +210,12 @@ function MathWorld() {
       if (reducedMotion) renderer.render(scene, camera);
       else start();
 
-      observer = new IntersectionObserver(onVisible, { threshold: 0.05 });
+      observer = new IntersectionObserver(onVisible, {
+        threshold: [0, 0.05, 0.25, 0.5, 0.75, 1],
+      });
       observer.observe(host);
       window.addEventListener("resize", onResize);
       window.addEventListener("pointermove", onPointer, { passive: true });
-      window.addEventListener("scroll", onScroll, { passive: true });
       document.addEventListener("visibilitychange", onVisibility);
     });
 
@@ -229,7 +226,6 @@ function MathWorld() {
       observer?.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       for (const s of state.sprites) {
         s.material?.dispose();

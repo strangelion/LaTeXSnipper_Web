@@ -7,9 +7,15 @@ import {
   workflowSteps,
 } from "../data/siteContent";
 import { useReleaseInfo } from "../hooks/useReleaseInfo";
-import DemosSection from "./DemosSection";
 import MathWorld from "../three/MathWorld";
 import MathPlayground from "../p5/MathPlayground";
+import AstSection from "./scenes/AstSection";
+import CaptureSection from "./scenes/CaptureSection";
+import EcosystemScene from "./scenes/EcosystemSection";
+import FinalCta from "./scenes/FinalCta";
+import RecognizeSection from "./scenes/RecognizeSection";
+import TransformSection from "./scenes/TransformSection";
+import WorkspaceSection from "./scenes/WorkspaceSection";
 import "../styles/landing.css";
 
 const GITHUB_URL = "https://github.com/SakuraMathcraft/LaTeXSnipper";
@@ -233,32 +239,9 @@ function GaussianIntegralFormula() {
 
 function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [mobileMenuMaterial, setMobileMenuMaterial] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const headerRef = useRef(null);
-  const menuOpenRef = useRef(false);
-
-  useEffect(() => {
-    menuOpenRef.current = menuOpen;
-    if (menuOpen) setHidden(false);
-  }, [menuOpen]);
-
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 40);
-      const delta = y - lastY;
-      if (y > 200 && delta > 4 && !menuOpenRef.current) setHidden(true);
-      else if (y < 80 || delta < -4) setHidden(false);
-      lastY = y;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 720px)");
@@ -295,7 +278,7 @@ function SiteHeader() {
   return (
     <header
       ref={headerRef}
-      className={`site-header ${scrolled ? "is-scrolled" : ""} ${hidden ? "is-auto-hidden" : ""}`}
+      className="site-header"
     >
       <LiquidGlassSurface
         className="ls-container site-header-inner"
@@ -338,10 +321,10 @@ function SiteHeader() {
             <span className="lg-rim" />
           </span>
           <div className="lg-content">
-            <a href="#product" onClick={closeMenu}>
+            <a href="#workspace" onClick={closeMenu}>
               产品
             </a>
-            <a href="#workflow" onClick={closeMenu}>
+            <a href="#capture" onClick={closeMenu}>
               工作流
             </a>
             <a href="#ecosystem" onClick={closeMenu}>
@@ -386,23 +369,12 @@ function HeroSection() {
   return (
     <section className="hero-section" aria-labelledby="hero-title">
       <MathWorld />
-      <div className="hero-wordmark" aria-hidden="true">
-        MATHEMATICS
-      </div>
       <div className="ls-container hero-grid">
         <div className="hero-copy reveal">
-          <span className="scene-index">MATHEMATICAL UNIVERSE</span>
-          <h1 id="hero-title">
-            把数学，
-            <br />
-            从图像重新
-            <br />
-            变成知识。
-          </h1>
-          <p className="hero-kicker">Capture · Understand · Edit · Transform</p>
+          <span className="scene-index">LOCAL-FIRST MATHEMATICAL WORKSPACE</span>
+          <h1 id="hero-title">把数学，从图像重新变成知识。</h1>
           <p className="hero-description">
-            从截图、图片、PDF 与手写输入开始，识别数学内容，
-            在工作台中编辑与计算，再导出到文档、代码与 Office 工作流。
+            从截图、图片、PDF 与手写输入开始，识别、理解并转入你的数学工作流。
           </p>
           <div className="hero-actions">
             <a className="button button-primary" href="/download.html">
@@ -412,9 +384,6 @@ function HeroSection() {
               在线识别
             </a>
           </div>
-          <p className="hero-trust">
-            MathCraft OCR 可本地运行 · Windows 主平台 · 开源
-          </p>
         </div>
 
         <div
@@ -919,16 +888,13 @@ export default function LandingPage() {
       <SiteHeader />
       <main id="main-content">
         <HeroSection />
-        <WorkflowSection />
-        <UnderstandSection />
-        <ConversionUniverse />
-        <ProductStage />
-        <DemosSection />
-        <EcosystemSection />
-        <DownloadCta />
-        <PrivacySection />
-        <FaqSection />
-        <MathPlayground />
+        <CaptureSection />
+        <RecognizeSection />
+        <AstSection />
+        <TransformSection />
+        <WorkspaceSection />
+        <EcosystemScene />
+        <FinalCta />
       </main>
       <SiteFooter />
     </>
