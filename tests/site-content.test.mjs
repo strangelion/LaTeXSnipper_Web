@@ -17,6 +17,36 @@ const landingStyles = await readFile(
   'utf8',
 );
 
+const sceneDataSource = await readFile(
+  new URL('../src/data/landingScenes.js', import.meta.url),
+  'utf8',
+);
+
+const sceneStyles = await readFile(
+  new URL('../src/components/scenes/Scenes.module.css', import.meta.url),
+  'utf8',
+);
+
+const mathWorldSource = await readFile(
+  new URL('../src/three/MathWorld.jsx', import.meta.url),
+  'utf8',
+);
+
+const playgroundSource = await readFile(
+  new URL('../src/p5/MathPlayground.jsx', import.meta.url),
+  'utf8',
+);
+
+const astSceneSource = await readFile(
+  new URL('../src/components/scenes/AstSection.jsx', import.meta.url),
+  'utf8',
+);
+
+const transformSceneSource = await readFile(
+  new URL('../src/components/scenes/TransformSection.jsx', import.meta.url),
+  'utf8',
+);
+
 const downloadSource = await readFile(
   new URL('../download.html', import.meta.url),
   'utf8',
@@ -103,6 +133,38 @@ test('homepage hero section is present', () => {
   assert.match(landingSource, /把数学/);
 });
 
+test('homepage retains the planned DOM-first product journey', () => {
+  for (const section of [
+    'CaptureSection',
+    'RecognizeSection',
+    'AstSection',
+    'TransformSection',
+    'WorkspaceSection',
+    'MathPlayground',
+    'EcosystemScene',
+    'FinalCta',
+  ]) {
+    assert.match(landingSource, new RegExp(`<${section}`));
+  }
+  assert.match(astSceneSource, /静态结构示例/);
+  assert.match(transformSceneSource, /实际转换能力/);
+  assert.match(astSceneSource, /SemanticGraph/);
+  assert.match(transformSceneSource, /SemanticGraph/);
+  assert.match(sceneStyles, /scroll-margin-top/);
+});
+
+test('math visualization avoids a page scroll listener', () => {
+  assert.doesNotMatch(mathWorldSource, /addEventListener\(['"]scroll/);
+  assert.match(mathWorldSource, /IntersectionObserver/);
+});
+
+test('math playground uses p5 lifecycle only when it approaches the viewport', () => {
+  assert.match(playgroundSource, /import\("p5"\)/);
+  assert.match(playgroundSource, /new P5/);
+  assert.match(playgroundSource, /IntersectionObserver/);
+  assert.match(playgroundSource, /p5Instance\?\.remove\(\)/);
+});
+
 test('homepage download CTA is platform-neutral', () => {
   assert.match(landingSource, /下载 LaTeXSnipper/);
   assert.doesNotMatch(landingSource, /<table/);
@@ -112,14 +174,22 @@ test('homepage mobile breakpoints exist', () => {
   assert.match(landingStyles, /max-width: 720px/);
   assert.match(landingStyles, /max-width: 420px/);
   assert.match(siteShellStyles, /sr-only/);
+  assert.match(siteShellStyles, /scroll-padding-top/);
+  assert.match(siteShellStyles, /site-navigation\.lg-surface/);
 });
 
 test('liquid glass components follow V2 pattern', () => {
   assert.match(landingSource, /LiquidGlassSurface/);
-  assert.match(landingSource, /liquid-backdrop-refraction/);
+  assert.doesNotMatch(landingSource, /id="liquid-backdrop-refraction"/);
+  assert.match(productShellScript, /liquid-backdrop-refraction/);
+  assert.match(productShellScript, /liquid-navigation-refraction/);
+  assert.match(productShellScript, /scale="12"/);
+  assert.match(productShellScript, /navigationEdge/);
+  assert.match(productShellScript, /scale="5"/);
   assert.match(liquidGlassStyles, /lg-backdrop/);
   assert.match(liquidGlassStyles, /lg-caustic/);
   assert.match(liquidGlassStyles, /lg-surface--control/);
+  assert.match(liquidGlassStyles, /--lg-tint-strength:\s*24%/);
 });
 
 test('release manifest is well-formed', () => {

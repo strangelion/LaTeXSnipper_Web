@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { conversionFormats } from '../../data/landingScenes';
+import SemanticGraph from '../../three/SemanticGraph';
+import LiquidGlassSurface from '../LiquidGlassSurface';
 import styles from './Scenes.module.css';
 
 export default function TransformSection() {
@@ -52,22 +54,33 @@ export default function TransformSection() {
             </button>
           ))}
         </div>
-        <div
-          className={styles.conversionPanel}
-          id="format-code-panel"
-          role="tabpanel"
-          aria-labelledby={`format-tab-${selectedFormat.id}`}
-        >
-          <span className={styles.conversionLabel}>Illustrative static format sample</span>
-          <h3>{selectedFormat.label}</h3>
-          <p>{selectedFormat.description}</p>
-          <code className={styles.codeBlock}>{selectedFormat.code}</code>
-          <div className={styles.copyRow}>
-            <button className={styles.copyButton} type="button" onClick={handleCopy}>
-              复制示例
-            </button>
-            <p className={styles.copyStatus} aria-live="polite">{copyStatus}</p>
-          </div>
+        <div className={styles.transformLayout}>
+          <SemanticGraph
+            variant="conversion"
+            activeId={selectedFormat.id}
+            onSelect={(formatId) => {
+              setSelectedFormatId(formatId);
+              setCopyStatus('');
+            }}
+          />
+          <LiquidGlassSurface
+            className={styles.conversionPanel}
+            thickness="panel"
+            id="format-code-panel"
+            role="tabpanel"
+            aria-labelledby={`format-tab-${selectedFormat.id}`}
+          >
+            <span className={styles.conversionLabel}>Illustrative static format sample</span>
+            <h3>{selectedFormat.label}</h3>
+            <p>{selectedFormat.description}</p>
+            <code className={styles.codeBlock}>{selectedFormat.code}</code>
+            <div className={styles.copyRow}>
+              <button className={styles.copyButton} type="button" onClick={handleCopy}>
+                复制示例
+              </button>
+              <p className={styles.copyStatus} aria-live="polite">{copyStatus}</p>
+            </div>
+          </LiquidGlassSurface>
         </div>
         <p className={styles.illustrativeNote}>这些是静态格式示例。实际转换能力与保真度以 Core 和 Desktop 的运行时报告为准。</p>
       </div>

@@ -1,0 +1,68 @@
+.semantic-graph {
+  position: relative;
+  min-height: 15rem;
+  overflow: hidden;
+  border: 1px solid var(--ls-line);
+  border-radius: var(--site-radius-md);
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ls-blue) 11%, transparent), transparent 60%),
+    color-mix(in srgb, var(--ls-bg-warm) 72%, transparent);
+}
+
+.semantic-graph::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ls-line) 62%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ls-line) 62%, transparent) 1px, transparent 1px);
+  background-size: 1.5rem 1.5rem;
+  mask-image: radial-gradient(ellipse at center, black 6%, transparent 73%);
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.semantic-graph__tooltip {
+  position: absolute;
+  z-index: 2;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--ls-line-strong);
+  border-radius: 0.35rem;
+  color: var(--ls-ink);
+  background: color-mix(in srgb, var(--ls-surface-strong) 86%, transparent);
+  box-shadow: var(--ls-shadow);
+  font: 700 0.64rem / 1 var(--ls-mono);
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.2rem);
+  transition: opacity 150ms var(--site-ease), transform 150ms var(--site-ease);
+}
+
+.semantic-graph__tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.semantic-graph[data-graph-state="fallback"]::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  content: "DOM diagram available below";
+  color: var(--ls-muted);
+  font: 600 0.72rem / 1 var(--ls-mono);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .semantic-graph {
+    min-height: 13rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .semantic-graph__tooltip {
+    transition: none;
+  }
+}

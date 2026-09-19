@@ -65,17 +65,9 @@
   grid-column: span 2;
 }
 
-.platform-card[data-platform="office"] {
-  grid-column: 2 / span 2;
-}
-
-.platform-card[data-platform="wps"] {
-  grid-column: 4 / span 2;
-}
-
 .platform-card {
   min-width: 0;
-  min-height: 268px;
+  min-height: 248px;
   padding: 26px 22px 22px;
   display: flex;
   flex-direction: column;
@@ -98,30 +90,27 @@
   order: -1;
   grid-column: 1 / -1;
   width: 100%;
-  min-height: 190px;
-  padding: 30px 34px;
+  min-height: 182px;
+  padding: 22px 30px;
   text-align: center;
 }
 
 .platform-card.recommended > .lg-content {
-  width: min(100%, 720px);
+  width: min(100%, 920px);
   margin-inline: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(178px, auto);
+  grid-template-areas:
+    "icon name action"
+    "icon description action"
+    "icon owner hash";
   align-items: center;
-  justify-content: center;
-  gap: 11px;
+  column-gap: 20px;
+  row-gap: 6px;
 }
 
 .recommended-badge {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: var(--site-blue);
-  font: 750 0.7rem/1 var(--site-sans);
-  letter-spacing: 0.04em;
+  display: none;
 }
 
 .platform-icon {
@@ -134,32 +123,50 @@
 }
 
 .recommended .platform-icon {
+  grid-area: icon;
   width: 64px;
   height: 64px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .recommended .platform-name {
+  grid-area: name;
+  margin: 0;
   font-size: clamp(1.85rem, 3vw, 2.55rem);
+  text-align: left;
 }
 
 .recommended .platform-desc,
 .recommended .platform-owner {
-  max-width: 640px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+}
+
+.recommended .platform-desc {
+  grid-area: description;
+}
+
+.recommended .platform-owner {
+  grid-area: owner;
 }
 
 .recommended .download-btn,
 .recommended .download-btn:not([hidden]) {
+  grid-area: action;
   align-self: center;
+  justify-self: end;
+  width: min(100%, 220px);
   margin: 0;
 }
 
 .recommended .sha256:not([hidden]) {
+  grid-area: hash;
+  justify-self: end;
+  width: min(100%, 220px);
   align-self: center;
-  margin: 5px auto 0;
-  text-align: center;
+  margin: 0;
+  text-align: left;
 }
 
 .platform-icon svg {
@@ -201,6 +208,7 @@
 
 .platform-card .download-btn,
 .platform-card .download-btn:not([hidden]) {
+  width: min(100%, 220px);
   margin-top: auto;
 }
 
@@ -234,6 +242,7 @@
 }
 
 .sha256 {
+  width: min(100%, 220px);
   max-width: 100%;
   margin: 5px auto 0;
   padding: 6px 10px;
@@ -349,10 +358,36 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .platform-card:not(.recommended),
-  .platform-card[data-platform="office"],
-  .platform-card[data-platform="wps"] {
+  .platform-card:not(.recommended) {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .platform-card.recommended > .lg-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 11px;
+  }
+
+  .recommended .platform-icon,
+  .recommended .platform-name,
+  .recommended .platform-desc,
+  .recommended .platform-owner,
+  .recommended .download-btn,
+  .recommended .download-btn:not([hidden]),
+  .recommended .sha256:not([hidden]) {
+    align-self: auto;
+    justify-self: auto;
+    text-align: center;
+  }
+
+  .recommended .download-btn,
+  .recommended .download-btn:not([hidden]),
+  .recommended .sha256:not([hidden]) {
+    width: min(100%, 22rem);
   }
 }
 
@@ -426,31 +461,10 @@
     text-align: center;
   }
 
-  .platform-card.recommended > .lg-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 11px;
-  }
-
   .recommended .platform-icon {
     width: 58px;
     height: 58px;
     margin: 2px auto 4px;
-  }
-
-  .recommended .platform-desc,
-  .recommended .platform-owner {
-    margin-inline: auto;
-    text-align: center;
-  }
-
-  .recommended .download-btn,
-  .recommended .download-btn:not([hidden]),
-  .recommended .sha256:not([hidden]) {
-    align-self: auto;
-    justify-self: auto;
   }
 
   .platform-card .download-btn,

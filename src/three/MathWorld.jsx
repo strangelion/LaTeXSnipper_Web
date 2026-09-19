@@ -1,245 +1,353 @@
 import { memo, useEffect, useRef } from "react";
 
 /*
- * MathWorld — Three.js "mathematical universe" for the Hero.
- *
- * A 3D field of floating math-glyph sprites (∫ ∑ √ π ∞ λ θ ∂ Δ ∇ …) drifting in
- * a light volume, with:
- *   - mouse parallax on the camera (the world leans toward the pointer)
- *   - an intersection-driven "evolution" that gently concentrates the field
- *   - theme-aware colour (blue on paper, light-blue on ink)
- *   - performance guards: capped DPR, pause off-screen / tab-hidden, a single
- *     static frame under `prefers-reduced-motion`, and three.js loaded lazily
- *     so it never blocks the first paint
- *
- * React owns the UI; this is one isolated leaf that renders only a transparent
- * canvas behind the copy, never content, so accessibility / SEO text is DOM.
+ * The canvas is a decorative enhancement. All copy, navigation, and actions
+ * remain in HeroSection's DOM so the page does not depend on WebGL.
  */
-
-const GLYPHS = [
-  "∫", "∑", "√", "π", "∞", "λ", "θ", "∂", "Δ", "∇",
-  "α", "β", "γ", "Σ", "ω", "φ", "ψ", "≈", "∈", "⊗",
+const MATH_OBJECTS = [
+  { glyph: "∫", label: "INTEGRAL", group: "operator", radius: 2.75, angle: 0.2, y: 0.8, z: -0.4, size: 0.78 },
+  { glyph: "∑", label: "OPERATOR", group: "operator", radius: 2.2, angle: 1.48, y: -1.35, z: -0.9, size: 0.58 },
+  { glyph: "√", label: "RADICAL", group: "operator", radius: 3.25, angle: 2.55, y: 1.68, z: -1.8, size: 0.56 },
+  { glyph: "π", label: "CONSTANT", group: "constant", radius: 2.9, angle: 3.45, y: -0.52, z: -0.25, size: 0.55 },
+  { glyph: "∞", label: "BOUND", group: "relation", radius: 2.4, angle: 4.36, y: 1.72, z: -1.35, size: 0.5 },
+  { glyph: "x²", label: "VARIABLE", group: "variable", radius: 3.55, angle: 5.25, y: -1.88, z: -2.1, size: 0.5 },
+  { glyph: "aⁿ", label: "POWER", group: "variable", radius: 1.88, angle: 0.82, y: 0.12, z: 0.5, size: 0.43 },
+  { glyph: "Δ", label: "DELTA", group: "geometry", radius: 3.2, angle: 1.95, y: 2.05, z: -2.5, size: 0.48 },
+  { glyph: "∇", label: "GRADIENT", group: "geometry", radius: 2.7, angle: 3, y: -2.1, z: -1.35, size: 0.46 },
+  { glyph: "lim", label: "LIMIT", group: "relation", radius: 3.8, angle: 4.05, y: 0.26, z: -2.8, size: 0.42 },
+  { glyph: "det", label: "MATRIX", group: "geometry", radius: 3.05, angle: 5.7, y: 1.02, z: -2.45, size: 0.42 },
+  { glyph: "θ", label: "ANGLE", group: "variable", radius: 1.6, angle: 2.2, y: -0.12, z: 0.8, size: 0.4 },
 ];
 
-const isDark = () => {
-  const a = document.documentElement.getAttribute("data-theme");
-  if (a === "dark" || a === "light") return a === "dark";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+const THEME_COLORS = {
+  light: {
+    operator: "#6c63ff", constant: "#00a878", variable: "#756eea",
+    geometry: "#5975d9", relation: "#816fe8", grid: "#a9a6ed", particle: "#8a83eb",
+  },
+  dark: {
+    operator: "#a79dff", constant: "#48d7a0", variable: "#a297ff",
+    geometry: "#86a5ff", relation: "#c0a4ff", grid: "#4c4f9a", particle: "#978bff",
+  },
 };
 
-function makeGlyphTexture(THREE, glyph, color) {
-  const size = 160;
+function getThemeName() {
+  const current = document.documentElement.getAttribute("data-theme");
+  if (current === "dark" || current === "light") return current;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function createObjectTexture(THREE, object, color) {
   const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, size, size);
-  ctx.font = '600 104px "Iowan Old Style", "Noto Serif SC", "Songti SC", serif';
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = color;
-  ctx.fillText(glyph, size / 2, size / 2 + 4);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 1;
-  return tex;
+  canvas.width = canvas.height = 256;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, 256, 256);
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = color;
+  context.shadowColor = color;
+  context.shadowBlur = 18;
+  context.font = '600 120px "STIX Two Math", "Cambria Math", serif';
+  context.fillText(object.glyph, 128, 104);
+  context.shadowBlur = 0;
+  context.globalAlpha = 0.8;
+  context.font = '700 16px "Aptos", "Segoe UI", sans-serif';
+  context.fillText(object.label, 128, 194);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 1;
+  return texture;
+}
+
+function createOrbit(THREE, radius, opacity, rotation) {
+  const points = [];
+  for (let index = 0; index < 96; index += 1) {
+    const angle = (index / 96) * Math.PI * 2;
+    points.push(new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius * 0.48, 0));
+  }
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const material = new THREE.LineBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity,
+    depthWrite: false,
+  });
+  const line = new THREE.LineLoop(geometry, material);
+  line.rotation.set(rotation.x, rotation.y, rotation.z);
+  return line;
 }
 
 function MathWorld() {
   const hostRef = useRef(null);
+  const labelRef = useRef(null);
 
   useEffect(() => {
     const host = hostRef.current;
-    if (!host) return;
+    const label = labelRef.current;
+    if (!host || !label) return undefined;
 
-    let cancelled = false;
-    let observer = null;
-    let disposed = false;
-
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const state = {
-      sprites: [],
-      textures: [],
-      t: 0,
-      mouse: { x: 0, y: 0 },
-      camTarget: { x: 0, y: 0 },
-      spread: 1,
-      w: 0,
-      h: 0,
-      initialZ: 4.2,
-    };
-
+    let THREE = null;
     let renderer = null;
     let scene = null;
     let camera = null;
-    let raf = 0;
-    const clock = { last: 0 };
+    let observer = null;
+    let resizeObserver = null;
+    let themeObserver = null;
+    let animationFrame = 0;
+    let running = false;
+    let cancelled = false;
+    let focusedSprite = null;
+    const resources = [];
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const state = {
+      width: 2,
+      height: 2,
+      lastFrame: 0,
+      time: 0,
+      visibility: 1,
+      pointer: { x: 0, y: 0 },
+      cameraTarget: { x: 0, y: 0 },
+      sprites: [],
+      world: null,
+      orbitGroup: null,
+      ambientGrid: null,
+      particleField: null,
+    };
 
-    const onVisible = (entries) => {
-      const entry = entries[0];
-      state.spread = 0.55 + entry.intersectionRatio * 0.45;
-      if (reducedMotion || !renderer) return;
-      entry.isIntersecting && !document.hidden ? start() : stop();
-    };
-    const onVisibility = () => {
-      if (reducedMotion || !renderer) return;
-      document.hidden ? stop() : start();
-    };
-    const onPointer = (e) => {
-      state.mouse.x = (e.clientX / state.w) * 2 - 1;
-      state.mouse.y = -(e.clientY / state.h) * 2 + 1;
-    };
-    const onResize = () => {
-      if (cancelled || !renderer) return;
-      const r = host.getBoundingClientRect();
-      state.w = Math.max(2, Math.floor(r.width));
-      state.h = Math.max(2, Math.floor(r.height));
-      camera.aspect = state.w / state.h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(state.w, state.h);
+    const stop = () => {
+      running = false;
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
     };
 
     const start = () => {
-      if (cancelled || !renderer || raf) return;
-      raf = requestAnimationFrame(loop);
-    };
-    const stop = () => {
-      if (raf) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      }
+      if (cancelled || !renderer || running || reducedMotion) return;
+      running = true;
+      animationFrame = requestAnimationFrame(renderFrame);
     };
 
-    function loop() {
-      if (cancelled || !renderer) return;
-      const now = performance.now();
-      const dt = Math.min(0.05, (now - clock.last) / 1000);
-      clock.last = now;
-      state.t += dt;
-
-      for (const s of state.sprites) {
-        const u = s.userData;
-        s.position.x = u.base.x + Math.sin(state.t * u.speed + u.phase) * u.amp;
-        s.position.y = u.base.y + Math.cos(state.t * u.speed * 0.8 + u.phase * 1.3) * u.amp;
-        s.position.z = u.base.z + Math.sin(state.t * u.speed * 0.5 + u.phase) * u.amp * 0.5;
+    const updateFocus = (sprite, event) => {
+      if (focusedSprite === sprite) return;
+      if (focusedSprite) {
+        focusedSprite.material.opacity = focusedSprite.userData.baseOpacity;
+        focusedSprite.scale.copy(focusedSprite.userData.baseScale);
       }
-
-      state.camTarget.x += (state.mouse.x * 0.7 - state.camTarget.x) * 0.05;
-      state.camTarget.y += (state.mouse.y * 0.4 - state.camTarget.y) * 0.05;
-      if (camera) {
-        camera.position.x += (state.camTarget.x - camera.position.x) * 0.06;
-        camera.position.y += (-state.camTarget.y - camera.position.y) * 0.06;
-        camera.position.z = state.initialZ + (1 - state.spread) * 2.2;
+      focusedSprite = sprite;
+      if (!sprite) {
+        label.classList.remove("is-visible");
+        host.removeAttribute("data-math-focus");
+        return;
       }
+      sprite.material.opacity = 0.96;
+      sprite.scale.copy(sprite.userData.baseScale).multiplyScalar(1.18);
+      label.textContent = `${sprite.userData.object.glyph}  ${sprite.userData.object.label}`;
+      const bounds = host.getBoundingClientRect();
+      label.style.left = `${event.clientX - bounds.left + 14}px`;
+      label.style.top = `${event.clientY - bounds.top + 14}px`;
+      label.classList.add("is-visible");
+      host.dataset.mathFocus = sprite.userData.object.group;
+    };
+
+    const resize = () => {
+      if (!renderer || !camera) return;
+      const bounds = host.getBoundingClientRect();
+      state.width = Math.max(2, Math.floor(bounds.width));
+      state.height = Math.max(2, Math.floor(bounds.height));
+      camera.aspect = state.width / state.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(state.width, state.height, false);
+    };
+
+    const applyTheme = () => {
+      if (!THREE || !scene) return;
+      const colors = THEME_COLORS[getThemeName()];
+      state.sprites.forEach((sprite) => {
+        const nextTexture = createObjectTexture(THREE, sprite.userData.object, colors[sprite.userData.object.group]);
+        const previousTexture = sprite.material.map;
+        sprite.material.map = nextTexture;
+        sprite.material.needsUpdate = true;
+        previousTexture?.dispose();
+        resources.push(nextTexture);
+      });
+      state.ambientGrid?.material?.color?.set(colors.grid);
+      state.orbitGroup?.children.forEach((line) => line.material.color.set(colors.grid));
+      state.particleField?.material?.color?.set(colors.particle);
+    };
+
+    const updatePointer = (event) => {
+      const bounds = host.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      state.pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      state.pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
+      state.cameraTarget.x = state.pointer.x * 0.42;
+      state.cameraTarget.y = state.pointer.y * 0.3;
+      if (!THREE || !camera || !state.sprites.length) return;
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(state.pointer, camera);
+      const hit = raycaster.intersectObjects(state.sprites, false)[0];
+      updateFocus(hit?.object || null, event);
+    };
+
+    const onVisibilityChange = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+
+    function renderFrame(timestamp) {
+      if (cancelled || !renderer || !scene || !camera || !state.world) return;
+      const delta = Math.min(0.05, Math.max(0.001, (timestamp - (state.lastFrame || timestamp)) / 1000));
+      state.lastFrame = timestamp;
+      state.time += delta;
+
+      state.world.rotation.y += (state.pointer.x * 0.14 - state.world.rotation.y) * 0.035;
+      state.world.rotation.x += (-state.pointer.y * 0.07 - state.world.rotation.x) * 0.028;
+      state.orbitGroup.rotation.z = state.time * 0.045;
+      state.ambientGrid.rotation.z = state.time * -0.012;
+      camera.position.x += (state.cameraTarget.x - camera.position.x) * 0.055;
+      camera.position.y += (state.cameraTarget.y - camera.position.y) * 0.055;
+      camera.position.z = 6.8 + (1 - state.visibility) * 1.1;
+
+      state.sprites.forEach((sprite, index) => {
+        const { base, phase, amplitude, speed } = sprite.userData;
+        sprite.position.set(
+          base.x + Math.cos(state.time * speed * 0.62 + phase) * 0.12,
+          base.y + Math.sin(state.time * speed + phase) * amplitude,
+          base.z + Math.sin(state.time * speed * 0.44 + phase) * 0.16,
+        );
+        if (sprite !== focusedSprite) {
+          sprite.material.opacity = sprite.userData.baseOpacity + Math.sin(state.time * 0.8 + index) * 0.025;
+        }
+      });
 
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(loop);
+      if (running) animationFrame = requestAnimationFrame(renderFrame);
     }
 
-    // Load three lazily so the initial paint is never blocked by the 3D world.
-    import("three").then((mod) => {
-      const THREE = mod;
-      if (cancelled || !host || disposed) return;
-
-      const rect = host.getBoundingClientRect();
-      state.w = Math.max(2, Math.floor(rect.width));
-      state.h = Math.max(2, Math.floor(rect.height));
-
-      const sceneRef = new THREE.Scene();
-      scene = sceneRef;
-      camera = new THREE.PerspectiveCamera(55, state.w / state.h, 0.1, 100);
-      camera.position.z = state.initialZ;
-
+    const initialize = async () => {
       try {
-        renderer = new THREE.WebGLRenderer({
-          antialias: true,
-          alpha: true,
-          powerPreference: "high-performance",
+        THREE = await import("three");
+        if (cancelled) return;
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(48, state.width / state.height, 0.1, 100);
+        camera.position.set(0, 0, 6.8);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, state.width < 720 ? 1.25 : 1.75));
+        renderer.setClearColor(0x000000, 0);
+        renderer.domElement.style.cssText = "position:absolute;inset:0;display:block;width:100%;height:100%;";
+        renderer.domElement.setAttribute("aria-hidden", "true");
+        host.append(renderer.domElement);
+
+        const colors = THEME_COLORS[getThemeName()];
+        const world = new THREE.Group();
+        const orbitGroup = new THREE.Group();
+        state.world = world;
+        state.orbitGroup = orbitGroup;
+        scene.add(world);
+        world.add(orbitGroup);
+
+        [1.35, 2.35, 3.38].forEach((radius, index) => {
+          const orbit = createOrbit(THREE, radius, 0.12 - index * 0.018, { x: index * 0.42 + 0.2, y: index * -0.3, z: index * 0.58 });
+          orbit.material.color.set(colors.grid);
+          resources.push(orbit.geometry, orbit.material);
+          orbitGroup.add(orbit);
         });
-      } catch {
-        renderer = null;
-        return; // no WebGL: silently degrade, DOM still renders
-      }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(state.w, state.h);
-      renderer.setClearColor(0x000000, 0);
-      renderer.domElement.style.display = "block";
-      renderer.domElement.style.width = "100%";
-      renderer.domElement.style.height = "100%";
-      host.appendChild(renderer.domElement);
 
-      scene.add(new THREE.AmbientLight(0xffffff, 1.4));
+        const grid = new THREE.GridHelper(10, 16, colors.grid, colors.grid);
+        grid.rotation.x = Math.PI / 2;
+        grid.position.z = -3.7;
+        grid.material.transparent = true;
+        grid.material.opacity = 0.16;
+        grid.material.depthWrite = false;
+        resources.push(grid.geometry, grid.material);
+        state.ambientGrid = grid;
+        world.add(grid);
 
-      const color = isDark() ? "#8b7cff" : "#6c63ff";
-      const count = state.w < 768 ? 18 : 30;
-      const glyphSet = [...new Set(GLYPHS)];
-
-      for (let i = 0; i < count; i++) {
-        const glyph = glyphSet[i % glyphSet.length];
-        const tex = makeGlyphTexture(THREE, glyph, color);
-        state.textures.push(tex);
-        const mat = new THREE.SpriteMaterial({
-          map: tex,
+        const particleCount = state.width < 720 ? 42 : 96;
+        const positions = new Float32Array(particleCount * 3);
+        for (let index = 0; index < particleCount; index += 1) {
+          const radius = 1.5 + Math.random() * 3.4;
+          const angle = Math.random() * Math.PI * 2;
+          positions[index * 3] = Math.cos(angle) * radius;
+          positions[index * 3 + 1] = (Math.random() - 0.5) * 5.6;
+          positions[index * 3 + 2] = -2.8 + Math.random() * 1.7;
+        }
+        const particleGeometry = new THREE.BufferGeometry();
+        particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        const particleMaterial = new THREE.PointsMaterial({
+          color: colors.particle,
+          size: state.width < 720 ? 0.035 : 0.045,
           transparent: true,
+          opacity: 0.4,
           depthWrite: false,
-          opacity: 0.16,
         });
-        const sprite = new THREE.Sprite(mat);
-        const radius = Math.random() * 3.4 + 0.4;
-        const ang = Math.random() * Math.PI * 2;
-        const x = Math.cos(ang) * radius;
-        const y = (Math.random() - 0.5) * 5.2;
-        const z = (Math.random() - 0.5) * 5.5 - 2.2;
-        sprite.position.set(x, y, z);
-        const s = Math.random() * 0.42 + 0.22;
-        sprite.scale.set(s, s, 1);
-        sprite.material.opacity = Math.random() * 0.16 + 0.1;
-        sprite.userData = {
-          base: new THREE.Vector3(x, y, z),
-          amp: 0.25 + Math.random() * 0.6,
-          speed: 0.18 + Math.random() * 0.4,
-          phase: Math.random() * Math.PI * 2,
-        };
-        scene.add(sprite);
-        state.sprites.push(sprite);
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        resources.push(particleGeometry, particleMaterial);
+        state.particleField = particles;
+        world.add(particles);
+
+        MATH_OBJECTS.forEach((object, index) => {
+          const texture = createObjectTexture(THREE, object, colors[object.group]);
+          const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.35 + (index % 3) * 0.06 });
+          const sprite = new THREE.Sprite(material);
+          const base = new THREE.Vector3(Math.cos(object.angle) * object.radius, object.y, object.z);
+          sprite.position.copy(base);
+          sprite.scale.set(object.size, object.size, 1);
+          sprite.userData = {
+            object,
+            base,
+            phase: object.angle * 1.7,
+            speed: 0.28 + (index % 4) * 0.05,
+            amplitude: 0.08 + (index % 3) * 0.035,
+            baseOpacity: material.opacity,
+            baseScale: sprite.scale.clone(),
+          };
+          resources.push(texture, material);
+          state.sprites.push(sprite);
+          world.add(sprite);
+        });
+
+        resize();
+        host.dataset.mathWorld = "ready";
+        if (reducedMotion) renderFrame(performance.now());
+        else start();
+      } catch {
+        host.dataset.mathWorld = "fallback";
       }
+    };
 
-      clock.last = performance.now();
-      if (reducedMotion) renderer.render(scene, camera);
-      else start();
-
-      observer = new IntersectionObserver(onVisible, {
-        threshold: [0, 0.05, 0.25, 0.5, 0.75, 1],
-      });
-      observer.observe(host);
-      window.addEventListener("resize", onResize);
-      window.addEventListener("pointermove", onPointer, { passive: true });
-      document.addEventListener("visibilitychange", onVisibility);
-    });
+    observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      state.visibility = Math.max(0.25, entry.intersectionRatio || 0);
+      if (entry.isIntersecting && !document.hidden) start();
+      else stop();
+    }, { threshold: [0, 0.05, 0.3, 0.65, 1] });
+    observer.observe(host);
+    resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    themeObserver = new MutationObserver(applyTheme);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    window.addEventListener("pointermove", updatePointer, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    initialize();
 
     return () => {
       cancelled = true;
-      disposed = true;
       stop();
       observer?.disconnect();
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("pointermove", onPointer);
-      document.removeEventListener("visibilitychange", onVisibility);
-      for (const s of state.sprites) {
-        s.material?.dispose();
-        scene?.remove(s);
-      }
-      for (const t of state.textures) t.dispose();
+      resizeObserver?.disconnect();
+      themeObserver?.disconnect();
+      window.removeEventListener("pointermove", updatePointer);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      resources.forEach((resource) => resource?.dispose?.());
       renderer?.dispose();
-      if (renderer?.domElement && host.contains(renderer.domElement)) {
-        host.removeChild(renderer.domElement);
-      }
+      renderer?.domElement?.remove();
     };
   }, []);
 
-  return <div ref={hostRef} className="hero-p5 hero-p5--three" aria-hidden="true" />;
+  return (
+    <div ref={hostRef} className="hero-p5 hero-p5--three" aria-hidden="true">
+      <span ref={labelRef} className="math-world-label" />
+    </div>
+  );
 }
 
 export default memo(MathWorld);

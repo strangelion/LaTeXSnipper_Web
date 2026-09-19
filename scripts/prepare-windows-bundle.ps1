@@ -10,6 +10,16 @@ param(
 
     [string]$Bucket = "release",
 
+    [string]$PublicBaseUrl = "https://latexsnipper.interknot.dpdns.org/dl",
+
+    [string]$Label = "Windows 一键整合包",
+
+    [string]$Requirements = "Windows 10 / 11，x86_64，已包含本地模型和必要运行环境",
+
+    [string]$Owner = "SakuraMathcraft · 单独上传的 Windows 整合发布",
+
+    [string]$DownloadText = "下载 Windows 一键整合包",
+
     [switch]$Upload,
 
     [switch]$MetadataOnly
@@ -18,13 +28,13 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
 $fileItem = Get-Item -LiteralPath $File
 $fileName = $fileItem.Name
 $fullPath = $fileItem.FullName
 
 $RcloneRemote = $RcloneRemote.TrimEnd([char]':')
 $Bucket = $Bucket -replace '^/+|/+$', ''
+$PublicBaseUrl = $PublicBaseUrl.TrimEnd([char]'/')
 
 if ([string]::IsNullOrWhiteSpace($RcloneRemote)) {
     throw "RcloneRemote cannot be empty. Run 'rclone listremotes' to find the configured remote name."
@@ -34,20 +44,54 @@ if ([string]::IsNullOrWhiteSpace($Bucket)) {
     throw "Bucket cannot be empty."
 }
 
+if ([string]::IsNullOrWhiteSpace($PublicBaseUrl)) {
+    throw "PublicBaseUrl cannot be empty."
+}
+
+[Uri]$publicBaseUri = $null
+if (
+    -not [Uri]::TryCreate($PublicBaseUrl, [UriKind]::Absolute, [ref]$publicBaseUri) -or
+    $publicBaseUri.Scheme -ne [Uri]::UriSchemeHttps -or
+    -not [string]::IsNullOrEmpty($publicBaseUri.Query) -or
+    -not [string]::IsNullOrEmpty($publicBaseUri.Fragment)
+) {
+    throw "PublicBaseUrl must be an absolute HTTPS URL without a query or fragment: $PublicBaseUrl"
+}
+$PublicBaseUrl = $publicBaseUri.AbsoluteUri.TrimEnd([char]'/')
+
+$displayFields = [ordered]@{
+    Label = $Label
+    Requirements = $Requirements
+    Owner = $Owner
+    DownloadText = $DownloadText
+}
+foreach ($field in $displayFields.GetEnumerator()) {
+    if ([string]::IsNullOrWhiteSpace([string]$field.Value)) {
+        throw "$($field.Key) cannot be empty."
+    }
+}
+$Label = $Label.Trim()
+$Requirements = $Requirements.Trim()
+$Owner = $Owner.Trim()
+$DownloadText = $DownloadText.Trim()
+
+if ($MetadataOnly -and -not $Upload) {
+    throw "-MetadataOnly requires -Upload. Omit both switches to generate metadata without uploading."
+}
+
 if ($fileName -notmatch '^[A-Za-z0-9._-]+$') {
     throw "The file name may contain only ASCII letters, numbers, dots, hyphens, and underscores: $fileName"
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    $releaseManifestPath = Join-Path $repoRoot "public/release-manifest.json"
-    if (Test-Path -LiteralPath $releaseManifestPath) {
-        $releaseManifest = Get-Content -LiteralPath $releaseManifestPath -Raw | ConvertFrom-Json
-        $Version = [string]$releaseManifest.version
+    $versionMatch = [regex]::Match($fileItem.BaseName, '(?<!\d)(?<version>\d+\.\d+\.\d+)(?!\d)')
+    if ($versionMatch.Success) {
+        $Version = $versionMatch.Groups['version'].Value
     }
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    throw "Unable to determine the bundle version. Pass -Version, for example: -Version 2.6.0"
+    throw "Unable to infer a stable bundle version from the file name. Pass -Version, for example: -Version 2.6.0"
 }
 
 if ($Version -notmatch '^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$') {
@@ -77,7 +121,12 @@ $metadata = [ordered]@{
     id = "windows-x86_64-bundle"
     version = $Version
     architecture = "x86_64"
+    label = $Label
+    requirements = $Requirements
+    owner = $Owner
+    downloadText = $DownloadText
     href = "/dl/$fileName"
+    publicUrl = "$PublicBaseUrl/$fileName"
     sha256 = $hash
     size = $size
     publishedAt = (Get-Date).ToUniversalTime().ToString("o")
@@ -97,6 +146,7 @@ Write-Host "File: $fileName"
 Write-Host "Version: $Version"
 Write-Host "Size: $size"
 Write-Host "SHA256: $hash"
+Write-Host "Public URL: $PublicBaseUrl/$fileName"
 
 if ($Upload) {
     $rclone = Get-Command rclone -ErrorAction SilentlyContinue
@@ -115,14 +165,51 @@ if ($Upload) {
         throw "rclone remote '$expectedRemote' was not found. Available remotes: $available"
     }
 
+    function Assert-RemoteObjectSize {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$RemotePath,
+
+            [Parameter(Mandatory = $true)]
+            [long]$ExpectedSize,
+
+            [Parameter(Mandatory = $true)]
+            [string]$Description
+        )
+
+        $statOutput = @(& $rclone.Source lsjson $RemotePath --stat 2>&1)
+        if ($LASTEXITCODE -ne 0) {
+            throw "Unable to verify $Description at '$RemotePath'. rclone exited with code $LASTEXITCODE."
+        }
+
+        try {
+            $remoteStat = (($statOutput | ForEach-Object { [string]$_ }) -join [Environment]::NewLine) | ConvertFrom-Json
+        }
+        catch {
+            throw "Unable to parse the remote verification response for $Description at '$RemotePath'."
+        }
+
+        if ($null -eq $remoteStat.Size -or [long]$remoteStat.Size -ne $ExpectedSize) {
+            $actualSize = if ($null -eq $remoteStat.Size) { "unknown" } else { [string]$remoteStat.Size }
+            throw "Remote $Description size mismatch at '$RemotePath'. Expected $ExpectedSize bytes, got $actualSize."
+        }
+
+        Write-Host "Verified remote ${Description}: $RemotePath ($ExpectedSize bytes)"
+    }
+
+    $packageTarget = "${RcloneRemote}:$Bucket/$fileName"
     if (-not $MetadataOnly) {
-        $packageTarget = "${RcloneRemote}:$Bucket/$fileName"
         Write-Host "Uploading bundle to $packageTarget"
         & $rclone.Source copyto $fullPath $packageTarget --progress --s3-no-check-bucket
         if ($LASTEXITCODE -ne 0) {
             throw "Bundle upload failed with rclone exit code $LASTEXITCODE"
         }
     }
+    else {
+        Write-Host "Metadata-only mode: verifying the existing bundle before publishing metadata."
+    }
+
+    Assert-RemoteObjectSize -RemotePath $packageTarget -ExpectedSize $fileItem.Length -Description "bundle"
 
     $metadataTarget = "${RcloneRemote}:$Bucket/windows-bundle.json"
     Write-Host "Uploading metadata to $metadataTarget"
@@ -130,6 +217,9 @@ if ($Upload) {
     if ($LASTEXITCODE -ne 0) {
         throw "Metadata upload failed with rclone exit code $LASTEXITCODE"
     }
+
+    $metadataBytes = (Get-Item -LiteralPath $metadataPath).Length
+    Assert-RemoteObjectSize -RemotePath $metadataTarget -ExpectedSize $metadataBytes -Description "metadata"
 
     Write-Host "Upload completed. The website should show the bundle within about five minutes."
 }
@@ -140,5 +230,5 @@ else {
     Write-Host "Or run this script again with -Upload after rclone is configured."
 }
 
-Write-Host "Bundle URL: https://latexsnipper.interknot.dpdns.org/dl/$fileName"
-Write-Host "Metadata URL: https://latexsnipper.interknot.dpdns.org/dl/windows-bundle.json"
+Write-Host "Bundle URL: $PublicBaseUrl/$fileName"
+Write-Host "Metadata URL: $PublicBaseUrl/windows-bundle.json"

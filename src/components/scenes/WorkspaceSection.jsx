@@ -1,4 +1,5 @@
 import { landingImages } from '../../data/landingScenes';
+import LiquidGlassSurface from '../LiquidGlassSurface';
 import styles from './Scenes.module.css';
 
 export default function WorkspaceSection() {
@@ -10,7 +11,7 @@ export default function WorkspaceSection() {
     >
       <div className={styles.container}>
         <div className={styles.workspaceGrid}>
-          <div className={styles.workspaceCopy}>
+          <LiquidGlassSurface className={styles.workspaceCopy} thickness="panel">
             <span className={styles.workspaceLabel}>Workspace</span>
             <h2 id="workspace-title">一个引擎，多个数学工作流。</h2>
             <p>OCR、编辑、计算和转换围绕同一份数学内容协作。你不需要在一次识别后重新开始。</p>
@@ -18,7 +19,7 @@ export default function WorkspaceSection() {
               <a href="/user_manual.html">查看工作台</a>
               <a href="/ocr.html">体验在线识别</a>
             </div>
-          </div>
+          </LiquidGlassSurface>
           <figure className={styles.productFigure}>
             <img
               src={landingImages.workspace}

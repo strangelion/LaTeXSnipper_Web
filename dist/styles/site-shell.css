@@ -7,6 +7,7 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--site-header-height) + 1.5rem);
   background: var(--site-bg);
   color: var(--site-ink);
   -webkit-text-size-adjust: 100%;
@@ -468,6 +469,39 @@ textarea:focus-visible,
       opacity 180ms ease,
       transform 180ms var(--site-ease),
       visibility 180ms;
+  }
+
+  /* Menus are overlays, not clear navigation glass: keep links readable over page content. */
+  html[data-theme="light"] .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface {
+    --lg-blur: 18px;
+    --lg-tint-strength: 78%;
+    --lg-tint-falloff: 62%;
+    --lg-shadow-strength: 0.2;
+  }
+
+  html[data-theme="dark"] .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface {
+    --lg-blur: 18px;
+    --lg-tint-strength: 72%;
+    --lg-tint-falloff: 56%;
+    --lg-shadow-strength: 0.2;
+  }
+
+  .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface > .lg-backdrop {
+    background:
+      linear-gradient(145deg, rgb(255 255 255 / 0.16), transparent 34% 72%, color-mix(in srgb, var(--site-blue) 10%, transparent)),
+      linear-gradient(
+        138deg,
+        color-mix(in srgb, var(--site-glass-tint) var(--lg-tint-strength), transparent),
+        color-mix(in srgb, var(--site-glass-tint) var(--lg-tint-falloff), transparent)
+      );
+    backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+    -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+  }
+
+  html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"])
+    .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface > .lg-backdrop {
+    backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+    -webkit-backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
   }
 
   .site-navigation > .lg-content {

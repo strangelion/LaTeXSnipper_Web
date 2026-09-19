@@ -1,10 +1,11 @@
 import styles from './Scenes.module.css';
+import LiquidGlassSurface from '../LiquidGlassSurface';
 
 export default function FinalCta() {
   return (
     <section className={styles.scene} aria-labelledby="final-cta-title">
       <div className={styles.container}>
-        <div className={styles.ctaPanel}>
+        <LiquidGlassSurface className={styles.ctaPanel} thickness="panel">
           <div>
             <h2 id="final-cta-title">你的数学，进入你的工作流。</h2>
             <p>从本地优先的数学识别开始，在需要时继续使用 Desktop、Web 与 Office 生态。</p>
@@ -20,7 +21,7 @@ export default function FinalCta() {
               GitHub
             </a>
           </div>
-        </div>
+        </LiquidGlassSurface>
       </div>
     </section>
   );

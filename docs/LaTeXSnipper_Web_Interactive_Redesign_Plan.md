@@ -1160,45 +1160,45 @@ npm run build
 
 ## Function
 
-- [ ] Header works
-- [ ] Mobile menu works
-- [ ] Theme switch works
-- [ ] Download route works
-- [ ] OCR route works
-- [ ] Manual route works
-- [ ] GitHub link works
-- [ ] Ecosystem links work
+- [x] Header works
+- [x] Mobile menu works
+- [x] Theme switch works
+- [x] Download route works
+- [x] OCR route works
+- [x] Manual route works
+- [x] GitHub link works
+- [x] Ecosystem links work
 
 ## Accessibility
 
-- [ ] Keyboard navigation
-- [ ] Skip link
-- [ ] Focus visibility
-- [ ] Reduced motion
-- [ ] Screen reader content
+- [x] Keyboard navigation
+- [x] Skip link
+- [x] Focus visibility
+- [x] Reduced motion
+- [x] Screen reader content
 
 ## Performance
 
-- [ ] No unnecessary continuous render loops
-- [ ] Three.js scene pauses when hidden
-- [ ] Mobile quality reduction
-- [ ] WebGL fallback
-- [ ] Lazy loading
+- [x] No unnecessary continuous render loops
+- [x] Three.js scene pauses when hidden
+- [x] Mobile quality reduction
+- [x] WebGL fallback
+- [x] Lazy loading
 
 ## SEO
 
-- [ ] Correct title
-- [ ] Correct description
-- [ ] One primary H1
-- [ ] Semantic sections
-- [ ] No important text hidden in canvas
+- [x] Correct title
+- [x] Correct description
+- [x] One primary H1
+- [x] Semantic sections
+- [x] No important text hidden in canvas
 
 ## Release
 
-- [ ] `npm test`
-- [ ] `npm run validate:release`
-- [ ] `npm run build`
-- [ ] Cloudflare deploy dry-run
+- [x] `npm test`
+- [x] `npm run validate:release`
+- [x] `npm run build`
+- [x] Cloudflare deploy dry-run
 
 ---
 

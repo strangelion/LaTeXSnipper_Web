@@ -21,7 +21,7 @@ fflate 运行时文件。
 npm test
 npm run validate:release
 npm run build
-npx wrangler deploy --env production --dry-run
+npx wrangler deploy --dry-run --env=""
 ```
 
 构建路径：
@@ -30,7 +30,8 @@ npx wrangler deploy --env production --dry-run
 src/ + index.html -> Vite -> dist/
 download.html + public/ + manual + styles/assets -> dist/
 dist/ + public/ -> scripts/assemble-deploy.mjs -> deploy/
-worker.js + [assets].directory = "deploy" -> Cloudflare Worker
+ecosystem-worker.js -> worker.js + ecosystem metadata -> Cloudflare Worker
+[assets].directory = "deploy" -> Cloudflare Static Assets
 ```
 
 最终部署目录是 `deploy/`，不是 `dist/`。`scripts/assemble-deploy.mjs` 会验证

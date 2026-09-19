@@ -65,17 +65,9 @@
   grid-column: span 2;
 }
 
-.platform-card[data-platform="office"] {
-  grid-column: 2 / span 2;
-}
-
-.platform-card[data-platform="wps"] {
-  grid-column: 4 / span 2;
-}
-
 .platform-card {
   min-width: 0;
-  min-height: 268px;
+  min-height: 248px;
   padding: 26px 22px 22px;
   display: flex;
   flex-direction: column;
@@ -98,30 +90,27 @@
   order: -1;
   grid-column: 1 / -1;
   width: 100%;
-  min-height: 190px;
-  padding: 30px 34px;
+  min-height: 182px;
+  padding: 22px 30px;
   text-align: center;
 }
 
 .platform-card.recommended > .lg-content {
-  width: min(100%, 720px);
+  width: min(100%, 920px);
   margin-inline: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(178px, auto);
+  grid-template-areas:
+    "icon name action"
+    "icon description action"
+    "icon owner hash";
   align-items: center;
-  justify-content: center;
-  gap: 11px;
+  column-gap: 20px;
+  row-gap: 6px;
 }
 
 .recommended-badge {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  color: var(--site-blue);
-  font: 750 0.7rem/1 var(--site-sans);
-  letter-spacing: 0.04em;
+  display: none;
 }
 
 .platform-icon {
@@ -134,32 +123,50 @@
 }
 
 .recommended .platform-icon {
+  grid-area: icon;
   width: 64px;
   height: 64px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .recommended .platform-name {
+  grid-area: name;
+  margin: 0;
   font-size: clamp(1.85rem, 3vw, 2.55rem);
+  text-align: left;
 }
 
 .recommended .platform-desc,
 .recommended .platform-owner {
-  max-width: 640px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+}
+
+.recommended .platform-desc {
+  grid-area: description;
+}
+
+.recommended .platform-owner {
+  grid-area: owner;
 }
 
 .recommended .download-btn,
 .recommended .download-btn:not([hidden]) {
+  grid-area: action;
   align-self: center;
+  justify-self: end;
+  width: min(100%, 220px);
   margin: 0;
 }
 
 .recommended .sha256:not([hidden]) {
+  grid-area: hash;
+  justify-self: end;
+  width: min(100%, 220px);
   align-self: center;
-  margin: 5px auto 0;
-  text-align: center;
+  margin: 0;
+  text-align: left;
 }
 
 .platform-icon svg {
@@ -201,6 +208,7 @@
 
 .platform-card .download-btn,
 .platform-card .download-btn:not([hidden]) {
+  width: min(100%, 220px);
   margin-top: auto;
 }
 
@@ -234,6 +242,7 @@
 }
 
 .sha256 {
+  width: min(100%, 220px);
   max-width: 100%;
   margin: 5px auto 0;
   padding: 6px 10px;
@@ -349,10 +358,36 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .platform-card:not(.recommended),
-  .platform-card[data-platform="office"],
-  .platform-card[data-platform="wps"] {
+  .platform-card:not(.recommended) {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .platform-card.recommended > .lg-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 11px;
+  }
+
+  .recommended .platform-icon,
+  .recommended .platform-name,
+  .recommended .platform-desc,
+  .recommended .platform-owner,
+  .recommended .download-btn,
+  .recommended .download-btn:not([hidden]),
+  .recommended .sha256:not([hidden]) {
+    align-self: auto;
+    justify-self: auto;
+    text-align: center;
+  }
+
+  .recommended .download-btn,
+  .recommended .download-btn:not([hidden]),
+  .recommended .sha256:not([hidden]) {
+    width: min(100%, 22rem);
   }
 }
 
@@ -426,31 +461,10 @@
     text-align: center;
   }
 
-  .platform-card.recommended > .lg-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 11px;
-  }
-
   .recommended .platform-icon {
     width: 58px;
     height: 58px;
     margin: 2px auto 4px;
-  }
-
-  .recommended .platform-desc,
-  .recommended .platform-owner {
-    margin-inline: auto;
-    text-align: center;
-  }
-
-  .recommended .download-btn,
-  .recommended .download-btn:not([hidden]),
-  .recommended .sha256:not([hidden]) {
-    align-self: auto;
-    justify-self: auto;
   }
 
   .platform-card .download-btn,
@@ -490,132 +504,16 @@
 
 /* device-aware Windows bundle presentation */
 /*
- * The bundle is an ordinary platform card unless Windows is reliably
- * detected. The full-width featured treatment is Windows-only.
+ * Canonical grid geometry lives in styles/download.css. This small deploy
+ * patch only guards the dynamically decorated bundle against narrow-layout
+ * overflow after metadata arrives asynchronously.
  */
-:root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
-  grid-column: span 2 !important;
-  width: 100% !important;
+.platform-card.windows-bundle-card,
+.platform-card.windows-bundle-card > .lg-content {
   min-width: 0;
-  min-height: 268px;
-  padding: 26px 22px 22px !important;
-  text-align: center;
 }
 
-:root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-  width: 100% !important;
-  min-width: 0;
-  min-height: 100%;
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 11px;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-icon {
-  grid-area: auto !important;
-  width: 48px !important;
-  height: 48px !important;
-  margin: 2px auto 4px !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-name,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-desc,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-owner {
-  grid-area: auto !important;
-  max-width: 560px;
-  min-width: 0;
-  margin-inline: auto !important;
-  text-align: center !important;
-  overflow-wrap: anywhere;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-name {
-  font-size: clamp(1.5rem, 3vw, 2.1rem) !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn:not([hidden]) {
-  grid-area: auto !important;
-  justify-self: auto !important;
-  align-self: center !important;
-  width: auto !important;
-  min-width: 170px !important;
-  max-width: 100%;
-  margin-top: auto !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .sha256:not([hidden]) {
-  grid-area: auto !important;
-  justify-self: auto !important;
-  width: auto !important;
-  min-width: 0;
-  max-width: 100%;
-  margin: 5px auto 0 !important;
-}
-
-/*
- * A detected non-Windows desktop keeps the information-dense three-column
- * layout. The recommended native platform occupies the first full row, and
- * the six remaining cards flow as two complete rows of three.
- */
-@media (min-width: 901px) {
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    grid-auto-flow: row dense;
-  }
-
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid > .platform-card.recommended {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-  }
-
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid > .platform-card:not(.recommended) {
-    grid-column: span 2 !important;
-    width: 100% !important;
-    min-width: 0;
-    justify-self: stretch !important;
-  }
-}
-
-@media (max-width: 1040px) {
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-    min-width: 0;
-    grid-template-columns: 58px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "icon name"
-      "icon description"
-      "icon owner"
-      "action action"
-      "hash hash" !important;
-    column-gap: 18px !important;
-    row-gap: 8px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .download-btn,
-  :root[data-detected-platform="windows"] .windows-bundle-card .download-btn:not([hidden]),
-  :root[data-detected-platform="windows"] .windows-bundle-card .sha256:not([hidden]) {
-    justify-self: center !important;
-    width: min(100%, 360px) !important;
-    min-width: 0 !important;
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   .platform-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
@@ -624,37 +522,15 @@
   .platform-grid > .platform-card.recommended,
   .platform-grid > .platform-card[data-platform="office"],
   .platform-grid > .platform-card[data-platform="wps"],
-  :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
+  .platform-grid > .platform-card.windows-bundle-card {
     grid-column: 1 !important;
     width: 100% !important;
     min-width: 0;
   }
 
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card {
-    padding: 28px 20px 24px !important;
-  }
-
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-areas:
-      "icon"
-      "name"
-      "description"
-      "owner"
-      "action"
-      "hash" !important;
-    justify-items: center;
-    row-gap: 11px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-icon {
-    margin: 0 auto 2px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-name,
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-desc,
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-owner {
-    min-width: 0;
+  .windows-bundle-card .platform-name,
+  .windows-bundle-card .platform-desc,
+  .windows-bundle-card .platform-owner {
     text-align: center !important;
     overflow-wrap: anywhere;
   }

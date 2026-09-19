@@ -1,4 +1,5 @@
 .scene {
+  scroll-margin-top: calc(var(--site-header-height) + 1.5rem);
   padding: clamp(5.5rem, 10vw, 9.25rem) 0;
   color: var(--ls-ink);
   background: var(--ls-bg);
@@ -161,6 +162,18 @@
   align-items: start;
 }
 
+.astVisualStack {
+  display: grid;
+  gap: 1rem;
+}
+
+.transformLayout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: stretch;
+}
+
 .formulaPanel,
 .conversionPanel,
 .workspaceCopy,
@@ -168,7 +181,6 @@
 .ctaPanel {
   border: 1px solid var(--ls-line);
   border-radius: var(--site-radius-lg);
-  background: var(--ls-surface-strong);
   box-shadow: var(--ls-shadow);
 }
 
@@ -423,13 +435,57 @@
   border-radius: var(--site-radius-lg);
   background:
     radial-gradient(circle at center, var(--ls-blue-soft), transparent 38%),
-    var(--ls-surface-strong);
+    transparent;
   box-shadow: var(--ls-shadow);
+}
+
+.ecosystemMap > :global(.lg-content) {
+  position: relative;
+  display: block;
+  min-height: inherit;
+}
+
+.ecosystemAura,
+.ecosystemEdges {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ecosystemAura {
+  inset: 19% 16%;
+  z-index: 0;
+  border: 1px solid color-mix(in srgb, var(--ls-blue) 20%, transparent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 2.5rem color-mix(in srgb, var(--ls-blue) 4%, transparent),
+    0 0 5.5rem color-mix(in srgb, var(--ls-blue) 11%, transparent);
+}
+
+.ecosystemEdges {
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ecosystemEdges path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--ls-blue) 40%, var(--ls-line));
+  stroke-width: 0.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ecosystemEdges .ecosystemEdgeOuter {
+  stroke: color-mix(in srgb, var(--ls-blue) 20%, transparent);
+  stroke-dasharray: 2 2.6;
 }
 
 .ecosystemCore,
 .ecosystemNode {
   position: absolute;
+  z-index: 1;
   display: grid;
   place-items: center;
   border: 1px solid var(--ls-line-strong);
@@ -453,6 +509,14 @@
   color: var(--ls-blue-ink);
   background: var(--ls-blue);
   transform: translate(-50%, -50%);
+}
+
+.ecosystemCore small {
+  display: block;
+  margin-top: 0.35rem;
+  color: color-mix(in srgb, var(--ls-blue-ink) 66%, transparent);
+  font: 600 0.6rem / 1.3 var(--ls-mono);
+  letter-spacing: 0.04em;
 }
 
 .ecosystemNode {
@@ -524,11 +588,14 @@
 }
 
 .ctaPanel {
+  padding: clamp(2rem, 6vw, 4.5rem);
+}
+
+.ctaPanel > .lg-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 2rem;
-  padding: clamp(2rem, 6vw, 4.5rem);
 }
 
 .ctaPanel h2 {
@@ -576,8 +643,12 @@
   .recognizeGrid,
   .workspaceGrid,
   .astLayout,
-  .ecosystemStage,
-  .ctaPanel {
+  .transformLayout,
+  .ecosystemStage {
+    grid-template-columns: 1fr;
+  }
+
+  .ctaPanel > .lg-content {
     grid-template-columns: 1fr;
   }
 
@@ -622,18 +693,58 @@
     min-height: 31rem;
   }
 
+  .ecosystemMap > :global(.lg-content) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: 0.55rem;
+    padding: 1rem 0.65rem;
+  }
+
+  .ecosystemAura,
+  .ecosystemEdges {
+    display: none;
+  }
+
   .ecosystemNode {
-    width: 6.9rem;
+    position: static;
+    width: min(100%, 6.9rem);
     min-height: 3.75rem;
     font-size: 0.73rem;
+    justify-self: center;
+    transform: none !important;
+  }
+
+  .ecosystemCore {
+    position: static;
+    grid-column: 2;
+    grid-row: 2;
+    width: min(100%, 8.4rem);
+    min-height: 4.8rem;
+    padding: 0.65rem;
+    justify-self: center;
+    transform: none;
+  }
+
+  .ecosystemNode:nth-of-type(2) {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .ecosystemNode:nth-of-type(3) {
-    right: 3%;
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .ecosystemNode:nth-of-type(4) {
+    grid-column: 2;
+    grid-row: 3;
   }
 
   .ecosystemNode:nth-of-type(5) {
-    left: 3%;
+    grid-column: 1;
+    grid-row: 2;
   }
 
   .ctaActions {

@@ -12,74 +12,124 @@
   --lg-pointer-y: 50%;
   --lg-pointer-dx: 0;
   --lg-pointer-dy: 0;
-  --lg-blur: 3px;
-  --lg-saturate: 112%;
-  --lg-tint-strength: 0.055;
-  --lg-rim-strength: 0.38;
-  --lg-specular-strength: 0.16;
+  --lg-blur: 8px;
+  --lg-saturate: 128%;
+  --lg-brightness: 1.025;
+  --lg-tint-strength: 24%;
+  --lg-tint-falloff: 10%;
+  --lg-rim-strength: 0.7;
+  --lg-specular-strength: 0.42;
   --lg-shadow-strength: 0.1;
   --lg-material-strength: 1;
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--site-glass-edge, rgba(255, 255, 255, 0.45)) 48%, transparent);
   border-radius: var(--site-radius-md, 18px);
   color: inherit;
   background: transparent;
   box-shadow:
-    0 16px 42px rgb(8 18 32 / calc(var(--lg-shadow-strength) * var(--lg-material-strength))),
-    inset 0 1px 0 rgb(255 255 255 / calc(0.05 * var(--lg-material-strength)));
+    0 1px 2px rgb(3 8 18 / calc(0.08 * var(--lg-material-strength))),
+    0 20px 58px rgb(3 8 18 / calc(var(--lg-shadow-strength) * var(--lg-material-strength))),
+    inset 0 1px 0 rgb(255 255 255 / calc(0.3 * var(--lg-material-strength))),
+    inset 0 -1px 0 rgb(2 8 18 / calc(0.16 * var(--lg-material-strength)));
   transition: box-shadow 260ms ease, transform 260ms ease;
 }
 
-.lg-surface--navigation,
-.lg-surface--regular {
+.lg-surface--navigation {
   --lg-blur: 3px;
-  --lg-tint-strength: 0.055;
-  --lg-rim-strength: 0.36;
-  --lg-specular-strength: 0.14;
-  --lg-shadow-strength: 0.09;
+  --lg-tint-strength: 30%;
+  --lg-tint-falloff: 16%;
+  --lg-rim-strength: 0.7;
+  --lg-specular-strength: 0.38;
+  --lg-shadow-strength: 0.07;
+}
+
+.lg-surface--regular {
+  --lg-blur: 8px;
+  --lg-tint-strength: 18%;
+  --lg-tint-falloff: 7%;
+  --lg-rim-strength: 0.64;
+  --lg-specular-strength: 0.34;
+  --lg-shadow-strength: 0.07;
 }
 
 .lg-surface--clear {
-  --lg-blur: 0px;
-  --lg-tint-strength: 0.018;
-  --lg-rim-strength: 0.4;
-  --lg-specular-strength: 0.16;
-  --lg-shadow-strength: 0.06;
+  --lg-blur: 2px;
+  --lg-tint-strength: 8%;
+  --lg-tint-falloff: 3%;
+  --lg-rim-strength: 0.68;
+  --lg-specular-strength: 0.4;
+  --lg-shadow-strength: 0.08;
 }
 
 .lg-surface--control {
-  --lg-blur: 2px;
-  --lg-tint-strength: 0.04;
-  --lg-rim-strength: 0.46;
-  --lg-specular-strength: 0.18;
-  --lg-shadow-strength: 0.07;
+  --lg-blur: 5px;
+  --lg-tint-strength: 14%;
+  --lg-tint-falloff: 5%;
+  --lg-rim-strength: 0.76;
+  --lg-specular-strength: 0.46;
+  --lg-shadow-strength: 0.08;
   border-radius: var(--site-radius-sm, 12px);
 }
 
 .lg-surface--floating {
-  --lg-blur: 4px;
-  --lg-tint-strength: 0.05;
-  --lg-rim-strength: 0.5;
-  --lg-specular-strength: 0.22;
-  --lg-shadow-strength: 0.13;
-}
-
-.lg-surface--panel {
-  --lg-blur: 5px;
-  --lg-tint-strength: 0.06;
-  --lg-rim-strength: 0.34;
-  --lg-specular-strength: 0.12;
+  --lg-blur: 8px;
+  --lg-tint-strength: 19%;
+  --lg-tint-falloff: 7%;
+  --lg-rim-strength: 0.82;
+  --lg-specular-strength: 0.54;
   --lg-shadow-strength: 0.12;
 }
 
+.lg-surface--panel {
+  --lg-blur: 12px;
+  --lg-tint-strength: 25%;
+  --lg-tint-falloff: 11%;
+  --lg-rim-strength: 0.66;
+  --lg-specular-strength: 0.36;
+  --lg-shadow-strength: 0.14;
+}
+
 .lg-surface--overlay {
-  --lg-blur: 10px;
-  --lg-tint-strength: 0.075;
-  --lg-rim-strength: 0.38;
-  --lg-specular-strength: 0.14;
-  --lg-shadow-strength: 0.16;
+  --lg-blur: 16px;
+  --lg-tint-strength: 34%;
+  --lg-tint-falloff: 17%;
+  --lg-rim-strength: 0.72;
+  --lg-specular-strength: 0.42;
+  --lg-shadow-strength: 0.18;
+}
+
+/* Light surfaces stay optically clear: SVG bends the scene while CSS adds only a thin veil. */
+html[data-theme="light"] .lg-surface {
+  --lg-saturate: 118%;
+  --lg-brightness: 1.01;
+}
+
+html[data-theme="light"] .lg-surface--navigation {
+  --lg-blur: 1.5px;
+  --lg-tint-strength: 34%;
+  --lg-tint-falloff: 18%;
+  --lg-shadow-strength: 0.055;
+}
+
+html[data-theme="light"] .lg-surface--regular {
+  --lg-blur: 6px;
+  --lg-tint-strength: 14%;
+  --lg-tint-falloff: 5%;
+  --lg-shadow-strength: 0.055;
+}
+
+html[data-theme="light"] .lg-surface--floating {
+  --lg-blur: 6px;
+  --lg-tint-strength: 14%;
+  --lg-tint-falloff: 4%;
+}
+
+html[data-theme="light"] .lg-surface--panel {
+  --lg-blur: 8px;
+  --lg-tint-strength: 18%;
+  --lg-tint-falloff: 6%;
 }
 
 .lg-backdrop,
@@ -95,19 +145,27 @@
 
 .lg-backdrop {
   z-index: 0;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 88%), transparent),
-    color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) calc(var(--lg-tint-strength) * 44%), transparent)
-  );
-  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
-  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.11), transparent 26% 67%, color-mix(in srgb, var(--site-blue, #79a8ff) 8%, transparent)),
+    linear-gradient(
+      138deg,
+      color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.68)) var(--lg-tint-strength), transparent),
+      color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.68)) var(--lg-tint-falloff), transparent)
+    );
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(104%) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(104%) brightness(var(--lg-brightness));
   transition: background 260ms ease, backdrop-filter 260ms ease, -webkit-backdrop-filter 260ms ease;
 }
 
 html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"]) .lg-surface > .lg-backdrop {
-  backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
-  -webkit-backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) brightness(1.018);
+  backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+}
+
+/* Wide navigation bars use a calmer displacement field than compact panels. */
+html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"]) .lg-surface--navigation > .lg-backdrop {
+  backdrop-filter: url("#liquid-navigation-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
+  -webkit-backdrop-filter: url("#liquid-navigation-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
 }
 
 .lg-optics {
@@ -121,23 +179,20 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 .lg-caustic {
   inset: 1px;
   background:
-    linear-gradient(112deg, rgb(255 255 255 / 0.12), transparent 16% 72%, rgb(114 193 255 / 0.1)),
-    linear-gradient(180deg, rgb(255 255 255 / 0.1), transparent 22% 82%, rgb(43 116 183 / 0.08));
+    radial-gradient(120% 58% at 12% -8%, rgb(255 255 255 / 0.34), transparent 58%),
+    radial-gradient(95% 54% at 104% 112%, color-mix(in srgb, var(--site-blue) 24%, transparent), transparent 68%),
+    linear-gradient(112deg, rgb(255 255 255 / 0.14), transparent 18% 72%, color-mix(in srgb, var(--site-blue) 18%, transparent));
   mix-blend-mode: screen;
-  opacity: calc(var(--lg-specular-strength) * 0.72);
+  opacity: calc(var(--lg-specular-strength) * 0.92);
 }
 
 .lg-specular {
-  background: linear-gradient(
-    128deg,
-    rgb(255 255 255 / 0.2),
-    rgb(255 255 255 / 0.035) 14%,
-    transparent 32% 66%,
-    rgb(92 184 234 / 0.1)
-  );
+  background:
+    radial-gradient(circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / 0.2), transparent 30%),
+    linear-gradient(126deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.045) 14%, transparent 32% 66%, color-mix(in srgb, var(--site-blue) 22%, transparent));
   mix-blend-mode: screen;
-  opacity: calc(var(--lg-specular-strength) * 0.68);
-  transform: translate(calc(var(--lg-pointer-dx) * 1px), calc(var(--lg-pointer-dy) * 1px));
+  opacity: calc(var(--lg-specular-strength) * 0.82);
+  transform: translate(calc(var(--lg-pointer-dx) * 2px), calc(var(--lg-pointer-dy) * 2px));
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
@@ -145,11 +200,11 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
   padding: 1px;
   background: conic-gradient(
     from 208deg at var(--lg-pointer-x) var(--lg-pointer-y),
-    rgb(255 255 255 / 0.58),
-    rgb(255 255 255 / 0.08) 20%,
-    rgb(100 191 245 / 0.18) 45%,
-    rgb(255 255 255 / 0.035) 68%,
-    rgb(255 255 255 / 0.42)
+    rgb(255 255 255 / 0.9),
+    rgb(255 255 255 / 0.12) 20%,
+    color-mix(in srgb, var(--site-blue) 48%, transparent) 45%,
+    rgb(255 255 255 / 0.055) 68%,
+    rgb(255 255 255 / 0.7)
   );
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
@@ -165,11 +220,13 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 }
 
 .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--site-blue, #79a8ff) 16%, transparent), color-mix(in srgb, var(--site-blue, #79a8ff) 7%, transparent));
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 0.14), transparent 30% 68%, color-mix(in srgb, var(--site-blue, #79a8ff) 16%, transparent)),
+    linear-gradient(135deg, color-mix(in srgb, var(--site-blue, #79a8ff) 30%, transparent), color-mix(in srgb, var(--site-blue, #79a8ff) 14%, transparent));
 }
 
 .lg-surface[data-lg-accent="blue"] .lg-caustic {
-  background: linear-gradient(130deg, rgb(181 212 255 / 0.18), transparent 32% 72%, rgb(80 145 240 / 0.16));
+  background: linear-gradient(130deg, color-mix(in srgb, var(--site-blue) 28%, transparent), transparent 32% 72%, color-mix(in srgb, var(--site-blue) 22%, transparent));
 }
 
 /* Primary actions remain glass-built, but keep a readable blue signal on any backdrop. */
@@ -187,15 +244,15 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 }
 
 .lg-surface.is-pointer-lit > .lg-optics > .lg-rim {
-  opacity: min(0.62, calc(var(--lg-rim-strength) + 0.08));
+  opacity: min(0.94, calc(var(--lg-rim-strength) + 0.08));
 }
 
 /* Nested controls keep the same optics without blurring their parent a second time. */
-.lg-surface .lg-surface > .lg-backdrop,
+.lg-surface .lg-surface:not(.site-navigation) > .lg-backdrop,
 .lg-surface [data-lg-inset] > .lg-backdrop {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) 5%, transparent);
+  background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.68)) 12%, transparent);
 }
 
 .lg-surface .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
@@ -210,22 +267,24 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 .lg-surface[data-lg-condense="true"] {
   --lg-material-strength: 0;
   --lg-blur: 0px;
-  --lg-tint-strength: 0;
+  --lg-tint-strength: 0%;
+  --lg-tint-falloff: 0%;
   --lg-shadow-strength: 0;
 }
 
 .is-scrolled .lg-surface[data-lg-condense="true"],
 .lg-surface[data-lg-condense="true"].is-condensed {
   --lg-material-strength: 1;
-  --lg-blur: 3px;
-  --lg-tint-strength: 0.055;
-  --lg-shadow-strength: 0.09;
+  --lg-blur: 8px;
+  --lg-tint-strength: 18%;
+  --lg-tint-falloff: 7%;
+  --lg-shadow-strength: 0.07;
 }
 
 html[data-liquid-debug="no-blur"] .lg-backdrop,
 html[data-lg-blur="off"] .lg-backdrop {
-  backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(1.018) !important;
-  -webkit-backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(1.018) !important;
+  backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(var(--lg-brightness)) !important;
+  -webkit-backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(var(--lg-brightness)) !important;
 }
 
 html[data-lg-optics="off"] .lg-optics { opacity: 0 !important; }
@@ -233,13 +292,13 @@ html[data-lg-tint="off"] .lg-backdrop { background: transparent !important; }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .lg-backdrop {
-    background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.2)) 8%, transparent);
+    background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.68)) 58%, transparent);
   }
 }
 
 @media (max-width: 720px) {
   .lg-surface--panel,
-  .lg-surface--overlay { --lg-blur: 5px; }
+  .lg-surface--overlay { --lg-blur: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -248,4 +307,16 @@ html[data-lg-tint="off"] .lg-backdrop { background: transparent !important; }
   .lg-optics,
   .lg-specular,
   .lg-rim { transition: none !important; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .lg-backdrop {
+    background: var(--site-bg-elevated);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .lg-optics {
+    opacity: 0.32;
+  }
 }

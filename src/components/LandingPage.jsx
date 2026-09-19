@@ -9,6 +9,7 @@ import {
 import { useReleaseInfo } from "../hooks/useReleaseInfo";
 import MathWorld from "../three/MathWorld";
 import MathPlayground from "../p5/MathPlayground";
+import LiquidGlassSurface from "./LiquidGlassSurface";
 import AstSection from "./scenes/AstSection";
 import CaptureSection from "./scenes/CaptureSection";
 import EcosystemScene from "./scenes/EcosystemSection";
@@ -35,70 +36,6 @@ const conversionExamples = {
   MathML: "<math><msubsup><mo>∫</mo><mn>0</mn><mo>∞</mo></msubsup></math>",
   OMML: "<m:oMath><m:int>…</m:int></m:oMath>",
 };
-
-function LiquidGlassSurface({
-  as: Tag = "div",
-  className = "",
-  thickness = "floating",
-  children,
-  interactive = false,
-  ...props
-}) {
-  const ContentTag = Tag === "span" ? "span" : "div";
-  return (
-    <Tag
-      className={`lg-surface lg-surface--${thickness} ${className}`.trim()}
-      data-lg-interactive={interactive ? "true" : undefined}
-      {...props}
-    >
-      <span className="lg-backdrop" aria-hidden="true" />
-      <span className="lg-optics" aria-hidden="true">
-        <span className="lg-caustic" />
-        <span className="lg-specular" />
-        <span className="lg-rim" />
-      </span>
-      <ContentTag className="lg-content">{children}</ContentTag>
-    </Tag>
-  );
-}
-
-function LiquidGlassFilter() {
-  return (
-    <svg
-      className="liquid-filter-defs"
-      width="0"
-      height="0"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <defs>
-        <filter
-          id="liquid-backdrop-refraction"
-          x="-6%"
-          y="-6%"
-          width="112%"
-          height="112%"
-          colorInterpolationFilters="sRGB"
-        >
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.006 0.009"
-            numOctaves="1"
-            seed="7"
-            result="backdropNoise"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="backdropNoise"
-            scale="1.4"
-            xChannelSelector="R"
-            yChannelSelector="B"
-          />
-        </filter>
-      </defs>
-    </svg>
-  );
-}
 
 function useTheme() {
   const resolveTheme = () => {
@@ -884,7 +821,6 @@ export default function LandingPage() {
 
   return (
     <>
-      <LiquidGlassFilter />
       <SiteHeader />
       <main id="main-content">
         <HeroSection />
@@ -893,6 +829,7 @@ export default function LandingPage() {
         <AstSection />
         <TransformSection />
         <WorkspaceSection />
+        <MathPlayground />
         <EcosystemScene />
         <FinalCta />
       </main>

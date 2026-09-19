@@ -10,132 +10,16 @@ const responsiveCss = `
 
 ${cssMarker}
 /*
- * The bundle is an ordinary platform card unless Windows is reliably
- * detected. The full-width featured treatment is Windows-only.
+ * Canonical grid geometry lives in styles/download.css. This small deploy
+ * patch only guards the dynamically decorated bundle against narrow-layout
+ * overflow after metadata arrives asynchronously.
  */
-:root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
-  grid-column: span 2 !important;
-  width: 100% !important;
+.platform-card.windows-bundle-card,
+.platform-card.windows-bundle-card > .lg-content {
   min-width: 0;
-  min-height: 268px;
-  padding: 26px 22px 22px !important;
-  text-align: center;
 }
 
-:root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-  width: 100% !important;
-  min-width: 0;
-  min-height: 100%;
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 11px;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-icon {
-  grid-area: auto !important;
-  width: 48px !important;
-  height: 48px !important;
-  margin: 2px auto 4px !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-name,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-desc,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-owner {
-  grid-area: auto !important;
-  max-width: 560px;
-  min-width: 0;
-  margin-inline: auto !important;
-  text-align: center !important;
-  overflow-wrap: anywhere;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .platform-name {
-  font-size: clamp(1.5rem, 3vw, 2.1rem) !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn,
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .download-btn:not([hidden]) {
-  grid-area: auto !important;
-  justify-self: auto !important;
-  align-self: center !important;
-  width: auto !important;
-  min-width: 170px !important;
-  max-width: 100%;
-  margin-top: auto !important;
-}
-
-:root:not([data-detected-platform="windows"]) .windows-bundle-card .sha256:not([hidden]) {
-  grid-area: auto !important;
-  justify-self: auto !important;
-  width: auto !important;
-  min-width: 0;
-  max-width: 100%;
-  margin: 5px auto 0 !important;
-}
-
-/*
- * A detected non-Windows desktop keeps the information-dense three-column
- * layout. The recommended native platform occupies the first full row, and
- * the six remaining cards flow as two complete rows of three.
- */
-@media (min-width: 901px) {
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    grid-auto-flow: row dense;
-  }
-
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid > .platform-card.recommended {
-    grid-column: 1 / -1 !important;
-    width: 100% !important;
-  }
-
-  :root:is(
-    [data-detected-platform="linux"],
-    [data-detected-platform="macos"],
-    [data-detected-platform="android"]
-  ) .platform-grid > .platform-card:not(.recommended) {
-    grid-column: span 2 !important;
-    width: 100% !important;
-    min-width: 0;
-    justify-self: stretch !important;
-  }
-}
-
-@media (max-width: 1040px) {
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-    min-width: 0;
-    grid-template-columns: 58px minmax(0, 1fr) !important;
-    grid-template-areas:
-      "icon name"
-      "icon description"
-      "icon owner"
-      "action action"
-      "hash hash" !important;
-    column-gap: 18px !important;
-    row-gap: 8px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .download-btn,
-  :root[data-detected-platform="windows"] .windows-bundle-card .download-btn:not([hidden]),
-  :root[data-detected-platform="windows"] .windows-bundle-card .sha256:not([hidden]) {
-    justify-self: center !important;
-    width: min(100%, 360px) !important;
-    min-width: 0 !important;
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   .platform-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
@@ -144,37 +28,15 @@ ${cssMarker}
   .platform-grid > .platform-card.recommended,
   .platform-grid > .platform-card[data-platform="office"],
   .platform-grid > .platform-card[data-platform="wps"],
-  :root:not([data-detected-platform="windows"]) .platform-grid > .platform-card.windows-bundle-card {
+  .platform-grid > .platform-card.windows-bundle-card {
     grid-column: 1 !important;
     width: 100% !important;
     min-width: 0;
   }
 
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card {
-    padding: 28px 20px 24px !important;
-  }
-
-  :root[data-detected-platform="windows"] .platform-grid > .platform-card.windows-bundle-card > .lg-content {
-    grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-areas:
-      "icon"
-      "name"
-      "description"
-      "owner"
-      "action"
-      "hash" !important;
-    justify-items: center;
-    row-gap: 11px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-icon {
-    margin: 0 auto 2px !important;
-  }
-
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-name,
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-desc,
-  :root[data-detected-platform="windows"] .windows-bundle-card .platform-owner {
-    min-width: 0;
+  .windows-bundle-card .platform-name,
+  .windows-bundle-card .platform-desc,
+  .windows-bundle-card .platform-owner {
     text-align: center !important;
     overflow-wrap: anywhere;
   }
@@ -252,9 +114,11 @@ const deviceDetectionScript = `
 `;
 
 const css = await readFile(cssPath, 'utf8');
-if (!css.includes(cssMarker)) {
-  await writeFile(cssPath, `${css.trimEnd()}${responsiveCss}\n`, 'utf8');
-}
+const markerIndex = css.indexOf(cssMarker);
+const canonicalCss = markerIndex === -1
+  ? css.trimEnd()
+  : css.slice(0, markerIndex).trimEnd();
+await writeFile(cssPath, `${canonicalCss}${responsiveCss}\n`, 'utf8');
 
 const html = await readFile(htmlPath, 'utf8');
 if (!html.includes(htmlMarker)) {

@@ -163,11 +163,12 @@
 
 .sidebar.lg-surface--regular,
 .right-sidebar.lg-surface--regular {
-  --lg-blur: 2px;
-  --lg-tint-strength: 0.035;
-  --lg-rim-strength: 0.32;
-  --lg-specular-strength: 0.12;
-  --lg-shadow-strength: 0.07;
+  --lg-blur: 8px;
+  --lg-tint-strength: 20%;
+  --lg-tint-falloff: 8%;
+  --lg-rim-strength: 0.58;
+  --lg-specular-strength: 0.3;
+  --lg-shadow-strength: 0.1;
 }
 
 /* ─── Reduced motion ─── */

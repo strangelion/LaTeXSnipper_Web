@@ -94,6 +94,43 @@
   display: block;
 }
 
+.hero-p5--three {
+  opacity: 0.92;
+}
+
+.math-world-label {
+  position: absolute;
+  z-index: 1;
+  max-width: 11rem;
+  padding: 0.42rem 0.58rem;
+  border: 1px solid color-mix(in srgb, var(--ls-blue) 38%, var(--ls-line));
+  border-radius: 0.45rem;
+  color: var(--ls-ink);
+  background: color-mix(in srgb, var(--ls-surface-strong) 78%, transparent);
+  box-shadow: 0 0.75rem 1.75rem color-mix(in srgb, var(--ls-blue) 12%, transparent);
+  font: 700 0.62rem / 1.2 var(--ls-mono);
+  letter-spacing: 0.055em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.25rem);
+  transition: opacity 180ms var(--site-ease), transform 180ms var(--site-ease);
+}
+
+.math-world-label.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-p5--three[data-math-world="fallback"]::after {
+  position: absolute;
+  inset: 10% 6%;
+  content: "∫  ·  ∑  ·  π  ·  ∇";
+  color: color-mix(in srgb, var(--ls-blue) 34%, transparent);
+  font: 500 clamp(2rem, 5vw, 5.5rem) / 1 var(--ls-serif);
+  letter-spacing: 0.18em;
+  text-align: center;
+}
+
 .hero-copy {
   max-width: 600px;
 }
@@ -549,7 +586,7 @@
 
 .playground-stage {
   display: grid;
-  grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(166px, 0.3fr) minmax(0, 1fr);
   gap: clamp(20px, 3vw, 40px);
   align-items: stretch;
 }
@@ -588,13 +625,69 @@
   background: var(--ls-blue);
 }
 
+.playground-panel {
+  min-width: 0;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.66fr) minmax(0, 1.34fr);
+  grid-template-areas:
+    "copy canvas"
+    "controls canvas";
+  gap: 1.1rem clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--ls-line);
+  border-radius: var(--site-radius-lg);
+  background:
+    radial-gradient(circle at 18% 14%, color-mix(in srgb, var(--ls-blue) 12%, transparent), transparent 44%),
+    color-mix(in srgb, var(--ls-surface-strong) 78%, transparent);
+  box-shadow: var(--ls-shadow);
+}
+
+.playground-copy {
+  grid-area: copy;
+  align-self: end;
+}
+
+.playground-copy > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.playground-copy span {
+  color: var(--ls-blue-deep);
+  font: 700 0.67rem / 1.3 var(--ls-mono);
+  letter-spacing: 0.09em;
+}
+
+.playground-copy h3 {
+  margin: 0;
+  color: var(--ls-ink);
+  font: 650 clamp(1.55rem, 2.8vw, 2.45rem) / 1.08 var(--ls-sans);
+  letter-spacing: -0.045em;
+}
+
+.playground-copy code {
+  display: block;
+  margin-top: 1rem;
+  color: var(--ls-blue-deep);
+  font: 600 0.78rem / 1.55 var(--ls-mono);
+  overflow-wrap: anywhere;
+}
+
+.playground-copy p {
+  margin: 0.8rem 0 0;
+  color: var(--ls-muted);
+  font: 400 0.88rem / 1.7 var(--ls-sans);
+}
+
 .playground-canvas {
+  grid-area: canvas;
   position: relative;
   border: 1px solid var(--ls-line);
   border-radius: 18px;
   background: color-mix(in srgb, var(--ls-surface-strong) 70%, transparent);
   box-shadow: var(--ls-shadow);
-  min-height: 420px;
+  min-height: 390px;
   overflow: hidden;
 }
 
@@ -606,7 +699,59 @@
   display: block;
 }
 
+.playground-controls {
+  grid-area: controls;
+  align-self: end;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  padding-top: 0.25rem;
+}
+
+.playground-controls label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  grid-column: 1 / -1;
+  color: var(--ls-muted);
+  font: 650 0.74rem / 1.3 var(--ls-sans);
+}
+
+.playground-controls output {
+  color: var(--ls-blue-deep);
+  font-family: var(--ls-mono);
+}
+
+.playground-controls input {
+  width: 100%;
+  accent-color: var(--ls-blue);
+}
+
+.playground-controls button {
+  min-height: 2.35rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ls-line-strong);
+  border-radius: var(--site-radius-sm);
+  color: var(--ls-ink);
+  background: transparent;
+  font: 650 0.74rem / 1 var(--ls-sans);
+  cursor: pointer;
+}
+
+.playground-controls button:hover {
+  border-color: var(--ls-blue);
+  color: var(--ls-blue-deep);
+}
+
 @media (max-width: 720px) {
+  .hero-p5--three {
+    opacity: 0.56;
+  }
+
+  .math-world-label {
+    display: none;
+  }
+
   .playground-stage {
     grid-template-columns: 1fr;
   }
@@ -614,9 +759,42 @@
     flex-direction: row;
     flex-wrap: wrap;
   }
+
+  .playground-toolbar button {
+    flex: 1 1 8rem;
+  }
+
+  .playground-panel {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "copy"
+      "canvas"
+      "controls";
+  }
   .playground-canvas {
-    min-height: 320px;
+    min-height: min(76vw, 360px);
     margin-top: 4px;
+  }
+}
+
+@media (max-width: 420px) {
+  .playground-panel {
+    padding: 0.8rem;
+  }
+
+  .playground-toolbar {
+    gap: 0.55rem;
+  }
+
+  .playground-toolbar button {
+    flex-basis: calc(50% - 0.55rem);
+    min-height: 40px;
+    padding-inline: 0.7rem;
+    font-size: 0.76rem;
+  }
+
+  .playground-controls {
+    grid-template-columns: 1fr;
   }
 }
 

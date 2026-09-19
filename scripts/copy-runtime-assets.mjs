@@ -18,6 +18,7 @@ const assets = [
   ['node_modules/pdfjs-dist/LICENSE', 'pdfjs/LICENSE'],
   ['node_modules/mathjax/es5/tex-svg.js', 'mathjax/tex-svg.js'],
   ['node_modules/mathjax/LICENSE', 'mathjax/LICENSE'],
+  ['node_modules/p5/license.txt', 'p5/LICENSE'],
   ['node_modules/fflate/esm/browser.js', 'fflate/fflate.js'],
   ['node_modules/fflate/LICENSE', 'fflate/LICENSE'],
 ];

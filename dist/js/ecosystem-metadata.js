@@ -7,6 +7,13 @@
   const WINDOWS_BUNDLE_METADATA_PATH = '/dl/windows-bundle.json';
   const WINDOWS_BUNDLE_ASSET_ID = 'windows-x86_64-bundle';
   const WINDOWS_BUNDLE_STYLE_ID = 'windows-bundle-card-layout';
+  const WINDOWS_BUNDLE_FALLBACK = Object.freeze({
+    href: 'https://latexsnipper.interknot.dpdns.org/dl/LaTeXSnipper-2.6.0-Setup.exe',
+    label: 'Windows 一键整合包',
+    requirements: 'Windows 10 / 11，x86_64。本地模型和运行环境的独立整合发布。',
+    owner: 'SakuraMathcraft · 单独上传的 Windows 整合发布',
+    downloadText: '下载 Windows 一键整合包',
+  });
 
   let payload = null;
   let observer = null;
@@ -19,111 +26,38 @@
     style.id = WINDOWS_BUNDLE_STYLE_ID;
     style.textContent = `
       .platform-card.windows-bundle-card {
-        grid-column: 1 / -1 !important;
-        min-height: 0;
-        padding: 24px 30px;
+        min-width: 0;
       }
 
       .platform-card.windows-bundle-card > .lg-content {
         width: 100%;
+        min-width: 0;
+        min-height: 100%;
         display: grid;
-        grid-template-columns: 64px minmax(0, 1fr) minmax(220px, auto);
-        grid-template-areas:
-          "icon name action"
-          "icon description action"
-          "icon owner hash";
+        align-content: start;
+        gap: 11px;
+      }
+
+      .windows-bundle-card.lg-surface > .lg-content {
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        column-gap: 22px;
-        row-gap: 6px;
-      }
-
-      .windows-bundle-card .platform-icon {
-        grid-area: icon;
-        width: 58px;
-        height: 58px;
-        margin: 0;
-      }
-
-      .windows-bundle-card .platform-name {
-        grid-area: name;
-        margin: 0;
-        text-align: left;
-        font-size: clamp(1.65rem, 2.7vw, 2.2rem);
-      }
-
-      .windows-bundle-card .platform-desc {
-        grid-area: description;
-      }
-
-      .windows-bundle-card .platform-owner {
-        grid-area: owner;
+        justify-content: flex-start;
       }
 
       .windows-bundle-card .platform-desc,
       .windows-bundle-card .platform-owner {
-        max-width: none;
-        margin: 0;
-        text-align: left;
-      }
-
-      .windows-bundle-card .download-btn,
-      .windows-bundle-card .download-btn:not([hidden]) {
-        grid-area: action;
-        justify-self: end;
-        align-self: center;
-        min-width: 220px;
-        min-height: 46px;
-        margin: 0 !important;
-      }
-
-      .windows-bundle-card .download-btn > .lg-content {
-        width: 100%;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .windows-bundle-card .sha256:not([hidden]) {
-        grid-area: hash;
-        justify-self: end;
-        width: min(100%, 220px);
-        margin: 0;
+        overflow-wrap: anywhere;
       }
 
       @media (max-width: 760px) {
-        .platform-card.windows-bundle-card {
-          grid-column: 1 !important;
-          padding: 28px 20px 24px;
-        }
-
         .platform-card.windows-bundle-card > .lg-content {
-          grid-template-columns: 1fr;
-          grid-template-areas:
-            "icon"
-            "name"
-            "description"
-            "owner"
-            "action"
-            "hash";
-          justify-items: center;
-          row-gap: 11px;
-        }
-
-        .windows-bundle-card .platform-icon {
-          margin: 0 auto 2px;
-        }
-
-        .windows-bundle-card .platform-name,
-        .windows-bundle-card .platform-desc,
-        .windows-bundle-card .platform-owner {
           text-align: center;
         }
-
         .windows-bundle-card .download-btn,
         .windows-bundle-card .download-btn:not([hidden]),
         .windows-bundle-card .sha256:not([hidden]) {
-          justify-self: center;
+          width: min(100%, 22rem);
         }
       }
     `;
@@ -301,11 +235,9 @@
     else link.textContent = text;
   }
 
-  function renderWindowsBundle(bundle) {
-    ensureWindowsBundleStyles();
-
+  function getWindowsBundleCard() {
     const sourceCard = document.querySelector('[data-asset-id="windows-x86_64"]');
-    if (!sourceCard) return false;
+    if (!sourceCard) return null;
 
     let card = document.querySelector(`[data-asset-id="${WINDOWS_BUNDLE_ASSET_ID}"]`);
     if (!card) {
@@ -318,15 +250,55 @@
     card.classList.remove('recommended');
     card.classList.add('windows-bundle-card');
     card.querySelectorAll('.recommended-badge').forEach((badge) => badge.remove());
+    return card;
+  }
+
+  function renderWindowsBundleUnavailable(message) {
+    ensureWindowsBundleStyles();
+    const card = getWindowsBundleCard();
+    if (!card) return false;
 
     const name = card.querySelector('.platform-name');
     const description = card.querySelector('.platform-desc');
     const owner = card.querySelector('.platform-owner');
     const link = card.querySelector('.download-btn');
     const sha = card.querySelector('.sha256');
+    const note = card.querySelector('[data-windows-bundle-note]');
+    if (!name || !description || !owner || !link || !sha) return false;
+
+    card.dataset.bundleState = 'fallback';
+    name.textContent = WINDOWS_BUNDLE_FALLBACK.label;
+    description.textContent = WINDOWS_BUNDLE_FALLBACK.requirements;
+    owner.textContent = WINDOWS_BUNDLE_FALLBACK.owner;
+    link.href = WINDOWS_BUNDLE_FALLBACK.href;
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+    link.hidden = false;
+    link.classList.remove('disabled');
+    link.removeAttribute('aria-disabled');
+    link.removeAttribute('tabindex');
+    setControlText(link, WINDOWS_BUNDLE_FALLBACK.downloadText);
+    sha.hidden = true;
+    if (note) note.textContent = message;
+    card.hidden = false;
+    return true;
+  }
+
+  function renderWindowsBundle(bundle) {
+    ensureWindowsBundleStyles();
+    const card = getWindowsBundleCard();
+    if (!card) return false;
+
+    const name = card.querySelector('.platform-name');
+    const description = card.querySelector('.platform-desc');
+    const owner = card.querySelector('.platform-owner');
+    const link = card.querySelector('.download-btn');
+    const sha = card.querySelector('.sha256');
+    const note = card.querySelector('[data-windows-bundle-note]');
 
     if (!name || !description || !owner || !link || !sha) return false;
 
+    card.dataset.bundleState = 'ready';
     name.textContent = bundle.label || 'Windows 一键整合包';
     description.textContent = [
       bundle.requirements || 'Windows 10 / 11，x86_64，已包含本地模型和必要运行环境',
@@ -339,10 +311,14 @@
     link.hidden = false;
     link.classList.remove('disabled');
     link.removeAttribute('aria-disabled');
+    link.removeAttribute('tabindex');
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
 
     decorateBundleCard(card, link);
     setControlText(link, bundle.downloadText || '下载 Windows 一键整合包');
     bindShaCopy(sha, bundle.sha256.toLowerCase());
+    if (note) note.remove();
 
     card.hidden = false;
     return true;
@@ -351,17 +327,22 @@
   async function syncWindowsBundle() {
     if (!isDownloadPage) return;
 
+    renderWindowsBundleUnavailable('正在读取独立发布元数据。当前可直接下载 2.6.0 整合包；校验数据可用时会自动显示。');
+
     try {
       const cacheWindow = Math.floor(Date.now() / 300_000);
       const response = await fetch(`${WINDOWS_BUNDLE_METADATA_PATH}?v=${cacheWindow}`, {
         cache: 'no-store',
         headers: { Accept: 'application/json' },
       });
-      if (!response.ok) return;
+      if (!response.ok) {
+        renderWindowsBundleUnavailable('独立整合包的发布元数据暂时不可用，已保留可下载的 2.6.0 独立整合包。未提供 SHA-256 时不会显示或伪造校验值。');
+        return;
+      }
 
       const bundle = await response.json();
       if (!isValidWindowsBundle(bundle)) {
-        console.warn('Ignoring invalid Windows bundle metadata');
+        renderWindowsBundleUnavailable('独立整合包的发布元数据未通过校验，已保留可下载的 2.6.0 独立整合包。未提供 SHA-256 时不会显示或伪造校验值。');
         return;
       }
 
@@ -374,7 +355,7 @@
         window.setTimeout(() => waitForCard.disconnect(), 10_000);
       }
     } catch (error) {
-      console.info('Windows bundle metadata is not available yet:', error);
+      renderWindowsBundleUnavailable('独立整合包的发布元数据暂时不可用，已保留可下载的 2.6.0 独立整合包。未提供 SHA-256 时不会显示或伪造校验值。');
     }
   }
 

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { astNodes, formulaExample } from '../../data/landingScenes';
+import SemanticGraph from '../../three/SemanticGraph';
+import LiquidGlassSurface from '../LiquidGlassSurface';
 import styles from './Scenes.module.css';
 
 export default function AstSection() {
@@ -18,23 +20,30 @@ export default function AstSection() {
           <p>同一表达式由节点和关系组成，因此可以继续编辑、计算和转换。</p>
         </header>
         <div className={styles.astLayout}>
-          <div className={styles.formulaPanel}>
-            <span className={styles.formulaLabel}>Static AST visualization</span>
-            <p className={styles.formulaText} aria-label={formulaExample.description}>
-              {formulaExample.visual}
-            </p>
-            <code className={styles.formulaCode}>{formulaExample.latex}</code>
-            <div className={styles.tokenRow} aria-label="公式组成部分">
-              {astNodes.map((node) => (
-                <span
-                  className={styles.token}
-                  data-selected={node.id === selectedNodeId}
-                  key={node.id}
-                >
-                  {node.token}
-                </span>
-              ))}
-            </div>
+          <div className={styles.astVisualStack}>
+            <LiquidGlassSurface className={styles.formulaPanel} thickness="panel">
+              <span className={styles.formulaLabel}>Static AST visualization</span>
+              <p className={styles.formulaText} aria-label={formulaExample.description}>
+                {formulaExample.visual}
+              </p>
+              <code className={styles.formulaCode}>{formulaExample.latex}</code>
+              <div className={styles.tokenRow} aria-label="公式组成部分">
+                {astNodes.map((node) => (
+                  <span
+                    className={styles.token}
+                    data-selected={node.id === selectedNodeId}
+                    key={node.id}
+                  >
+                    {node.token}
+                  </span>
+                ))}
+              </div>
+            </LiquidGlassSurface>
+            <SemanticGraph
+              variant="ast"
+              activeId={selectedNodeId}
+              onSelect={setSelectedNodeId}
+            />
           </div>
           <div>
             <div className={styles.astList} aria-label="公式结构节点">
