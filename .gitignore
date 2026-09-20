@@ -26,6 +26,7 @@ __pycache__/
 .vscode/
 tinymist.lock
 .sixth
+.playwright-cli/
 
 # === OS Files ===
 .DS_Store
