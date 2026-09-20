@@ -278,8 +278,13 @@ function SiteHeader() {
             >
               GitHub
             </a>
-            <button
+            <LiquidGlassSurface
+              as="button"
+              contentAs="span"
+              thickness="control"
               className="theme-icon-button"
+              data-lg-inset
+              interactive
               type="button"
               onClick={toggleTheme}
               aria-label={
@@ -287,7 +292,7 @@ function SiteHeader() {
               }
             >
               <ThemeIcon theme={theme} />
-            </button>
+            </LiquidGlassSurface>
             <a
               className="site-download-link"
               href="/download.html"

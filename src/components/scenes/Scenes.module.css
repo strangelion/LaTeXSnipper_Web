@@ -206,6 +206,13 @@
   text-align: center;
 }
 
+/* Upper limit of an integral: raised and scaled like the superscript exponent beside it. */
+.upperBound {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: 0.56em;
+}
+
 .formulaCode {
   display: block;
   overflow-x: auto;

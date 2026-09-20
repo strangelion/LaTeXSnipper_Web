@@ -29,8 +29,8 @@ function themeColors() {
   const isDark = document.documentElement.getAttribute("data-theme") === "dark"
     || (!document.documentElement.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
   return isDark
-    ? { active: "#a79dff", idle: "#62709f", line: "#5d568e", label: "#e8e7ff" }
-    : { active: "#6c63ff", idle: "#9aa3c8", line: "#aeb4d7", label: "#25233e" };
+    ? { active: "#9dbfff", idle: "#62779f", line: "#566a8e", label: "#e7efff" }
+    : { active: "#639aff", idle: "#9aaac8", line: "#aebcd7", label: "#232c3e" };
 }
 
 function createLabelTexture(THREE, text, color) {

@@ -21,12 +21,12 @@ const MATH_OBJECTS = [
 
 const THEME_COLORS = {
   light: {
-    operator: "#6c63ff", constant: "#00a878", variable: "#756eea",
-    geometry: "#5975d9", relation: "#816fe8", grid: "#a9a6ed", particle: "#8a83eb",
+    operator: "#639aff", constant: "#00a878", variable: "#6e99ea",
+    geometry: "#5986d9", relation: "#6f99e8", grid: "#a6bfed", particle: "#83a7eb",
   },
   dark: {
-    operator: "#a79dff", constant: "#48d7a0", variable: "#a297ff",
-    geometry: "#86a5ff", relation: "#c0a4ff", grid: "#4c4f9a", particle: "#978bff",
+    operator: "#9dbfff", constant: "#48d7a0", variable: "#97bbff",
+    geometry: "#86b0ff", relation: "#a4c4ff", grid: "#4c679a", particle: "#8bb4ff",
   },
 };
 
@@ -34,6 +34,12 @@ function getThemeName() {
   const current = document.documentElement.getAttribute("data-theme");
   if (current === "dark" || current === "light") return current;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+const TAU = Math.PI * 2;
+
+function clampUnit(value) {
+  return Math.max(-1, Math.min(1, value));
 }
 
 function createObjectTexture(THREE, object, color) {
@@ -105,6 +111,7 @@ function MathWorld() {
       time: 0,
       visibility: 1,
       pointer: { x: 0, y: 0 },
+      parallax: { x: 0, y: 0 },
       cameraTarget: { x: 0, y: 0 },
       sprites: [],
       world: null,
@@ -178,8 +185,12 @@ function MathWorld() {
       if (!bounds.width || !bounds.height) return;
       state.pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
       state.pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
-      state.cameraTarget.x = state.pointer.x * 0.42;
-      state.cameraTarget.y = state.pointer.y * 0.3;
+      // Defensive: the listener is on window, so the pointer can sit far outside the hero.
+      // Parallax uses the clamped value; otherwise a narrow host tilts the scene by tens of degrees.
+      state.parallax.x = clampUnit(state.pointer.x);
+      state.parallax.y = clampUnit(state.pointer.y);
+      state.cameraTarget.x = state.parallax.x * 0.42;
+      state.cameraTarget.y = state.parallax.y * 0.3;
       if (!THREE || !camera || !state.sprites.length) return;
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(state.pointer, camera);
@@ -198,10 +209,13 @@ function MathWorld() {
       state.lastFrame = timestamp;
       state.time += delta;
 
-      state.world.rotation.y += (state.pointer.x * 0.14 - state.world.rotation.y) * 0.035;
-      state.world.rotation.x += (-state.pointer.y * 0.07 - state.world.rotation.x) * 0.028;
-      state.orbitGroup.rotation.z = state.time * 0.045;
-      state.ambientGrid.rotation.z = state.time * -0.012;
+      state.world.rotation.y += (state.parallax.x * 0.14 - state.world.rotation.y) * 0.035;
+      state.world.rotation.x += (-state.parallax.y * 0.07 - state.world.rotation.x) * 0.028;
+      // Wrap driven angles so a long session cannot accumulate an unbounded rotation.
+      state.orbitGroup.rotation.z = (state.time * 0.045) % TAU;
+      // GridHelper lies in the XZ plane, so its in-plane axis is Y. Driving Z here yawed the
+      // whole grid about the vertical axis until it turned edge-on; sway it in plane instead.
+      state.ambientGrid.rotation.y = Math.sin(state.time * 0.05) * 0.02;
       camera.position.x += (state.cameraTarget.x - camera.position.x) * 0.055;
       camera.position.y += (state.cameraTarget.y - camera.position.y) * 0.055;
       camera.position.z = 6.8 + (1 - state.visibility) * 1.1;

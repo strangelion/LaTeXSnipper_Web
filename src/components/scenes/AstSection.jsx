@@ -4,6 +4,17 @@ import SemanticGraph from '../../three/SemanticGraph';
 import LiquidGlassSurface from '../LiquidGlassSurface';
 import styles from './Scenes.module.css';
 
+// The scene data stores the integral's upper bound as a plain "∞" character, which would
+// render full size on the baseline. Render it as a raised script glyph instead.
+function renderUpperBounds(text, className) {
+  const chunks = String(text).split('∞');
+  return chunks.flatMap((chunk, index) =>
+    index === chunks.length - 1
+      ? [chunk]
+      : [chunk, <span className={className} key={index}>{'∞'}</span>],
+  );
+}
+
 export default function AstSection() {
   const [selectedNodeId, setSelectedNodeId] = useState('formula');
   const selectedNode = astNodes.find((node) => node.id === selectedNodeId) || astNodes[0];
@@ -24,7 +35,7 @@ export default function AstSection() {
             <LiquidGlassSurface className={styles.formulaPanel} thickness="panel">
               <span className={styles.formulaLabel}>Static AST visualization</span>
               <p className={styles.formulaText} aria-label={formulaExample.description}>
-                {formulaExample.visual}
+                {renderUpperBounds(formulaExample.visual, styles.upperBound)}
               </p>
               <code className={styles.formulaCode}>{formulaExample.latex}</code>
               <div className={styles.tokenRow} aria-label="公式组成部分">
@@ -34,7 +45,7 @@ export default function AstSection() {
                     data-selected={node.id === selectedNodeId}
                     key={node.id}
                   >
-                    {node.token}
+                    {renderUpperBounds(node.token, styles.upperBound)}
                   </span>
                 ))}
               </div>

@@ -4,9 +4,11 @@ export default function LiquidGlassSurface({
   thickness = 'floating',
   children,
   interactive = false,
+  contentAs,
   ...props
 }) {
-  const ContentTag = Tag === 'span' ? 'span' : 'div';
+  // Phrasing-only hosts (button, span) must not receive flow content inside.
+  const ContentTag = contentAs || (Tag === 'span' ? 'span' : 'div');
 
   return (
     <Tag

@@ -498,7 +498,7 @@
 
 .understand-section {
   background:
-    radial-gradient(640px 480px at 82% 24%, rgba(108, 99, 255, 0.1), transparent 64%),
+    radial-gradient(640px 480px at 82% 24%, rgba(40, 100, 215, 0.1), transparent 64%),
     var(--ls-bg-warm);
 }
 
@@ -580,7 +580,7 @@
 
 .playground-section {
   background:
-    radial-gradient(720px 520px at 16% 12%, rgba(108, 99, 255, 0.08), transparent 64%),
+    radial-gradient(720px 520px at 16% 12%, rgba(40, 100, 215, 0.08), transparent 64%),
     var(--ls-bg);
 }
 
