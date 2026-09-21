@@ -7,6 +7,12 @@ import {
   workflowSteps,
 } from "../data/siteContent";
 import { useReleaseInfo } from "../hooks/useReleaseInfo";
+import { useProjectStats } from "../hooks/useProjectStats";
+import {
+  GitHubStarCount,
+  HeroCounters,
+  ProjectStatsStrip,
+} from "./ProjectCounters";
 import MathWorld from "../three/MathWorld";
 import MathPlayground from "../p5/MathPlayground";
 import LiquidGlassSurface from "./LiquidGlassSurface";
@@ -174,7 +180,7 @@ function GaussianIntegralFormula() {
   );
 }
 
-function SiteHeader() {
+function SiteHeader({ counters }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuMaterial, setMobileMenuMaterial] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -274,9 +280,11 @@ function SiteHeader() {
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
+              className="site-github-link"
               onClick={closeMenu}
             >
               GitHub
+              <GitHubStarCount counters={counters} />
             </a>
             <LiquidGlassSurface
               as="button"
@@ -307,7 +315,7 @@ function SiteHeader() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ counters }) {
   return (
     <section className="hero-section" aria-labelledby="hero-title">
       <MathWorld />
@@ -325,6 +333,7 @@ function HeroSection() {
             <a className="button button-secondary" href="/ocr.html">
               在线识别
             </a>
+            <HeroCounters counters={counters} />
           </div>
         </div>
 
@@ -807,6 +816,8 @@ function UnderstandSection() {
 }
 
 export default function LandingPage() {
+  const counters = useProjectStats();
+
   useEffect(() => {
     const els = document.querySelectorAll(".reveal, .hero-copy");
     const io = new IntersectionObserver(
@@ -826,9 +837,10 @@ export default function LandingPage() {
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader counters={counters} />
       <main id="main-content">
-        <HeroSection />
+        <HeroSection counters={counters} />
+        <ProjectStatsStrip counters={counters} />
         <CaptureSection />
         <RecognizeSection />
         <AstSection />

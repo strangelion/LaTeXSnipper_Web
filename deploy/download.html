@@ -173,6 +173,44 @@
     </section>
   </main>
 
+  <!--
+    First-time download gate. Clicking a desktop download opens this dialog instead of
+    starting the transfer; the visitor either goes to GitHub for a Star or continues the
+    download. It is shown once per cooldown window and never again after a follow-through.
+    The Android card is excluded: it already lands on the Mobile repository.
+  -->
+  <dialog
+    class="star-invite"
+    id="starInvite"
+    data-lg-surface="clear"
+    aria-labelledby="starInviteTitle"
+    aria-describedby="starInviteBody"
+  >
+    <span class="star-invite__mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3.6l2.58 5.23 5.77.84-4.17 4.07.98 5.75L12 16.77l-5.16 2.72.98-5.75-4.17-4.07 5.77-.84z"/></svg>
+    </span>
+    <p class="star-invite__title" id="starInviteTitle">下载前，先说一句</p>
+    <p class="star-invite__body" id="starInviteBody">LaTeXSnipper 完全免费开源，由维护者在业余时间开发和维护。如果它帮到了你，欢迎在 GitHub 点个 Star，这对项目很实在。</p>
+    <div class="star-invite__stats" data-star-invite-stats hidden>
+      <p class="star-invite__stat">
+        <span class="star-invite__stat-value" data-star-invite-stat="stars">0</span>
+        <span class="star-invite__stat-label">GitHub Stars</span>
+      </p>
+      <p class="star-invite__stat">
+        <span class="star-invite__stat-value" data-star-invite-stat="downloads">0</span>
+        <span class="star-invite__stat-label">累计下载*</span>
+      </p>
+      <p class="star-invite__note" data-star-invite-download-note hidden></p>
+    </div>
+    <div class="star-invite__actions">
+      <a class="star-invite__star" href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener" data-star-invite-star>去 GitHub 点个 Star</a>
+      <button class="star-invite__download" type="button" data-star-invite-download>继续下载</button>
+    </div>
+    <button class="star-invite__close" type="button" data-star-invite-close aria-label="关闭">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </dialog>
+
   <script type="module">
     import { detectCurrentDevice, isArchitectureCompatible } from './js/device-detection.js'
 
@@ -358,6 +396,257 @@
     }
 
     initializeDownloadPage()
+  </script>
+
+  <script type="module">
+    import {
+      DOWNLOAD_COUNT_DISCLAIMER,
+      DOWNLOAD_COUNT_SCOPE,
+      formatCompactCount,
+      formatExactCount,
+      normalizeCount,
+    } from './js/star-stats.js'
+
+    /*
+     * First-time download gate.
+     *
+     * A desktop download click opens the dialog instead of starting the transfer. The visitor
+     * either follows the Star link or presses "继续下载", which replays the original click so the
+     * browser downloads exactly as it would have. The dialog is written as shown immediately,
+     * so it can appear at most once per cooldown window and never again after a follow-through.
+     */
+    const STAR_INVITE_KEY = 'latexSnipper-starInvite'
+    const STAR_INVITE_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000
+    const STAR_INVITE_STATS_PATH = '/api/stats'
+    const STAR_INVITE_COUNT_MS = 900
+
+    const starInvite = document.querySelector('#starInvite')
+    const platformGrid = document.querySelector('.platform-grid')
+    const starInviteStats = document.querySelector('[data-star-invite-stats]')
+
+    let starInviteTriggerElement = null
+    let starInviteResolved = false
+    let starInviteReplaying = false
+    let starInviteStatsData = null
+    let starInviteStatsRendered = false
+
+    function prefersReducedMotion() {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    }
+
+    function animateStarInviteCount(element, target, titleSuffix) {
+      /* The tooltip and screen reader text keep the exact figure behind the short label. */
+      const exact = titleSuffix
+        ? formatExactCount(target) + '（' + titleSuffix + '）'
+        : formatExactCount(target)
+      element.title = exact
+      element.setAttribute('aria-label', exact)
+      if (prefersReducedMotion() || target <= 0) {
+        element.textContent = formatCompactCount(target)
+        return
+      }
+      const startedAt = performance.now()
+      function tick(now) {
+        const progress = Math.min(1, (now - startedAt) / STAR_INVITE_COUNT_MS)
+        const eased = 1 - Math.pow(1 - progress, 3)
+        element.textContent = formatCompactCount(Math.round(target * eased))
+        if (progress < 1) window.requestAnimationFrame(tick)
+      }
+      window.requestAnimationFrame(tick)
+    }
+
+    function renderStarInviteStats() {
+      if (!starInviteStats || !starInviteStatsData || starInviteStatsRendered) return
+      /* Wait for the dialog: the counters tick up where the visitor can see them. */
+      if (!starInvite || !starInvite.open) return
+      const values = {
+        stars: normalizeCount(starInviteStatsData.stars),
+        downloads: normalizeCount(starInviteStatsData.totalDownloads),
+      }
+      if (values.stars === null && values.downloads === null) return
+      starInviteStatsRendered = true
+      starInviteStats.hidden = false
+      Object.keys(values).forEach(function (key) {
+        const element = starInviteStats.querySelector(
+          '[data-star-invite-stat="' + key + '"]',
+        )
+        if (!element) return
+        if (values[key] === null) {
+          element.closest('.star-invite__stat').remove()
+          return
+        }
+        animateStarInviteCount(
+          element,
+          values[key],
+          key === 'downloads'
+            ? DOWNLOAD_COUNT_SCOPE + '，' + DOWNLOAD_COUNT_DISCLAIMER
+            : null,
+        )
+      })
+      /* The asterisk on the download label only exists with its footnote. */
+      const note = starInviteStats.querySelector('[data-star-invite-download-note]')
+      if (note) {
+        if (values.downloads === null) note.remove()
+        else {
+          note.textContent =
+            '* ' + DOWNLOAD_COUNT_SCOPE + '。' + DOWNLOAD_COUNT_DISCLAIMER + '。'
+          note.hidden = false
+        }
+      }
+    }
+
+    function toCount(value) {
+      return normalizeCount(value)
+    }
+
+    async function loadStarInviteStats() {
+      try {
+        const response = await fetch(STAR_INVITE_STATS_PATH, {
+          headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) return
+        const data = await response.json()
+        /* Counters are decorative: stay hidden rather than show unverified numbers. */
+        if (!data || data.available === false) return
+        starInviteStatsData = data
+        renderStarInviteStats()
+      } catch (error) {
+        console.warn('Unable to load project counters:', error)
+      }
+    }
+
+    function readStarInviteState() {
+      try {
+        const raw = window.localStorage.getItem(STAR_INVITE_KEY)
+        if (!raw) return null
+        const parsed = JSON.parse(raw)
+        return parsed && typeof parsed === 'object' ? parsed : null
+      } catch (error) {
+        return null
+      }
+    }
+
+    function writeStarInviteState(status) {
+      try {
+        window.localStorage.setItem(
+          STAR_INVITE_KEY,
+          JSON.stringify({ status: status, at: Date.now() }),
+        )
+      } catch (error) {
+        /* Blocked or full storage: the gate stays one-shot for this page view. */
+      }
+    }
+
+    function shouldOfferStarInvite() {
+      const state = readStarInviteState()
+      if (!state) return true
+      if (state.status === 'starred') return false
+      if (state.status !== 'shown' && state.status !== 'dismissed') return true
+      const madeAt = Number(state.at)
+      return !Number.isFinite(madeAt) || Date.now() - madeAt >= STAR_INVITE_COOLDOWN_MS
+    }
+
+    function starInviteTrigger(event) {
+      const button = event.target.closest('.download-btn')
+      if (!button || button.classList.contains('disabled')) return null
+      const card = button.closest('.platform-card')
+      if (!card) return null
+      /* Android links already land on the Mobile repository, so no gate is built for it. */
+      if (card.dataset.platform === 'android') return null
+      return button
+    }
+
+    function lockPageScroll() {
+      const root = document.documentElement
+      const scrollbar = window.innerWidth - root.clientWidth
+      if (scrollbar > 0) {
+        root.style.setProperty('--star-invite-scrollbar', scrollbar + 'px')
+      }
+      root.classList.add('star-invite-locked')
+    }
+
+    function unlockPageScroll() {
+      const root = document.documentElement
+      root.classList.remove('star-invite-locked')
+      root.style.removeProperty('--star-invite-scrollbar')
+    }
+
+    function closeStarInvite(status) {
+      if (!starInvite || !starInvite.open) return
+      starInviteResolved = true
+      writeStarInviteState(status)
+      /* Closing restores focus to the download link that opened the dialog. */
+      starInvite.close()
+      unlockPageScroll()
+    }
+
+    function resumeDownload() {
+      const trigger = starInviteTriggerElement
+      if (!trigger || !document.contains(trigger)) return
+      starInviteReplaying = true
+      trigger.click()
+      starInviteReplaying = false
+    }
+
+    function openStarInvite(trigger) {
+      if (!starInvite || starInvite.open) return
+      starInviteTriggerElement = trigger || null
+      starInviteResolved = false
+      writeStarInviteState('shown')
+      lockPageScroll()
+      starInvite.showModal()
+      renderStarInviteStats()
+    }
+
+    if (starInvite && typeof starInvite.showModal === 'function' && platformGrid) {
+      platformGrid.addEventListener('click', function (event) {
+        const trigger = starInviteTrigger(event)
+        if (!trigger || starInviteReplaying || !shouldOfferStarInvite()) return
+        event.preventDefault()
+        openStarInvite(trigger)
+      })
+
+      const download = starInvite.querySelector('[data-star-invite-download]')
+      if (download) {
+        download.addEventListener('click', function () {
+          closeStarInvite('dismissed')
+          resumeDownload()
+        })
+      }
+
+      const star = starInvite.querySelector('[data-star-invite-star]')
+      if (star) star.addEventListener('click', function () { closeStarInvite('starred') })
+
+      const close = starInvite.querySelector('[data-star-invite-close]')
+      if (close) close.addEventListener('click', function () { closeStarInvite('dismissed') })
+
+      /* Clicking the backdrop targets the dialog element itself, never its content. */
+      starInvite.addEventListener('click', function (event) {
+        if (event.target === starInvite) closeStarInvite('dismissed')
+      })
+
+      /* Escape cancels the dialog natively; the close event also covers that path. */
+      starInvite.addEventListener('close', function () {
+        unlockPageScroll()
+        if (starInviteResolved) return
+        starInviteResolved = true
+        writeStarInviteState('dismissed')
+      })
+    }
+
+    const starInviteStar = document.querySelector('[data-star-invite-star]')
+    if (starInviteStar && window.LaTeXSnipperLiquid) {
+      starInviteStar.dataset.lgAccent = 'blue'
+      starInviteStar.dataset.lgAction = 'primary'
+      window.LaTeXSnipperLiquid.decorateLiquidSurface(starInviteStar, 'control', true)
+    }
+
+    const starInviteDownload = document.querySelector('[data-star-invite-download]')
+    if (starInviteDownload && window.LaTeXSnipperLiquid) {
+      window.LaTeXSnipperLiquid.decorateLiquidSurface(starInviteDownload, 'control', true)
+    }
+
+    loadStarInviteStats()
   </script>
 
   <script type="module" data-download-device-presentation>

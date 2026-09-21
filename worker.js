@@ -3,8 +3,6 @@
  * 从 GitHub 仓库获取静态文件并智能缓存
  */
 
-const GITHUB_OWNER = "strangelion";
-const GITHUB_REPO = "LaTeXSnipper_Web";
 const WORKER_SERVICE_VERSION = "2026.07.19";
 
 // Keep extension safety, MIME handling, binary reads, and caching in one table.
@@ -318,7 +316,7 @@ async function quotaLoadFromKV(env) {
   try {
     const data = await env.USAGE_KV.get('quota:' + quotaGetMonth(), 'json');
     return (data && typeof data.ops === 'number') ? data.ops : 0;
-  } catch (e) { return 0; }
+  } catch { return 0; }
 }
 
 function quotaSaveToKV(env, ops) {
@@ -373,6 +371,70 @@ function quotaTrackOp(env, ctx) {
   }
 }
 
+// ── 站内下载计数（页面展示用） ──
+// GitHub Release 的下载次数由 GitHub 自己统计，通过本站 /dl/ 代理下载的文件不会
+// 计进 GitHub，所以单独累计一个「站内下载」数，展示时与 GitHub 数相加。
+// 写入策略同样是「批量 + 兜底」，但比配额更频繁一些：展示值的滞后不能太大。
+const DL_COUNT_FLUSH_STEP = 25;              // 累计 25 次下载刷一次
+const DL_COUNT_FLUSH_INTERVAL = 15 * 60 * 1000; // 或距上次刷入超过 15 分钟
+const DL_COUNT_KEY = 'downloads:total';
+
+let dlOpsPending = 0;      // 尚未刷入的站内下载次数（内存）
+let dlLastFlushTime = 0;   // 上次刷入的时间戳
+
+async function writeDownloadCount(env, delta) {
+  // 读改写，而不是直接覆盖：多 isolate 各持一份内存计数，覆盖会让总数变小。
+  // 失败就丢弃这段增量：展示值宁可偏小，也不能回退。
+  const current = await env.USAGE_KV.get(DL_COUNT_KEY, 'json');
+  const total = Number(current && current.total) || 0;
+  await env.USAGE_KV.put(DL_COUNT_KEY, JSON.stringify({
+    total: total + delta,
+    updated: Date.now(),
+  }));
+}
+
+function flushDownloadCount(env, ctx) {
+  const delta = dlOpsPending;
+  if (!delta || !env || !env.USAGE_KV) return;
+  dlOpsPending = 0;
+  var task = writeDownloadCount(env, delta).catch(function (e) {
+    console.warn('Download counter flush failed:', e && e.message);
+  });
+  if (ctx && ctx.waitUntil) ctx.waitUntil(task);
+}
+
+// now 可注入，便于测试时间相关的刷入条件。
+function dlTrackOp(env, ctx, now) {
+  dlOpsPending += 1;
+  var timestamp = typeof now === 'number' ? now : Date.now();
+  if (!dlLastFlushTime) dlLastFlushTime = timestamp;
+  if (!env || !env.USAGE_KV) return;
+  if (dlOpsPending >= DL_COUNT_FLUSH_STEP ||
+      timestamp - dlLastFlushTime >= DL_COUNT_FLUSH_INTERVAL) {
+    dlLastFlushTime = timestamp;
+    flushDownloadCount(env, ctx);
+  }
+}
+
+/** 读取站内下载总数；没有 KV、没有记录或记录损坏时返回 null。 */
+async function readSiteDownloadTotal(env) {
+  if (!env || !env.USAGE_KV) return null;
+  try {
+    const data = await env.USAGE_KV.get(DL_COUNT_KEY, 'json');
+    // 不能写成 Number(data && data.total)：data 为 null 时会被当成 0。
+    if (!data || typeof data.total !== 'number') return null;
+    return Number.isFinite(data.total) && data.total >= 0 ? Math.round(data.total) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** 测试用：清空内存计数（模块状态按 isolate 独立）。 */
+function resetDownloadCounter() {
+  dlOpsPending = 0;
+  dlLastFlushTime = 0;
+}
+
 function quotaBanner(type, pct) {
   var pctStr = pct.toFixed(1);
   if (type === 'warn') {
@@ -402,7 +464,7 @@ async function pvLoadFromKV(env) {
       var key = list.keys[i].name, data = await env.USAGE_KV.get(key, 'json');
       if (data && typeof data.c === 'number') pages[key.slice(('pv:' + month + ':').length) || '/'] = data.c;
     }
-  } catch(e) {}
+  } catch {}
   return pages;
 }
 
@@ -440,7 +502,8 @@ async function pvEnsureLoadedBeforeTrack(env) {
   if (Object.keys(pvMemory).length === 0) await pvEnsureLoaded(env);
 }
 
-async function getPageViewStats(env, month) {
+// 保留的管理接口辅助函数：当前没有调用点，导出以便后续管理页/测试直接使用。
+async function getPageViewStats(env, _month) {
   await pvEnsureLoaded(env);
   var total = 0, pages = {};
   for (var k in pvMemory) { pages[k] = pvMemory[k]; total += pvMemory[k]; }
@@ -482,7 +545,7 @@ async function verifyTOTP(secret, token) {
       if (otp === token) return true;
     }
     return false;
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -682,17 +745,27 @@ async function renderErrorPage(statusCode, title, message, requestPath, request)
 }
 
 export {
+  dlTrackOp,
+  fetchWithRetry,
   getMimeType,
+  getPageViewStats,
   isBinaryAsset,
   isSafePath,
   isStaticAsset,
   proxyBinary,
+  readSiteDownloadTotal,
+  resetDownloadCounter,
   securityHeaders,
 };
 
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
+    let url;
+    try {
+      url = new URL(request.url);
+    } catch {
+      return new Response('Invalid request URL', { status: 400 });
+    }
     const path = url.pathname;
 
     if (path === "/ocr_demo" || path === "/ocr_demo.html") {
@@ -893,6 +966,8 @@ export default {
 
         // 追踪 B 类操作
         quotaTrackOp(env, ctx);
+        // 站内下载单独计数：/dl/ 从 R2 流式代理，不会计入 GitHub 的下载统计
+        dlTrackOp(env, ctx);
 
         return new Response(relResp.body, {
           status: relResp.status,

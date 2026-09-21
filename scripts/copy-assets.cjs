@@ -46,6 +46,7 @@ const assets = [
   'js/script.js',
   'js/product-shell.js',
   'js/device-detection.js',
+  'js/star-stats.js',
   'assets/images/LaTeXSnipper.png',
   'assets/images/icon.png',
   'assets/images/icon-96.png',

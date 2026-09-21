@@ -1,8 +1,15 @@
-import mainWorker from './worker.js';
+import mainWorker, { readSiteDownloadTotal } from './worker.js';
 
 const ECOSYSTEM_CACHE_TTL_SECONDS = 60 * 60;
 const ECOSYSTEM_SCRIPT_PATH = '/js/ecosystem-metadata.js';
 const ECOSYSTEM_HTML_PATHS = new Set(['/', '/index.html', '/download', '/download.html']);
+
+// Public project counters shown on the download page. One hour matches the ecosystem endpoint:
+// star and download counts move slowly, and a longer TTL keeps the GitHub API budget tiny
+// (2 upstream calls per refresh, per edge cache miss) while the browser reuses its own 5 minute
+// copy. Raise the TTL or set the optional GITHUB_TOKEN secret if the counters ever rate-limit.
+const STATS_CACHE_TTL_SECONDS = 60 * 60;
+const STATS_REPOSITORY = 'SakuraMathcraft/LaTeXSnipper';
 
 const PROJECTS = Object.freeze([
   {
@@ -56,13 +63,13 @@ function githubHeaders(env) {
   return headers;
 }
 
-async function githubJson(env, pathname) {
+async function githubJson(env, pathname, cacheTtlSeconds = ECOSYSTEM_CACHE_TTL_SECONDS) {
   try {
     const response = await fetch(`https://api.github.com${pathname}`, {
       headers: githubHeaders(env),
       cf: {
         cacheEverything: true,
-        cacheTtl: ECOSYSTEM_CACHE_TTL_SECONDS,
+        cacheTtl: cacheTtlSeconds,
       },
     });
     if (!response.ok) return null;
@@ -246,6 +253,92 @@ async function handleEcosystem(request, env, ctx) {
   return response;
 }
 
+function projectStatsResponse(payload, maxAgeSeconds) {
+  return new Response(JSON.stringify(payload, null, 2), {
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': `public, max-age=300, s-maxage=${maxAgeSeconds}, stale-while-revalidate=86400`,
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
+}
+
+async function readProjectStats(env) {
+  const encodedRepo = STATS_REPOSITORY.split('/').map(encodeURIComponent).join('/');
+  const [repo, releases, siteDownloads] = await Promise.all([
+    githubJson(env, `/repos/${encodedRepo}`, STATS_CACHE_TTL_SECONDS),
+    githubJson(env, `/repos/${encodedRepo}/releases?per_page=100`, STATS_CACHE_TTL_SECONDS),
+    readSiteDownloadTotal(env),
+  ]);
+
+  const stars = Number(repo?.stargazers_count);
+  if (!Number.isFinite(stars)) return null;
+
+  // GitHub only counts its own Release downloads. Files served through this site's /dl/
+  // proxy never reach GitHub, so that figure is added on top from the Worker's own batched
+  // counter. Both parts are reported separately so the UI can be explicit about the scope.
+  let releaseDownloads = null;
+  if (Array.isArray(releases)) {
+    releaseDownloads = releases.reduce((total, release) => {
+      const assets = Array.isArray(release?.assets) ? release.assets : [];
+      return total + assets.reduce(
+        (sum, asset) => sum + (Number(asset?.download_count) || 0),
+        0,
+      );
+    }, 0);
+  }
+
+  const totalDownloads = releaseDownloads === null && siteDownloads === null
+    ? null
+    : (releaseDownloads || 0) + (siteDownloads || 0);
+
+  return {
+    schemaVersion: 1,
+    available: true,
+    repository: STATS_REPOSITORY,
+    repositoryUrl: `https://github.com/${STATS_REPOSITORY}`,
+    stars,
+    releaseDownloads,
+    siteDownloads,
+    totalDownloads,
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+function edgeCache() {
+  return typeof caches !== 'undefined' && caches?.default ? caches.default : null;
+}
+
+async function handleProjectStats(request, env, ctx) {
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response('Method Not Allowed', {
+      status: 405,
+      headers: { Allow: 'GET, HEAD' },
+    });
+  }
+
+  const cache = edgeCache();
+  const cacheKey = new Request(new URL('/__cache/project-stats-v1', request.url).toString(), { method: 'GET' });
+  const cached = cache ? await cache.match(cacheKey) : null;
+  if (cached) return request.method === 'HEAD' ? headOnly(cached) : cached;
+
+  const stats = await readProjectStats(env);
+  const payload = stats || {
+    schemaVersion: 1,
+    available: false,
+    repository: STATS_REPOSITORY,
+    repositoryUrl: `https://github.com/${STATS_REPOSITORY}`,
+    generatedAt: new Date().toISOString(),
+  };
+  const response = projectStatsResponse(payload, stats ? STATS_CACHE_TTL_SECONDS : 60);
+  if (cache && ctx?.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return request.method === 'HEAD' ? headOnly(response) : response;
+}
+
+function headOnly(response) {
+  return new Response(null, { status: response.status, headers: response.headers });
+}
+
 async function serveEcosystemPage(request, env, ctx) {
   if (request.method !== 'GET') return mainWorker.fetch(request, env, ctx);
 
@@ -278,9 +371,17 @@ async function serveEcosystemPage(request, env, ctx) {
 
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
+    let url;
+    try {
+      url = new URL(request.url);
+    } catch {
+      return new Response('Invalid request URL', { status: 400 });
+    }
     if (url.pathname === '/api/ecosystem') {
       return handleEcosystem(request, env, ctx);
+    }
+    if (url.pathname === '/api/stats') {
+      return handleProjectStats(request, env, ctx);
     }
     if (ECOSYSTEM_HTML_PATHS.has(url.pathname)) {
       return serveEcosystemPage(request, env, ctx);

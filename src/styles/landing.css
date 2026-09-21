@@ -2070,3 +2070,132 @@
     transform: none;
   }
 }
+
+/* ── Project counters: header chip, hero line, metrics strip ── */
+
+.star-glyph {
+  flex: none;
+  color: var(--ls-blue-deep);
+}
+
+/* Header chip, nested inside the existing GitHub nav link. */
+.github-star-count {
+  margin-left: 6px;
+  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--ls-muted);
+  background: var(--site-surface);
+  font: 650 0.72rem / 1.4 var(--site-mono);
+  font-variant-numeric: tabular-nums;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+.site-github-link:hover .github-star-count {
+  color: var(--ls-blue-deep);
+  border-color: var(--site-line-strong);
+}
+
+/* Hero caption for the CTA cluster: text only, so the two buttons stay the only actions. */
+.hero-counters {
+  margin: 0;
+  align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--ls-muted);
+  font: 500 0.88rem / 1.5 var(--ls-sans);
+}
+
+.hero-counters__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.hero-counters__item strong {
+  color: var(--ls-ink);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-counters__dot {
+  color: color-mix(in srgb, var(--ls-muted) 55%, transparent);
+}
+
+/* Metrics row directly under the hero. */
+.project-stats {
+  border-block: 1px solid var(--site-line);
+  background: color-mix(in srgb, var(--site-bg-elevated) 62%, transparent);
+}
+
+.project-stats__grid {
+  padding-block: clamp(26px, 3.6vw, 42px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(20px, 5vw, 64px);
+  row-gap: 14px;
+}
+
+.project-stats__figure {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+}
+
+.project-stats__label {
+  color: var(--ls-muted);
+  font: 600 0.78rem / 1.4 var(--ls-sans);
+  letter-spacing: 0.01em;
+}
+
+.project-stats__value {
+  color: var(--ls-ink);
+  font: 650 clamp(1.85rem, 3.2vw, 2.5rem) / 1 var(--site-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.project-stats__detail {
+  margin: 0;
+  color: var(--ls-muted);
+  font: 400 0.82rem / 1.6 var(--ls-sans);
+}
+
+.project-stats__figure .text-link {
+  margin-top: 6px;
+}
+
+/* Footnote for the download counter, spanning the whole row. */
+.project-stats__note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ls-muted);
+  font: 400 0.76rem / 1.6 var(--ls-sans);
+}
+
+@media (max-width: 1080px) {
+  /* Keep the navigation on a single line: the chip is the first element to drop. */
+  .github-star-count {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-counters {
+    flex: 1 1 100%;
+    font-size: 0.84rem;
+  }
+
+  .project-stats__grid {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+    row-gap: 26px;
+  }
+}

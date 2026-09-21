@@ -502,6 +502,267 @@
   }
 }
 
+/*
+ * First-time download gate. The dialog asks for a GitHub Star before a desktop download
+ * starts and offers the download as the second action. Shown at most once per cooldown
+ * window; see the inline module script in download.html for the storage policy.
+ */
+.star-invite {
+  width: min(420px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  color: var(--site-ink);
+  text-align: left;
+  /*
+   * .lg-surface declares `position: relative`, which would beat the browser's modal
+   * `position: fixed` and let the dialog scroll out of the viewport. Re-anchor it here:
+   * fixed + inset 0 + margin auto keeps it centred in the viewport whatever the page does.
+   */
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  max-height: calc(100dvh - 28px);
+  /*
+   * Legibility base first, glass second (the standard glassmorphism guardrail: blur alone
+   * cannot guarantee WCAG contrast against an unknown backdrop). The surface is nearly solid,
+   * while blur, tint, specular and the bright 1px edge keep it luminous rather than flat.
+   * The @supports upgrade below drops the base to a translucent layer where blur is real.
+   */
+  background: var(--site-bg-elevated);
+  --lg-blur: 14px;
+  --lg-tint-strength: 52%;
+  --lg-tint-falloff: 24%;
+  --lg-brightness: 1.04;
+  --lg-rim-strength: 0.86;
+  --lg-specular-strength: 0.56;
+  --lg-shadow-strength: 0.16;
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .star-invite {
+    background: color-mix(in srgb, var(--site-bg-elevated) 84%, transparent);
+  }
+}
+
+/* These win over the light/dark panel overrides coming from liquid-glass.css. */
+html[data-theme="light"] .star-invite {
+  --lg-blur: 12px;
+  --lg-tint-strength: 46%;
+  --lg-tint-falloff: 20%;
+}
+
+.star-invite::backdrop {
+  /* A modal scrim: it keeps the page visible but stops it from competing with the dialog. */
+  background: rgb(8 18 32 / 0.32);
+}
+
+.star-invite[open] {
+  animation: star-invite-enter 240ms var(--site-ease) both;
+}
+
+.star-invite > .lg-content {
+  padding: 22px 22px 20px;
+  max-height: calc(100dvh - 28px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "mark title close"
+    "mark body close"
+    "stats stats stats"
+    "actions actions actions";
+  align-items: start;
+  column-gap: 13px;
+  row-gap: 8px;
+}
+
+.star-invite__mark {
+  grid-area: mark;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--site-blue) 22%, transparent);
+  border-radius: var(--site-radius-md);
+  color: var(--site-blue);
+  background: var(--site-blue-soft);
+}
+
+.star-invite__title {
+  grid-area: title;
+  margin: 2px 0 0;
+  color: var(--site-ink);
+  font: 600 1.16rem/1.35 var(--site-sans);
+  letter-spacing: -0.015em;
+  text-wrap: pretty;
+}
+
+.star-invite__body {
+  grid-area: body;
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.star-invite__actions {
+  grid-area: actions;
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.star-invite__stats {
+  grid-area: stats;
+  margin-top: 4px;
+  padding-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--site-ink) 12%, transparent);
+}
+
+.star-invite__stats[hidden] {
+  display: none;
+}
+
+.star-invite__stat {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Counters tick up in place, so the figure keeps a stable width while animating. */
+.star-invite__stat-value {
+  color: var(--site-ink);
+  font: 600 1.22rem/1.2 var(--site-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.star-invite__stat-label {
+  color: var(--site-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Footnote for the download counter: the scope note for the asterisk above. */
+.star-invite__note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.star-invite__note[hidden] {
+  display: none;
+}
+
+.star-invite__star,
+.star-invite__download {
+  flex: 1 1 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--site-radius-sm);
+  font-size: 0.86rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.star-invite__star {
+  color: var(--site-blue-ink);
+}
+
+/* Solid fallback when the liquid control is not decorated (for example with scripts blocked). */
+.star-invite__star:not(.lg-surface) {
+  border: 1px solid transparent;
+  background: linear-gradient(145deg, var(--site-blue), var(--site-blue-strong));
+}
+
+.star-invite__download {
+  color: var(--site-ink);
+  font-family: var(--site-sans);
+}
+
+.star-invite__download:not(.lg-surface) {
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface-strong);
+}
+
+.star-invite__star > .lg-content,
+.star-invite__download > .lg-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.star-invite__close {
+  grid-area: close;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--site-ink-soft);
+  border: 1px solid transparent;
+  border-radius: var(--site-radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.star-invite__close:hover {
+  color: var(--site-ink);
+  background: var(--site-surface-strong);
+}
+
+@keyframes star-invite-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+@media (max-width: 420px) {
+  .star-invite > .lg-content {
+    padding: 18px 16px 16px;
+    column-gap: 10px;
+  }
+
+  .star-invite__star,
+  .star-invite__download {
+    padding: 0 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .star-invite[open] {
+    animation: none;
+  }
+}
+
+/*
+ * The page behind a modal stays scrollable in browsers, so lock it while the dialog is open
+ * and reserve the scrollbar width to avoid a layout jump.
+ */
+html.star-invite-locked {
+  overflow: hidden;
+  padding-right: var(--star-invite-scrollbar, 0px);
+}
+
 /* device-aware Windows bundle presentation */
 /*
  * Canonical grid geometry lives in styles/download.css. This small deploy

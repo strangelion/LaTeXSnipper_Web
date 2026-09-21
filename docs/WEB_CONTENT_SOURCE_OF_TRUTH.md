@@ -24,3 +24,20 @@ The endpoint is cached at the Worker edge for one hour and has safe static
 fallbacks so a temporary GitHub API failure does not blank the page. A
 `GITHUB_TOKEN` Worker secret is optional but recommended to raise GitHub API
 rate limits; it must never be exposed to browser JavaScript.
+
+The download page and the landing page also read `/api/stats` for the public
+counters. Stars come from the Desktop repository. The download figure adds two
+sources: that repository's Release asset `download_count` values (GitHub side),
+plus this site's own counter for files served through `/dl/` (those stream from
+R2 and never reach GitHub). The two parts are reported separately as
+`releaseDownloads` and `siteDownloads`, with `totalDownloads` as the sum, and the
+UI always prints `含 GitHub Release 与本站下载` next to it. The site-side part is
+batched in the Worker: it accumulates in memory and is merged into the
+`downloads:total` KV key every 25 downloads or 15 minutes, using read-modify-write
+so the stored total can only grow. Isolated isolates can therefore lose a few
+increments and concurrent flushes can drop one, so the site part is always
+labelled `本站部分为批量统计，可能有少量遗漏` instead of being presented as exact.
+The response is cached at the Worker edge for one hour and returns
+`available: false` when GitHub cannot be reached; every surface then hides the
+counters instead of showing an invented number. The endpoint itself writes no KV
+state, so it adds one Worker request per page view and no per-visit storage cost.
