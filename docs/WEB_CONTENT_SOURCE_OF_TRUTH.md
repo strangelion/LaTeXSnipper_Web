@@ -32,11 +32,14 @@ plus this site's own counter for files served through `/dl/` (those stream from
 R2 and never reach GitHub). The two parts are reported separately as
 `releaseDownloads` and `siteDownloads`, with `totalDownloads` as the sum, and the
 UI always prints `含 GitHub Release 与本站下载` next to it. The site-side part is
-batched in the Worker: it accumulates in memory and is merged into the
-`downloads:total` KV key every 25 downloads or 15 minutes, using read-modify-write
-so the stored total can only grow. Isolated isolates can therefore lose a few
-increments and concurrent flushes can drop one, so the site part is always
-labelled `本站部分为批量统计，可能有少量遗漏` instead of being presented as exact.
+batched in the Worker: the first download of a fresh isolate is written at once
+(a low-traffic site may never see a second download in that isolate), then the
+counter accumulates in memory and is merged into the `downloads:total` KV key
+every 25 downloads or 15 minutes, using read-modify-write so the stored total can
+only grow. Batch pending counts can still be lost if an isolate is recycled
+before its next flush, and two concurrent flushes can drop one increment, so the
+site part is always labelled `本站部分为批量统计，可能有少量遗漏` instead of being
+presented as exact.
 The response is cached at the Worker edge for one hour and returns
 `available: false` when GitHub cannot be reached; every surface then hides the
 counters instead of showing an invented number. The endpoint itself writes no KV

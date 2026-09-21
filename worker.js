@@ -377,7 +377,7 @@ function quotaTrackOp(env, ctx) {
 // 写入策略同样是「批量 + 兜底」，但比配额更频繁一些：展示值的滞后不能太大。
 const DL_COUNT_FLUSH_STEP = 25;              // 累计 25 次下载刷一次
 const DL_COUNT_FLUSH_INTERVAL = 15 * 60 * 1000; // 或距上次刷入超过 15 分钟
-const DL_COUNT_KEY = 'downloads:total';
+const DL_COUNT_KEY = 'downloads:total';      // KV：{ total, updated }，无 TTL，只增不减
 
 let dlOpsPending = 0;      // 尚未刷入的站内下载次数（内存）
 let dlLastFlushTime = 0;   // 上次刷入的时间戳
@@ -407,8 +407,9 @@ function flushDownloadCount(env, ctx) {
 function dlTrackOp(env, ctx, now) {
   dlOpsPending += 1;
   var timestamp = typeof now === 'number' ? now : Date.now();
-  if (!dlLastFlushTime) dlLastFlushTime = timestamp;
   if (!env || !env.USAGE_KV) return;
+  // 新 isolate 的第一次下载立刻写一次：低流量下每次下载很可能落在新 isolate，
+  // 若等批量条件，isolate 被回收时这次下载就永久丢了。之后仍然按批量刷入。
   if (dlOpsPending >= DL_COUNT_FLUSH_STEP ||
       timestamp - dlLastFlushTime >= DL_COUNT_FLUSH_INTERVAL) {
     dlLastFlushTime = timestamp;
