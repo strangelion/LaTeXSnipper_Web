@@ -248,8 +248,8 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
   z-index: 1;
   overflow: hidden;
   opacity: var(--lg-material-strength);
-  /* Glass thickness: two opposing specular bevels, a dense refraction band at the
-     bottom edge, and a 1px contact shadow. Painted above .lg-backdrop, below the sheen. */
+  /* Glass thickness: two opposing specular bevels plus a dense refraction band along the
+     lower edge. Painted above .lg-backdrop and below the sheen. */
   box-shadow:
     inset var(--lg-bevel-depth) calc(var(--lg-bevel-depth) * -1) 1px calc(var(--lg-bevel-depth) * -1) rgb(255 255 255 / var(--lg-bevel-light)),
     inset calc(var(--lg-bevel-depth) * -1) var(--lg-bevel-depth) 1px calc(var(--lg-bevel-depth) * -1) rgb(255 255 255 / var(--lg-bevel-light)),
