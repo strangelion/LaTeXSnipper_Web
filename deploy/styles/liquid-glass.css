@@ -21,6 +21,23 @@
   --lg-specular-strength: 0.42;
   --lg-shadow-strength: 0.1;
   --lg-material-strength: 1;
+  /* Edge material: a specular bevel, a dense refraction band, and a soft inner thickness
+     glow. These are authored as explicit high-contrast values instead of a contrast() filter
+     so the optics group keeps blending against the page backdrop with mix-blend-mode. */
+  --lg-bevel-light: 0.4;
+  --lg-bevel-dark: 0.34;
+  --lg-bevel-depth: 3px;
+  --lg-inner-edge: 0.2;
+  /* The diagonal sheen is sized in absolute units so a wide panel gets the same narrow
+     corner streak as a compact control instead of a broad wash across its middle. */
+  --lg-sweep-size: 20px;
+  --lg-sweep-strength: 0.3;
+  --lg-flashlight-strength: 0.12;
+  /* Edge refraction: the rim band samples the backdrop through its own lens. */
+  --lg-rim-width: 2px;
+  --lg-refract-blur: 2px;
+  --lg-refract-sat: 112%;
+  --lg-refract-gain: 1.045;
   /* Optical accent for the caustic / specular / rim layers. Shell chrome stays neutral;
      the brand accent is applied only by [data-lg-accent] and [data-lg-action] surfaces. */
   --lg-accent: var(--site-glass-sheen, #cfdcf0);
@@ -31,108 +48,164 @@
   border-radius: var(--site-radius-md, 18px);
   color: inherit;
   background: transparent;
+  /* Elevation stack: contact occlusion, short-range, mid-range and ambient shadow.
+     The bevel/refraction layers live on .lg-optics and .lg-rim, which sit above .lg-backdrop. */
   box-shadow:
-    0 1px 2px rgb(3 8 18 / calc(0.08 * var(--lg-material-strength))),
-    0 20px 58px rgb(3 8 18 / calc(var(--lg-shadow-strength) * var(--lg-material-strength))),
-    inset 0 1px 0 rgb(255 255 255 / calc(0.3 * var(--lg-material-strength))),
-    inset 0 -1px 0 rgb(2 8 18 / calc(0.16 * var(--lg-material-strength)));
+    0 1px 1px rgb(3 8 18 / calc(0.18 * var(--lg-material-strength))),
+    0 2px 5px rgb(3 8 18 / calc(0.13 * var(--lg-material-strength))),
+    0 10px 22px rgb(3 8 18 / calc(var(--lg-shadow-strength) * 0.95 * var(--lg-material-strength))),
+    0 28px 68px rgb(3 8 18 / calc(var(--lg-shadow-strength) * var(--lg-material-strength)));
   transition: box-shadow 260ms ease, transform 260ms ease;
 }
 
 .lg-surface--navigation {
-  --lg-blur: 3px;
-  --lg-tint-strength: 30%;
-  --lg-tint-falloff: 16%;
+  --lg-blur: 2.5px;
+  --lg-tint-strength: 21%;
+  --lg-tint-falloff: 9%;
   --lg-rim-strength: 0.7;
   --lg-specular-strength: 0.38;
   --lg-shadow-strength: 0.07;
+  --lg-bevel-light: 0.46;
+  --lg-bevel-dark: 0.26;
+  --lg-bevel-depth: 1.5px;
+  --lg-inner-edge: 0.16;
+  --lg-sweep-size: 12px;
+  --lg-sweep-strength: 0.3;
+  --lg-rim-width: 1.5px;
 }
 
 .lg-surface--regular {
-  --lg-blur: 8px;
-  --lg-tint-strength: 18%;
-  --lg-tint-falloff: 7%;
+  --lg-blur: 6px;
+  --lg-tint-strength: 12%;
+  --lg-tint-falloff: 4%;
   --lg-rim-strength: 0.64;
   --lg-specular-strength: 0.34;
   --lg-shadow-strength: 0.07;
+  --lg-bevel-light: 0.38;
+  --lg-bevel-dark: 0.3;
+  --lg-sweep-size: 18px;
+  --lg-sweep-strength: 0.28;
 }
 
 .lg-surface--clear {
   --lg-blur: 2px;
-  --lg-tint-strength: 8%;
-  --lg-tint-falloff: 3%;
+  --lg-tint-strength: 6%;
+  --lg-tint-falloff: 2%;
   --lg-rim-strength: 0.68;
   --lg-specular-strength: 0.4;
   --lg-shadow-strength: 0.08;
+  --lg-bevel-light: 0.48;
+  --lg-bevel-dark: 0.3;
+  --lg-bevel-depth: 2px;
+  --lg-inner-edge: 0.2;
+  --lg-sweep-size: 14px;
+  --lg-sweep-strength: 0.34;
+  --lg-rim-width: 1.5px;
 }
 
 .lg-surface--control {
-  --lg-blur: 5px;
-  --lg-tint-strength: 14%;
-  --lg-tint-falloff: 5%;
+  --lg-blur: 4px;
+  --lg-tint-strength: 10%;
+  --lg-tint-falloff: 3%;
   --lg-rim-strength: 0.76;
   --lg-specular-strength: 0.46;
   --lg-shadow-strength: 0.08;
+  --lg-bevel-light: 0.48;
+  --lg-bevel-dark: 0.32;
+  --lg-bevel-depth: 2px;
+  --lg-inner-edge: 0.22;
+  --lg-sweep-size: 14px;
+  --lg-sweep-strength: 0.36;
+  --lg-flashlight-strength: 0.16;
   border-radius: var(--site-radius-sm, 12px);
 }
 
 .lg-surface--floating {
-  --lg-blur: 8px;
-  --lg-tint-strength: 19%;
-  --lg-tint-falloff: 7%;
+  --lg-blur: 6px;
+  --lg-tint-strength: 13%;
+  --lg-tint-falloff: 4%;
   --lg-rim-strength: 0.82;
   --lg-specular-strength: 0.54;
   --lg-shadow-strength: 0.12;
+  --lg-bevel-light: 0.52;
+  --lg-bevel-dark: 0.36;
+  --lg-bevel-depth: 2.5px;
+  --lg-inner-edge: 0.22;
+  --lg-sweep-size: 18px;
+  --lg-sweep-strength: 0.4;
+  --lg-flashlight-strength: 0.18;
+  --lg-refract-blur: 2.5px;
 }
 
 .lg-surface--panel {
-  --lg-blur: 12px;
-  --lg-tint-strength: 25%;
-  --lg-tint-falloff: 11%;
+  --lg-blur: 9px;
+  --lg-tint-strength: 15%;
+  --lg-tint-falloff: 6%;
   --lg-rim-strength: 0.66;
   --lg-specular-strength: 0.36;
   --lg-shadow-strength: 0.14;
+  --lg-bevel-light: 0.3;
+  --lg-bevel-dark: 0.34;
+  --lg-bevel-depth: 3px;
+  --lg-inner-edge: 0.16;
+  --lg-sweep-size: 30px;
+  --lg-sweep-strength: 0.26;
+  --lg-rim-width: 2.5px;
 }
 
 .lg-surface--overlay {
-  --lg-blur: 16px;
-  --lg-tint-strength: 34%;
-  --lg-tint-falloff: 17%;
+  --lg-blur: 12px;
+  --lg-tint-strength: 21%;
+  --lg-tint-falloff: 9%;
   --lg-rim-strength: 0.72;
   --lg-specular-strength: 0.42;
   --lg-shadow-strength: 0.18;
+  --lg-bevel-light: 0.36;
+  --lg-bevel-dark: 0.38;
+  --lg-bevel-depth: 3.5px;
+  --lg-inner-edge: 0.18;
+  --lg-sweep-size: 28px;
+  --lg-sweep-strength: 0.28;
 }
 
 /* Light surfaces stay optically clear: SVG bends the scene while CSS adds only a thin veil. */
 html[data-theme="light"] .lg-surface {
   --lg-saturate: 118%;
   --lg-brightness: 1.01;
+  --lg-bevel-light: 0.62;
+  --lg-bevel-dark: 0.2;
+}
+
+html[data-theme="light"] .lg-surface--panel,
+html[data-theme="light"] .lg-surface--overlay {
+  --lg-bevel-dark: 0.24;
+  --lg-bevel-light: 0.5;
 }
 
 html[data-theme="light"] .lg-surface--navigation {
   --lg-blur: 1.5px;
-  --lg-tint-strength: 34%;
-  --lg-tint-falloff: 18%;
+  --lg-tint-strength: 24%;
+  --lg-tint-falloff: 11%;
   --lg-shadow-strength: 0.055;
 }
 
 html[data-theme="light"] .lg-surface--regular {
-  --lg-blur: 6px;
-  --lg-tint-strength: 14%;
-  --lg-tint-falloff: 5%;
+  --lg-blur: 5px;
+  --lg-tint-strength: 10%;
+  --lg-tint-falloff: 3%;
   --lg-shadow-strength: 0.055;
 }
 
 html[data-theme="light"] .lg-surface--floating {
-  --lg-blur: 6px;
-  --lg-tint-strength: 14%;
-  --lg-tint-falloff: 4%;
+  --lg-blur: 5px;
+  --lg-tint-strength: 10%;
+  --lg-tint-falloff: 3%;
 }
 
 html[data-theme="light"] .lg-surface--panel {
-  --lg-blur: 8px;
-  --lg-tint-strength: 18%;
-  --lg-tint-falloff: 6%;
+  --lg-blur: 7px;
+  --lg-tint-strength: 12%;
+  --lg-tint-falloff: 4%;
 }
 
 .lg-backdrop,
@@ -175,32 +248,72 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
   z-index: 1;
   overflow: hidden;
   opacity: var(--lg-material-strength);
+  /* Glass thickness: two opposing specular bevels, a dense refraction band at the
+     bottom edge, and a 1px contact shadow. Painted above .lg-backdrop, below the sheen. */
+  box-shadow:
+    inset var(--lg-bevel-depth) calc(var(--lg-bevel-depth) * -1) 1px calc(var(--lg-bevel-depth) * -1) rgb(255 255 255 / var(--lg-bevel-light)),
+    inset calc(var(--lg-bevel-depth) * -1) var(--lg-bevel-depth) 1px calc(var(--lg-bevel-depth) * -1) rgb(255 255 255 / var(--lg-bevel-light)),
+    inset calc(var(--lg-bevel-depth) * 2.5) calc(var(--lg-bevel-depth) * -2.5) 4px calc(var(--lg-bevel-depth) * -2.5) rgb(255 255 255 / calc(var(--lg-bevel-light) * 0.4)),
+    inset calc(var(--lg-bevel-depth) * -2.5) calc(var(--lg-bevel-depth) * 2.5) 4px calc(var(--lg-bevel-depth) * -2.5) rgb(255 255 255 / calc(var(--lg-bevel-light) * 0.4)),
+    inset 0 calc(var(--lg-bevel-depth) * -1.5) 6px calc(var(--lg-bevel-depth) * -1.5) rgb(2 8 18 / var(--lg-bevel-dark)),
+    inset 0 0 1px rgb(2 8 18 / calc(var(--lg-bevel-dark) * 1.15));
   transition: opacity 260ms ease;
+}
+
+/* Dense refraction band: the darkened glass just inside the rim, offset low like a lens. */
+.lg-optics::before {
+  content: '';
+  position: absolute;
+  inset: 7px 7px 5px;
+  border: 1px solid rgb(2 8 18 / var(--lg-bevel-dark));
+  border-radius: inherit;
+  filter: blur(7px);
+  pointer-events: none;
+}
+
+/* Soft inner thickness: a blurred, bottom-heavy glow that reads as glass depth rather
+   than a second outlined ring. */
+.lg-optics::after {
+  content: '';
+  position: absolute;
+  inset: 5px 5px 3px;
+  border: 1px solid rgb(255 255 255 / var(--lg-inner-edge));
+  border-radius: inherit;
+  filter: blur(3px);
+  pointer-events: none;
 }
 
 /* Surface definition lives at the edges; it is not a pointer-following flashlight. */
 .lg-caustic {
   inset: 1px;
   background:
+    linear-gradient(
+      45deg,
+      rgb(255 255 255 / var(--lg-sweep-strength)) 0,
+      transparent var(--lg-sweep-size),
+      transparent calc(100% - var(--lg-sweep-size)),
+      rgb(255 255 255 / var(--lg-sweep-strength)) 100%
+    ),
     radial-gradient(120% 58% at 12% -8%, rgb(255 255 255 / 0.34), transparent 58%),
     radial-gradient(95% 54% at 104% 112%, color-mix(in srgb, var(--lg-accent) 24%, transparent), transparent 68%),
     linear-gradient(112deg, rgb(255 255 255 / 0.14), transparent 18% 72%, color-mix(in srgb, var(--lg-accent) 18%, transparent));
   mix-blend-mode: screen;
   opacity: calc(var(--lg-specular-strength) * 0.92);
+  filter: blur(2px);
 }
 
 .lg-specular {
   background:
-    radial-gradient(circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / 0.2), transparent 30%),
-    linear-gradient(126deg, rgb(255 255 255 / 0.24), rgb(255 255 255 / 0.045) 14%, transparent 32% 66%, color-mix(in srgb, var(--lg-accent) 22%, transparent));
+    radial-gradient(circle at var(--lg-pointer-x) var(--lg-pointer-y), rgb(255 255 255 / var(--lg-flashlight-strength)), transparent 30%),
+    linear-gradient(126deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.05) 14%, transparent 32% 66%, color-mix(in srgb, var(--lg-accent) 26%, transparent));
   mix-blend-mode: screen;
   opacity: calc(var(--lg-specular-strength) * 0.82);
-  transform: translate(calc(var(--lg-pointer-dx) * 2px), calc(var(--lg-pointer-dy) * 2px));
+  transform: translate(calc(var(--lg-pointer-dx) * 1.5px), calc(var(--lg-pointer-dy) * 1.5px));
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
 .lg-rim {
-  padding: 1px;
+  padding: var(--lg-rim-width);
   background: conic-gradient(
     from 208deg at var(--lg-pointer-x) var(--lg-pointer-y),
     rgb(255 255 255 / 0.9),
@@ -209,6 +322,9 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
     rgb(255 255 255 / 0.055) 68%,
     rgb(255 255 255 / 0.7)
   );
+  /* Edge refraction: the masked rim band refracts the backdrop it covers. */
+  -webkit-backdrop-filter: blur(var(--lg-refract-blur)) saturate(var(--lg-refract-sat)) brightness(var(--lg-refract-gain));
+  backdrop-filter: blur(var(--lg-refract-blur)) saturate(var(--lg-refract-sat)) brightness(var(--lg-refract-gain));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -220,6 +336,39 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
 .lg-content {
   position: relative;
   z-index: 2;
+  /* Clear glass means text sits on an unpredictable backdrop, so legibility is carried by
+     the type itself: a soft halo plus a glyph outline painted behind the fill.
+     The outline is deliberately narrower than the stem width so glyph shapes stay intact. */
+  --lg-text-outline: rgb(30 18 6 / 0.3);
+  text-shadow: 0 1px 2px var(--lg-text-outline);
+}
+
+/* Complementary halo: the glass reads cool, so the halo leans warm. That warm/cool split
+   separates the glyph edges from the tint instead of dissolving them into it. */
+html[data-theme="light"] .lg-content {
+  --lg-text-outline: rgb(255 243 219 / 0.62);
+  text-shadow: 0 1px 2px var(--lg-text-outline);
+}
+
+/* paint-order keeps the outline behind the glyph fill so small text is not thinned.
+   Without it an -webkit-text-stroke would overdraw the stems, so this is opt-in. */
+@supports (paint-order: stroke fill) {
+  .lg-content {
+    -webkit-text-stroke: 0.9px var(--lg-text-outline);
+    paint-order: stroke fill;
+  }
+}
+
+/* A control that paints its own opaque brand fill already guarantees contrast, so the
+   glass halo must not double its glyph edges. These are the same blue-fill controls
+   declared in site-shell.css, plus any surface marked as a primary action. */
+.lg-surface[data-lg-action="primary"] > .lg-content,
+.lg-content .site-download-link,
+.lg-content .button:not(.lg-surface),
+.lg-content .download-btn:not(.lg-surface),
+.lg-content .primary-button:not(.lg-surface) {
+  text-shadow: none;
+  -webkit-text-stroke-width: 0;
 }
 
 .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
@@ -258,6 +407,13 @@ html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"
   background: color-mix(in srgb, var(--site-glass-tint, rgba(255, 255, 255, 0.68)) 12%, transparent);
 }
 
+/* A nested surface sits on already-refracted material, so it must not refract it again. */
+.lg-surface .lg-surface > .lg-optics > .lg-rim,
+.lg-surface [data-lg-inset] > .lg-optics > .lg-rim {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 .lg-surface .lg-surface[data-lg-accent="blue"] > .lg-backdrop {
   background: color-mix(in srgb, var(--site-blue, #79a8ff) 22%, transparent);
 }
@@ -288,6 +444,15 @@ html[data-liquid-debug="no-blur"] .lg-backdrop,
 html[data-lg-blur="off"] .lg-backdrop {
   backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(var(--lg-brightness)) !important;
   -webkit-backdrop-filter: blur(0) saturate(var(--lg-saturate)) brightness(var(--lg-brightness)) !important;
+}
+
+/* The lab's blur/refraction switches must also silence the rim lens, otherwise the edge
+   would keep bending a backdrop the surface is no longer transmitting. */
+html[data-liquid-debug="no-blur"] .lg-rim,
+html[data-lg-blur="off"] .lg-rim,
+html[data-lg-refraction="off"] .lg-rim {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 html[data-lg-optics="off"] .lg-optics { opacity: 0 !important; }
@@ -321,5 +486,16 @@ html[data-lg-tint="off"] .lg-backdrop { background: transparent !important; }
 
   .lg-optics {
     opacity: 0.32;
+  }
+
+  .lg-rim {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Opaque panels guarantee their own contrast, so the glass halo is not needed. */
+  .lg-content {
+    text-shadow: none;
+    -webkit-text-stroke-width: 0;
   }
 }
