@@ -121,9 +121,8 @@
   <li class="toc-h2"><a href="#heading">可附带的诊断输出</a></li>
 <li class="toc-h1"><a href="#sec-source">从源码运行与开发者常见问题</a></li>
   <li class="toc-h2"><a href="#readme-quick-start">README Quick Start 步骤验证</a></li>
-  <li class="toc-h2"><a href="#kaifahuanjingyong">开发环境路径不要混用</a></li>
-  <li class="toc-h2"><a href="#kaifazhexiang">开发者验证命令注意事项</a></li>
-  <li class="toc-h2"><a href="#pyrightconfig-json">pyrightconfig.json 中的路径</a></li>
+  <li class="toc-h2"><a href="#kaifahuanjingyufa">开发环境与发布构建</a></li>
+  <li class="toc-h2"><a href="#kaifazhe">开发者验证命令</a></li>
 <li class="toc-vol-divider"><span>第二卷 · Office 加载项指南</span></li>
 <li class="toc-h1"><a href="#sec-office-intro">加载项介绍与系统要求</a></li>
   <li class="toc-h2"><a href="#office-xiang">什么是 Office 加载项</a></li>
@@ -231,7 +230,7 @@
 
 </div>
 <div class="center">
-<div class="center"><img src="assets/images/../docs/latexsnipper-3.0.0.png" alt="" loading="lazy" decoding="async"></div>
+<div class="center"><img src="assets/images/../docs/latexsnipper.png" alt="" loading="lazy" decoding="async"></div>
 
 </div>
 <div class="block block-gray manual-inline-toc">
@@ -332,6 +331,7 @@
 </div>
 <div class="spacer-lg"></div>
 <h1 id="sec-workflows">主窗口功能入口与识别流程</h1>
+<p>首次进入主窗口会显示六步快速入门，介绍截图、导出、快捷键、模型准备与支持入口。完成或确认退出引导后不再自动显示；直接关闭应用不修改偏好。随时可点击“快速入门”重新查看。模型在后台准备，引导无需等待模型就绪。</p>
 <h2 id="zhuchuangkoufenbie">主窗口按钮分别做什么</h2>
 <p>当前主窗口左侧是截图和历史区，右侧是 LaTeX 编辑、预览和工具入口：</p>
 <ul>
@@ -652,7 +652,7 @@ pip install -r requirements-macos.txt</code></pre></div>
 <h2 id="huanjing">依赖环境创建在哪里</h2>
 <p>LaTeXSnipper 使用 <code>install_base_dir</code> 作为活动 Python 依赖根。用户在依赖管理或设置中切换依赖目录后，只有主 Python 依赖环境跟随新的依赖根；Pandoc 固定在应用状态目录的共享 <code>tools</code> 目录中，部署一次即可复用。</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>&lt;安装目录&gt;\_internal\deps</code></pre></div>
-<p>Linux/macOS 安装包不会把构建机的 <code>tools/deps/python311</code> 或任意虚拟环境打进安装包。默认依赖根是用户可写目录：</p>
+<p>Linux/macOS 安装包不会把构建机的虚拟环境打进安装包。默认依赖根是用户可写目录：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>Linux:  ~/.latexsnipper/deps
 macOS:  ~/Library/Application Support/LaTeXSnipper/deps</code></pre></div>
 <p>依赖根内的常见子目录如下：</p>
@@ -1013,52 +1013,22 @@ python -m mathcraft_ocr warmup --profile mixed --provider auto</code></pre></div
 </ul>
 </div>
 </div>
-<h2 id="kaifahuanjingyong">开发环境路径不要混用</h2>
-<p><strong>现象：</strong> 本地存在 <code>python311/</code> 和 <code>tools/deps/python311/</code> 两套 Python，不确定应该用哪一个。</p>
-<p><strong>规则：</strong></p>
-<ul>
-<li><code>python311/</code> 是 Windows 安装包的内置 Python 模板，只用于打包复制，不要安装开发依赖，不要执行 ruff/pyright/pytest。</li>
-<li><code>tools/deps/python311/</code> 是 IDE、开发检查和 Actions 打包使用的项目环境，可以安装 <code>requirements*.txt</code>、<code>ruff</code>、<code>pytest</code>、<code>pyright</code>。</li>
-<li>Linux/macOS 安装包运行时不会携带 <code>tools/deps/python311</code>。Linux 默认依赖根是 <code>~/.latexsnipper/deps</code>，macOS 默认依赖根是 <code>~/Library/Application Support/LaTeXSnipper/deps</code>；用户切换依赖目录后，以配置中的 <code>install_base_dir</code> 为准。</li>
-</ul>
-<p><strong>Windows 开发者初始化示例：</strong></p>
-<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>py -3.11 -m venv tools\deps\python311
-.\tools\deps\python311\python.exe -m pip install --upgrade pip wheel setuptools
-.\tools\deps\python311\python.exe -m pip install -r requirements.txt
-.\tools\deps\python311\python.exe -m pip install -r requirements-build.txt
-.\tools\deps\python311\python.exe -m pip install ruff pytest pyright</code></pre></div>
-<div class="callout info">
-<div class="callout-title">路径速查</div>
-<div class="callout-body"><ul>
-<li>仓库根目录 <code>python311/</code> — Windows 模板环境，不要污染。</li>
-<li><code>tools/deps/python311/</code> — 开发、检查、构建环境。</li>
-<li><code>~/.latexsnipper/deps</code> — Linux 默认运行时依赖根。</li>
-<li><code>~/Library/Application Support/LaTeXSnipper/deps</code> — macOS 默认运行时依赖根。</li>
-<li><code>&lt;依赖根&gt;/python</code> — 程序创建的主 Python 依赖环境。</li>
-<li><code>&lt;应用状态目录&gt;/tools/pandoc</code> — 程序创建的共享工具目录，切换依赖根后继续复用。</li>
-</ul>
-</div>
-</div>
-<h2 id="kaifazhexiang">开发者验证命令注意事项</h2>
-<p>常用验证命令：</p>
-<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>.\tools\deps\python311\python.exe -m ruff check .
-.\tools\deps\python311\python.exe -m pytest test
-.\tools\deps\python311\python.exe -m pyright
-.\tools\deps\python311\python.exe -m compileall -q src mathcraft_ocr test</code></pre></div>
-<div class="callout warn">
-<div class="callout-title">运行前必做</div>
-<div class="callout-body"><p><code>ruff</code>、<code>pytest</code>、<code>pyright</code> 不在任何 <code>requirements*.txt</code> 中。</p>
-<p>首次运行验证前需要手动安装：</p>
-<div class="code-block"><pre class="language-text"><button class="copy-btn" onclick="copyCode(this)">复制</button><code>.\tools\deps\python311\python.exe -m pip install ruff pytest pyright</code></pre></div>
-</div>
-</div>
-<h2 id="pyrightconfig-json"><code>pyrightconfig.json</code> 中的路径</h2>
-<p>类型检查应使用 <code>tools/deps/python311</code> 的第三方包解析环境，根目录 <code>python311/</code> 只作为 Windows 模板排除在检查外。不要为了让 pyright 通过而向根目录模板安装开发包。</p>
-<div class="callout tip">
-<div class="callout-title">提示</div>
-<div class="callout-body"><p>如果 <code>tools/deps/python311</code> 不存在，先创建开发环境；不要改用根目录 <code>python311</code> 作为替代。</p>
-</div>
-</div>
+<h2 id="kaifahuanjingyufa">开发环境与发布构建</h2>
+<p>开发者可以自行选择 venv、Conda、uv 等环境及存放位置。激活环境后，运行、检查和 IDE 使用同一解释器即可；项目不要求固定的环境目录。</p>
+<p>Windows 示例（<code>.venv</code> 仅为示例，可替换为自己的路径）：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pip install ruff pytest pyright
+python src/main.py</code></pre></div>
+<p>Linux/macOS 使用各自的 requirements 文件，并激活所选环境。客户端安装包统一由 GitHub Actions 的 <code>release.yml</code> 工作流构建；Windows 内置运行时在 runner 临时目录准备，不收集开发者的 Python 环境。</p>
+<h2 id="kaifazhe">开发者验证命令</h2>
+<p>在已激活并安装检查工具的环境中执行：</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>python -m ruff check .
+python -m pytest test
+python -m pyright --pythonpath "$(python -c 'import sys; print(sys.executable)')"
+python -m compileall -q src mathcraft_ocr test</code></pre></div>
+<p>IDE 中选择相同的解释器；类型检查通过 <code>--pythonpath</code> 指定所选解释器，无需在项目配置中硬编码第三方包目录。</p>
 <div class="spacer-lg"></div>
 <div class="center">
 <div class="volume-divider"><div class="volume-divider-inner"><span class="volume-label standard-surface">第二卷 · Office 加载项指南</span></div></div>
