@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>连接你自己电脑上的 LaTeXSnipper — LaTeXSnipper</title>
+<meta name="description" content="在浏览器里连接你已授权的 LaTeXSnipper 桌面版，把手机或平板拍到的公式提交给桌面端识别。图片仅在你的设备之间传递，不经过本站服务器。">
+<link rel="icon" type="image/png" href="assets/images/icon.png">
+<link rel="stylesheet" href="/styles/site-tokens.css">
+<link rel="stylesheet" href="/styles/liquid-glass.css">
+<link rel="stylesheet" href="/styles/liquid-environment.css">
+<link rel="stylesheet" href="/styles/site-shell.css">
+<link rel="stylesheet" href="/styles/remote.css">
+<script src="/js/product-shell.js" defer></script>
+<script type="module" src="js/remote.js"></script>
+</head>
+<body class="remote-page">
+<header class="site-header" data-shell-header>
+  <div class="site-header-inner lg-surface lg-surface--navigation">
+    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+    <div class="lg-content">
+    <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
+    <nav class="site-navigation" data-lg-mobile-panel id="siteNavigation" aria-label="主导航">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
+      <a href="/#product">产品</a>
+      <a href="/#workflow">工作流</a>
+      <a href="/#ecosystem">生态</a>
+      <a href="/ocr.html">在线识别</a>
+      <a href="/user_manual.html">文档</a>
+      <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+      </div></nav>
+    <div class="site-header-actions">
+      <a class="site-download-link" href="/download.html">下载</a>
+      <button class="theme-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+      <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
+    </div>
+    </div>
+  </div>
+</header>
+
+<main class="demo-page site-page remote-main">
+  <div class="liquid-environment remote-environment" aria-hidden="true">
+    <span class="liquid-environment__word">REMOTE</span>
+    <span class="liquid-environment__orb env-orb-a"></span>
+    <span class="liquid-environment__orb env-orb-b"></span>
+    <span class="liquid-environment__line env-line-a"></span>
+    <span class="liquid-environment__line env-line-b"></span>
+    <span class="env-curve"></span>
+  </div>
+
+  <p class="demo-eyebrow">REMOTE DEVICE BRIDGE</p>
+  <h1 class="demo-title">连接你自己电脑上的 LaTeXSnipper</h1>
+  <p class="demo-sub">这个页面本身不做识别。它把图片直接发给你已授权的桌面版，识别在你自己的电脑上完成。</p>
+
+  <div class="remote-notice" id="browserNotice" hidden>
+    <strong>浏览器可能先弹出一次授权提示。</strong>
+    <span id="browserNoticeDetail"></span>
+  </div>
+
+  <section class="remote-block remote-block--primary" id="remoteSubmit" data-status="idle" aria-labelledby="remotePrimaryHeading">
+    <h2 class="remote-block-title" id="remotePrimaryHeading">选好图片，发到你电脑上识别</h2>
+    <p class="remote-block-sub">识别在桌面端排队执行。图片直接发给你填写的地址，本站服务器看不到，也存不下。</p>
+
+    <form class="remote-form remote-form--primary" id="submitForm" novalidate>
+      <div class="remote-drop" id="dropZone">
+        <input type="file" id="remoteFile" accept="image/*" multiple hidden>
+        <p class="remote-drop-title">把图片拖到这里</p>
+        <p class="remote-drop-sub">或 <button class="remote-link-button" type="button" id="pickFileBtn">从设备里选择</button>。支持 PNG、JPEG、WebP、BMP、GIF、TIFF。</p>
+      </div>
+      <ul class="remote-filelist" id="fileList" hidden></ul>
+      <div class="remote-option-row">
+        <div class="remote-field">
+          <label for="remoteMode">识别类型</label>
+          <select id="remoteMode" name="mode">
+            <option value="formula" selected>公式（formula）</option>
+            <option value="text">文字（text）</option>
+            <option value="mixed">混合排版（mixed）</option>
+          </select>
+        </div>
+        <div class="remote-field">
+          <label for="remoteBackend">识别后端</label>
+          <select id="remoteBackend" name="backend">
+            <option value="mathcraft" selected>本机模型（mathcraft）</option>
+          </select>
+        </div>
+      </div>
+      <p class="remote-hint" id="backendHint">后端列表来自桌面端当前的配置和你的授权范围。</p>
+      <div class="remote-form-actions">
+        <button class="remote-button remote-button--primary" type="submit" id="submitBtn" disabled>开始识别</button>
+        <button class="remote-button" type="button" id="cancelJobBtn" hidden>取消作业</button>
+      </div>
+    </form>
+
+    <div class="remote-block-status">
+      <div class="remote-status remote-status--glow" id="submitStatus" data-tone="idle" role="status" aria-live="polite">
+        <span class="remote-status-dot" aria-hidden="true"></span>
+        <span class="remote-status-text">等待提交。</span>
+      </div>
+      <p class="remote-connect-line">
+        <span class="remote-status remote-status--quiet" id="connectStatus" data-tone="idle" role="status" aria-live="polite"><span class="remote-status-text">尚未连接。</span></span>
+        <button class="remote-link-button" type="button" id="openConnectionBtn" aria-controls="connectionPanel" aria-expanded="false">连接设置</button>
+      </p>
+    </div>
+  </section>
+
+  <section class="remote-block" id="remoteResults" hidden>
+    <h2 class="remote-block-title">识别结果</h2>
+    <p class="remote-block-sub" id="resultSummary"></p>
+    <div class="remote-results" id="resultList"></div>
+  </section>
+
+  <div class="remote-secondary">
+    <details class="remote-panel" id="connectionPanel" open>
+      <summary class="remote-panel-summary">
+        <span class="remote-panel-title">连接这台电脑</span>
+        <span class="remote-panel-note">在桌面端开启「远程设备」，再把地址和密钥填到这里</span>
+      </summary>
+      <div class="remote-panel-body">
+        <dl class="remote-fact-list">
+          <div class="remote-fact">
+            <dt>图片不经过本站</dt>
+            <dd>上传直接指向你填写的桌面地址。本站服务器看不到、也存不下任何图片。</dd>
+          </div>
+          <div class="remote-fact">
+            <dt>仍然使用桌面版的模型</dt>
+            <dd>公式、文字、混合排版与整页检测都由你电脑上已配置的识别后端处理。</dd>
+          </div>
+          <div class="remote-fact">
+            <dt>需要你显式授权</dt>
+            <dd>桌面端默认拒绝一切远程访问。只有你开启远程设备、生成密钥并放行本页地址后才能连接。</dd>
+          </div>
+        </dl>
+
+        <section class="remote-subsection" id="remoteSetup">
+          <h3>在电脑上开启「远程设备」</h3>
+          <p class="remote-lead">这一步必须在桌面版里完成。手机或平板无法代你开启。</p>
+          <ol class="remote-guide">
+            <li>打开 LaTeXSnipper 桌面版，进入 <strong>设置</strong>，找到 <strong>自动化接口</strong>。</li>
+            <li>把 <strong>访问范围</strong> 从「仅本机」改为 <strong>「远程设备」</strong>。</li>
+            <li>把 <strong>安全方式</strong> 选为 <strong>「安全隧道（推荐）」</strong>。这表示你已经在 Tailscale、WireGuard 之类的加密隧道里，浏览器将用 <code>http</code> 直连设备地址。</li>
+            <li>在 <strong>监听地址</strong> 里填写这台电脑在隧道里的 <strong>IPv4 地址</strong>，例如 <code>100.101.102.103</code>。端口保持默认的 <code>28765</code>。
+              <p class="remote-hint">必须填 IP 地址，不能填 <code>machine.tailnet.ts.net</code> 这类域名：桌面端只接受与监听地址完全一致的 Host 头，浏览器无法改写它。</p>
+            </li>
+            <li>点 <strong>「重新生成访问密钥」</strong>，再点 <strong>「复制访问密钥」</strong>。这个密钥只属于远程设备，不要和本机凭据混用。</li>
+            <li>在 <strong>「浏览器 Origin 白名单」</strong> 里粘贴这一步下面显示的地址（本页的 Origin），多个地址用英文逗号分隔。
+              <div class="remote-origin-row">
+                <code id="remoteOrigin">…</code>
+                <button class="remote-mini-button" type="button" id="copyOriginBtn">复制</button>
+              </div>
+            </li>
+            <li>勾选 <strong>「我已了解远程设备可向本机提交图片，并确认连接方式安全」</strong>，然后点 <strong>保存</strong>。</li>
+          </ol>
+          <p class="remote-hint">需要识别时桌面版要保持运行。远程设备默认只能调用公式识别后端，不会使用你已配置的外部模型，除非你在桌面端另行开启。</p>
+        </section>
+
+        <section class="remote-subsection" id="remoteConnect">
+          <h3>在本页填写连接信息</h3>
+          <p class="remote-lead">填写你刚才在桌面端配置的地址和密钥，然后测试一次连接。</p>
+          <form class="remote-form" id="connectForm" novalidate>
+            <div class="remote-field">
+              <label for="remoteBaseUrl">桌面版地址</label>
+              <input type="text" id="remoteBaseUrl" name="baseUrl" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://100.101.102.103:28765">
+              <p class="remote-hint">与桌面端「监听地址」和「端口」拼起来，形如 <code>http://&lt;隧道IP&gt;:28765</code>。不要带路径。</p>
+            </div>
+            <div class="remote-field">
+              <label for="remoteKey">远程访问密钥</label>
+              <div class="remote-input-row">
+                <input type="password" id="remoteKey" name="remoteKey" autocomplete="off" spellcheck="false" placeholder="在桌面端生成并复制">
+                <button class="remote-mini-button" type="button" id="toggleKeyBtn" aria-pressed="false">显示</button>
+              </div>
+              <p class="remote-hint">只保存在这台设备的浏览器里，用于向你的电脑证明身份。</p>
+            </div>
+            <label class="remote-check">
+              <input type="checkbox" id="rememberCheck" checked>
+              <span>在这台设备上记住地址和密钥</span>
+            </label>
+            <div class="remote-form-actions">
+              <button class="remote-button remote-button--primary" type="submit" id="testBtn">测试连接</button>
+              <button class="remote-button" type="button" id="clearBtn">清除已保存的连接</button>
+            </div>
+          </form>
+          <div class="remote-caps" id="capabilities" hidden></div>
+        </section>
+      </div>
+    </details>
+
+    <details class="remote-panel" id="troublePanel">
+      <summary class="remote-panel-summary">
+        <span class="remote-panel-title">连不上时按顺序检查</span>
+        <span class="remote-panel-note">七种常见报错分别对应什么原因</span>
+      </summary>
+      <div class="remote-panel-body">
+        <div class="remote-trouble-list" id="troubleShooting">
+          <div class="remote-trouble-item">
+            <h3>浏览器提示「无法访问本地网络」或请求被拦截</h3>
+            <p>这是 Chrome 142 起对「网页访问本地地址」的权限门控。点击地址栏提示里的允许，或在站点设置里为本站开启「本地网络访问」，然后重试。桌面 Safari 与 iOS 尚未确认是否支持该项授权，若被拦截请改用桌面版或系统快捷指令。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>请求返回 <code>403 forbidden</code>，消息是「该 Origin 不在允许列表中」</h3>
+            <p>本页地址没有写进桌面端的「浏览器 Origin 白名单」。展开上面的「连接这台电脑」，把那里显示的地址复制过去，一个字都不要改。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>请求返回 <code>400 invalid_request</code></h3>
+            <p>桌面端收到的 Host 与你填写的地址不一致。确认地址用的是隧道 <strong>IP</strong>，且与桌面端「监听地址」完全相同。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>请求返回 <code>401 unauthorized</code></h3>
+            <p>密钥不对，或桌面端保存后接口还没重启。重新复制一次访问密钥。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>浏览器报「混合内容」被阻止</h3>
+            <p>你填的是 <code>http</code> 地址，而本页是 <code>https</code>。较新的 Chrome 会在你授权本地网络访问后放行；如果仍被阻止，说明该浏览器版本不支持这项放宽，请改用 <code>https</code> 隧道地址或系统快捷指令。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>请求一直挂起或超时</h3>
+            <p>设备不在同一隧道内，或隧道未启动。先在手机上用浏览器直接打开你填写的地址，确认能看到桌面端的响应。</p>
+          </div>
+          <div class="remote-trouble-item">
+            <h3>返回 <code>503 backend_unavailable</code> 或 <code>model_unavailable</code></h3>
+            <p>桌面端的识别模型尚未加载完成，或所选后端当前不可用。</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <p class="info-note"><strong>说明：</strong>本页只是浏览器端的连接客户端，所有识别都在你授权的桌面版上完成，本站不参与、也无法看到传输内容。地址与密钥保存在本机浏览器的 localStorage 中，请勿在公用设备上勾选「记住」。远程凭据默认只能使用公式识别后端，也不会返回桌面端的结果流。</p>
+  </div>
+</main>
+</body>
+</html>

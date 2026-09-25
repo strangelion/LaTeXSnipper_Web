@@ -1,0 +1,925 @@
+/*
+ * Styles for the remote-client page (/remote.html).
+ *
+ * The page reuses the shared site shell and design tokens. The handful of
+ * page primitives that normally come from ocr.css (.demo-page, .demo-eyebrow,
+ * .demo-title, .demo-sub, .info-note) are re-declared here under .remote-page
+ * so this page does not have to load the entire OCR stylesheet.
+ *
+ * Shape scale, identical across the whole page:
+ *   --site-radius-xs  inline code, including the copyable origin chip
+ *   --site-radius-sm  interactive controls, status readouts, compact list
+ *                     rows (the file list) and result surfaces (result code
+ *                     block, math preview, error banner)
+ *   --site-radius-md  containing panels and the file drop target
+ *   full pill         status chips, intentionally
+ * No element borrows a radius from another tier.
+ */
+
+.remote-page [hidden] {
+  display: none !important;
+}
+
+/* ── Shared page primitives (mirrors ocr.css) ───────────────────────────── */
+
+.remote-page .demo-page {
+  position: relative;
+  isolation: isolate;
+  width: min(960px, calc(100% - 40px));
+  margin-inline: auto;
+  padding-bottom: 92px;
+}
+
+.remote-page .demo-eyebrow {
+  margin: 44px 0 12px;
+  color: var(--site-blue);
+  font: 700 0.73rem/1.25 var(--site-mono);
+  letter-spacing: 0.14em;
+  text-align: center;
+}
+
+.remote-page .demo-title {
+  margin: 0;
+  color: var(--site-ink);
+  font: 500 clamp(2.2rem, 5.4vw, 4.1rem)/1.04 var(--site-serif);
+  letter-spacing: -0.05em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.remote-page .demo-sub {
+  max-width: 720px;
+  margin: 20px auto 34px;
+  color: var(--site-muted);
+  font-size: clamp(0.95rem, 1.6vw, 1.08rem);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.remote-page .info-note {
+  margin-top: 28px;
+  padding: 20px 0 0;
+  color: var(--site-muted);
+  border-top: 1px solid var(--site-line);
+  font-size: 0.86rem;
+  line-height: 1.75;
+}
+
+.remote-page .info-note strong {
+  color: var(--site-ink-soft);
+}
+
+.remote-environment .liquid-environment__word {
+  opacity: 0.5;
+}
+
+.remote-main :is(h1, h2) {
+  text-wrap: balance;
+}
+
+/* ── Page blocks ────────────────────────────────────────────────────────── */
+
+/*
+ * The recognition action is the page's main job, so it sits directly under the
+ * hero and is the only block centred on its own axis. Everything that is setup
+ * rather than recognition is collapsed into .remote-secondary at the foot of
+ * the page.
+ */
+.remote-block {
+  max-width: 680px;
+  margin: 34px auto 0;
+}
+
+.remote-block--primary {
+  margin-top: 30px;
+}
+
+.remote-block-title {
+  margin: 0 0 8px;
+  color: var(--site-ink);
+  font: 500 clamp(1.35rem, 2.8vw, 1.85rem)/1.25 var(--site-serif);
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.remote-block-sub {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.88rem;
+  line-height: 1.7;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* Status deck at the foot of the primary block. */
+.remote-block-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Connection readout, kept outside the collapsed panel so it is never hidden. */
+.remote-connect-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0 8px;
+  margin: 0;
+}
+
+/* ── Collapsed reference content ────────────────────────────────────────── */
+
+.remote-secondary {
+  margin-top: 46px;
+  padding-top: 32px;
+  border-top: 1px solid var(--site-line);
+}
+
+.remote-panel {
+  border: 1px solid var(--site-line);
+  border-radius: var(--site-radius-md);
+  background: var(--site-surface);
+}
+
+.remote-panel + .remote-panel {
+  margin-top: 14px;
+}
+
+.remote-panel-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.remote-panel-summary::-webkit-details-marker {
+  display: none;
+}
+
+.remote-panel-title {
+  color: var(--site-ink);
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Disclosure state, not decoration: the glyph is the only control affordance. */
+.remote-panel-title::after {
+  content: "+";
+  margin-left: 8px;
+  color: var(--site-muted);
+  font-family: var(--site-mono);
+  font-weight: 400;
+}
+
+.remote-panel[open] .remote-panel-title::after {
+  content: "-";
+}
+
+.remote-panel-note {
+  color: var(--site-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.remote-panel-summary:focus-visible {
+  outline: none;
+  border-radius: var(--site-radius-xs);
+  box-shadow: 0 0 0 3px var(--site-blue-soft);
+}
+
+.remote-panel-body {
+  padding: 0 20px 22px;
+}
+
+.remote-subsection + .remote-subsection {
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid var(--site-line);
+}
+
+.remote-subsection h3 {
+  margin: 0 0 6px;
+  color: var(--site-ink);
+  font: 500 clamp(1.1rem, 2.1vw, 1.32rem)/1.3 var(--site-serif);
+  letter-spacing: -0.02em;
+}
+
+.remote-lead {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+/* ── Fact list ──────────────────────────────────────────────────────────── */
+
+/*
+ * Three entries as definition-list rows (term left, explanation right) rather
+ * than three equal feature cards, separated from the subsections below by the
+ * group's own bottom border.
+ */
+.remote-fact-list {
+  display: grid;
+  gap: 18px;
+  margin: 0 0 30px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--site-line);
+}
+
+.remote-fact {
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+  gap: 4px 26px;
+  align-items: baseline;
+}
+
+.remote-fact dt {
+  color: var(--site-ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.remote-fact dd {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+/* ── Browser permission banner ──────────────────────────────────────────── */
+
+.remote-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 26px;
+  padding: 16px 18px;
+  border: 1px solid var(--site-warning);
+  border-radius: var(--site-radius-md);
+  background: var(--site-warning-soft);
+  color: var(--site-ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.remote-notice strong {
+  color: var(--site-ink);
+}
+
+/* ── Guide list ─────────────────────────────────────────────────────────── */
+
+.remote-guide {
+  margin: 20px 0 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--site-ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.remote-guide li::marker {
+  color: var(--site-muted-faint);
+  font-family: var(--site-mono);
+}
+
+.remote-guide strong {
+  color: var(--site-ink);
+}
+
+.remote-page code {
+  padding: 0.12em 0.42em;
+  border-radius: var(--site-radius-xs);
+  border: 1px solid var(--site-line);
+  background: var(--site-bg-alt);
+  color: var(--site-ink);
+  font: 0.86em/1.5 var(--site-mono);
+  word-break: break-all;
+}
+
+.remote-page .demo-title code,
+.remote-page .demo-sub code {
+  font-size: 0.9em;
+}
+
+.remote-hint {
+  margin: 8px 0 0;
+  color: var(--site-muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.remote-origin-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.remote-origin-row code {
+  flex: 1 1 260px;
+  padding: 9px 12px;
+  border-radius: var(--site-radius-xs);
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface);
+  font: 0.86rem var(--site-mono);
+  user-select: all;
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+
+.remote-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+/* Options stay left-aligned inside the centred primary block. */
+.remote-form--primary .remote-form-actions {
+  justify-content: center;
+}
+
+.remote-option-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.remote-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.remote-field > label {
+  color: var(--site-ink-soft);
+  font-size: 0.83rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.remote-field input[type="text"],
+.remote-field input[type="password"],
+.remote-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 13px;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface);
+  color: var(--site-ink);
+  font: 400 0.92rem/1.4 var(--site-sans);
+  transition: border-color 0.18s var(--site-ease), box-shadow 0.18s var(--site-ease);
+}
+
+/*
+ * --site-muted rather than --site-muted-faint: the placeholder is the only
+ * example of the address format on the page, and the faint token lands around
+ * 3:1 on the light surface, below the 4.5:1 AA floor for text.
+ */
+.remote-field input::placeholder {
+  color: var(--site-muted);
+}
+
+.remote-field input:focus-visible,
+.remote-field select:focus-visible,
+.remote-button:focus-visible,
+.remote-mini-button:focus-visible,
+.remote-link-button:focus-visible {
+  outline: none;
+  border-color: var(--site-blue);
+  box-shadow: 0 0 0 3px var(--site-blue-soft);
+}
+
+.remote-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.remote-input-row input {
+  flex: 1 1 auto;
+}
+
+.remote-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--site-muted);
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.remote-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--site-blue);
+}
+
+.remote-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.remote-button {
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface-soft);
+  color: var(--site-ink);
+  font: 600 0.88rem/1 var(--site-sans);
+  cursor: pointer;
+  transition: background 0.18s var(--site-ease), border-color 0.18s var(--site-ease),
+    opacity 0.18s var(--site-ease);
+}
+
+.remote-button:hover:not(:disabled) {
+  border-color: var(--site-blue);
+  background: var(--site-surface-accent);
+}
+
+.remote-button--primary {
+  border-color: transparent;
+  background: var(--site-blue);
+  color: var(--site-blue-ink);
+}
+
+.remote-button--primary:hover:not(:disabled) {
+  background: var(--site-blue-strong);
+}
+
+.remote-button:disabled,
+.remote-mini-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.remote-mini-button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface-soft);
+  color: var(--site-ink-soft);
+  font: 600 0.8rem/1 var(--site-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.18s var(--site-ease), color 0.18s var(--site-ease);
+}
+
+.remote-mini-button:hover:not(:disabled) {
+  border-color: var(--site-blue);
+  color: var(--site-blue-strong);
+}
+
+.remote-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--site-blue);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ── Status line ────────────────────────────────────────────────────────── */
+
+/* Blended by default: the drop zone carries the job state as light, so this
+ * readout stays quiet instead of sitting in its own box. */
+.remote-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--site-muted);
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+.remote-status-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--site-muted-faint);
+}
+
+.remote-status[data-tone="busy"] {
+  color: var(--site-ink-soft);
+}
+
+.remote-status[data-tone="busy"] .remote-status-dot {
+  background: var(--site-blue);
+  animation: remote-pulse 1.2s ease-in-out infinite;
+}
+
+/* Success and failure reach the reader through the dot and the wording, not
+ * through a coloured surface. */
+.remote-status[data-tone="ok"] {
+  color: var(--site-ink-soft);
+}
+
+.remote-status[data-tone="ok"] .remote-status-dot {
+  background: var(--site-success);
+}
+
+.remote-status[data-tone="error"] {
+  color: var(--site-danger);
+}
+
+.remote-status[data-tone="error"] .remote-status-dot {
+  background: var(--site-danger);
+}
+
+/* A real failure is the one readout that earns a surface. */
+.remote-status--glow[data-tone="error"] {
+  padding: 12px 14px;
+  border: 1px solid var(--site-danger);
+  border-radius: var(--site-radius-sm);
+  background: var(--site-danger-soft);
+  color: var(--site-ink-soft);
+}
+
+/* Connection readout: no dot, smaller type, sits under the submit status. */
+.remote-status--quiet {
+  display: inline;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+}
+
+@keyframes remote-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .remote-status[data-tone="busy"] .remote-status-dot {
+    animation: none;
+  }
+}
+
+/* ── Capability summary ─────────────────────────────────────────────────── */
+
+.remote-caps {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: var(--site-radius-md);
+  border: 1px solid var(--site-line);
+  background: var(--site-surface-soft);
+}
+
+.remote-caps-list {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 8px 18px;
+  margin: 0;
+  font-size: 0.83rem;
+}
+
+.remote-caps-list dt {
+  color: var(--site-muted);
+}
+
+.remote-caps-list dd {
+  margin: 0;
+  color: var(--site-ink-soft);
+  word-break: break-word;
+}
+
+/* ── Drop zone and file list ────────────────────────────────────────────── */
+
+.remote-drop {
+  position: relative;
+  padding: 26px 20px;
+  border-radius: var(--site-radius-md);
+  border: 1px dashed var(--site-line-strong);
+  background: var(--site-surface-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s var(--site-ease), background 0.18s var(--site-ease);
+}
+
+.remote-drop:hover,
+.remote-drop[data-drag="true"] {
+  border-color: var(--site-blue);
+  background: var(--site-surface-accent);
+}
+
+/* Job state shown as light on the drop zone rather than as a status box.
+ * Decorative reinforcement only: the readout below carries the same state. */
+.remote-drop::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow:
+    0 0 0 1px var(--remote-glow-ring, transparent),
+    0 0 22px 2px var(--remote-glow-halo, transparent),
+    0 0 52px 12px var(--remote-glow-halo, transparent),
+    inset 0 0 30px -4px var(--remote-glow-halo, transparent);
+  transition: opacity 0.45s var(--site-ease);
+}
+
+/* The drop zone reports the job state as light: one hue per state, each one
+ * breathing at its own pace so the rhythm carries meaning too. */
+.remote-block--primary[data-status="busy"] .remote-drop::after {
+  --remote-glow-ring: var(--site-blue);
+  --remote-glow-halo: var(--site-blue-soft);
+  opacity: 1;
+  animation: remote-breathe 2.6s ease-in-out infinite;
+}
+
+.remote-block--primary[data-status="ok"] .remote-drop::after {
+  --remote-glow-ring: var(--site-success);
+  --remote-glow-halo: var(--site-success-soft);
+  opacity: 1;
+  animation: remote-breathe 4.2s ease-in-out infinite;
+}
+
+.remote-block--primary[data-status="error"] .remote-drop::after {
+  --remote-glow-ring: var(--site-danger);
+  --remote-glow-halo: var(--site-danger-soft);
+  opacity: 1;
+  animation: remote-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes remote-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.42; }
+}
+
+/* Must come after the state rules above and keep their specificity: the
+ * [data-status] attribute here is load-bearing, dropping it makes this rule
+ * lose to the later state declarations. The glow stays visible but still, so
+ * colour alone still reports the state. */
+@media (prefers-reduced-motion: reduce) {
+  .remote-block--primary[data-status] .remote-drop::after {
+    animation: none;
+  }
+}
+
+.remote-drop-title {
+  margin: 0 0 6px;
+  color: var(--site-ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.remote-drop-sub {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.83rem;
+  line-height: 1.7;
+}
+
+.remote-filelist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.84rem;
+}
+
+.remote-filelist li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line);
+  background: var(--site-surface-soft);
+  color: var(--site-ink-soft);
+}
+
+.remote-filelist li > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remote-filelist-size {
+  flex: none;
+  color: var(--site-muted);
+  font-family: var(--site-mono);
+  font-size: 0.78rem;
+}
+
+/* ── Results ────────────────────────────────────────────────────────────── */
+
+.remote-results {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.remote-result-card {
+  padding: 16px 18px 18px;
+  border-radius: var(--site-radius-md);
+  border: 1px solid var(--site-line);
+  background: var(--site-surface);
+}
+
+.remote-result-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.remote-result-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--site-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.remote-result-meta {
+  flex: none;
+  color: var(--site-muted);
+  font: 0.78rem var(--site-mono);
+}
+
+.remote-chip {
+  flex: none;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--site-line-strong);
+  background: var(--site-surface-soft);
+  color: var(--site-muted);
+  font: 600 0.72rem/1.4 var(--site-sans);
+  letter-spacing: 0.02em;
+}
+
+.remote-chip[data-state="completed"] {
+  border-color: var(--site-success);
+  background: var(--site-success-soft);
+  color: var(--site-ink-soft);
+}
+
+.remote-chip[data-state="running"],
+.remote-chip[data-state="queued"] {
+  border-color: var(--site-blue);
+  background: var(--site-blue-soft);
+  color: var(--site-blue-strong);
+}
+
+.remote-chip[data-state="failed"] {
+  border-color: var(--site-danger);
+  background: var(--site-danger-soft);
+  color: var(--site-ink-soft);
+}
+
+.remote-result-code {
+  margin: 0;
+  padding: 13px 14px;
+  max-height: 260px;
+  overflow: auto;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line);
+  background: var(--site-bg-alt);
+  color: var(--site-ink-soft);
+  font: 0.82rem/1.65 var(--site-mono);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.remote-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.remote-result-math {
+  margin-top: 14px;
+  padding: 14px;
+  overflow-x: auto;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-line);
+  background: var(--site-surface-soft);
+  color: var(--site-ink);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.remote-result-math svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.remote-result-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--site-radius-sm);
+  border: 1px solid var(--site-danger);
+  background: var(--site-danger-soft);
+  color: var(--site-ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.remote-result-pending {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.85rem;
+}
+
+/* ── Troubleshooting ───────────────────────────────────────────────────── */
+
+/* Seven entries grouped two-up instead of one long single-column list. */
+.remote-trouble-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 26px;
+}
+
+.remote-trouble-item h3 {
+  margin: 0 0 6px;
+  color: var(--site-ink);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.remote-trouble-item p {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.85rem;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .remote-fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .remote-trouble-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .remote-page .demo-page {
+    width: calc(100% - 28px);
+  }
+
+  .remote-option-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .remote-panel-summary {
+    padding: 16px 16px;
+  }
+
+  .remote-panel-body {
+    padding: 0 16px 18px;
+  }
+
+  .remote-caps-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .remote-caps-list dd {
+    margin-bottom: 8px;
+  }
+
+  .remote-input-row {
+    flex-wrap: wrap;
+  }
+
+  .remote-form-actions .remote-button {
+    flex: 1 1 160px;
+  }
+}

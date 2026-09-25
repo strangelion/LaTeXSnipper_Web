@@ -40,6 +40,46 @@ test('general CSP is self-hosted and permits WASM without CDN', () => {
   assert.doesNotMatch(csp, /'unsafe-eval'/);
 });
 
+test('remote-client page relaxes connect-src without loosening scripts', () => {
+  const headers = securityHeaders(true, false, '/remote.html');
+  const csp = headers['Content-Security-Policy'];
+  // The desktop address is entered at runtime, so connect-src cannot be an
+  // allowlist here.
+  assert.match(csp, /connect-src 'self' https: http:/);
+  // Scripts stay same-origin; only styles are relaxed, for MathJax.
+  assert.match(csp, /script-src 'self';/);
+  assert.doesNotMatch(csp, /script-src[^;]*'unsafe-inline'/);
+  assert.doesNotMatch(csp, /'unsafe-eval'|wasm-unsafe-eval/);
+  assert.match(csp, /form-action 'none'/);
+  // COEP would block the desktop's CORS replies, so this page is not isolated.
+  assert.equal(headers['Cross-Origin-Opener-Policy'], undefined);
+  assert.equal(headers['Cross-Origin-Embedder-Policy'], undefined);
+  assert.equal(headers['Cross-Origin-Resource-Policy'], undefined);
+});
+
+test('the remote CSP is scoped to /remote and never leaks to other pages', () => {
+  for (const path of ['/remote', '/remote.html']) {
+    assert.match(
+      securityHeaders(true, false, path)['Content-Security-Policy'],
+      /connect-src 'self' https: http:/,
+      `expected the remote CSP for ${path}`,
+    );
+  }
+  for (const path of ['/', '/index.html', '/ocr.html', '/download.html', '/user_manual.html']) {
+    assert.doesNotMatch(
+      securityHeaders(true, false, path)['Content-Security-Policy'],
+      /connect-src 'self' https: http:/,
+      `expected no remote CSP for ${path}`,
+    );
+  }
+});
+
+test('the remote-client page is denied camera and microphone', () => {
+  const policy = securityHeaders(true, false, '/remote.html')['Permissions-Policy'];
+  assert.match(policy, /camera=\(\)/);
+  assert.match(policy, /microphone=\(\)/);
+});
+
 test('marketing pages use a narrower CSP and do not enable cross-origin isolation', () => {
   const headers = securityHeaders(true, false, '/');
   assert.doesNotMatch(headers['Content-Security-Policy'], /wasm-unsafe-eval|worker-src/);

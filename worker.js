@@ -114,6 +114,11 @@ function isSafePath(p) {
 function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
   const allowCamera = path === "/ocr" || path === "/ocr.html";
   const isOcrPage = allowCamera;
+  // The remote-client page submits to a user-owned desktop instance whose
+  // address is only known at runtime, so connect-src cannot be a fixed
+  // allowlist. Scripts stay same-origin only; this page is deliberately not
+  // cross-origin isolated, because COEP would block the desktop's CORS replies.
+  const isRemoteClientPage = path === "/remote" || path === "/remote.html";
   const headers = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "SAMEORIGIN",
@@ -158,6 +163,23 @@ function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
+      ].join("; ");
+    } else if (isRemoteClientPage) {
+      // Remote device bridge. `http:` is required because a self-hosted tunnel
+      // address is a bare IP literal, which CSP cannot enumerate. Inline styles
+      // are allowed only because MathJax injects its own stylesheet; inline
+      // scripts are not, and there is no eval.
+      headers["Content-Security-Policy"] = [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self'",
+        "connect-src 'self' https: http:",
+        "object-src 'none'",
+        "frame-ancestors 'none'",
+        "base-uri 'self'",
+        "form-action 'none'",
       ].join("; ");
     } else {
       headers["Content-Security-Policy"] = [

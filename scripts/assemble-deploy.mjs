@@ -43,6 +43,8 @@ const REQUIRED_PATHS = [
   'assets/hero-workspace-',
   'ocr.html',
   'js/ocr.js',
+  'remote.html',
+  'js/remote.js',
   'js/core-runtime.js',
   'js/core-ocr-runtime.js',
   'js/core-ocr-worker.js',
@@ -66,6 +68,7 @@ const REQUIRED_PATHS = [
   'styles/site-shell.css',
   'styles/download.css',
   'styles/ocr.css',
+  'styles/remote.css',
   'styles/manual.css',
   'styles/liquid-glass-lab.css',
   'design/liquid-glass-lab.html',
@@ -76,7 +79,13 @@ const REQUIRED_PATHS = [
 // 1. Ensure Vite build exists
 if (!fs.existsSync(path.resolve(DIST_DIR, 'index.html'))) {
   console.log('[assemble] Running Vite build...');
-  execSync('npx vite build', { cwd: root, stdio: 'inherit' });
+  try {
+    execSync('npx vite build', { cwd: root, stdio: 'inherit' });
+  } catch (error) {
+    // Abort before deploy/ is touched, so a failed Vite build can never leave
+    // the committed deploy tree half-overwritten.
+    throw new Error('[assemble] Vite build failed; deploy/ was not modified.', { cause: error });
+  }
 }
 
 // 2. Clean deploy dir
