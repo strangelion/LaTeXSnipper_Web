@@ -6,6 +6,12 @@ import re, json, subprocess, sys, os
 TYP_FILE = "user_manual.typ"
 HTML_FILE = "user_manual.html"
 
+# Release marker of the cover title block. Upstream rewrites this line every
+# release ("长期支持版" became "适用于 v3.0.0-LTS"), so match a marker instead of
+# one literal phrase: a fixed string silently demotes the cover to "center" on
+# the next rename and the cover loses its typography.
+COVER_VERSION_RE = re.compile(r'长期支持|LTS|\bv\d+(?:\.\d+)+', re.IGNORECASE)
+
 # ── helpers ──
 def esc(t):
     return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -519,7 +525,7 @@ def parse_typ(source):
             if (
                 'LaTeXSnipper' in body
                 and '用户手册' in body
-                and '长期支持版' in body
+                and COVER_VERSION_RE.search(body)
             ):
                 cls = 'manual-cover'
 

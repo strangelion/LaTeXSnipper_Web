@@ -101,6 +101,25 @@ test('renamed cover image keeps the manual-cover-visual wrapper', async () => {
   }
 });
 
+test('cover title block keeps the manual-cover class', async () => {
+  // Upstream rewrites the cover release line every release ("长期支持版" became
+  // "适用于 v3.0.0-LTS"), so build_manual.py must key the class off a release
+  // marker. styles/manual-mobile-fixes.css targets .manual-cover to keep the
+  // version tag from being clipped on narrow viewports.
+  assert.ok(
+    /长期支持|LTS|\bv\d+(?:\.\d+)+/i.test(typSource),
+    'user_manual.typ has no cover release marker; check build_manual.py COVER_VERSION_RE',
+  );
+
+  for (const page of PAGES) {
+    const html = await readFile(repoPath(page), 'utf8');
+    assert.ok(
+      html.includes('<div class="manual-cover">'),
+      `${page} demoted the cover title block to a generic centered block`,
+    );
+  }
+});
+
 test('image sync manifest lists every referenced manual image', async () => {
   const manifest = JSON.parse(await readFile(MANIFEST_URL, 'utf8'));
   const synced = manifest.images ?? [];
