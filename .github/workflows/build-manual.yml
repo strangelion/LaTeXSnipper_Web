@@ -201,6 +201,9 @@ jobs:
           cp LaTeXSnipper_User_Manual.pdf release/LaTeXSnipper_Manual.pdf
           cp LaTeXSnipper_User_Manual.pdf dist/LaTeXSnipper_Manual.pdf
           npm run assemble
+          # assemble regenerates deploy/ from source and drops the deploy-only
+          # download layout patch; re-apply it so committed artifacts stay valid.
+          npm run patch:download-layout
 
       - name: 更新状态文件并提交变更
         run: |
