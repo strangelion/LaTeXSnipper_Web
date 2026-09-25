@@ -61,6 +61,37 @@ const assets = [
   'assets/images/mathcraft_limits_series.png',
 ];
 
+/**
+ * Manual images referenced by user_manual.typ, using the same flattening rule
+ * as build_manual.py (leading ../ and ./ are removed). Deriving them keeps the
+ * allowlist in sync when the upstream manual renames a picture.
+ */
+function referencedManualImages() {
+  let typ = '';
+  try {
+    typ = fs.readFileSync('user_manual.typ', 'utf8');
+  } catch {
+    return [];
+  }
+  const names = new Set();
+  for (const match of typ.matchAll(/image\(\s*"([^"]+)"/g)) {
+    const ref = match[1].trim();
+    if (!ref || /^(https?:|data:|assets\/|\/assets\/)/.test(ref)) continue;
+    const name = ref.replace(/\\/g, '/').replace(/^(\.\.?\/)+/, '');
+    // Keep the derived path inside dist/.
+    if (name.split('/').includes('..')) continue;
+    names.add(`assets/images/${name}`);
+  }
+  return [...names];
+}
+
+for (const asset of referencedManualImages()) {
+  const listed = assets.some((entry) => (typeof entry === 'string' ? entry : entry.src) === asset);
+  if (!listed) {
+    assets.push(asset);
+  }
+}
+
 console.log('复制静态资源到 dist/:');
 for (const f of assets) {
   if (typeof f === 'string') {

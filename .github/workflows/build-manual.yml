@@ -87,9 +87,10 @@ jobs:
             echo "  $f"
           done
           mkdir -p assets/images
-          for png in *.png; do
-            [ -f "$png" ] && cp "$png" assets/images/ && echo "  $png -> assets/images/"
-          done
+          # Fetch every image the manual references (including files outside
+          # user_manual/, for example docs/latexsnipper.png) instead of copying
+          # a fixed set of *.png names, so upstream renames cannot 404.
+          python3 scripts/sync-manual-images.py
           echo "Sync done."
 
       - name: Build manual HTML
@@ -202,7 +203,7 @@ jobs:
           cp LaTeXSnipper_User_Manual.pdf dist/LaTeXSnipper_Manual.pdf
           npm run assemble
           # assemble regenerates deploy/ from source and drops the deploy-only
-          # download layout patch; re-apply it so committed artifacts stay valid.
+          # download patch; re-apply it so artifacts stay valid.
           npm run patch:download-layout
 
       - name: 更新状态文件并提交变更

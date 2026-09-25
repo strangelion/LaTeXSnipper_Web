@@ -523,8 +523,9 @@ def parse_typ(source):
             ):
                 cls = 'manual-cover'
 
-            # 手册封面截图
-            elif 'LaTeXSnipper.png' in body:
+            # Manual cover screenshot: match on the referenced image name so an
+            # upstream rename or case change cannot silently drop the class.
+            elif re.search(r'image\(\s*"[^"]*latexsnipper[^"]*"', body, re.IGNORECASE):
                 cls = 'manual-cover-visual'
 
             else:
@@ -1361,12 +1362,23 @@ function copyCode(btn) {{
         alt = m.group(2)
         rest = m.group(3) or ''
         # Don't rewrite external URLs
-        if src.startswith('http://') or src.startswith('https://'):
+        if src.startswith(('http://', 'https://', 'data:')):
             return m.group(0)
-        # Don't double-prefix
-        if src.startswith('assets/'):
+        # Don't double-prefix already deployed paths
+        if src.startswith('assets/') or src.startswith('/assets/'):
             return m.group(0)
-        return f'<img src="assets/images/{src}" alt="{alt}"{rest} loading="lazy" decoding="async">'
+        # Manual sources may point outside their own directory, for example
+        # "../docs/latexsnipper.png". Flatten the leading path segments so the
+        # deployed URL is assets/images/<path>; scripts/sync-manual-images.py
+        # writes the matching file for every reference in user_manual.typ.
+        name = src.replace('\\', '/')
+        while name.startswith('../'):
+            name = name[3:]
+        while name.startswith('./'):
+            name = name[2:]
+        name = name.lstrip('/')
+        # Photos stay lazy so a long manual does not delay the first paint.
+        return f'<img src="assets/images/{name}" alt="{alt}"{rest} loading="lazy" decoding="async">'
     html = re.sub(r'<img src="([^"]+)" alt="([^"]*)"(.*?)>', fix_image_path, html)
 
     with open(HTML_FILE, 'w', encoding='utf-8') as f:
