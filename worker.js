@@ -111,6 +111,20 @@ function isSafePath(p) {
   return true;
 }
 
+// Cloudflare injects its JavaScript Detections bootstrap into HTML responses as
+// an inline script. The injected text embeds a per-request ray id, so a fixed
+// sha256 hash can never match it, and Bot Fight Mode enables the injection
+// automatically. Cloudflare parses our CSP response header and copies a nonce
+// from it onto whatever it injects, so a fresh nonce per response keeps
+// script-src strict without falling back to 'unsafe-inline'.
+function cspNonce() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
 function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
   const allowCamera = path === "/ocr" || path === "/ocr.html";
   const isOcrPage = allowCamera;
@@ -168,10 +182,14 @@ function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
       // Remote device bridge. `http:` is required because a self-hosted tunnel
       // address is a bare IP literal, which CSP cannot enumerate. Inline styles
       // are allowed only because MathJax injects its own stylesheet; inline
-      // scripts are not, and there is no eval.
+      // scripts are not, and there is no eval. The nonce is not for our own
+      // markup (every script here is same-origin): it only lets the JavaScript
+      // Detections bootstrap Cloudflare injects into this page run. The
+      // analytics host is Cloudflare's own Web Analytics beacon, which is
+      // injected into HTML responses independently of this Worker.
       headers["Content-Security-Policy"] = [
         "default-src 'self'",
-        "script-src 'self'",
+        `script-src 'self' 'nonce-${cspNonce()}' https://static.cloudflareinsights.com`,
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob:",
         "font-src 'self'",

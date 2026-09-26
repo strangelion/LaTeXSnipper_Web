@@ -46,8 +46,13 @@ test('remote-client page relaxes connect-src without loosening scripts', () => {
   // The desktop address is entered at runtime, so connect-src cannot be an
   // allowlist here.
   assert.match(csp, /connect-src 'self' https: http:/);
-  // Scripts stay same-origin; only styles are relaxed, for MathJax.
-  assert.match(csp, /script-src 'self';/);
+  // Scripts stay same-origin; only styles are relaxed, for MathJax. The nonce
+  // exists for Cloudflare's injected JavaScript Detections bootstrap, and the
+  // analytics host for Cloudflare's injected Web Analytics beacon.
+  assert.match(
+    csp,
+    /script-src 'self' 'nonce-[A-Za-z0-9+/=]+' https:\/\/static\.cloudflareinsights\.com;/,
+  );
   assert.doesNotMatch(csp, /script-src[^;]*'unsafe-inline'/);
   assert.doesNotMatch(csp, /'unsafe-eval'|wasm-unsafe-eval/);
   assert.match(csp, /form-action 'none'/);
@@ -70,6 +75,23 @@ test('the remote CSP is scoped to /remote and never leaks to other pages', () =>
       securityHeaders(true, false, path)['Content-Security-Policy'],
       /connect-src 'self' https: http:/,
       `expected no remote CSP for ${path}`,
+    );
+  }
+});
+
+test('the remote-client CSP nonce is fresh per response and never leaks', () => {
+  const nonceOf = (csp) => /'nonce-([^']+)'/.exec(csp)?.[1];
+  const remoteCsp = () =>
+    securityHeaders(true, false, '/remote.html')['Content-Security-Policy'];
+  const first = nonceOf(remoteCsp());
+  const second = nonceOf(remoteCsp());
+  assert.ok(first, 'expected the remote CSP to carry a nonce');
+  assert.notEqual(first, second, 'the CSP nonce must not be reused');
+  for (const path of ['/', '/index.html', '/ocr.html', '/download.html']) {
+    assert.equal(
+      nonceOf(securityHeaders(true, false, path)['Content-Security-Policy']),
+      undefined,
+      `expected no CSP nonce for ${path}`,
     );
   }
 });
