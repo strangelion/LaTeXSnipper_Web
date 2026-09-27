@@ -13,6 +13,7 @@ export default function FinalCta() {
           <div className={styles.ctaActions}>
             <a href="/download.html">下载 LaTeXSnipper</a>
             <a href="/ocr.html">在线识别</a>
+            <a href="/remote.html">远程连接</a>
             <a
               href="https://github.com/SakuraMathcraft/LaTeXSnipper"
               target="_blank"

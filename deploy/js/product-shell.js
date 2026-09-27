@@ -4,7 +4,7 @@
   const systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const mobileNavigationQuery = window.matchMedia('(max-width: 720px)');
+  const mobileNavigationQuery = window.matchMedia('(max-width: 1040px)');
 
   function hardenManualMobile() {
     if (!root.classList.contains('manual-page')) return;

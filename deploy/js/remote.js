@@ -44,8 +44,12 @@ const dom = {
   remember: document.getElementById('rememberCheck'),
   testBtn: document.getElementById('testBtn'),
   clearBtn: document.getElementById('clearBtn'),
+  useLocalFileBtn: document.getElementById('useLocalFileBtn'),
+  connectionFileInput: document.getElementById('remoteConnectionFile'),
   connectStatus: document.getElementById('connectStatus'),
+  connection: document.getElementById('remoteConnection'),
   capabilities: document.getElementById('capabilities'),
+  openSetupBtn: document.getElementById('openSetupBtn'),
 
   submitForm: document.getElementById('submitForm'),
   mode: document.getElementById('remoteMode'),
@@ -53,7 +57,13 @@ const dom = {
   backendHint: document.getElementById('backendHint'),
   dropZone: document.getElementById('dropZone'),
   fileInput: document.getElementById('remoteFile'),
-  pickFileBtn: document.getElementById('pickFileBtn'),
+  cameraInput: document.getElementById('remoteCamera'),
+  selectFileBtn: document.getElementById('selectFileBtn'),
+  cameraBtn: document.getElementById('cameraBtn'),
+  pasteBtn: document.getElementById('pasteBtn'),
+  screenBtn: document.getElementById('screenBtn'),
+  drawingBtn: document.getElementById('drawingBtn'),
+  browserFeatures: document.getElementById('browserFeatures'),
   fileList: document.getElementById('fileList'),
   submitBtn: document.getElementById('submitBtn'),
   cancelJobBtn: document.getElementById('cancelJobBtn'),
@@ -68,18 +78,36 @@ const dom = {
 
   connectionPanel: document.getElementById('connectionPanel'),
   openConnectionBtn: document.getElementById('openConnectionBtn'),
+
+  drawingDialog: document.getElementById('drawingDialog'),
+  drawingCanvas: document.getElementById('drawingCanvas'),
+  drawingCloseBtn: document.getElementById('drawingCloseBtn'),
+  drawPenBtn: document.getElementById('drawPenBtn'),
+  drawEraserBtn: document.getElementById('drawEraserBtn'),
+  drawStrokeWidth: document.getElementById('drawStrokeWidth'),
+  drawClearBtn: document.getElementById('drawClearBtn'),
+  drawAddBtn: document.getElementById('drawAddBtn'),
 };
 
 /** Runtime state. Nothing here is trusted until the desktop answers. */
 const state = {
   baseUrl: '',
   key: '',
+  connectionSource: 'manual',
   limits: null,
   permissions: [],
   files: [],
   activeJobId: null,
   pollAbort: false,
 };
+
+const drawingState = {
+  activePointerId: null,
+  hasInk: false,
+  mode: 'pen',
+};
+
+let browserNoticeTimer = null;
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * Address classification
@@ -148,7 +176,7 @@ function addressSpaceForHost(hostname) {
  * @param {RequestInit} [init]
  * @returns {Promise<Response>}
  */
-function desktopFetch(url, init = {}) {
+async function desktopFetch(url, init = {}) {
   const request = {
     mode: 'cors',
     credentials: 'omit',
@@ -159,7 +187,7 @@ function desktopFetch(url, init = {}) {
   const space = addressSpaceForHost(url.hostname);
   if (!space) return fetch(url, request);
   try {
-    return fetch(url, { ...request, targetAddressSpace: space });
+    return await fetch(url, { ...request, targetAddressSpace: space });
   } catch (error) {
     if (error instanceof TypeError) return fetch(url, request);
     throw error;
@@ -173,7 +201,7 @@ function desktopFetch(url, init = {}) {
  * @returns {URL}
  */
 function endpoint(path) {
-  if (!state.baseUrl) throw new Error('请先填写并测试桌面版地址。');
+  if (!state.baseUrl) throw new Error('请先填写地址并连接桌面版。');
   return new URL(path, `${state.baseUrl}/`);
 }
 
@@ -248,6 +276,9 @@ function setStatus(element, tone, text) {
   // Mirror the job tone onto the block so the drop zone can show it as light.
   if (element === dom.submitStatus && dom.submit) {
     dom.submit.dataset.status = tone;
+  }
+  if (element === dom.connectStatus && dom.connection) {
+    dom.connection.dataset.status = tone;
   }
 }
 
@@ -332,10 +363,51 @@ function normalizeBaseUrl(raw) {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     throw new Error('地址必须以 http:// 或 https:// 开头。');
   }
+  if (url.username || url.password) {
+    throw new Error('地址中不要包含用户名或密码。远程访问密钥请单独填写。');
+  }
   if ((url.pathname && url.pathname !== '/') || url.search || url.hash) {
     throw new Error('地址只能包含协议、主机和端口，不要带路径。');
   }
   return `${url.protocol}//${url.host}`;
+}
+
+/**
+ * Import the private discovery file written by a locally running desktop app.
+ * Browsers cannot read it silently, so this always follows an explicit file
+ * picker action. Local session tokens are never persisted by this path.
+ *
+ * @param {File} file
+ * @returns {Promise<void>}
+ */
+async function importLocalConnectionFile(file) {
+  if (!file) return;
+  if (file.size > 64 * 1024) {
+    throw new Error('这个连接文件异常大，请确认选择的是 automation-api.json。');
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(await file.text());
+  } catch {
+    throw new Error('无法读取连接文件。Windows 用户请到 %USERPROFILE%\\.latexsnipper\\automation-api.json 重新选择。');
+  }
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('连接文件内容不完整。');
+  }
+
+  const baseUrl = normalizeBaseUrl(payload.base_url);
+  const token = String(payload.token || '').trim();
+  if (!token) throw new Error('连接文件里没有本机会话 token。请在桌面版开启自动化接口后重新选择。');
+
+  clearStoredConnection();
+  dom.remember.checked = false;
+  dom.baseUrl.value = baseUrl;
+  dom.key.value = token;
+  state.connectionSource = 'local-file';
+  setStatus(dom.connectStatus, 'idle', '已读取本机连接文件，正在验证桌面版…');
+  await updateBrowserNotice(baseUrl);
+  await testConnection();
 }
 
 /**
@@ -371,35 +443,80 @@ async function updateBrowserNotice(baseUrl) {
     dom.browserNotice.hidden = true;
     return;
   }
-  const isLocalTarget = addressSpaceForHost(url.hostname) !== null;
-  if (!isLocalTarget) {
-    dom.browserNotice.hidden = true;
-    return;
+  const addressSpace = addressSpaceForHost(url.hostname);
+  const isLocalTarget = addressSpace !== null;
+  const isMixed = window.location.protocol === 'https:' && url.protocol === 'http:';
+  const permission = await probeLocalNetworkPermission();
+  const browser = browserProfile();
+  const supportsLocalNetworkIntent = supportsTargetAddressSpace();
+  const notes = [];
+
+  if (addressSpace === 'loopback') {
+    notes.push(`已选择同机连接。${url.hostname} 指向正在打开此网页的设备，请保持 LaTeXSnipper 与自动化接口运行。`);
+    notes.push('网页仍受 Origin 白名单限制；如果桌面端的「仅本机」设置里没有白名单入口，请改用桌面客户端，或配置安全隧道 / HTTPS。');
+  } else if (addressSpace === 'local') {
+    notes.push('已选择私网或隧道地址。电脑与当前设备需要处于同一 Tailscale 或 WireGuard 网络。');
+    if (url.protocol === 'https:') {
+      notes.push('请确认桌面端证书的 SAN 包含当前主机名或 IP，并且证书颁发者受此设备信任。');
+    }
+  } else if (url.protocol === 'https:') {
+    notes.push('这是 HTTPS 地址，跨浏览器兼容性通常更好；证书必须受当前设备信任。');
+  } else {
+    notes.push('不要把未加密的桌面接口直接暴露到公网；优先改用加密隧道或可信 HTTPS。');
   }
 
-  const isMixed =
-    window.isSecureContext && url.protocol === 'http:';
-  const permission = await probeLocalNetworkPermission();
-  const notes = [
-    '这个地址属于本地网络地址，部分浏览器会把它单独当作一项权限处理。',
-  ];
-  if (isMixed) {
-    notes.push(
-      '本页是 https，而你填的是 http 地址。Chrome 142 起，只要你在提示中授权本地网络访问，这类请求会被放行，不再按混合内容拦掉；浏览器不支持这项放宽时会直接拒绝。',
-    );
+  if (isLocalTarget && isMixed && supportsLocalNetworkIntent) {
+    notes.push(`${browser.label} 支持声明本地网络目标，首次请求时若出现本地网络访问提示，请选择允许。`);
+  } else if (isLocalTarget && isMixed) {
+    notes.push(`${browser.label} 可能直接阻止 HTTPS 页面访问 HTTP 私网地址；若连接失败，请改用桌面端的可信 HTTPS 地址，或系统快捷指令。`);
   }
   if (permission === 'prompt') {
-    notes.push('当前浏览器把这项权限标记为「待询问」，首次请求时会出现提示。');
+    notes.push('当前权限状态为待询问。');
   } else if (permission === 'denied') {
-    notes.push('这项权限已被拒绝，需要在站点设置里重新允许后才能连接。');
+    notes.push('本地网络权限已被拒绝，请在站点设置中重新允许。');
   } else if (permission === 'granted') {
-    notes.push('这项权限已授予。');
+    notes.push('本地网络权限已授予。');
   }
-  if (/Safari/i.test(navigator.userAgent) && !/Chrome|Chromium/i.test(navigator.userAgent)) {
-    notes.push('Safari 对本地网络访问的处理尚未确认，若被拦截请改用系统快捷指令或桌面版。');
-  }
+  notes.push(`还需在桌面端把 ${window.location.origin} 加入浏览器 Origin 白名单。`);
+
+  dom.browserNotice.dataset.tone = isLocalTarget && isMixed && !supportsLocalNetworkIntent
+    ? 'warning'
+    : 'info';
   dom.browserNoticeDetail.textContent = notes.join(' ');
   dom.browserNotice.hidden = false;
+}
+
+/** @returns {boolean} */
+function supportsTargetAddressSpace() {
+  try {
+    const probe = new Request(window.location.href, { targetAddressSpace: 'local' });
+    return probe.targetAddressSpace === 'local';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Browser names are used only to phrase guidance. Feature detection still
+ * controls whether clipboard and screen-capture actions are exposed.
+ *
+ * @returns {{engine:'chromium'|'firefox'|'webkit'|'other',label:string}}
+ */
+function browserProfile() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  if (isIOS && /CriOS/i.test(ua)) return { engine: 'webkit', label: 'iOS 版 Chrome' };
+  if (isIOS && /FxiOS/i.test(ua)) return { engine: 'webkit', label: 'iOS 版 Firefox' };
+  if (isIOS && /EdgiOS/i.test(ua)) return { engine: 'webkit', label: 'iOS 版 Edge' };
+  if (/Edg\//i.test(ua)) return { engine: 'chromium', label: 'Edge' };
+  if (/Chrome|Chromium|CriOS/i.test(ua) && !/OPR\//i.test(ua)) {
+    return { engine: 'chromium', label: 'Chrome / Chromium' };
+  }
+  if (/Firefox|FxiOS/i.test(ua)) return { engine: 'firefox', label: 'Firefox' };
+  if (/Safari/i.test(ua) && !/Chrome|Chromium|CriOS|Edg|OPR/i.test(ua)) {
+    return { engine: 'webkit', label: 'Safari' };
+  }
+  return { engine: 'other', label: '当前浏览器' };
 }
 
 /**
@@ -536,7 +653,7 @@ async function testConnection() {
   try {
     state.baseUrl = normalizeBaseUrl(dom.baseUrl.value);
     state.key = dom.key.value.trim();
-    if (!state.key) throw new Error('请填写远程访问密钥。');
+    if (!state.key) throw new Error('请读取本机连接文件，或填写远程访问密钥。');
 
     await updateBrowserNotice(state.baseUrl);
 
@@ -555,7 +672,7 @@ async function testConnection() {
     setStatus(
       dom.connectStatus,
       'ok',
-      `已连接 · 接口版本 ${config.api_version ?? '未知'} · 当前可用后端 ${backendCount} 个`,
+      `已连接，接口版本 ${config.api_version ?? '未知'}，当前可用后端 ${backendCount} 个`,
     );
     revealSubmitStep();
     return true;
@@ -563,7 +680,11 @@ async function testConnection() {
     state.limits = null;
     state.permissions = [];
     dom.capabilities.hidden = true;
-    setStatus(dom.connectStatus, 'error', describeError(error));
+    let message = describeError(error);
+    if (state.connectionSource === 'local-file' && error instanceof TypeError) {
+      message += ' 已读取本机连接文件，但浏览器跨域仍需要桌面端允许本页 Origin；当前「仅本机」界面若没有白名单入口，请使用桌面客户端，或改配安全隧道 / HTTPS。';
+    }
+    setStatus(dom.connectStatus, 'error', message);
     return false;
   } finally {
     dom.testBtn.disabled = false;
@@ -614,12 +735,8 @@ function restoreConnection() {
     if (typeof stored.baseUrl === 'string') dom.baseUrl.value = stored.baseUrl;
     if (typeof stored.key === 'string') dom.key.value = stored.key;
   }
-  // The setup panel ships open in the markup so the guide is readable without
-  // script. With a remembered address the page opens collapsed instead, which
-  // keeps the recognition block the only thing above the fold.
   if (dom.baseUrl.value) {
-    dom.connectionPanel.open = false;
-    setStatus(dom.connectStatus, 'idle', '已载入上次的连接信息，点「测试连接」重新验证。');
+    setStatus(dom.connectStatus, 'idle', '已载入上次的连接信息，点「连接桌面版」重新验证。');
     updateBrowserNotice(dom.baseUrl.value);
   }
   syncConnectionPanel();
@@ -635,7 +752,7 @@ function restoreConnection() {
  * @returns {void}
  */
 function syncConnectionPanel() {
-  dom.openConnectionBtn.setAttribute('aria-expanded', String(dom.connectionPanel.open));
+  dom.openSetupBtn.setAttribute('aria-expanded', String(dom.connectionPanel.open));
 }
 
 /**
@@ -646,6 +763,9 @@ function syncConnectionPanel() {
  */
 function revealSubmitStep() {
   updateSubmitAvailability();
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  dom.submit.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  dom.dropZone.focus({ preventScroll: true });
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -666,6 +786,270 @@ function maxItems() {
 function maxImageBytes() {
   const value = state.limits && Number(state.limits.max_image_bytes);
   return Number.isFinite(value) && value > 0 ? value : DEFAULT_MAX_IMAGE_BYTES;
+}
+
+/**
+ * Expose only the capture actions this browser can actually perform. File
+ * selection, the capture input and the canvas remain universal fallbacks.
+ *
+ * @returns {void}
+ */
+function updateInputCapabilities() {
+  const canReadClipboard = Boolean(
+    window.isSecureContext && navigator.clipboard
+      && typeof navigator.clipboard.read === 'function',
+  );
+  const canCaptureScreen = Boolean(
+    window.isSecureContext && navigator.mediaDevices
+      && typeof navigator.mediaDevices.getDisplayMedia === 'function',
+  );
+
+  dom.pasteBtn.hidden = !canReadClipboard;
+  dom.pasteBtn.disabled = false;
+  dom.pasteBtn.title = canReadClipboard
+    ? '读取剪贴板中的图片'
+    : '此浏览器不能用按钮读取剪贴板，可在页面空白处按 Ctrl+V 或 Command+V';
+  dom.screenBtn.hidden = !canCaptureScreen;
+
+  const available = ['文件与拖放', '拍照或相册', '画板'];
+  if (canReadClipboard) available.push('剪贴板图片');
+  if (canCaptureScreen) available.push('屏幕截取');
+  const fallback = canReadClipboard
+    ? ''
+    : ' 当前浏览器不允许按钮读取剪贴板，仍可使用系统粘贴快捷键。';
+  dom.browserFeatures.textContent = `当前可用：${available.join('、')}。${fallback}`;
+}
+
+/**
+ * @param {Blob} blob
+ * @param {string} prefix
+ * @returns {File}
+ */
+function fileFromImageBlob(blob, prefix) {
+  const subtype = String(blob.type || 'image/png').split('/')[1] || 'png';
+  const extension = subtype === 'jpeg' ? 'jpg' : subtype.replace(/[^a-z0-9.+-]/gi, '') || 'png';
+  return new File(
+    [blob],
+    `${prefix}-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`,
+    { type: blob.type || 'image/png' },
+  );
+}
+
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @returns {Promise<Blob>}
+ */
+function canvasPng(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error('浏览器无法生成 PNG 图片。'));
+    }, 'image/png');
+  });
+}
+
+/**
+ * Read an image from the async Clipboard API. Paste events remain as the
+ * fallback for Firefox, older Safari and policy-restricted browsers.
+ *
+ * @returns {Promise<void>}
+ */
+async function importClipboardImage() {
+  if (!navigator.clipboard || typeof navigator.clipboard.read !== 'function') {
+    setStatus(dom.submitStatus, 'idle', '此浏览器不能用按钮读取剪贴板，请在页面空白处使用系统粘贴快捷键。');
+    return;
+  }
+
+  dom.pasteBtn.disabled = true;
+  try {
+    const items = await navigator.clipboard.read();
+    const files = [];
+    for (const item of items) {
+      const imageType = item.types.find((type) => type.startsWith('image/'));
+      if (!imageType) continue;
+      const blob = await item.getType(imageType);
+      files.push(fileFromImageBlob(blob, 'clipboard'));
+    }
+    if (!files.length) throw new Error('剪贴板里没有图片。');
+    await addFiles(files);
+  } catch (error) {
+    const message = error && error.name === 'NotAllowedError'
+      ? '浏览器没有允许读取剪贴板。可以改用系统粘贴快捷键或选择图片。'
+      : describeError(error);
+    setStatus(dom.submitStatus, 'error', message);
+  } finally {
+    updateInputCapabilities();
+  }
+}
+
+/**
+ * Convert a pasted clipboard image into the same File path used by drag/drop.
+ *
+ * @param {ClipboardEvent} event
+ * @returns {void}
+ */
+function handleImagePaste(event) {
+  const target = event.target;
+  if (target instanceof HTMLElement
+    && (target.matches('input, textarea, select') || target.isContentEditable)) return;
+  const files = Array.from(event.clipboardData?.items || [])
+    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+  if (!files.length) return;
+  event.preventDefault();
+  addFiles(files);
+}
+
+/**
+ * Capture one frame from getDisplayMedia(). The stream is stopped in every
+ * outcome so a canceled or completed capture never leaves screen sharing on.
+ *
+ * @returns {Promise<void>}
+ */
+async function captureScreenImage() {
+  if (!navigator.mediaDevices || typeof navigator.mediaDevices.getDisplayMedia !== 'function') {
+    setStatus(dom.submitStatus, 'idle', '当前浏览器不支持屏幕截取，请使用系统截图后选择或粘贴图片。');
+    return;
+  }
+
+  let stream = null;
+  dom.screenBtn.disabled = true;
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.srcObject = stream;
+    await video.play();
+    await new Promise((resolve) => window.requestAnimationFrame(
+      () => window.requestAnimationFrame(resolve),
+    ));
+
+    if (!video.videoWidth || !video.videoHeight) {
+      throw new Error('浏览器没有返回可用的屏幕画面。');
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d', { alpha: false });
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const blob = await canvasPng(canvas);
+    await addFiles([fileFromImageBlob(blob, 'screen')]);
+  } catch (error) {
+    const message = error && error.name === 'NotAllowedError'
+      ? '屏幕截取已取消。'
+      : describeError(error);
+    setStatus(dom.submitStatus, error && error.name === 'NotAllowedError' ? 'idle' : 'error', message);
+  } finally {
+    if (stream) stream.getTracks().forEach((track) => track.stop());
+    dom.screenBtn.disabled = false;
+  }
+}
+
+/** @returns {CanvasRenderingContext2D} */
+function drawingContext() {
+  return dom.drawingCanvas.getContext('2d', { alpha: false });
+}
+
+/** @returns {void} */
+function clearDrawing() {
+  const context = drawingContext();
+  context.save();
+  context.fillStyle = '#ffffff';
+  context.fillRect(0, 0, dom.drawingCanvas.width, dom.drawingCanvas.height);
+  context.restore();
+  drawingState.hasInk = false;
+  dom.drawAddBtn.disabled = true;
+}
+
+/** @param {'pen'|'eraser'} mode */
+function setDrawingMode(mode) {
+  drawingState.mode = mode;
+  const penActive = mode === 'pen';
+  dom.drawPenBtn.classList.toggle('is-active', penActive);
+  dom.drawPenBtn.setAttribute('aria-pressed', String(penActive));
+  dom.drawEraserBtn.classList.toggle('is-active', !penActive);
+  dom.drawEraserBtn.setAttribute('aria-pressed', String(!penActive));
+}
+
+/** @param {PointerEvent} event @returns {{x:number,y:number,scale:number}} */
+function drawingPoint(event) {
+  const rect = dom.drawingCanvas.getBoundingClientRect();
+  const scale = dom.drawingCanvas.width / Math.max(rect.width, 1);
+  return {
+    x: (event.clientX - rect.left) * (dom.drawingCanvas.width / Math.max(rect.width, 1)),
+    y: (event.clientY - rect.top) * (dom.drawingCanvas.height / Math.max(rect.height, 1)),
+    scale,
+  };
+}
+
+/** @param {PointerEvent} event */
+function beginDrawing(event) {
+  if (event.button !== 0 && event.pointerType === 'mouse') return;
+  event.preventDefault();
+  drawingState.activePointerId = event.pointerId;
+  dom.drawingCanvas.setPointerCapture?.(event.pointerId);
+  const point = drawingPoint(event);
+  const context = drawingContext();
+  context.beginPath();
+  context.moveTo(point.x, point.y);
+  context.lineTo(point.x + 0.01, point.y + 0.01);
+  context.lineCap = 'round';
+  context.lineJoin = 'round';
+  context.strokeStyle = drawingState.mode === 'eraser' ? '#ffffff' : '#111318';
+  context.lineWidth = Number(dom.drawStrokeWidth.value) * point.scale;
+  context.stroke();
+  drawingState.hasInk = true;
+  dom.drawAddBtn.disabled = false;
+}
+
+/** @param {PointerEvent} event */
+function continueDrawing(event) {
+  if (drawingState.activePointerId !== event.pointerId) return;
+  event.preventDefault();
+  const point = drawingPoint(event);
+  const context = drawingContext();
+  const pressure = event.pressure > 0 ? 0.72 + event.pressure * 0.56 : 1;
+  context.strokeStyle = drawingState.mode === 'eraser' ? '#ffffff' : '#111318';
+  context.lineWidth = Number(dom.drawStrokeWidth.value) * point.scale * pressure;
+  context.lineTo(point.x, point.y);
+  context.stroke();
+}
+
+/** @param {PointerEvent} event */
+function endDrawing(event) {
+  if (drawingState.activePointerId !== event.pointerId) return;
+  drawingState.activePointerId = null;
+  drawingContext().closePath();
+}
+
+/** @returns {void} */
+function openDrawingDialog() {
+  if (!drawingState.hasInk) clearDrawing();
+  if (typeof dom.drawingDialog.showModal === 'function') dom.drawingDialog.showModal();
+  else dom.drawingDialog.setAttribute('open', '');
+}
+
+/** @returns {void} */
+function closeDrawingDialog() {
+  if (typeof dom.drawingDialog.close === 'function') dom.drawingDialog.close();
+  else dom.drawingDialog.removeAttribute('open');
+}
+
+/** @returns {Promise<void>} */
+async function addDrawingImage() {
+  if (!drawingState.hasInk) return;
+  dom.drawAddBtn.disabled = true;
+  try {
+    const blob = await canvasPng(dom.drawingCanvas);
+    await addFiles([fileFromImageBlob(blob, 'handwriting')]);
+    closeDrawingDialog();
+    clearDrawing();
+  } catch (error) {
+    setStatus(dom.submitStatus, 'error', describeError(error));
+    dom.drawAddBtn.disabled = false;
+  }
 }
 
 /**
@@ -877,7 +1261,7 @@ function describeJobProgress(job) {
     canceled: '已取消',
   };
   const label = stateLabels[job.state] || job.state || '未知状态';
-  return `${label} · ${succeeded}/${total} 完成 · ${failed} 失败`;
+  return `${label}，${succeeded}/${total} 完成，${failed} 失败`;
 }
 
 /**
@@ -890,8 +1274,8 @@ function finishJob(job) {
   const failed = Number(summary.failed) || 0;
   const total = Number(summary.total) || 0;
   dom.results.hidden = false;
-  dom.resultSummary.textContent = `作业 ${job.id} · 共 ${total} 张 · 成功 ${succeeded} · 失败 ${failed}`;
-  if (job.error) dom.resultSummary.textContent += ` · ${job.error.code || ''} ${job.error.message || ''}`;
+  dom.resultSummary.textContent = `作业 ${job.id}，共 ${total} 张，成功 ${succeeded}，失败 ${failed}`;
+  if (job.error) dom.resultSummary.textContent += `，${job.error.code || ''} ${job.error.message || ''}`;
   const tone = failed === 0 && job.state === 'completed' ? 'ok' : 'error';
   setStatus(dom.submitStatus, tone, describeJobProgress(job));
   if (dom.results.scrollIntoView) dom.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1131,25 +1515,59 @@ function wire() {
   });
 
   dom.clearBtn.addEventListener('click', () => {
+    if (browserNoticeTimer !== null) window.clearTimeout(browserNoticeTimer);
+    browserNoticeTimer = null;
     clearStoredConnection();
     state.baseUrl = '';
     state.key = '';
+    state.connectionSource = 'manual';
     state.limits = null;
+    dom.baseUrl.value = '';
     dom.key.value = '';
+    dom.remember.checked = false;
     dom.capabilities.hidden = true;
+    dom.browserNotice.hidden = true;
     setStatus(dom.connectStatus, 'idle', '已清除本机保存的连接信息。');
-    dom.connectionPanel.open = true;
     updateSubmitAvailability();
   });
 
-  dom.baseUrl.addEventListener('change', () => {
-    if (dom.baseUrl.value) updateBrowserNotice(normalizeSafe(dom.baseUrl.value));
+  dom.useLocalFileBtn.addEventListener('click', () => dom.connectionFileInput.click());
+  dom.connectionFileInput.addEventListener('change', async () => {
+    const [file] = Array.from(dom.connectionFileInput.files || []);
+    dom.connectionFileInput.value = '';
+    if (!file) return;
+    dom.useLocalFileBtn.disabled = true;
+    try {
+      await importLocalConnectionFile(file);
+    } catch (error) {
+      setStatus(dom.connectStatus, 'error', describeError(error));
+    } finally {
+      dom.useLocalFileBtn.disabled = false;
+    }
   });
 
-  dom.pickFileBtn.addEventListener('click', () => dom.fileInput.click());
+  dom.baseUrl.addEventListener('input', () => {
+    state.connectionSource = 'manual';
+    scheduleBrowserNotice();
+  });
+  dom.baseUrl.addEventListener('change', scheduleBrowserNotice);
+  dom.key.addEventListener('input', () => {
+    state.connectionSource = 'manual';
+  });
+
+  dom.selectFileBtn.addEventListener('click', () => dom.fileInput.click());
+  dom.cameraBtn.addEventListener('click', () => dom.cameraInput.click());
+  dom.pasteBtn.addEventListener('click', importClipboardImage);
+  dom.screenBtn.addEventListener('click', captureScreenImage);
+  dom.drawingBtn.addEventListener('click', openDrawingDialog);
+
   dom.fileInput.addEventListener('change', () => {
     addFiles(dom.fileInput.files);
     dom.fileInput.value = '';
+  });
+  dom.cameraInput.addEventListener('change', () => {
+    addFiles(dom.cameraInput.files);
+    dom.cameraInput.value = '';
   });
 
   for (const type of ['dragenter', 'dragover']) {
@@ -1168,9 +1586,26 @@ function wire() {
     const transfer = event.dataTransfer;
     if (transfer && transfer.files) addFiles(transfer.files);
   });
-  dom.dropZone.addEventListener('click', (event) => {
-    if (event.target === dom.pickFileBtn) return;
+  dom.dropZone.addEventListener('click', () => dom.fileInput.click());
+  dom.dropZone.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
     dom.fileInput.click();
+  });
+  document.addEventListener('paste', handleImagePaste);
+
+  dom.drawingCanvas.addEventListener('pointerdown', beginDrawing);
+  dom.drawingCanvas.addEventListener('pointermove', continueDrawing);
+  dom.drawingCanvas.addEventListener('pointerup', endDrawing);
+  dom.drawingCanvas.addEventListener('pointercancel', endDrawing);
+  dom.drawingCloseBtn.addEventListener('click', closeDrawingDialog);
+  dom.drawPenBtn.addEventListener('click', () => setDrawingMode('pen'));
+  dom.drawEraserBtn.addEventListener('click', () => setDrawingMode('eraser'));
+  dom.drawClearBtn.addEventListener('click', clearDrawing);
+  dom.drawAddBtn.addEventListener('click', addDrawingImage);
+  dom.drawingDialog.addEventListener('cancel', (event) => {
+    event.preventDefault();
+    closeDrawingDialog();
   });
 
   dom.submitForm.addEventListener('submit', (event) => {
@@ -1183,14 +1618,21 @@ function wire() {
   dom.connectionPanel.addEventListener('toggle', syncConnectionPanel);
 
   dom.openConnectionBtn.addEventListener('click', () => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    dom.connection.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    dom.baseUrl.focus({ preventScroll: true });
+  });
+
+  dom.openSetupBtn.addEventListener('click', () => {
     dom.connectionPanel.open = true;
     syncConnectionPanel();
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     dom.connectionPanel.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
-    dom.baseUrl.focus({ preventScroll: true });
   });
 
   state.pollAbort = false;
+  updateInputCapabilities();
+  clearDrawing();
   restoreConnection();
 }
 
@@ -1207,6 +1649,21 @@ function normalizeSafe(raw) {
   } catch {
     return '';
   }
+}
+
+/** @returns {void} */
+function scheduleBrowserNotice() {
+  if (browserNoticeTimer !== null) window.clearTimeout(browserNoticeTimer);
+  const baseUrl = normalizeSafe(dom.baseUrl.value);
+  if (!baseUrl) {
+    dom.browserNotice.hidden = true;
+    browserNoticeTimer = null;
+    return;
+  }
+  browserNoticeTimer = window.setTimeout(() => {
+    browserNoticeTimer = null;
+    updateBrowserNotice(baseUrl);
+  }, 180);
 }
 
 wire();

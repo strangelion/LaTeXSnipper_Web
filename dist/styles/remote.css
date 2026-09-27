@@ -25,13 +25,18 @@
 .remote-page .demo-page {
   position: relative;
   isolation: isolate;
-  width: min(960px, calc(100% - 40px));
+  width: min(1180px, calc(100% - 40px));
   margin-inline: auto;
   padding-bottom: 92px;
 }
 
+.remote-hero {
+  max-width: 940px;
+  margin-inline: auto;
+}
+
 .remote-page .demo-eyebrow {
-  margin: 44px 0 12px;
+  margin: 28px 0 12px;
   color: var(--site-blue);
   font: 700 0.73rem/1.25 var(--site-mono);
   letter-spacing: 0.14em;
@@ -41,15 +46,15 @@
 .remote-page .demo-title {
   margin: 0;
   color: var(--site-ink);
-  font: 500 clamp(2.2rem, 5.4vw, 4.1rem)/1.04 var(--site-serif);
+  font: 500 clamp(2.25rem, 5vw, 4rem)/1.04 var(--site-serif);
   letter-spacing: -0.05em;
   text-align: center;
   text-wrap: balance;
 }
 
 .remote-page .demo-sub {
-  max-width: 720px;
-  margin: 20px auto 34px;
+  max-width: 680px;
+  margin: 18px auto 32px;
   color: var(--site-muted);
   font-size: clamp(0.95rem, 1.6vw, 1.08rem);
   line-height: 1.7;
@@ -57,6 +62,8 @@
 }
 
 .remote-page .info-note {
+  max-width: 960px;
+  margin-inline: auto;
   margin-top: 28px;
   padding: 20px 0 0;
   color: var(--site-muted);
@@ -79,19 +86,32 @@
 
 /* ── Page blocks ────────────────────────────────────────────────────────── */
 
-/*
- * The recognition action is the page's main job, so it sits directly under the
- * hero and is the only block centred on its own axis. Everything that is setup
- * rather than recognition is collapsed into .remote-secondary at the foot of
- * the page.
- */
-.remote-block {
-  max-width: 680px;
-  margin: 34px auto 0;
+.remote-workspace {
+  display: grid;
+  grid-template-columns: minmax(19rem, 0.86fr) minmax(0, 1.14fr);
+  align-items: stretch;
+  gap: 18px;
+  margin: 30px auto 0;
 }
 
-.remote-block--primary {
-  margin-top: 30px;
+.remote-block {
+  max-width: 100%;
+  margin: 0;
+}
+
+.remote-stage {
+  --lg-blur: 12px;
+  --lg-tint-strength: 18%;
+  --lg-tint-falloff: 7%;
+  min-width: 0;
+  border-radius: var(--site-radius-lg);
+}
+
+.remote-stage > .lg-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding: clamp(22px, 3vw, 30px);
 }
 
 .remote-block-title {
@@ -99,7 +119,7 @@
   color: var(--site-ink);
   font: 500 clamp(1.35rem, 2.8vw, 1.85rem)/1.25 var(--site-serif);
   letter-spacing: -0.02em;
-  text-align: center;
+  text-align: left;
 }
 
 .remote-block-sub {
@@ -107,15 +127,20 @@
   color: var(--site-muted);
   font-size: 0.88rem;
   line-height: 1.7;
-  text-align: center;
+  text-align: left;
   text-wrap: pretty;
+}
+
+#remoteResults {
+  max-width: 960px;
+  margin: 34px auto 0;
 }
 
 /* Status deck at the foot of the primary block. */
 .remote-block-status {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   margin-top: 16px;
 }
@@ -125,7 +150,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0 8px;
   margin: 0;
 }
@@ -133,7 +158,8 @@
 /* ── Collapsed reference content ────────────────────────────────────────── */
 
 .remote-secondary {
-  margin-top: 46px;
+  max-width: 960px;
+  margin: 46px auto 0;
   padding-top: 32px;
   border-top: 1px solid var(--site-line);
 }
@@ -259,18 +285,23 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin: 0 0 26px;
-  padding: 16px 18px;
-  border: 1px solid var(--site-warning);
-  border-radius: var(--site-radius-md);
-  background: var(--site-warning-soft);
+  margin: 2px 0 0;
+  padding: 13px 14px;
+  border: 1px solid var(--site-line-strong);
+  border-radius: var(--site-radius-sm);
+  background: var(--site-surface-soft);
   color: var(--site-ink-soft);
-  font-size: 0.86rem;
-  line-height: 1.7;
+  font-size: 0.8rem;
+  line-height: 1.65;
 }
 
 .remote-notice strong {
   color: var(--site-ink);
+}
+
+.remote-notice[data-tone="warning"] {
+  border-color: var(--site-warning);
+  background: var(--site-warning-soft);
 }
 
 /* ── Guide list ─────────────────────────────────────────────────────────── */
@@ -317,6 +348,81 @@
   line-height: 1.7;
 }
 
+.remote-path-help,
+.remote-route-help {
+  color: var(--site-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.remote-path-help summary,
+.remote-route-help summary {
+  width: fit-content;
+  color: var(--site-blue);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.remote-path-help summary:focus-visible,
+.remote-route-help summary:focus-visible {
+  outline: none;
+  border-radius: var(--site-radius-xs);
+  box-shadow: 0 0 0 3px var(--site-blue-soft);
+}
+
+.remote-path-help dl {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.remote-path-help dl > div {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.remote-path-help dt {
+  color: var(--site-ink-soft);
+  font-weight: 600;
+}
+
+.remote-path-help dd,
+.remote-path-help p {
+  min-width: 0;
+  margin: 0;
+}
+
+.remote-path-help p {
+  margin-top: 9px;
+}
+
+.remote-route-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 11px;
+}
+
+.remote-route-list p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.remote-route-list strong {
+  color: var(--site-ink-soft);
+  font-size: 0.8rem;
+}
+
+.remote-guide-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--site-blue);
+  text-underline-offset: 3px;
+}
+
 .remote-origin-row {
   display: flex;
   align-items: center;
@@ -335,6 +441,38 @@
   user-select: all;
 }
 
+/* ── Input source picker ───────────────────────────────────────────────── */
+
+.remote-source-picker {
+  display: grid;
+  gap: 10px;
+}
+
+.remote-source-heading {
+  margin: 0;
+  color: var(--site-ink-soft);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.remote-source-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.remote-source-actions .remote-mini-button {
+  flex: 0 1 auto;
+}
+
+.remote-source-note {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.76rem;
+  line-height: 1.6;
+}
+
 /* ── Forms ──────────────────────────────────────────────────────────────── */
 
 .remote-form {
@@ -344,9 +482,17 @@
   margin-top: 20px;
 }
 
-/* Options stay left-aligned inside the centred primary block. */
 .remote-form--primary .remote-form-actions {
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+.remote-block--connection .remote-form {
+  margin-top: 22px;
+}
+
+.remote-setup-link {
+  margin-top: 18px;
+  font-size: 0.82rem;
 }
 
 .remote-option-row {
@@ -361,14 +507,28 @@
   gap: 8px;
 }
 
-.remote-field > label {
+.remote-field > label,
+.remote-field-label-row > label {
   color: var(--site-ink-soft);
   font-size: 0.83rem;
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
+.remote-field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.remote-local-file-button {
+  flex: none;
+  font-size: 0.76rem;
+}
+
 .remote-field input[type="text"],
+.remote-field input[type="url"],
 .remote-field input[type="password"],
 .remote-field select {
   width: 100%;
@@ -451,6 +611,11 @@
   background: var(--site-surface-accent);
 }
 
+.remote-button:active:not(:disabled),
+.remote-mini-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 .remote-button--primary {
   border-color: transparent;
   background: var(--site-blue);
@@ -483,6 +648,12 @@
 .remote-mini-button:hover:not(:disabled) {
   border-color: var(--site-blue);
   color: var(--site-blue-strong);
+}
+
+.remote-mini-button.is-active {
+  border-color: var(--site-blue);
+  color: var(--site-blue-strong);
+  background: var(--site-blue-soft);
 }
 
 .remote-link-button {
@@ -561,6 +732,20 @@
   font-size: 0.8rem;
 }
 
+.remote-status--connection {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--site-line);
+}
+
+.remote-block--connection[data-status="ok"] {
+  --lg-accent: var(--site-success);
+}
+
+.remote-block--connection[data-status="error"] {
+  --lg-accent: var(--site-danger);
+}
+
 @keyframes remote-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
@@ -614,9 +799,15 @@
 }
 
 .remote-drop:hover,
-.remote-drop[data-drag="true"] {
+.remote-drop[data-drag="true"],
+.remote-drop:focus-visible {
   border-color: var(--site-blue);
   background: var(--site-surface-accent);
+}
+
+.remote-drop:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--site-blue-soft);
 }
 
 /* Job state shown as light on the drop zone rather than as a status box.
@@ -850,6 +1041,101 @@
   font-size: 0.85rem;
 }
 
+/* ── Drawing board ─────────────────────────────────────────────────────── */
+
+.remote-drawing {
+  width: min(960px, calc(100% - 32px));
+  max-height: min(90dvh, 820px);
+  margin: auto;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--site-glass-edge);
+  border-radius: var(--site-radius-lg);
+  color: var(--site-ink);
+  background: color-mix(in srgb, var(--site-bg-elevated) 88%, transparent);
+  box-shadow: var(--site-shadow-lg);
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+.remote-drawing::backdrop {
+  background: rgba(4, 9, 18, 0.66);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.remote-drawing-shell {
+  display: grid;
+  gap: 18px;
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.remote-drawing-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.remote-drawing-head h2 {
+  margin: 0;
+  color: var(--site-ink);
+  font: 600 clamp(1.3rem, 2.6vw, 1.8rem)/1.2 var(--site-serif);
+  letter-spacing: -0.02em;
+}
+
+.remote-drawing-head p {
+  margin: 6px 0 0;
+  color: var(--site-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.remote-drawing-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 12 / 7;
+  border: 1px solid var(--site-line-strong);
+  border-radius: var(--site-radius-md);
+  background: #ffffff;
+  box-shadow: inset 0 1px 8px rgba(17, 19, 24, 0.08);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.remote-drawing-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.remote-stroke-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+}
+
+.remote-stroke-control input {
+  width: 110px;
+  accent-color: var(--site-blue);
+}
+
+.remote-drawing-toolbar #drawAddBtn {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .remote-drawing {
+    background: var(--site-bg-elevated);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* ── Troubleshooting ───────────────────────────────────────────────────── */
 
 /* Seven entries grouped two-up instead of one long single-column list. */
@@ -878,6 +1164,11 @@
 /* ── Responsive ────────────────────────────────────────────────────────── */
 
 @media (max-width: 860px) {
+  .remote-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 680px;
+  }
+
   .remote-fact {
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
@@ -896,6 +1187,10 @@
 
   .remote-option-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .remote-stage > .lg-content {
+    padding: 20px 18px;
   }
 
   .remote-panel-summary {
@@ -921,5 +1216,34 @@
 
   .remote-form-actions .remote-button {
     flex: 1 1 160px;
+  }
+
+  .remote-source-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .remote-source-actions .remote-mini-button {
+    width: 100%;
+  }
+
+  .remote-drawing {
+    width: calc(100% - 20px);
+    max-height: calc(100dvh - 20px);
+  }
+
+  .remote-drawing-head {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .remote-drawing-head .remote-mini-button {
+    align-self: flex-start;
+  }
+
+  .remote-drawing-toolbar #drawAddBtn {
+    width: 100%;
+    margin-left: 0;
   }
 }

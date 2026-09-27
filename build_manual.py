@@ -1196,7 +1196,7 @@ def main():
     <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
     <nav class="site-navigation" data-lg-mobile-panel id="siteNavigation" aria-label="主导航">
       <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-      <a href="/#product">产品</a><a href="/#workflow">工作流</a><a href="/#ecosystem">生态</a><a href="user_manual.html" aria-current="page">文档</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+      <a href="/#product">产品</a><a href="/#workflow">工作流</a><a href="/remote.html">远程连接</a><a href="/#ecosystem">生态</a><a href="user_manual.html" aria-current="page">文档</a><a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
       </div></nav>
     <div class="site-header-actions">
       <a class="download-pdf-link lg-surface lg-surface--control" data-lg-interactive="true" href="/dl/release/LaTeXSnipper_Manual.pdf" target="_blank" rel="noopener"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg><span>PDF</span></span></a>

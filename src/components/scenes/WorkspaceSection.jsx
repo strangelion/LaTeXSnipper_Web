@@ -18,6 +18,7 @@ export default function WorkspaceSection() {
             <div className={styles.workspaceLinks}>
               <a href="/user_manual.html">查看工作台</a>
               <a href="/ocr.html">体验在线识别</a>
+              <a href="/remote.html">远程连接</a>
             </div>
           </LiquidGlassSurface>
           <figure className={styles.productFigure}>

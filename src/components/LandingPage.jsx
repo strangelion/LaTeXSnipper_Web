@@ -187,7 +187,7 @@ function SiteHeader({ counters }) {
   const headerRef = useRef(null);
 
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 720px)");
+    const query = window.matchMedia("(max-width: 1040px)");
     const sync = () => {
       setMobileMenuMaterial(query.matches);
       setMenuOpen(false);
@@ -269,6 +269,9 @@ function SiteHeader({ counters }) {
             </a>
             <a href="#capture" onClick={closeMenu}>
               工作流
+            </a>
+            <a href="/remote.html" onClick={closeMenu}>
+              远程连接
             </a>
             <a href="#ecosystem" onClick={closeMenu}>
               生态
@@ -757,6 +760,7 @@ function SiteFooter() {
         <nav aria-label="站点链接">
           <a href="/download.html">下载</a>
           <a href="/ocr.html">在线识别</a>
+          <a href="/remote.html">远程连接</a>
           <a href="/user_manual.html">用户手册</a>
           <a href="/open-source.html">开源许可</a>
         </nav>

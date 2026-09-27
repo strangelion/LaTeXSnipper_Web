@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>连接你自己电脑上的 LaTeXSnipper — LaTeXSnipper</title>
+<title>远程连接 | LaTeXSnipper</title>
 <meta name="description" content="在浏览器里连接你已授权的 LaTeXSnipper 桌面版，把手机或平板拍到的公式提交给桌面端识别。图片仅在你的设备之间传递，不经过本站服务器。">
 <link rel="icon" type="image/png" href="assets/images/icon.png">
 <link rel="stylesheet" href="/styles/site-tokens.css">
@@ -24,8 +24,8 @@
       <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
       <a href="/#product">产品</a>
       <a href="/#workflow">工作流</a>
+      <a href="/remote.html" aria-current="page">远程连接</a>
       <a href="/#ecosystem">生态</a>
-      <a href="/ocr.html">在线识别</a>
       <a href="/user_manual.html">文档</a>
       <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
       </div></nav>
@@ -48,60 +48,136 @@
     <span class="env-curve"></span>
   </div>
 
-  <p class="demo-eyebrow">REMOTE DEVICE BRIDGE</p>
-  <h1 class="demo-title">连接你自己电脑上的 LaTeXSnipper</h1>
-  <p class="demo-sub">这个页面本身不做识别。它把图片直接发给你已授权的桌面版，识别在你自己的电脑上完成。</p>
+  <header class="remote-hero">
+    <p class="demo-eyebrow">REMOTE DEVICE BRIDGE</p>
+    <h1 class="demo-title">让手机直接调用你的桌面版</h1>
+    <p class="demo-sub">先连接已授权的 LaTeXSnipper Desktop，再把图片发回自己的电脑识别。本站不接收图片。</p>
+  </header>
 
-  <div class="remote-notice" id="browserNotice" hidden>
-    <strong>浏览器可能先弹出一次授权提示。</strong>
-    <span id="browserNoticeDetail"></span>
+  <div class="remote-workspace" aria-label="远程识别工作区">
+    <section class="remote-block remote-block--connection remote-stage lg-surface lg-surface--panel" id="remoteConnection" data-status="idle" aria-labelledby="remoteConnectionHeading">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+      <div class="lg-content">
+        <h2 class="remote-block-title" id="remoteConnectionHeading">连接桌面版</h2>
+        <p class="remote-block-sub">使用桌面版生成的地址和密钥。连接成功后，右侧识别区会立即可用。</p>
+
+        <form class="remote-form" id="connectForm" novalidate>
+          <div class="remote-field">
+            <div class="remote-field-label-row">
+              <label for="remoteBaseUrl">桌面版地址</label>
+              <button class="remote-link-button remote-local-file-button" type="button" id="useLocalFileBtn">读取本机连接文件</button>
+            </div>
+            <input type="file" id="remoteConnectionFile" accept="application/json,.json" hidden>
+            <input type="url" id="remoteBaseUrl" name="baseUrl" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://100.101.102.103:28765">
+            <p class="remote-hint">同机使用可选择 <code>automation-api.json</code> 自动填写；手机或平板请填写电脑的隧道 IPv4 与端口。</p>
+            <details class="remote-path-help">
+              <summary>本机连接文件在哪里？</summary>
+              <dl>
+                <div><dt>Windows</dt><dd><code>%USERPROFILE%\.latexsnipper\automation-api.json</code></dd></div>
+                <div><dt>Linux</dt><dd><code>~/.latexsnipper/automation-api.json</code></dd></div>
+                <div><dt>macOS</dt><dd><code>~/Library/Application Support/LaTeXSnipper/automation-api.json</code></dd></div>
+              </dl>
+              <p>只有桌面版的「自动化接口」正在运行时，这个文件才会存在。</p>
+            </details>
+            <div class="remote-notice" id="browserNotice" data-tone="info" hidden>
+              <strong>浏览器连接提示</strong>
+              <span id="browserNoticeDetail"></span>
+            </div>
+            <details class="remote-route-help">
+              <summary>隧道地址、HTTPS 和其他方案怎么选？</summary>
+              <div class="remote-route-list">
+                <p><strong>同一台电脑</strong><span>连接文件可自动填写地址和轮换 token，但网页仍需要桌面端允许当前 Origin。若“仅本机”模式没有浏览器白名单入口，请使用桌面端、Office 插件，或改用下面的远程连接方式。</span></p>
+                <p><strong>加密隧道（推荐）</strong><span>在桌面端选「远程设备 / 安全隧道」，监听 Tailscale 或 WireGuard 的 IPv4，并填写 <code>http://隧道IP:28765</code>。</span></p>
+                <p><strong>原生 HTTPS</strong><span>在桌面端选「远程设备 / HTTPS」，提供证书和私钥。证书 SAN 必须覆盖这里填写的主机名或 IP，并被当前设备信任。</span></p>
+                <p><strong>反向代理或 SSH</strong><span>高级方案可让桌面端保持「仅本机」，由代理转发回环地址或终止 HTTPS。不要把明文接口直接暴露到公网。</span></p>
+              </div>
+              <a class="remote-guide-link" href="/user_manual.html#https-moshi">查看完整的 HTTPS 配置说明</a>
+            </details>
+          </div>
+          <div class="remote-field">
+            <label for="remoteKey">访问凭据</label>
+            <div class="remote-input-row">
+              <input type="password" id="remoteKey" name="remoteKey" autocomplete="off" spellcheck="false" placeholder="本机连接文件自动填写，远程请粘贴访问密钥">
+              <button class="remote-mini-button" type="button" id="toggleKeyBtn" aria-pressed="false">显示</button>
+            </div>
+            <p class="remote-hint">本机会话 token 每次启动都会轮换；远程访问密钥则由桌面端单独生成。</p>
+          </div>
+          <label class="remote-check">
+            <input type="checkbox" id="rememberCheck">
+            <span>仅在私人设备上记住地址和密钥</span>
+          </label>
+          <div class="remote-form-actions">
+            <button class="remote-button remote-button--primary" type="submit" id="testBtn">连接桌面版</button>
+            <button class="remote-button" type="button" id="clearBtn">清除本机记录</button>
+          </div>
+        </form>
+        <div class="remote-status remote-status--connection" id="connectStatus" data-tone="idle" role="status" aria-live="polite">
+          <span class="remote-status-dot" aria-hidden="true"></span>
+          <span class="remote-status-text">尚未连接。</span>
+        </div>
+        <div class="remote-caps" id="capabilities" hidden></div>
+        <button class="remote-link-button remote-setup-link" type="button" id="openSetupBtn" aria-controls="connectionPanel" aria-expanded="false">首次使用？查看桌面端配置指南</button>
+      </div>
+    </section>
+
+    <section class="remote-block remote-block--primary remote-stage lg-surface lg-surface--panel" id="remoteSubmit" data-status="idle" aria-labelledby="remotePrimaryHeading">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+      <div class="lg-content">
+        <h2 class="remote-block-title" id="remotePrimaryHeading">发回电脑识别</h2>
+        <p class="remote-block-sub">选择图片、拍照、粘贴截图、截取屏幕或手写内容，再交给桌面端排队识别。</p>
+
+        <form class="remote-form remote-form--primary" id="submitForm" novalidate>
+          <input type="file" id="remoteFile" accept="image/*" multiple hidden>
+          <input type="file" id="remoteCamera" accept="image/*" capture="environment" hidden>
+          <div class="remote-source-picker" aria-labelledby="remoteSourceHeading">
+            <p class="remote-source-heading" id="remoteSourceHeading">输入方式</p>
+            <div class="remote-source-actions">
+              <button class="remote-mini-button" type="button" id="selectFileBtn">选择图片</button>
+              <button class="remote-mini-button" type="button" id="cameraBtn">拍照或相册</button>
+              <button class="remote-mini-button" type="button" id="pasteBtn" hidden>粘贴截图</button>
+              <button class="remote-mini-button" type="button" id="screenBtn" hidden>截取屏幕</button>
+              <button class="remote-mini-button" type="button" id="drawingBtn">打开画板</button>
+            </div>
+            <p class="remote-source-note" id="browserFeatures" role="status"></p>
+          </div>
+          <div class="remote-drop" id="dropZone" role="button" tabindex="0" aria-controls="remoteFile" aria-describedby="remoteDropHelp">
+            <p class="remote-drop-title">拖入图片，或从设备选择</p>
+            <p class="remote-drop-sub" id="remoteDropHelp">支持 PNG、JPEG、WebP、BMP、GIF、TIFF，也可直接粘贴剪贴板里的图片。</p>
+          </div>
+          <ul class="remote-filelist" id="fileList" hidden></ul>
+          <div class="remote-option-row">
+            <div class="remote-field">
+              <label for="remoteMode">识别类型</label>
+              <select id="remoteMode" name="mode">
+                <option value="formula" selected>公式（formula）</option>
+                <option value="text">文字（text）</option>
+                <option value="mixed">混合排版（mixed）</option>
+              </select>
+            </div>
+            <div class="remote-field">
+              <label for="remoteBackend">识别后端</label>
+              <select id="remoteBackend" name="backend">
+                <option value="mathcraft" selected>本机模型（mathcraft）</option>
+              </select>
+            </div>
+          </div>
+          <p class="remote-hint" id="backendHint">后端列表来自桌面端当前的配置和你的授权范围。</p>
+          <div class="remote-form-actions">
+            <button class="remote-button remote-button--primary" type="submit" id="submitBtn" disabled>开始识别</button>
+            <button class="remote-button" type="button" id="cancelJobBtn" hidden>取消作业</button>
+          </div>
+        </form>
+
+        <div class="remote-block-status">
+          <div class="remote-status remote-status--glow" id="submitStatus" data-tone="idle" role="status" aria-live="polite">
+            <span class="remote-status-dot" aria-hidden="true"></span>
+            <span class="remote-status-text">等待提交。</span>
+          </div>
+          <button class="remote-link-button" type="button" id="openConnectionBtn" aria-controls="remoteConnection">连接或修改桌面版</button>
+        </div>
+      </div>
+    </section>
   </div>
-
-  <section class="remote-block remote-block--primary" id="remoteSubmit" data-status="idle" aria-labelledby="remotePrimaryHeading">
-    <h2 class="remote-block-title" id="remotePrimaryHeading">选好图片，发到你电脑上识别</h2>
-    <p class="remote-block-sub">识别在桌面端排队执行。图片直接发给你填写的地址，本站服务器看不到，也存不下。</p>
-
-    <form class="remote-form remote-form--primary" id="submitForm" novalidate>
-      <div class="remote-drop" id="dropZone">
-        <input type="file" id="remoteFile" accept="image/*" multiple hidden>
-        <p class="remote-drop-title">把图片拖到这里</p>
-        <p class="remote-drop-sub">或 <button class="remote-link-button" type="button" id="pickFileBtn">从设备里选择</button>。支持 PNG、JPEG、WebP、BMP、GIF、TIFF。</p>
-      </div>
-      <ul class="remote-filelist" id="fileList" hidden></ul>
-      <div class="remote-option-row">
-        <div class="remote-field">
-          <label for="remoteMode">识别类型</label>
-          <select id="remoteMode" name="mode">
-            <option value="formula" selected>公式（formula）</option>
-            <option value="text">文字（text）</option>
-            <option value="mixed">混合排版（mixed）</option>
-          </select>
-        </div>
-        <div class="remote-field">
-          <label for="remoteBackend">识别后端</label>
-          <select id="remoteBackend" name="backend">
-            <option value="mathcraft" selected>本机模型（mathcraft）</option>
-          </select>
-        </div>
-      </div>
-      <p class="remote-hint" id="backendHint">后端列表来自桌面端当前的配置和你的授权范围。</p>
-      <div class="remote-form-actions">
-        <button class="remote-button remote-button--primary" type="submit" id="submitBtn" disabled>开始识别</button>
-        <button class="remote-button" type="button" id="cancelJobBtn" hidden>取消作业</button>
-      </div>
-    </form>
-
-    <div class="remote-block-status">
-      <div class="remote-status remote-status--glow" id="submitStatus" data-tone="idle" role="status" aria-live="polite">
-        <span class="remote-status-dot" aria-hidden="true"></span>
-        <span class="remote-status-text">等待提交。</span>
-      </div>
-      <p class="remote-connect-line">
-        <span class="remote-status remote-status--quiet" id="connectStatus" data-tone="idle" role="status" aria-live="polite"><span class="remote-status-text">尚未连接。</span></span>
-        <button class="remote-link-button" type="button" id="openConnectionBtn" aria-controls="connectionPanel" aria-expanded="false">连接设置</button>
-      </p>
-    </div>
-  </section>
 
   <section class="remote-block" id="remoteResults" hidden>
     <h2 class="remote-block-title">识别结果</h2>
@@ -110,10 +186,10 @@
   </section>
 
   <div class="remote-secondary">
-    <details class="remote-panel" id="connectionPanel" open>
+    <details class="remote-panel" id="connectionPanel">
       <summary class="remote-panel-summary">
-        <span class="remote-panel-title">连接这台电脑</span>
-        <span class="remote-panel-note">在桌面端开启「远程设备」，再把地址和密钥填到这里</span>
+        <span class="remote-panel-title">首次配置桌面版</span>
+        <span class="remote-panel-note">在 Desktop 中开启远程设备、生成密钥并放行本页地址</span>
       </summary>
       <div class="remote-panel-body">
         <dl class="remote-fact-list">
@@ -153,34 +229,6 @@
           <p class="remote-hint">需要识别时桌面版要保持运行。远程设备默认只能调用公式识别后端，不会使用你已配置的外部模型，除非你在桌面端另行开启。</p>
         </section>
 
-        <section class="remote-subsection" id="remoteConnect">
-          <h3>在本页填写连接信息</h3>
-          <p class="remote-lead">填写你刚才在桌面端配置的地址和密钥，然后测试一次连接。</p>
-          <form class="remote-form" id="connectForm" novalidate>
-            <div class="remote-field">
-              <label for="remoteBaseUrl">桌面版地址</label>
-              <input type="text" id="remoteBaseUrl" name="baseUrl" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://100.101.102.103:28765">
-              <p class="remote-hint">与桌面端「监听地址」和「端口」拼起来，形如 <code>http://&lt;隧道IP&gt;:28765</code>。不要带路径。</p>
-            </div>
-            <div class="remote-field">
-              <label for="remoteKey">远程访问密钥</label>
-              <div class="remote-input-row">
-                <input type="password" id="remoteKey" name="remoteKey" autocomplete="off" spellcheck="false" placeholder="在桌面端生成并复制">
-                <button class="remote-mini-button" type="button" id="toggleKeyBtn" aria-pressed="false">显示</button>
-              </div>
-              <p class="remote-hint">只保存在这台设备的浏览器里，用于向你的电脑证明身份。</p>
-            </div>
-            <label class="remote-check">
-              <input type="checkbox" id="rememberCheck" checked>
-              <span>在这台设备上记住地址和密钥</span>
-            </label>
-            <div class="remote-form-actions">
-              <button class="remote-button remote-button--primary" type="submit" id="testBtn">测试连接</button>
-              <button class="remote-button" type="button" id="clearBtn">清除已保存的连接</button>
-            </div>
-          </form>
-          <div class="remote-caps" id="capabilities" hidden></div>
-        </section>
       </div>
     </details>
 
@@ -223,8 +271,30 @@
       </div>
     </details>
 
-    <p class="info-note"><strong>说明：</strong>本页只是浏览器端的连接客户端，所有识别都在你授权的桌面版上完成，本站不参与、也无法看到传输内容。地址与密钥保存在本机浏览器的 localStorage 中，请勿在公用设备上勾选「记住」。远程凭据默认只能使用公式识别后端，也不会返回桌面端的结果流。</p>
+    <p class="info-note"><strong>说明：</strong>本页只是浏览器端的连接客户端，所有识别都在你授权的桌面版上完成，本站不参与、也无法看到传输内容。只有勾选「记住」时地址与密钥才会写入本机浏览器的 localStorage，请勿在公用设备上勾选。远程凭据默认只能使用公式识别后端，也不会返回桌面端的结果流。</p>
   </div>
 </main>
+
+<dialog class="remote-drawing" id="drawingDialog" aria-labelledby="drawingTitle">
+  <div class="remote-drawing-shell">
+    <header class="remote-drawing-head">
+      <div>
+        <h2 id="drawingTitle">手写画板</h2>
+        <p>使用鼠标、触控笔或手指书写，完成后作为 PNG 加入识别队列。</p>
+      </div>
+      <button class="remote-mini-button" type="button" id="drawingCloseBtn">关闭</button>
+    </header>
+    <canvas class="remote-drawing-canvas" id="drawingCanvas" width="960" height="560" aria-label="手写公式画板"></canvas>
+    <div class="remote-drawing-toolbar" aria-label="画板工具">
+      <button class="remote-mini-button is-active" type="button" id="drawPenBtn" aria-pressed="true">画笔</button>
+      <button class="remote-mini-button" type="button" id="drawEraserBtn" aria-pressed="false">橡皮</button>
+      <label class="remote-stroke-control" for="drawStrokeWidth">笔画粗细
+        <input type="range" id="drawStrokeWidth" min="2" max="18" value="5">
+      </label>
+      <button class="remote-mini-button" type="button" id="drawClearBtn">清空</button>
+      <button class="remote-button remote-button--primary" type="button" id="drawAddBtn" disabled>加入识别</button>
+    </div>
+  </div>
+</dialog>
 </body>
 </html>

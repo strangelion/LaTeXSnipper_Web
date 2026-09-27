@@ -140,6 +140,8 @@ function securityHeaders(isHtml, isWpsPlugin = false, path = "/") {
     "X-XSS-Protection": "0",  // 已废弃但保留以兼容旧浏览器
     "Permissions-Policy": [
       allowCamera ? "camera=(self)" : "camera=()",
+      isRemoteClientPage ? "display-capture=(self)" : "display-capture=()",
+      isRemoteClientPage ? "clipboard-read=(self)" : "clipboard-read=()",
       "microphone=()",
       "geolocation=()",
       "payment=()",

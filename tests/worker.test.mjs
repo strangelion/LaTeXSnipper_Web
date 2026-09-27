@@ -100,6 +100,8 @@ test('the remote-client page is denied camera and microphone', () => {
   const policy = securityHeaders(true, false, '/remote.html')['Permissions-Policy'];
   assert.match(policy, /camera=\(\)/);
   assert.match(policy, /microphone=\(\)/);
+  assert.match(policy, /display-capture=\(self\)/);
+  assert.match(policy, /clipboard-read=\(self\)/);
 });
 
 test('marketing pages use a narrower CSP and do not enable cross-origin isolation', () => {

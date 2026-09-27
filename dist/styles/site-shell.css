@@ -388,7 +388,7 @@ textarea:focus-visible,
   border: 0 !important;
 }
 
-@media (min-width: 721px) and (max-width: 980px) {
+@media (min-width: 1041px) and (max-width: 1180px) {
   .site-header-inner,
   .top-nav > .inner {
     gap: 14px;
@@ -425,7 +425,7 @@ textarea:focus-visible,
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1040px) {
   .site-container,
   .ls-container,
   .container,
