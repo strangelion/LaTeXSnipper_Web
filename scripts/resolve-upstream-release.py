@@ -18,28 +18,30 @@ SEMVER_RE = re.compile(r"(?<!\d)(\d+)\.(\d+)\.(\d+)(?!\d)")
 
 ASSET_META = {
     "windows-x86_64": {
-        "name": lambda v: f"LaTeXSnipperSetup-{v}.exe",
+        # Upstream renamed the Windows installer in 3.1.0; accept both schemes.
+        "names": lambda v: (f"LaTeXSnipper_{v}_amd64.exe", f"LaTeXSnipperSetup-{v}.exe"),
         "platform": "windows",
         "label": "Windows",
         "architecture": "x86_64",
         "requirements": "Windows 10 / 11",
     },
     "linux-amd64": {
-        "name": lambda v: f"LaTeXSnipper_{v}_amd64.deb",
+        "names": lambda v: (f"LaTeXSnipper_{v}_amd64.deb",),
         "platform": "linux",
         "label": "Linux",
         "architecture": "x86_64",
         "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
     },
     "macos-arm64": {
-        "name": lambda v: f"LaTeXSnipper_{v}_arm64.dmg",
+        "names": lambda v: (f"LaTeXSnipper_{v}_arm64.dmg",),
         "platform": "macos",
         "label": "macOS",
         "architecture": "Apple Silicon",
         "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
     },
     "office-plugin-windows": {
-        "name": lambda v: f"OfficePluginSetup-{v}.exe",
+        # Upstream renamed the Office plugin installer in 3.1.0; accept both schemes.
+        "names": lambda v: (f"LaTeXSnipperOffice_{v}_amd64.exe", f"OfficePluginSetup-{v}.exe"),
         "platform": "windows",
         "label": "Desktop 内置 Office 插件",
         "architecture": "x86_64",
@@ -103,11 +105,12 @@ def resolve() -> dict[str, Any]:
         selected: list[dict[str, Any]] = []
         missing: list[str] = []
         for asset_id, meta in ASSET_META.items():
-            name = meta["name"](version)
-            asset = by_name.get(name)
-            if not asset:
-                missing.append(name)
+            expected_names = meta["names"](version)
+            asset = next((by_name[n] for n in expected_names if n in by_name), None)
+            if asset is None:
+                missing.append(" or ".join(expected_names))
                 continue
+            name = asset["name"]
             selected.append({
                 "id": asset_id,
                 "name": name,
