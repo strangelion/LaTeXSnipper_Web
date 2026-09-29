@@ -702,7 +702,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <ul>
 <li><strong>Windows：</strong> 运行 Windows 安装包自带卸载程序时，会先出现可选清理窗口，随后仍会显示 Inno 标准卸载确认；标准确认通过后，卸载器会关闭正在运行的 LaTeXSnipper，并按勾选项删除用户数据/日志/临时文件、LaTeXSnipper 管理的共享工具目录、MathCraft 模型权重。安装目录内的 <code>_internal</code> 会随主程序卸载删除；用户切换到外部的完整 Python 或 venv 不会被卸载器删除。</li>
 <li><strong>Linux <code>.deb</code>：</strong> 包管理器卸载不会自动删除 home 目录数据。卸载前可运行 <code>latexsnipper-clean-user-data</code>，按提示删除当前用户的数据、共享工具和模型缓存；脚本不会读取或删除用户切换过的外部 Python 依赖根。</li>
-<li><strong>macOS <code>.dmg</code> / <code>.app.zip</code>：</strong> 删除 <code>.app</code> 只会移除应用本体。需要清理数据时，运行 <code>.dmg</code> 中的 <code>Uninstall User Data.command</code>，或运行 app 包内 <code>Contents/Resources/Uninstall User Data.command</code>。</li>
+<li><strong>macOS <code>.dmg</code>：</strong> 删除 <code>.app</code> 只会移除应用本体。需要清理数据时，运行 <code>.dmg</code> 中的 <code>Uninstall User Data.command</code>，或运行 app 包内 <code>Contents/Resources/Uninstall User Data.command</code>。</li>
 </ul>
 <p>如果你在命令行单独运行 <code>mathcraft_ocr</code> 时显式设置过 <code>MATHCRAFT_HOME</code> 指向自定义目录，卸载和清理脚本都不会自动删除该目录，避免误删用户指定的外部数据位置。桌面端通常使用应用管理的模型目录，不依赖外部 <code>MATHCRAFT_HOME</code>。</p>
 <h2 id="yongte">中文路径 / 用户名包含特殊字符</h2>
@@ -860,7 +860,7 @@ https://www.python.org/downloads/macos/</code></pre></div>
 <li><strong>关闭窗口 / 后台常驻：</strong> Windows 关闭主窗口会隐藏到系统托盘，托盘菜单"退出"才真正退出；Linux 有系统托盘时关闭主窗口会隐藏到托盘，没有托盘时会询问是否退出；macOS 关闭主窗口会最小化并保持应用运行，Dock 或菜单栏"退出"才真正退出。</li>
 <li><strong>权限要求：</strong> Windows 普通截图路径不需要额外系统权限；Linux Wayland 可能限制截图和全局快捷键；macOS 截图需要屏幕录制权限，Carbon 全局快捷键通常不需要辅助功能权限。</li>
 <li><strong>依赖环境：</strong> Windows 默认依赖根为 <code>&lt;安装目录&gt;\_internal\deps</code>，可切换；Linux 默认依赖根为 <code>~/.latexsnipper/deps</code>，可切换；macOS 默认依赖根为 <code>~/Library/Application Support/LaTeXSnipper/deps</code>，可切换。Linux/macOS 需要系统 Python <code>&gt;=3.10,&lt;3.14</code> 创建 venv。</li>
-<li><strong>安装包：</strong> Windows 使用 Inno 安装包；GitHub Release 优先发布签名安装包，签名不可用时发布同名未签名回退包；Linux 使用 Debian/Ubuntu <code>.deb</code>；macOS 使用 <code>.dmg</code> 或 <code>.app.zip</code>。</li>
+<li><strong>安装包：</strong> Windows 使用 Inno 安装包；GitHub Release 优先发布签名安装包，签名不可用时发布同名未签名回退包；Linux 使用 Debian/Ubuntu <code>.deb</code>；macOS 使用 <code>.dmg</code>。</li>
 </ul>
 <div class="callout info">
 <div class="callout-title">快捷键兼容性</div>
@@ -1088,13 +1088,13 @@ python -m compileall -q src mathcraft_ocr test</code></pre></div>
 <h2 id="xinganzhuang">命令行静默安装</h2>
 <p>安装包支持 Inno Setup 标准静默参数：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#静默安装（显示进度条）
-OfficePluginSetup-3.0.0.exe /silent
+LaTeXSnipperOffice_3.1.0_amd64.exe /silent
 
 #完全静默（无界面）
-OfficePluginSetup-3.0.0.exe /verysilent
+LaTeXSnipperOffice_3.1.0_amd64.exe /verysilent
 
 #自定义安装目录
-OfficePluginSetup-3.0.0.exe /dir="D:\Tools\LaTeXSnipper"</code></pre></div>
+LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -2050,7 +2050,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置页的"选择识别模型"中选择 <strong>内置模型</strong> 即可启用本地 MathCraft OCR；识别类型可选公式、混合（文字+公式）或纯文字。如需强制使用 CPU 推理（例如避免 GPU 兼容性问题），请参考下方的环境变量设置。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.3.1</code>；它使用自己的版本线，不与 LaTeXSnipper v3.0.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
+<p>当前独立发布的 <code>mathcraft-ocr</code> PyPI 包版本为 <code>0.3.1</code>；它使用自己的版本线，不与 LaTeXSnipper v3.1.0 客户端或 Office 插件版本绑定。模型权重使用 MathCraft Models <code>v1.0.0</code> 发布集，包含 <strong>4 个 ONNX 模型</strong>：</p>
 <div class="block">
 <ul>
 <li><code>mathcraft-formula-det</code> — 数学公式区域检测（Formula Detection）</li>
