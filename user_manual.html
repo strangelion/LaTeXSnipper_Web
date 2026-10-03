@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>LaTeXSnipper 用户手册 v3.0.0 LTS</title>
+<title>LaTeXSnipper 用户手册 v3.1.0 LTS</title>
 <script>try{var s=localStorage.getItem('latexSnipper-theme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s)}catch(e){}</script>
 <link rel="stylesheet" href="styles/site-tokens.css">
 <link rel="stylesheet" href="styles/liquid-glass.css">
@@ -135,7 +135,7 @@
   <li class="toc-h2"><a href="#xinganzhuang">命令行静默安装</a></li>
 <li class="toc-h1"><a href="#sec-office-word">Word 功能详解</a></li>
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="toc-h2"><a href="#ru-omml-shi">插入 OMML 公式</a></li>
+  <li class="toc-h2"><a href="#shirufangshi">公式插入方式</a></li>
   <li class="toc-h2"><a href="#rumoshi">三种插入模式</a></li>
   <li class="toc-h2"><a href="#shixi">公式解析</a></li>
   <li class="toc-h2"><a href="#gengxinhe">加载、更新和删除</a></li>
@@ -148,10 +148,9 @@
   <li class="toc-h2"><a href="#shibie">截图识别</a></li>
 <li class="toc-h1"><a href="#sec-office-ppt">PowerPoint 功能详解</a></li>
   <li class="toc-h2"><a href="#gongneng">功能区概览</a></li>
-  <li class="toc-h2"><a href="#rushi">插入公式图片</a></li>
+  <li class="toc-h2"><a href="#rushi">插入公式</a></li>
   <li class="toc-h2"><a href="#yu">加载与删除</a></li>
   <li class="toc-h2"><a href="#shiyushizhi">公式转换与格式重置</a></li>
-  <li class="toc-h2"><a href="#shibie">截图识别</a></li>
 <li class="toc-h1"><a href="#sec-office-editor">公式编辑器与侧边栏</a></li>
   <li class="toc-h2"><a href="#chuang">侧边栏（任务窗格）</a></li>
   <li class="toc-h2"><a href="#shibianjiqi">独立公式编辑器</a></li>
@@ -226,7 +225,7 @@
 <div class="manual-cover">
 <p><strong>LaTeXSnipper</strong></p>
 <p>用户手册</p>
-<p>适用于 v3.0.0-LTS</p>
+<p>适用于 v3.1.0-LTS</p>
 
 </div>
 <div class="manual-cover-visual">
@@ -1103,21 +1102,25 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <ul>
 <li><strong>公式组：</strong> 行内公式、行间公式、带编号公式、截图识别</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
-<li><strong>转换组：</strong> 转为 OLE、转为 Word</li>
+<li><strong>转换组：</strong> 转为 MathType、转为 OLE、转为 Word</li>
 <li><strong>公式解析组：</strong> 解析所选、解析全文</li>
-<li><strong>引用组：</strong> 插入引用</li>
+<li><strong>交叉引用组：</strong> 插入引用</li>
 <li><strong>编号组：</strong> 添加编号、重编号</li>
-<li><strong>边界组：</strong> 插入章分隔符、插入节边界</li>
-<li><strong>格式化组：</strong> 格式化所选、格式化全部</li>
+<li><strong>编号边界组：</strong> 章分隔符、节分隔符</li>
+<li><strong>公式样式组：</strong> 格式化所选、格式化全文</li>
 <li><strong>工具组：</strong> 状态窗格、设置、帮助</li>
 </ul>
 
 </div>
-<h2 id="ru-omml-shi">插入 OMML 公式</h2>
-<p>Word 加载项通过本地 OMML 转换引擎将 LaTeX 转换为 Word 原生 OMML（Office Math Markup Language）公式。OMML 公式是 Word 原生格式，可以像手动插入的公式一样编辑。</p>
+<h2 id="shirufangshi">公式插入方式</h2>
+<p>Word 支持插件 OLE 对象和 Word 原生 OMML（Office Math Markup Language）公式，在“设置 → 公式插入方式”中选择：</p>
+<ul>
+<li><strong>OLE 对象（默认）：</strong> 本地渲染的矢量公式对象，双击或“加载所选”可打开插件编辑器。复制到另一份文档后仍可加载并独立编辑。</li>
+<li><strong>Word 原生公式：</strong> 可直接使用 Word 的公式工具编辑，也可通过插件加载、更新和转换。</li>
+</ul>
 <div class="callout info">
 <div class="callout-title">OMML 公式</div>
-<div class="callout-body"><p>OMML 公式是 Word 原生格式，卸载加载项后公式仍然可以正常显示和编辑。加载项插入的公式会附带 LaTeXSnipper 管理元数据（LaTeX 源码、显示模式、编号模式），用于后续加载、更新和重编号。普通 Word 公式没有 LaTeXSnipper 元数据，插件不会猜测其 LaTeX 来源。</p>
+<div class="callout-body"><p>OMML 公式是 Word 原生格式，卸载加载项后公式仍然可以正常显示和编辑。加载项插入的公式会附带 LaTeXSnipper 管理元数据（公式源码、显示模式、编号模式），用于后续加载、更新和重编号。普通 Word 公式没有 LaTeXSnipper 元数据，插件不会猜测其 LaTeX 来源。</p>
 </div>
 </div>
 <h2 id="rumoshi">三种插入模式</h2>
@@ -1136,9 +1139,9 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <p>选中由 LaTeXSnipper 插入的公式后：</p>
 <div class="block">
 <ul>
-<li><strong>加载所选：</strong> 将公式的完整 LaTeX 源码加载到公式编辑器，可以修改后更新原公式</li>
+<li><strong>加载所选：</strong> 将公式保存的源码加载到公式编辑器，可以修改后更新原公式</li>
 <li><strong>更新：</strong> 在编辑器中修改后点击更新，新公式会替换原公式，保留元数据</li>
-<li><strong>删除所选：</strong> 删除公式及对应的元数据</li>
+<li><strong>删除所选：</strong> 删除选中的插件公式；删除带编号公式时同时删除其编号段落</li>
 </ul>
 
 </div>
@@ -1147,7 +1150,7 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <div class="block">
 <ul>
 <li><strong>添加编号：</strong> 为选中的行间公式添加自动编号。如果公式已有编号，不会重复添加</li>
-<li><strong>重编号全部：</strong> 按文档顺序更新所有自动编号公式的 SEQ 字段、编号书签和引用字段，不重新渲染公式内容；缺失元数据或编号字段的异常公式会被跳过并计数</li>
+<li><strong>重编号：</strong> 按文档顺序更新所有自动编号公式的 SEQ 字段、编号书签和引用字段，不重新渲染公式内容；缺失元数据或编号字段的异常公式会被跳过并计数</li>
 <li><strong>编号位置：</strong> 设置中可选择右编号或左编号；该设置只影响新插入的编号公式和之后被自动编号的普通公式，不改变已有公式的编号属性</li>
 </ul>
 
@@ -1157,7 +1160,7 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <div class="block">
 <ul>
 <li><strong>插入章分隔符：</strong> 标记新章开始，后续自动编号重置为当前章号</li>
-<li><strong>插入节边界：</strong> 标记新节开始，后续自动编号追加当前节号</li>
+<li><strong>插入节分隔符：</strong> 标记新节开始，后续自动编号追加当前节号</li>
 <li><strong>包含章/节编号：</strong> 设置中可控制编号是否包含章或节的层级部分</li>
 <li><strong>分隔符样式：</strong> 层级分隔符可在设置中选择（<code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code>）</li>
 <li><strong>隐藏分隔符：</strong> 设置中可隐藏插入文档中的分隔符标记</li>
@@ -1174,222 +1177,209 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 
 </div>
 <h2 id="shi">公式转换</h2>
-<p>支持在已有的管理公式之间转换格式，也支持把选中的 Word 原生 OMML 公式显式转换为 LaTeXSnipper OLE：</p>
+<p>选中公式后，通过功能区转换组选择目标格式：</p>
 <div class="block">
 <ul>
-<li><strong>转为 OLE：</strong> 将选中的 OMML 管理公式转为 OLE 公式对象（支持更多渲染选项）</li>
+<li><strong>转为 MathType：</strong> 将普通插件 OLE 公式转为 MathType 原生对象；带编号公式暂不支持</li>
+<li><strong>转为 OLE：</strong> 将插件 OMML、Word 原生 OMML 或 MathType 公式转为插件 OLE 对象</li>
 <li><strong>转为 Word：</strong> 将 OLE 公式转为 Word 原生 OMML 公式（可像 Word 公式一样直接编辑）</li>
-<li><strong>Word 原生 OMML 转 OLE：</strong> 选中非 LaTeXSnipper 托管的 Word 原生公式后执行"转为 OLE"，插件会读取原生 OMML，转换为 MathML，并把 MathML 作为源码存入 OLE 元数据。这类公式可加载和继续转换，但不应执行"格式化所选"，因为格式化链路按 LaTeX 宏重写源码，MathML 源码会被破坏。</li>
 </ul>
 
 </div>
+<p>MathType 双向转换无需安装 MathType；双击编辑 MathType 对象需要安装。转为 MathType 不保留原插件源码与字体快照，转回 OLE 根据对象当前内容生成。</p>
+<p>Word 原生 OMML 或 MathType 转为 OLE 后保存的是 MathML 源码，可加载、更新、格式化及继续转换，不会还原为原始 LaTeX。</p>
 <h2 id="shizhi">格式重置</h2>
 <div class="block">
 <ul>
-<li><strong>格式化所选：</strong> 将选中的公式恢复为默认字体、颜色和自然尺寸</li>
-<li><strong>格式化全部：</strong> 将所有尺寸被修改过的公式恢复为自然尺寸</li>
+<li><strong>格式化所选：</strong> 恢复所选插件公式的默认样式和自然大小</li>
+<li><strong>格式化全文：</strong> 恢复全文插件公式的默认样式和自然大小</li>
 </ul>
 
 </div>
+<p>两者均使用当前设置中的公式默认属性，只处理样式或尺寸需要恢复的插件公式。</p>
 <h2 id="xingnengyucankao">性能与复杂度参考</h2>
 <p>下面的复杂度用于估算长文档中的响应时间。设 <code>n</code> 为参与操作的公式数，<code>m</code> 为文档中 LaTeXSnipper 管理公式总数，<code>c</code> 为文档中的内容控件、图片/OLE 对象或形状数量，<code>f</code> 为 Word 域数量，<code>p</code> 为当前段落内公式对象数量，<code>s</code> 为单个公式源码或 OMML/MathML XML 的长度，<code>r</code> 为一次 MathJax 渲染或图片/OLE 生成成本。</p>
 <table class="typst-table">
 <thead>
 <tr>
-<th>操作</th>
-<th>Word 复杂度</th>
-<th>PowerPoint 复杂度</th>
+<th>插入 OLE 公式</th>
+<th><code>O(s +r +ole)</code></th>
+<th><code>O(s +r +ole)</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>主要耗时来源</td>
-<td>插入 OLE 公式</td>
-<td><code>O(s +r +ole)</code></td>
-</tr>
-<tr>
-<td><code>O(s +r +ole)</code></td>
 <td>MathJax 渲染、EMF/OLE 对象创建、Office COM 插入</td>
 <td>插入 Word OMML</td>
+<td><code>O(s +r +xsl +xml)</code></td>
 </tr>
 <tr>
-<td><code>O(s +r +xsl +xml)</code></td>
 <td>不适用</td>
 <td>MathJax 转 MathML、MML2OMML XSL、Word <code>InsertXML</code></td>
+<td>插入 PowerPoint PNG</td>
 </tr>
 <tr>
-<td>插入 PowerPoint PNG</td>
 <td>不适用</td>
 <td><code>O(s +r +png)</code></td>
+<td>MathJax 渲染、SVG/PNG 光栅化、形状插入</td>
 </tr>
 <tr>
-<td>MathJax 渲染、SVG/PNG 光栅化、形状插入</td>
 <td>插入带编号公式</td>
 <td><code>O(s +r +ole/xml +c)</code></td>
+<td>不适用</td>
 </tr>
 <tr>
-<td>不适用</td>
 <td>公式插入、SEQ 编号域、书签、居中/右对齐制表位布局</td>
 <td>加载所选</td>
+<td><code>O(c)</code> 最坏，通常接近 <code>O(1)</code></td>
 </tr>
 <tr>
-<td><code>O(c)</code> 最坏，通常接近 <code>O(1)</code></td>
 <td><code>O(c)</code> 最坏，通常接近 <code>O(1)</code></td>
 <td>从选区附近定位元数据，必要时扫描对象</td>
-</tr>
-<tr>
 <td>更新公式</td>
-<td><code>O(s +r +replace)</code></td>
-<td><code>O(s +r +replace)</code></td>
 </tr>
 <tr>
+<td><code>O(s +r +replace)</code></td>
+<td><code>O(s +r +replace)</code></td>
 <td>重新渲染和替换原对象；OLE 会保留用户缩放</td>
+</tr>
+<tr>
 <td>删除所选</td>
-<td><code>O(c +f +n log n)</code></td>
-</tr>
-<tr>
+<td><code>O(c +n log n)</code></td>
 <td><code>O(c +n)</code></td>
-<td>定位并按文档位置删除公式、边界控件、引用域或引用占位符</td>
-<td>添加编号</td>
 </tr>
 <tr>
+<td>收集所选插件公式；Word 按文档位置倒序删除，带编号公式同时删除编号段落</td>
+<td>添加编号</td>
 <td><code>O(s +r +replace +before)</code></td>
+</tr>
+<tr>
 <td>不适用</td>
 <td>将普通行间公式改为编号布局，只扫描当前位置前的编号时间线</td>
+<td>重编号</td>
 </tr>
 <tr>
-<td>重编号全部</td>
 <td><code>O(c +f +m log m +refs)</code></td>
 <td>不适用</td>
+<td>收集并排序自动编号公式和章/节边界，一次建立 SEQ 字段映射，更新编号书签和 LaTeXSnipper 引用域</td>
 </tr>
 <tr>
-<td>收集并排序自动编号公式和章/节边界，一次建立 SEQ 字段映射，更新编号书签和 LaTeXSnipper 引用域</td>
 <td>插入章/节分隔符</td>
 <td><code>O(c +m log m +refs)</code></td>
+<td>不适用</td>
 </tr>
 <tr>
-<td>不适用</td>
 <td>插入边界控件后立即重编号全部自动编号公式</td>
 <td>插入交叉引用</td>
+<td><code>O(1)</code> 插入占位，选择目标时最坏 <code>O(c +f)</code></td>
 </tr>
 <tr>
-<td><code>O(1)</code> 插入占位，选择目标时最坏 <code>O(c +f)</code></td>
 <td>不适用</td>
 <td>查找目标公式、定位编号书签并创建 Word REF 域</td>
+<td>公式解析</td>
 </tr>
 <tr>
-<td>公式解析</td>
 <td><code>O(c +n * (s +r +replace))</code></td>
 <td>不适用</td>
+<td>安全范围扫描、公式渲染和 Office 对象替换</td>
 </tr>
 <tr>
-<td>安全范围扫描、公式渲染和 Office 对象替换</td>
 <td>转 OLE（插件 OMML）</td>
 <td><code>O(n * (s +r +ole))</code></td>
+<td><code>O(n * (s +r +ole))</code>（PNG → OLE）</td>
 </tr>
 <tr>
-<td><code>O(n * (s +r +ole))</code>（PNG → OLE）</td>
 <td>渲染、OLE 创建、逐个 COM 替换</td>
 <td>Word 原生 OMath 转 OLE</td>
+<td><code>O(n * (s +xsl +r +ole))</code></td>
 </tr>
 <tr>
-<td><code>O(n * (s +xsl +r +ole))</code></td>
 <td>不适用</td>
 <td>OMML2MML XSL、MathJax 按 MathML 渲染、OLE 创建</td>
+<td>转 Word OMML / PNG</td>
 </tr>
 <tr>
-<td>转 Word OMML / PNG</td>
 <td><code>O(n * (s +r +xsl +xml))</code></td>
 <td><code>O(n * (s +r +png))</code></td>
+<td>OLE/PNG 重新生成和 Office 对象替换</td>
 </tr>
 <tr>
-<td>OLE/PNG 重新生成和 Office 对象替换</td>
 <td>格式化所选</td>
 <td><code>O(n * (s +r +replace)+p)</code></td>
-</tr>
-<tr>
 <td><code>O(n * (s +r +replace))</code></td>
+</tr>
+<tr>
 <td>只有属性不同或尺寸被改过时才重新渲染/重置；Word 行内基线只扫描当前段落</td>
-<td>格式化全部</td>
+<td>格式化全文</td>
+<td><code>O(m * (s +r +replace)+p)</code></td>
 </tr>
 <tr>
-<td><code>O(m)</code></td>
-<td><code>O(m)</code></td>
-<td>扫描全文公式并恢复被用户缩放过的自然尺寸</td>
-</tr>
-<tr>
+<td><code>O(m * (s +r +replace))</code></td>
+<td>复用所选格式化流程，按当前默认样式重绘需要恢复的公式并重置自然大小</td>
 <td>截图识别</td>
-<td><code>O(ocr +s +r)</code></td>
-<td><code>O(ocr +s +r)</code></td>
 </tr>
 <tr>
+<td><code>O(ocr +s +r)</code></td>
+<td><code>O(ocr +s +r)</code></td>
 <td>桌面端 OCR 和后续公式插入</td>
 </tr>
 </tbody>
 </table>
 <div class="block">
-<p>多选转换、公式解析和多选格式化所选会分批执行并更新状态窗格；Word 每批使用短 undo record。长公式或大量公式时，主要耗时仍来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换）。建议长文档批量处理时分段执行并保存文档。</p>
-<p>Word 原生 OMath 转 OLE 保存的是 MathML 源码，不是 LaTeX 源码；它用于保真转换，不进入 LaTeX 格式化链路。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
+<p>转换、公式解析和格式化会分批执行并更新状态窗格；单项失败会报告具体错误，并继续处理其他项，结束后显示处理统计。重编号会跳过编号信息不完整的公式并计数。长公式或大量公式时，主要耗时仍来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换）。建议长文档批量处理时分段执行并保存文档。</p>
+<p>格式化保留公式源码，通过当前默认属性重新渲染；LaTeX 和 MathML 源码均可处理。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
 
 </div>
 <h2 id="shibie">截图识别</h2>
-<p>点击"截图识别"后，加载项等待 LaTeXSnipper 的下一次识别结果，但不会主动打开截图界面。用户仍需在桌面端自行发起识别；桌面端保持正常显示结果，同时将结果副本自动填入 Office 公式编辑器。若需取消，可点击功能区"取消识别"按钮或在等待过程中再次点击"截图识别"按钮。</p>
+<p>打开 LaTeXSnipper 桌面端，并启用设置中的“自动化接口”。点击插件“截图识别”后，使用桌面端全局快捷键框选公式；识别结果会填入 Office 公式编辑器。等待期间再次点击“截图识别”可取消。普通公式编辑和插入无需启动桌面端。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-ppt">PowerPoint 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
 <p>PowerPoint 的 LaTeXSnipper 标签页结构与 Word 类似，但功能更精简：</p>
 <div class="block">
 <ul>
-<li><strong>公式组：</strong> 插入公式、截图识别</li>
+<li><strong>公式组：</strong> 插入公式、截图识别（识别流程与 Word 相同）</li>
 <li><strong>编辑组：</strong> 加载所选、删除所选</li>
-<li><strong>转换组：</strong> 转为 OLE、转为 PNG</li>
-<li><strong>格式化组：</strong> 格式化所选、格式化全文</li>
+<li><strong>转换组：</strong> 转为 MathType、转为 OLE、转为 PNG</li>
+<li><strong>公式样式组：</strong> 格式化所选、格式化全文</li>
 <li><strong>工具组：</strong> 状态窗格、设置、帮助</li>
 </ul>
 
 </div>
-<h2 id="rushi">插入公式图片</h2>
-<p>PowerPoint 加载项支持两种渲染方式：</p>
-<div class="block">
-<ul>
-<li><strong>OLE 公式对象：</strong> 将 LaTeX 交由本机 OLE 公式对象处理器渲染，以 OLE 对象形式嵌入幻灯片，保留原始版式</li>
-<li><strong>高 DPI PNG 图片：</strong> 由内置 MathJax 渲染为 SVG 后光栅化为高 DPI PNG 图片插入幻灯片</li>
-</ul>
-
-</div>
+<h2 id="rushi">插入公式</h2>
+<p>光标位于文本框文字中时，点击“插入公式”生成随文字排版的 PowerPoint 原生公式，可用 PowerPoint 的公式工具编辑。</p>
+<p>其他位置按设置插入居中的独立 OLE 对象或高 DPI PNG 图片；OLE 支持双击编辑，PNG 可通过“加载所选”修改。</p>
 <div class="callout info">
 <div class="callout-title">与 Word 的区别</div>
-<div class="callout-body"><ul>
-<li>没有行内/行间区别——PowerPoint 幻灯片上的公式始终是独立对象</li>
-<li>不支持自动编号和重编号（这些是 Word 文档专属功能）</li>
-</ul>
+<div class="callout-body"><p>加载、删除、转换和批量格式化面向插件插入的独立对象；文本内原生公式由 PowerPoint 管理。PowerPoint 不支持插件自动编号和重编号。</p>
 </div>
 </div>
 <h2 id="yu">加载与删除</h2>
 <div class="block">
 <ul>
-<li><strong>加载所选：</strong> 选中幻灯片上的公式图片，点击加载所选，公式的 LaTeX 源码会载入独立公式编辑器。修改后重新插入时，新图片会替换原位置旧图片</li>
-<li><strong>删除所选：</strong> 删除选中的公式图片及元数据</li>
+<li><strong>加载所选：</strong> 将所选插件 OLE 或 PNG 公式载入编辑器；修改后点击“更新”，尽量保留原位置和手动缩放</li>
+<li><strong>删除所选：</strong> 删除选中的插件 OLE 或 PNG 公式</li>
 </ul>
 
 </div>
+<p>OLE 公式复制到另一份演示文稿后仍可加载并独立编辑。</p>
 <h2 id="shiyushizhi">公式转换与格式重置</h2>
 <div class="block">
 <ul>
-<li><strong>转为 OLE：</strong> 将选中 PNG 格式的公式图片转换为 OLE 公式对象</li>
+<li><strong>转为 MathType：</strong> 将所选插件 OLE 公式转为 MathType 原生对象</li>
+<li><strong>转为 OLE：</strong> 将插件 PNG 或 MathType 公式转为插件 OLE 对象</li>
 <li><strong>转为 PNG：</strong> 将 OLE 公式转换为 PNG 图片</li>
-<li><strong>格式化所选：</strong> 将选中的公式恢复为默认字体、颜色和自然尺寸</li>
-<li><strong>格式化全文：</strong> 将所有尺寸被修改过的公式恢复为自然尺寸</li>
+<li><strong>格式化所选：</strong> 恢复所选插件公式的默认样式和自然大小</li>
+<li><strong>格式化全文：</strong> 恢复全文插件公式的默认样式和自然大小</li>
 </ul>
 
 </div>
+<p>MathType 双向转换无需安装 MathType；双击编辑 MathType 对象需要安装。转为 MathType 不保留原插件源码与字体快照，转回 OLE 根据对象当前内容生成。</p>
 <div class="callout tip">
 <div class="callout-title">提示</div>
 <div class="callout-body"><p>如果你在幻灯片上找不到公式图片，可以检查形状的替代文本（Alt Text）。所有 LaTeXSnipper 公式图片的替代文本均以 "LaTeXSnipper formula"开头。</p>
 </div>
 </div>
-<h2 id="shibie">截图识别</h2>
-<p>与 Word 相同的截图 OCR 流程。识别结果会自动填入公式编辑器，可直接插入或修改后插入。</p>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-editor">公式编辑器与侧边栏</h1>
 <h2 id="chuang">侧边栏（任务窗格）</h2>
@@ -1405,12 +1395,12 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 
 </div>
 <h2 id="shibianjiqi">独立公式编辑器</h2>
-<p>通过功能区"行内公式""行间公式""带编号公式"按钮或"加载所选"打开的独立公式编辑器窗口，搭载 MathLive 可视化公式引擎和完整数学符号系统。</p>
+<p>通过 Word 功能区的“行内公式”“行间公式”“带编号公式”、PowerPoint 的“插入公式”或“加载所选”打开独立公式编辑器。</p>
 <div class="block">
 <ul>
 <li><strong>数学编辑区：</strong> 全尺寸 MathLive 所见即所得编辑区，支持键盘快捷键（如 <code>+</code> <code>_</code> <code>/</code> <code>sqrt</code> 等标准 LaTeX 缩写自动识别）、光标导航和即时预览</li>
 <li><strong>LaTeX 源码区：</strong> 编辑区下方的 LaTeX 源码输入区，与可视化编辑区实时双向同步，可直接粘贴或编辑 LaTeX 代码</li>
-<li><strong>符号面板（右侧）：</strong> 内置 <strong>18 分类、2121 个数学符号与公式模板</strong>，覆盖从基础算术到前沿研究的全部符号体系：</li>
+<li><strong>符号面板（左侧）：</strong> 内置 <strong>18 分类、2121 个数学符号与公式模板</strong>，覆盖从基础算术到前沿研究的全部符号体系：</li>
 </ul>
 <ul>
 <li><strong>基础（4 类 171 条）：</strong> 希腊字母（含变体和希伯来字母）、结构模板（矩阵/根式/行列式等，支持自选行列数）、分隔符（含大尺寸变体和装饰框线）、集合与逻辑符号</li>
@@ -1427,7 +1417,8 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <li><strong>其他（1 类 56 条）：</strong> 杂项符号</li>
 <li><strong>标签内搜索：</strong> 每个符号面板顶部设有搜索框，支持按中文名称或 LaTeX 源码实时过滤当前标签内的符号</li>
 <li><strong>全局搜索：</strong> 标签列顶部设有全局搜索框，输入关键词后跨所有 18 个标签检索，按组归类展示结果</li>
-<li><strong>底部工具栏：</strong> 基础运算（计算/化简/数值化/求解/展开/因式分解）、多行排版布局、快捷插入片段、示例载入、复制（LaTeX / MathJSON）</li>
+<li><strong>样式工具栏：</strong> 调整当前公式的符号字体、数字字体、汉字字体、字形、字号和颜色；“最终预览”显示实际渲染结果，小字号仅在屏幕上放大，插入仍使用选定字号</li>
+<li><strong>常用公式：</strong> 右键符号磁贴可加入或移出“常用”，工具栏星形按钮可收藏当前公式；升级或重装后保留收藏</li>
 <li><strong>插入 / 更新：</strong> 底部按钮根据当前模式显示"插入"或"更新"</li>
 <li><strong>取消：</strong> 关闭编辑器，不应用更改</li>
 </ul>
@@ -1442,6 +1433,7 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 </ul>
 </div>
 </div>
+<p>源码区按 <code>Tab</code> 在光标处缩进，补全列表按 <code>Enter</code> 接受。源码含有可视化编辑器无法原样保留的写法时，上方只显示参考结果；可继续编辑源码，或点击“用上方结果替换源码（可撤销）”。</p>
 <h2 id="pingtai">平台界面差异</h2>
 <p>Word 侧边栏包含行间公式、自动编号、自定义编号输入框等 Word 专属控件。PowerPoint 侧边栏不包含这些选项，界面更简洁。</p>
 <div class="spacer-lg"></div>
@@ -1450,64 +1442,72 @@ LaTeXSnipperOffice_3.1.0_amd64.exe /dir="&lt;安装目录&gt;"</code></pre></div
 <p>通过功能区"设置"按钮打开。设置窗口支持完整的公式参数配置：</p>
 <div class="block">
 <ul>
-<li><strong>公式插入方式：</strong> OLE 对象（默认）或 Word OMML（本地转换）</li>
+<li><strong>Word 公式插入方式：</strong> OLE 对象（默认）或 Word 原生 OMML 公式</li>
+<li><strong>PowerPoint 公式插入方式：</strong> OLE 对象（默认）或 PNG 图片；文本框内插入时使用 PowerPoint 原生公式</li>
 <li><strong>编号位置：</strong> 右编号（默认）或左编号</li>
 <li><strong>外框：</strong> 无、圆括号（()）、方括号（[]）、花括号（{}）</li>
 <li><strong>层级分隔符：</strong> <code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code></li>
 <li><strong>包含章编号 / 包含节编号：</strong> 控制编号是否包含层级部分</li>
 <li><strong>隐藏章分隔符 / 隐藏节分隔符：</strong> 控制文档中是否显示分隔符标记</li>
-<li><strong>字体颜色：</strong> 拾色器选择新插入公式的默认字体颜色，支持恢复为黑色或白色</li>
-<li><strong>默认字体：</strong> TeX 原生字体、罗马正体、粗体、斜体、黑板粗体、花体、哥特体、无衬线、等宽等论文常用数学字体</li>
+<li><strong>符号字体：</strong> TeX 或 STIX2 字体方案，用于数学字母、符号和公式结构</li>
+<li><strong>数字字体：</strong> 指定普通数字的系统字体，或跟随符号字体</li>
+<li><strong>汉字字体：</strong> 指定公式内汉字使用的字体</li>
+<li><strong>默认字形：</strong> 自动、正体、斜体、粗体、黑板粗体、花体、哥特体、无衬线、等宽等数学样式，与字体方案分别选择</li>
+<li><strong>字号与颜色：</strong> 新公式和格式化命令使用的默认字号、颜色；“新建时跟随文字字号”优先采用光标或选区文字字号，无有效字号时使用固定值</li>
+<li><strong>JSON 导入 / 导出：</strong> 保存或应用当前 Word / PowerPoint 的公式默认属性</li>
 </ul>
 
 </div>
+<p>编号位置、外框、层级与分隔符设置仅适用于 Word。编辑器中的临时选择仅用于当前公式，修改已有公式时沿用其保存的属性。升级、重装和卸载会保留公式默认属性、插入偏好、Word 编号布局及编辑器收藏。</p>
 <p><strong>编辑器键盘行为</strong></p>
 <table class="typst-table">
 <thead>
 <tr>
 <th>快捷键</th>
 <th>功能</th>
-<th><code>Enter</code></th>
+<th>可视化区 <code>Enter</code></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>新建数学行</td>
-<td><code>Shift +Enter</code></td>
+<td>可视化区 <code>Shift +Enter</code></td>
 <td>插入或更新当前公式</td>
 </tr>
 <tr>
-<td><code>Ctrl +F</code></td>
+<td>可视化区 <code>Ctrl +F</code></td>
 <td>插入分式</td>
-<td><code>Ctrl +R</code></td>
+<td>可视化区 <code>Ctrl +R</code></td>
 </tr>
 <tr>
 <td>插入根号</td>
-<td><code>Ctrl +H</code></td>
+<td>可视化区 <code>Ctrl +H</code></td>
 <td>插入上标</td>
 </tr>
 <tr>
-<td><code>Ctrl +L</code></td>
+<td>可视化区 <code>Ctrl +L</code></td>
 <td>插入下标</td>
-<td><code>Ctrl +J</code></td>
+<td>可视化区 <code>Ctrl +J</code></td>
 </tr>
 <tr>
 <td>插入上下标</td>
+<td>源码区 <code>Tab</code></td>
+<td>在光标处缩进</td>
+</tr>
+<tr>
+<td>源码补全列表 <code>Enter</code></td>
+<td>接受当前补全项</td>
 <td><code>Esc</code></td>
+</tr>
+<tr>
 <td>收回 MathLive 虚拟键盘</td>
 </tr>
 </tbody>
 </table>
+<div class="block">
 <h2 id="chuangkou">帮助窗口</h2>
 <p>通过功能区"帮助"按钮打开，根据当前宿主（Word 或 PowerPoint）显示对应内容：</p>
-<div class="block">
-<ul>
-<li>系统要求详情</li>
-<li>Word / PowerPoint 功能列表</li>
-<li>功能区按钮说明</li>
-<li>插件架构介绍</li>
-<li>使用边界说明</li>
-</ul>
+<p>宽窗口中目录固定在左侧，点击条目可跳转到对应章节；窄窗口中目录位于正文上方。页面随 Office 界面语言显示中文或英文。</p>
 
 </div>
 <div class="spacer-lg"></div>
