@@ -1,0 +1,6 @@
+{
+  "exclude": [
+    "deploy/",
+    "latexsnipper-core/"
+  ]
+}
