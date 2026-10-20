@@ -64,6 +64,13 @@ manifest 之前运行 `scripts/record-archived-release.mjs`，把即将被顶掉
 R2 只镜像当前 release：每次同步会删掉上一次同步上传、且不在本次清单中的
 对象，`/dl/` 的占用不会随版本持续累积。
 
+上传走 R2 的 S3 API（`aws s3 cp` 走 multipart），不再用 `wrangler r2 object
+put`，因为 1.5–2 GB 的 GPU 包会触发 wrangler 的上传限制。同步 Action 需要
+`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY` 两个 secrets（R2 API Token 的
+Access Key ID / Secret Access Key，权限限定在 `release` 桶）；`R2_ACCOUNT_ID`
+可选，缺省时用 `CLOUDFLARE_API_TOKEN` 查账号。桶名默认 `release`，可用
+`R2_RELEASE_BUCKET` 覆盖。
+
 ## 品牌人物素材
 
 Hero 使用 `/assets/brand/snipper-girl.webp` 及 640/960 宽度的 `srcset`

@@ -82,9 +82,41 @@ jobs:
       - name: 安装依赖
         run: npm ci --ignore-scripts
 
+      - name: 解析 R2 S3 端点和凭证
+        id: r2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          account="$R2_ACCOUNT_ID"
+          if [[ -z "$account" ]]; then
+            account=$(curl -fsSL --retry 2 \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              https://api.cloudflare.com/client/v4/accounts \
+              | jq -r '.result[0].id // empty')
+          fi
+          if [[ -z "$account" ]]; then
+            echo "Unable to resolve the R2 account id" >&2
+            exit 1
+          fi
+          endpoint="https://${account}.r2.cloudflarestorage.com"
+          echo "endpoint=${endpoint}" >> "$GITHUB_OUTPUT"
+          # Fail here, not halfway through a multi-GB upload.
+          aws --version
+
       - name: 下载并上传变更文件到 R2
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          R2_ENDPOINT: ${{ steps.r2.outputs.endpoint }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          # AWS CLI v2 defaults to CRC32 request checksums, which R2 rejects.
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          AWS_RETRY_MODE: standard
+          AWS_MAX_ATTEMPTS: '5'
           CHANGED: ${{ needs.check.outputs.changed_assets }}
           RESOLVED_RELEASE: ${{ needs.check.outputs.resolved_release }}
         run: |
@@ -101,7 +133,9 @@ jobs:
 
           with open("public/release-manifest.json", encoding="utf-8") as f:
               current = json.load(f)
-          existing = {item.get("id"): item for item in current.get("assets", [])}
+          existing = {
+              item.get("id"): item for item in current.get("assets", [])
+          }
 
           def human_size(size_bytes):
               value = float(size_bytes)
@@ -130,6 +164,21 @@ jobs:
               "macos-arm64-cpu": "macos-arm64",
           }
           wrangler = ["npx", "--no-install", "wrangler"]
+          bucket = os.environ.get("R2_RELEASE_BUCKET") or "release"
+          endpoint = os.environ["R2_ENDPOINT"]
+
+          def r2(*args, timeout=600):
+              # The S3 API streams multipart uploads, so multi-GB GPU builds no
+              # longer run into the wrangler upload limit.
+              return subprocess.run(
+                  [
+                      "aws", "s3", *args,
+                      "--endpoint-url", endpoint,
+                      "--only-show-errors",
+                  ],
+                  check=False,
+                  timeout=timeout,
+              )
 
           for asset in resolved["assets"]:
               name = asset["name"]
@@ -168,23 +217,15 @@ jobs:
                   print(f"  SHA256: {sha256}")
                   print(f"  Size: {size}")
 
-                  subprocess.run(
-                      wrangler + [
-                          "r2", "object", "delete", f"release/{name}",
-                          "--remote",
-                      ],
-                      capture_output=True,
-                      timeout=120,
-                  )
+                  deleted = r2("rm", f"s3://{bucket}/{name}", timeout=120)
+                  if deleted.returncode != 0:
+                      print(f"  Skipped delete for release/{name}")
                   # GPU packages are 1.5-2 GB, beyond the old 180s budget.
-                  subprocess.run(
-                      wrangler + [
-                          "r2", "object", "put", f"release/{name}",
-                          "--file", str(out), "--remote",
-                      ],
-                      check=True,
-                      timeout=3600,
+                  uploaded = r2(
+                      "cp", str(out), f"s3://{bucket}/{name}", timeout=3600
                   )
+                  if uploaded.returncode != 0:
+                      raise SystemExit(f"R2 upload failed for {name}")
                   print(f"  Uploaded release/{name}")
                   out.unlink(missing_ok=True)
 
@@ -218,13 +259,9 @@ jobs:
           ]
           for name in stale:
               print(f"Pruning release/{name} from R2")
-              subprocess.run(
-                  wrangler + [
-                      "r2", "object", "delete", f"release/{name}", "--remote",
-                  ],
-                  capture_output=True,
-                  timeout=120,
-              )
+              pruned = r2("rm", f"s3://{bucket}/{name}", timeout=120)
+              if pruned.returncode != 0:
+                  print(f"  Skipped pruning release/{name}")
 
           default_schema = "/schemas/release-manifest-v1.schema.json"
           manifest = {
@@ -296,7 +333,10 @@ jobs:
           }
           values = list(state["assets"].values())
           state["last_sync"] = max(values) if values else ""
-          state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          state_path.write_text(
+              json.dumps(state, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
           PYEOF
 
       - name: 同步网页版本文案
@@ -340,11 +380,12 @@ jobs:
       - name: 触发用户手册构建
         env:
           GH_TOKEN: ${{ github.token }}
+          REPO_API: https://api.github.com/repos/${{ github.repository }}
         run: |
           curl -fsSL --retry 2 -X POST \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build-manual.yml/dispatches" \
+            "$REPO_API/actions/workflows/build-manual.yml/dispatches" \
             -d '{"ref":"master"}'
           echo "Triggered build-manual workflow"
