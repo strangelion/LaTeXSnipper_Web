@@ -53,8 +53,46 @@ test('canonical stylesheet owns a centred platform grid', () => {
   assert.ok(downloadCss.includes('width: min(100%, 920px)'));
   assert.match(
     downloadCss,
-    /\.platform-card \.download-btn,[\s\S]{0,100}width: min\(100%, 220px\)/,
+    /\.platform-card \.download-actions \{[\s\S]{0,120}width: min\(100%, 220px\)/,
   );
+  /* CPU and GPU share one card, so the button and its checksum move together. */
+  assert.match(downloadCss, /\.recommended \.download-actions \{\s*grid-area: action;/);
+  assert.ok(!downloadCss.includes('.recommended .download-btn {'));
+  /* The checksum must live inside the stack, not in its own grid area. */
+  assert.ok(!downloadCss.includes('grid-area: hash'));
+});
+
+test('CPU and GPU editions switch with CSS only', async () => {
+  const downloadPageSource = await readFile(
+    new URL('../download.html', import.meta.url),
+    'utf8',
+  );
+  /* CPU is the default edition, so the first radio ships checked. */
+  assert.match(
+    downloadPageSource,
+    /<input class="edition-input" type="radio" name="windows-edition" id="windows-edition-cpu" value="cpu" checked>/,
+  );
+  assert.match(
+    downloadPageSource,
+    /<input class="edition-input" type="radio" name="windows-edition" id="windows-edition-gpu" value="gpu">/,
+  );
+  assert.match(downloadPageSource, /<div class="download-action" data-edition="cpu">/);
+  assert.match(downloadPageSource, /<div class="download-action" data-edition="gpu">/);
+  assert.match(downloadPageSource, /<div class="edition-switch" hidden>/);
+  /* The visible action is chosen by the checked radio, not by a click handler. */
+  assert.ok(
+    downloadCss.includes(
+      '.edition-input[value="cpu"]:checked ~ .download-actions .download-action[data-edition="gpu"],',
+    ),
+  );
+  assert.ok(
+    downloadCss.includes(
+      '.edition-input[value="gpu"]:checked ~ .download-actions .download-action[data-edition="cpu"] {\n  display: none;\n}',
+    ),
+  );
+  assert.match(downloadCss, /\.edition-switch label \{\s*flex: 1 1 0;/);
+  /* A release with a single edition hides the switch and falls back to CPU. */
+  assert.ok(downloadPageSource.includes('editionSwitch.hidden = editions < 2'));
 });
 
 test('narrow download layouts collapse to one safe column', () => {

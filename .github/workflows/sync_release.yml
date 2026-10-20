@@ -115,44 +115,84 @@ jobs:
           tmp.mkdir(parents=True)
           new_assets = []
 
+          def stream_sha256(path):
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          # 3.2 renamed every desktop package to <platform>_<arch>_<edition>.
+          # Older manifests use the pre-3.2 ids, so reuse their metadata.
+          legacy_ids = {
+              "windows-x86_64-cpu": "windows-x86_64",
+              "linux-amd64-cpu": "linux-amd64",
+              "macos-arm64-cpu": "macos-arm64",
+          }
+          wrangler = ["npx", "--no-install", "wrangler"]
+
           for asset in resolved["assets"]:
               name = asset["name"]
-              old = existing.get(asset["id"], {})
-              sha256 = old.get("sha256", "")
-              size = old.get("size", "")
+              asset_id = asset["id"]
+              old = existing.get(asset_id)
+              if old is None:
+                  old = existing.get(legacy_ids.get(asset_id, ""), {})
+              # desktop-release.json publishes the official checksum and size.
+              sha256 = asset.get("sha256") or old.get("sha256", "")
+              if asset.get("size"):
+                  size = human_size(asset["size"])
+              else:
+                  size = old.get("size", "")
 
               if name in changed:
                   out = tmp / name
                   print(f"Downloading {name} from {asset['url']}...")
                   subprocess.run(
-                      ["curl", "-fL", "--retry", "2", "--retry-all-errors", asset["url"], "-o", str(out)],
+                      [
+                          "curl", "-fL", "--retry", "2",
+                          "--retry-all-errors", asset["url"], "-o", str(out),
+                      ],
                       check=True,
                   )
                   if not out.is_file() or out.stat().st_size == 0:
                       raise SystemExit(f"Downloaded asset is empty: {name}")
 
-                  sha256 = hashlib.sha256(out.read_bytes()).hexdigest()
+                  actual = stream_sha256(out)
+                  if sha256 and actual != sha256:
+                      raise SystemExit(
+                          f"Checksum mismatch for {name}: upstream says "
+                          f"{sha256}, download is {actual}"
+                      )
+                  sha256 = actual
                   size = human_size(out.stat().st_size)
                   print(f"  SHA256: {sha256}")
                   print(f"  Size: {size}")
 
                   subprocess.run(
-                      ["npx", "--no-install", "wrangler", "r2", "object", "delete", f"release/{name}", "--remote"],
+                      wrangler + [
+                          "r2", "object", "delete", f"release/{name}",
+                          "--remote",
+                      ],
                       capture_output=True,
-                      timeout=60,
+                      timeout=120,
                   )
+                  # GPU packages are 1.5-2 GB, beyond the old 180s budget.
                   subprocess.run(
-                      ["npx", "--no-install", "wrangler", "r2", "object", "put", f"release/{name}", "--file", str(out), "--remote"],
+                      wrangler + [
+                          "r2", "object", "put", f"release/{name}",
+                          "--file", str(out), "--remote",
+                      ],
                       check=True,
-                      timeout=180,
+                      timeout=3600,
                   )
                   print(f"  Uploaded release/{name}")
+                  out.unlink(missing_ok=True)
 
               if not sha256 or not size:
-                  raise SystemExit(f"No integrity metadata available for unchanged asset: {name}")
+                  raise SystemExit(f"No integrity metadata for asset: {name}")
 
-              new_assets.append({
-                  "id": asset["id"],
+              entry = {
+                  "id": asset_id,
                   "platform": asset["platform"],
                   "label": asset["label"],
                   "architecture": asset["architecture"],
@@ -160,10 +200,35 @@ jobs:
                   "href": f"/dl/{name}",
                   "sha256": sha256,
                   "size": size,
-              })
+              }
+              if asset.get("edition"):
+                  entry["edition"] = asset["edition"]
+              new_assets.append(entry)
 
+          # R2 mirrors the live release only. Archived entries link to GitHub,
+          # so pruning /dl/ objects can never break an old download page.
+          state_path = pathlib.Path(".release_state.json")
+          previous = {}
+          if state_path.exists():
+              previous = json.loads(state_path.read_text(encoding="utf-8"))
+          keep = {asset["name"] for asset in resolved["assets"]}
+          stale = [
+              name for name in (previous.get("assets") or {})
+              if name not in keep
+          ]
+          for name in stale:
+              print(f"Pruning release/{name} from R2")
+              subprocess.run(
+                  wrangler + [
+                      "r2", "object", "delete", f"release/{name}", "--remote",
+                  ],
+                  capture_output=True,
+                  timeout=120,
+              )
+
+          default_schema = "/schemas/release-manifest-v1.schema.json"
           manifest = {
-              "$schema": current.get("$schema", "/schemas/release-manifest-v1.schema.json"),
+              "$schema": current.get("$schema", default_schema),
               "schemaVersion": current.get("schemaVersion", 1),
               "product": current.get("product", "LaTeXSnipper Desktop"),
               "version": resolved["version"],
@@ -179,7 +244,14 @@ jobs:
 
           desktop_downloads = {}
           for item in new_assets:
-              if item["platform"] in ("windows", "linux", "macos") and item["platform"] not in desktop_downloads:
+              if item["platform"] not in ("windows", "linux", "macos"):
+                  continue
+              current_item = desktop_downloads.get(item["platform"])
+              # The legacy single-link contract stays on the CPU edition.
+              if current_item is None or (
+                  item.get("edition") == "cpu"
+                  and current_item.get("edition") != "cpu"
+              ):
                   desktop_downloads[item["platform"]] = item
           legacy = {
               "version": manifest["version"],
@@ -202,11 +274,11 @@ jobs:
           set -euo pipefail
           test -f /tmp/release-manifest.json
           test -f /tmp/release.json
-          # Archive the outgoing release while public/release-manifest.json is still current.
+          # Archive the outgoing release while the live manifest is current.
           node scripts/record-archived-release.mjs /tmp/release-manifest.json
           cp /tmp/release-manifest.json public/release-manifest.json
           cp /tmp/release.json public/release.json
-          node scripts/validate-release-manifest.mjs public/release-manifest.json
+          node scripts/validate-release-manifest.mjs
 
           python3 - << 'PYEOF'
           import json
@@ -214,9 +286,14 @@ jobs:
           from pathlib import Path
 
           state_path = Path(".release_state.json")
-          state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
+          if state_path.exists():
+              state = json.loads(state_path.read_text(encoding="utf-8"))
+          else:
+              state = {}
           timestamps = json.loads(os.environ.get("ASSET_TIMESTAMPS", "{}"))
-          state["assets"] = {name: value for name, value in timestamps.items() if value}
+          state["assets"] = {
+              name: value for name, value in timestamps.items() if value
+          }
           values = list(state["assets"].values())
           state["last_sync"] = max(values) if values else ""
           state_path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -16,18 +16,22 @@
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
+import {
+  LEGACY_ASSET_IDS,
+  MAX_ARCHIVED_VERSIONS,
+} from '../js/download-versions.js';
+
 const MANIFEST_PATH = 'public/release-manifest.json';
 const ARCHIVE_PATH = 'public/old-versions.json';
-
-/* Keep in sync with MAX_ARCHIVED_VERSIONS in js/download-versions.js. */
-const MAX_ARCHIVED_VERSIONS = 3;
+const GITHUB_RELEASES = 'https://github.com/SakuraMathcraft/LaTeXSnipper/releases';
 
 const ARCHIVE_COMMENT =
   'Archived Desktop releases offered by the download page version picker. ' +
   'Maintained automatically: scripts/record-archived-release.mjs moves the ' +
   'release that a new sync displaces to the top of this list and keeps the ' +
   'newest entries only (MAX_ARCHIVED_VERSIONS in js/download-versions.js). ' +
-  'Delete an entry by hand when its /dl/ object is removed from R2.';
+  'Archived downloads link to GitHub because the sync workflow prunes every ' +
+  'R2 object that is not part of the live release.';
 
 function readJson(path) {
   const raw = readFileSync(path, 'utf8');
@@ -38,16 +42,56 @@ function readJson(path) {
   }
 }
 
+function tagOf(releaseNotesUrl) {
+  const match = /\/releases\/tag\/([^/?#]+)/.exec(String(releaseNotesUrl || ''));
+  return match ? match[1] : '';
+}
+
+function editionOf(asset, id) {
+  const declared = String(asset.edition || '').trim();
+  if (declared) return declared;
+  const suffix = /-(cpu|gpu)$/.exec(id);
+  return suffix ? suffix[1] : '';
+}
+
+/**
+ * Rewrite one live asset into an archived one.
+ *
+ * The archived download must not point at /dl/: the sync workflow deletes every
+ * R2 object that is not part of the live release. GitHub keeps the old tag
+ * assets, so the same file name is re-linked under its release tag.
+ */
+function archiveAsset(asset, tag) {
+  const rawId = String(asset.id || '').trim();
+  const id = LEGACY_ASSET_IDS[rawId] || rawId;
+  const fileName = String(asset.href || '').split('/').pop();
+  if (!id || !tag || !fileName) return null;
+  const edition = editionOf(asset, id);
+  return {
+    ...asset,
+    id,
+    href: `${GITHUB_RELEASES}/download/${tag}/${fileName}`,
+    ...(edition ? { edition } : {}),
+  };
+}
+
 function normalizeEntry(manifest) {
   const version = String(manifest?.version || '').trim();
   if (!version) return null;
+  const releaseNotesUrl = String(manifest.releaseNotesUrl || '').trim();
+  const tag = tagOf(releaseNotesUrl);
   const assets = Array.isArray(manifest.assets) ? manifest.assets : [];
+  const archived = assets
+    .filter((asset) => asset && asset.id && asset.href)
+    .map((asset) => archiveAsset(asset, tag))
+    .filter(Boolean);
+  if (archived.length === 0) return null;
   return {
     version,
     channel: String(manifest.channel || '').trim(),
     publishedAt: String(manifest.publishedAt || '').trim(),
-    releaseNotesUrl: String(manifest.releaseNotesUrl || '').trim(),
-    assets: assets.filter((asset) => asset && asset.id && asset.href),
+    releaseNotesUrl,
+    assets: archived,
   };
 }
 

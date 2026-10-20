@@ -39,21 +39,30 @@ OCR、Core WASM、自托管运行时以及 Release Manifest 必需资产。
 
 ## Release 同步
 
-`public/release-manifest.json` 是下载中心唯一事实来源。定时 Action 读取固定
-Tag 中每个声明资产的 `updated_at`；即使 Tag 和版本号不变，只要作者替换了
-Release 文件，也会重新下载、计算 SHA-256、上传 R2，并在全部成功后原子更新
-manifest。`download.html` 不保存可直接使用的 Desktop 文件链接或校验值。
-页面只在系统判断可靠且架构不冲突时显示推荐；无法确认 CPU 架构或没有兼容
-资产时会明确提示，而不会默认推荐 Windows。
+`public/release-manifest.json` 是下载中心唯一事实来源。定时 Action 优先读取固定
+Tag 中的 `desktop-release.json`（schema 2），从其中拿到各平台 CPU/GPU 分发包的
+地址、大小与 SHA-256；该文件缺失时回落到旧的资产命名规则。即使 Tag 和版本号
+不变，只要作者替换了 Release 文件，也会重新下载、校验值比对、上传 R2，并在
+全部成功后原子更新 manifest。下载结果与上游声明的 SHA-256 不一致时同步直接
+失败，不会写入错误的校验值。`download.html` 不保存可直接使用的 Desktop 文件
+链接或校验值。页面只在系统判断可靠且架构不冲突时显示推荐；无法确认 CPU 架构
+或没有兼容资产时会明确提示，而不会默认推荐 Windows。
+
+同一平台的 CPU 版与 GPU 版共用一个卡片、各自一个下载按钮；资产 id 形如
+`windows-x86_64-cpu` / `windows-x86_64-gpu`，`edition` 字段标明所属版本。
+3.1.0 及更早的 Release 使用旧 id（如 `windows-x86_64`），页面通过
+`LEGACY_ASSET_IDS` 折叠到 `-cpu`，因此切换版本时不会出现空条目。
 
 `public/old-versions.json` 是下载页版本切换器的旧版数据。同步 Action 在覆盖
 manifest 之前运行 `scripts/record-archived-release.mjs`，把即将被顶掉的版本
-（含已上传 R2 的 `href`、`sha256`、`size`）追加到该文件顶部，并只保留最新
-的 3 条归档，与页面的 `MAX_ARCHIVED_VERSIONS`（见 `js/download-versions.js`）
-一致，因此该文件不会无限增长，也不需要人工在每次发布时补条目。切换器最多
-渲染最新版加 3 个归档版本。`/dl/` 只保留有限的归档文件：清理 R2 旧对象时，
-应手动删除 `old-versions.json` 中对应条目，否则下载链接会 404；条目引用的
-资产在 manifest 中缺失时页面会隐藏对应卡片，而不是保留失效链接。
+追加到该文件顶部，并只保留最新 3 条归档，与页面的 `MAX_ARCHIVED_VERSIONS`
+（见 `js/download-versions.js`）一致，因此该文件不会无限增长，也不需要人工在
+每次发布时补条目。归档条目的下载链接会被改写成 GitHub Release 直链，所以
+删除 R2 对象不会让旧版本失效。切换器最多渲染最新版加 3 个归档版本；条目引用
+的资产在 manifest 中缺失时页面会隐藏对应卡片，而不是保留失效链接。
+
+R2 只镜像当前 release：每次同步会删掉上一次同步上传、且不在本次清单中的
+对象，`/dl/` 的占用不会随版本持续累积。
 
 ## 品牌人物素材
 

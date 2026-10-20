@@ -1,5 +1,5 @@
 {
-  "$comment": "Archived Desktop releases offered by the download page version picker. Maintained automatically: scripts/record-archived-release.mjs moves the release that a new sync displaces to the top of this list and keeps the newest entries only (MAX_ARCHIVED_VERSIONS in js/download-versions.js). Delete an entry by hand when its /dl/ object is removed from R2.",
+  "$comment": "Archived Desktop releases offered by the download page version picker. Maintained automatically: scripts/record-archived-release.mjs moves the release that a new sync displaces to the top of this list and keeps the newest entries only (MAX_ARCHIVED_VERSIONS in js/download-versions.js). Archived downloads link to GitHub because the sync workflow prunes every R2 object that is not part of the live release.",
   "schemaVersion": 1,
   "versions": [
     {
@@ -9,34 +9,37 @@
       "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.1.0-LTS",
       "assets": [
         {
-          "id": "windows-x86_64",
+          "id": "windows-x86_64-cpu",
           "platform": "windows",
           "label": "Windows",
           "architecture": "x86_64",
           "requirements": "Windows 10 / 11",
-          "href": "/dl/LaTeXSnipper_3.1.0_amd64.exe",
+          "href": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v3.1.0-LTS/LaTeXSnipper_3.1.0_amd64.exe",
           "sha256": "a916dfd1e3b6f82fab256434e00bf0ff7bc5ae2eef46455fe01d53dfbc3f2004",
-          "size": "121.8 MB"
+          "size": "121.8 MB",
+          "edition": "cpu"
         },
         {
-          "id": "linux-amd64",
+          "id": "linux-amd64-cpu",
           "platform": "linux",
           "label": "Linux",
           "architecture": "x86_64",
           "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
-          "href": "/dl/LaTeXSnipper_3.1.0_amd64.deb",
+          "href": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v3.1.0-LTS/LaTeXSnipper_3.1.0_amd64.deb",
           "sha256": "b01e79c122c2144cab4fe64d52d029bfa7cc14fa031166e074feea9c13aefb7d",
-          "size": "176.0 MB"
+          "size": "176.0 MB",
+          "edition": "cpu"
         },
         {
-          "id": "macos-arm64",
+          "id": "macos-arm64-cpu",
           "platform": "macos",
           "label": "macOS",
           "architecture": "Apple Silicon",
           "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
-          "href": "/dl/LaTeXSnipper_3.1.0_arm64.dmg",
+          "href": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v3.1.0-LTS/LaTeXSnipper_3.1.0_arm64.dmg",
           "sha256": "ed94b4f467fa9e03e9c66f80c67df201f59975aabc209c25ba5acbda8e3a45a5",
-          "size": "193.1 MB"
+          "size": "193.1 MB",
+          "edition": "cpu"
         },
         {
           "id": "office-plugin-windows",
@@ -44,7 +47,7 @@
           "label": "Desktop 内置 Office 插件",
           "architecture": "x86_64",
           "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
-          "href": "/dl/LaTeXSnipperOffice_3.1.0_amd64.exe",
+          "href": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v3.1.0-LTS/LaTeXSnipperOffice_3.1.0_amd64.exe",
           "sha256": "dcad17eff0dc66e49a71ae87d05c54c044d852787a6649061892a8f3a4e2c77f",
           "size": "7.2 MB"
         }

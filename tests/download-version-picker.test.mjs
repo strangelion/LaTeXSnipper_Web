@@ -7,6 +7,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
+  KNOWN_ASSET_IDS,
+  LEGACY_ASSET_IDS,
   MAX_ARCHIVED_VERSIONS,
   buildVersionOptions,
   findVersionOption,
@@ -27,7 +29,8 @@ const downloadPage = await readFile(
 );
 
 const windowsAsset = {
-  id: 'windows-x86_64',
+  id: 'windows-x86_64-cpu',
+  edition: 'cpu',
   platform: 'windows',
   label: 'Windows',
   architecture: 'x86_64',
@@ -53,10 +56,49 @@ test('archived releases stay valid standalone data', () => {
     for (const asset of entry.assets) {
       assert.ok(!ids.has(asset.id), `duplicate asset ${asset.id} in ${entry.version}`);
       ids.add(asset.id);
-      assert.match(asset.href, /^\/dl\//, 'archived assets are served from /dl/');
+      assert.ok(
+        KNOWN_ASSET_IDS.includes(asset.id),
+        `archived asset ${asset.id} is not a renderable download id`,
+      );
+      /* The sync prunes every R2 object outside the live release. */
+      assert.match(
+        asset.href,
+        /^https:\/\/github\.com\/SakuraMathcraft\/LaTeXSnipper\/releases\/download\//,
+        `archived asset ${asset.id} must link to GitHub, not /dl/`,
+      );
       assert.match(asset.sha256, /^[a-f0-9]{64}$/, `bad sha256 for ${asset.id}`);
     }
   }
+});
+
+test('every live manifest asset has an id the page can render', () => {
+  /* Pre-3.2 manifests still use the legacy ids; those fold onto an edition. */
+  for (const asset of manifest.assets) {
+    const id = LEGACY_ASSET_IDS[asset.id] || asset.id;
+    assert.ok(
+      KNOWN_ASSET_IDS.includes(id),
+      `manifest asset ${asset.id} is unknown; update KNOWN_ASSET_IDS and download.html`,
+    );
+  }
+});
+
+test('pre-3.2 asset ids fold onto a known edition instead of vanishing', () => {
+  const entry = normalizeVersionEntry({
+    version: '3.1.0',
+    assets: [
+      { id: 'windows-x86_64', href: '/dl/old.exe' },
+      { id: 'linux-amd64', href: '/dl/old.deb' },
+      { id: 'macos-arm64', href: '/dl/old.dmg' },
+    ],
+  });
+  assert.deepEqual(
+    entry.assets.map((asset) => [asset.id, asset.edition]),
+    [
+      ['windows-x86_64-cpu', 'cpu'],
+      ['linux-amd64-cpu', 'cpu'],
+      ['macos-arm64-cpu', 'cpu'],
+    ],
+  );
 });
 
 test('the live manifest is the newest option and archives are deduplicated', () => {
@@ -174,6 +216,7 @@ test('release copy rewriting targets the same version label the picker updates',
   assert.ok(script.includes('(<span data-release-label>)'));
   assert.match(downloadPage, /<span data-release-label>v\d+\.\d+\.\d+[^<]*<\/span>/);
 });
+const GITHUB_RELEASES = 'https://github.com/SakuraMathcraft/LaTeXSnipper/releases';
 const archiveScript = fileURLToPath(
   new URL('../scripts/record-archived-release.mjs', import.meta.url),
 );
@@ -184,7 +227,7 @@ const buildManifest = (version, fileStem) => ({
   version,
   channel: 'LTS',
   publishedAt: '2026-10-03T07:39:24Z',
-  releaseNotesUrl: `https://example.invalid/tag/v${version}-LTS`,
+  releaseNotesUrl: `${GITHUB_RELEASES}/tag/v${version}-LTS`,
   assets: [
     {
       id: 'windows-x86_64',
@@ -234,7 +277,13 @@ test('the sync archives the release it displaces', async () => {
   const archive = await readArchive(dir);
   assert.deepEqual(archive.versions.map((entry) => entry.version), ['3.1.0']);
   assert.equal(archive.versions[0].channel, 'LTS');
-  assert.equal(archive.versions[0].assets[0].href, '/dl/live.exe');
+  /* Archived links move to GitHub so R2 pruning cannot break them. */
+  assert.equal(
+    archive.versions[0].assets[0].href,
+    `${GITHUB_RELEASES}/download/v3.1.0-LTS/live.exe`,
+  );
+  assert.equal(archive.versions[0].assets[0].id, 'windows-x86_64-cpu');
+  assert.equal(archive.versions[0].assets[0].edition, 'cpu');
   assert.match(archive.$comment, /record-archived-release\.mjs/);
 });
 
@@ -256,7 +305,10 @@ test('the archive keeps three entries, newest first, without duplicates', async 
 
   const archive = await readArchive(dir);
   assert.deepEqual(archive.versions.map((entry) => entry.version), ['3.2.0', '3.1.0', '3.0.0']);
-  assert.equal(archive.versions[0].assets[0].href, '/dl/live.exe');
+  assert.equal(
+    archive.versions[0].assets[0].href,
+    `${GITHUB_RELEASES}/download/v3.2.0-LTS/live.exe`,
+  );
 });
 
 test('unchanged or missing manifests leave the archive alone', async () => {
@@ -283,6 +335,19 @@ test('unchanged or missing manifests leave the archive alone', async () => {
   });
   assert.equal(runArchive(noLiveManifest).status, 0);
   assert.equal(await readArchive(noLiveManifest), null);
+});
+
+test('a release without a GitHub tag is never archived with a dead link', async () => {
+  const dir = await makeWorkspace({
+    live: {
+      ...buildManifest('3.1.0', 'live'),
+      releaseNotesUrl: 'https://example.invalid/tag/v3.1.0-LTS',
+    },
+    incoming: buildManifest('3.2.0', 'incoming'),
+  });
+  const result = runArchive(dir);
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(await readArchive(dir), null);
 });
 
 test('the sync workflow archives before overwriting the manifest', async () => {

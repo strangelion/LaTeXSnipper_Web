@@ -13,11 +13,24 @@ const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/
 
 /** Assets the download page can render. Unknown ids are ignored. */
 export const KNOWN_ASSET_IDS = Object.freeze([
-  'windows-x86_64',
-  'linux-amd64',
-  'macos-arm64',
+  'windows-x86_64-cpu',
+  'windows-x86_64-gpu',
+  'linux-amd64-cpu',
+  'linux-amd64-gpu',
+  'macos-arm64-cpu',
   'office-plugin-windows',
 ])
+
+/**
+ * Releases before 3.2 shipped one build per platform. They are still linked from
+ * old-versions.json, so their ids are folded onto the edition they correspond to
+ * instead of forcing every archived entry to be rewritten.
+ */
+export const LEGACY_ASSET_IDS = Object.freeze({
+  'windows-x86_64': 'windows-x86_64-cpu',
+  'linux-amd64': 'linux-amd64-cpu',
+  'macos-arm64': 'macos-arm64-cpu',
+})
 
 /**
  * How many archived releases the picker may show below the live one.
@@ -41,9 +54,18 @@ function compareVersionsDesc(left, right) {
   return 0
 }
 
+function assetEdition(asset, id) {
+  const declared = String(asset.edition || '').trim()
+  if (declared) return declared
+  if (/-gpu$/.test(id)) return 'gpu'
+  if (/-cpu$/.test(id)) return 'cpu'
+  return ''
+}
+
 function normalizeAsset(asset) {
   if (!asset || typeof asset !== 'object') return null
-  const id = String(asset.id || '').trim()
+  const rawId = String(asset.id || '').trim()
+  const id = LEGACY_ASSET_IDS[rawId] || rawId
   const href = String(asset.href || '').trim()
   if (!KNOWN_ASSET_IDS.includes(id) || !href) return null
   const sha256 = String(asset.sha256 || '').trim().toLowerCase()
@@ -55,6 +77,8 @@ function normalizeAsset(asset) {
     architecture: String(asset.architecture || '').trim(),
     requirements: String(asset.requirements || '').trim(),
     size: String(asset.size || '').trim(),
+    // Archived releases link to GitHub once R2 drops them, so both forms exist.
+    edition: assetEdition(asset, id),
     // An archived release may legitimately lack a checksum; never invent one.
     sha256: /^[a-f0-9]{64}$/.test(sha256) ? sha256 : '',
   }

@@ -203,7 +203,8 @@ test('release manifest is well-formed', () => {
 
 test('download page renders from release manifest', () => {
   assert.match(downloadSource, /release-manifest\.json/);
-  assert.match(downloadSource, /data-asset-id="windows-x86_64"/);
+  assert.match(downloadSource, /data-asset-id="windows-x86_64-cpu"/);
+  assert.match(downloadSource, /data-asset-id="windows-x86_64-gpu"/);
   assert.match(downloadSource, /detectCurrentDevice/);
 });
 
