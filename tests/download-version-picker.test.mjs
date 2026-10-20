@@ -361,3 +361,19 @@ test('the sync workflow archives before overwriting the manifest', async () => {
   assert.ok(overwrite > archiveCall, 'the archive must run before the manifest is replaced');
   assert.ok(workflow.includes('public/old-versions.json \\'), 'the sync must commit the archive list');
 });
+
+test('a renamed asset never inherits the previous checksum', async () => {
+  const workflow = await readFile(
+    new URL('../.github/workflows/sync_release.yml', import.meta.url),
+    'utf8',
+  );
+  // Reusing a recorded hash for a different file name rejected the 3.2.0
+  // office build, whose upstream metadata carries no checksum of its own.
+  assert.ok(
+    workflow.includes('if old.get("href") != f"/dl/{name}":'),
+    'the sync must drop the recorded metadata once the file name changes',
+  );
+  const guard = workflow.indexOf('if old.get("href")');
+  const fallback = workflow.indexOf('asset.get("sha256") or old.get("sha256"');
+  assert.ok(guard > 0 && guard < fallback, 'the guard must run before any reuse');
+});

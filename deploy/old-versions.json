@@ -48,7 +48,7 @@
           "architecture": "x86_64",
           "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
           "href": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/download/v3.1.0-LTS/LaTeXSnipperOffice_3.1.0_amd64.exe",
-          "sha256": "dcad17eff0dc66e49a71ae87d05c54c044d852787a6649061892a8f3a4e2c77f",
+          "sha256": "dbd26a994dad2567d45c72e4a24d64607a21b79ff1951d8dcfac873781dafa68",
           "size": "7.2 MB"
         }
       ]

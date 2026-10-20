@@ -186,6 +186,11 @@ jobs:
               old = existing.get(asset_id)
               if old is None:
                   old = existing.get(legacy_ids.get(asset_id, ""), {})
+              # Only a byte-identical file may reuse the recorded metadata. A
+              # renamed asset belongs to a new build, so inheriting the old
+              # checksum would reject a perfectly valid download.
+              if old.get("href") != f"/dl/{name}":
+                  old = {}
               # desktop-release.json publishes the official checksum and size.
               sha256 = asset.get("sha256") or old.get("sha256", "")
               if asset.get("size"):
