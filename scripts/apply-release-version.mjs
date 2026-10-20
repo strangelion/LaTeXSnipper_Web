@@ -1,7 +1,17 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const manifestPath = 'public/release-manifest.json';
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+
+function readManifest(path) {
+  const raw = readFileSync(path, 'utf8');
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`Cannot parse release manifest ${path}: ${error.message}`, { cause: error });
+  }
+}
+
+const manifest = readManifest(manifestPath);
 const version = String(manifest.version || '').trim();
 const channel = String(manifest.channel || '').trim();
 const releaseNotesUrl = String(manifest.releaseNotesUrl || '').trim();
@@ -50,8 +60,8 @@ rewrite('index.html', (source) => source.replace(
 rewrite('download.html', (source) => {
   let next = source;
   next = next.replace(
-    /(下载 SakuraMathcraft 维护的 Desktop )v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?/,
-    `$1${releaseLabel}`,
+    /(<span data-release-label>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(<\/span>)/,
+    `$1${releaseLabel}$2`,
   );
   next = next.replace(
     /(<a href="https:\/\/github\.com\/SakuraMathcraft\/LaTeXSnipper"[^>]*><strong>LaTeXSnipper Desktop<\/strong><span>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(\s*·\s*SakuraMathcraft\s*·\s*GPL-3\.0<\/span><\/a>)/,

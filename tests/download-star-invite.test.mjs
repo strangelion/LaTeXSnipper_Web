@@ -22,7 +22,7 @@ const deployedStyles = await readFile(
   'utf8',
 );
 
-const deployMarker = '/* device-aware Windows bundle presentation */';
+const deployMarker = '/* device-aware download presentation */';
 
 test('first desktop download is gated by an accessible star dialog', () => {
   assert.match(downloadSource, /<dialog[\s\S]{0,220}id="starInvite"/);

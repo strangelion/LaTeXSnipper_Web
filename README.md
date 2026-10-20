@@ -46,6 +46,15 @@ manifest。`download.html` 不保存可直接使用的 Desktop 文件链接或�
 页面只在系统判断可靠且架构不冲突时显示推荐；无法确认 CPU 架构或没有兼容
 资产时会明确提示，而不会默认推荐 Windows。
 
+`public/old-versions.json` 是下载页版本切换器的旧版数据。同步 Action 在覆盖
+manifest 之前运行 `scripts/record-archived-release.mjs`，把即将被顶掉的版本
+（含已上传 R2 的 `href`、`sha256`、`size`）追加到该文件顶部，并只保留最新
+的 3 条归档，与页面的 `MAX_ARCHIVED_VERSIONS`（见 `js/download-versions.js`）
+一致，因此该文件不会无限增长，也不需要人工在每次发布时补条目。切换器最多
+渲染最新版加 3 个归档版本。`/dl/` 只保留有限的归档文件：清理 R2 旧对象时，
+应手动删除 `old-versions.json` 中对应条目，否则下载链接会 404；条目引用的
+资产在 manifest 中缺失时页面会隐藏对应卡片，而不是保留失效链接。
+
 ## 品牌人物素材
 
 Hero 使用 `/assets/brand/snipper-girl.webp` 及 640/960 宽度的 `srcset`

@@ -202,6 +202,8 @@ jobs:
           set -euo pipefail
           test -f /tmp/release-manifest.json
           test -f /tmp/release.json
+          # Archive the outgoing release while public/release-manifest.json is still current.
+          node scripts/record-archived-release.mjs /tmp/release-manifest.json
           cp /tmp/release-manifest.json public/release-manifest.json
           cp /tmp/release.json public/release.json
           node scripts/validate-release-manifest.mjs public/release-manifest.json
@@ -231,6 +233,7 @@ jobs:
           git add \
             public/release-manifest.json \
             public/release.json \
+            public/old-versions.json \
             .release_state.json \
             index.html \
             download.html \

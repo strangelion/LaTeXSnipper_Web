@@ -46,7 +46,19 @@
       <span class="liquid-environment__line env-line-b"></span>
     </div>
     <h1 class="download-title">下载 LaTeXSnipper</h1>
-    <p class="download-sub">下载 SakuraMathcraft 维护的 Desktop v3.1.0 LTS，或前往其他生态项目</p>
+    <p class="download-sub">下载 SakuraMathcraft 维护的 Desktop <span data-release-label>v3.1.0 LTS</span>，或前往其他生态项目</p>
+
+    <div class="release-picker" id="releasePicker" hidden>
+      <span class="release-picker__label" id="releasePickerLabel">选择 Desktop 版本</span>
+      <details class="release-picker__menu">
+        <summary class="release-picker__trigger" aria-labelledby="releasePickerLabel releaseVersionTrigger">
+          <span class="release-picker__trigger-text" id="releaseVersionTrigger">选择版本</span>
+          <svg class="release-picker__caret" viewBox="0 0 12 8" aria-hidden="true" focusable="false"><path d="M1 1.5 6 6.5l5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="release-picker__panel" id="releaseVersionPanel" role="listbox" aria-labelledby="releasePickerLabel"></div>
+      </details>
+      <p class="release-picker__note" id="releaseVersionNote" hidden></p>
+    </div>
 
     <div class="release-summary">
       <span id="releaseVersion">正在读取版本信息</span>
@@ -63,17 +75,6 @@
         <p class="platform-owner">LaTeXSnipper Desktop · SakuraMathcraft · GPL-3.0</p>
         <a class="download-btn" hidden>下载 Windows 版</a>
         <p class="sha256" hidden>点击复制 SHA256</p>
-      </div>
-
-      <!-- Windows full bundle: never hide this card when its optional R2 metadata is unavailable. -->
-      <div class="platform-card site-surface windows-bundle-card" data-platform="windows" data-asset-id="windows-x86_64-bundle" data-bundle-state="fallback">
-        <div class="platform-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M0,0H11.377V11.372H0ZM12.623,0H24V11.372H12.623ZM0,12.623H11.377V24H0Zm12.623,0H24V24H12.623"/></svg></div>
-        <h2 class="platform-name">Windows 一键整合包</h2>
-        <p class="platform-desc">Windows 10 / 11，x86_64。本地模型和运行环境的独立整合发布。</p>
-        <p class="platform-owner">SakuraMathcraft · 单独上传的 Windows 整合发布</p>
-        <a class="download-btn" href="https://latexsnipper.interknot.dpdns.org/dl/LaTeXSnipper-2.6.0-Setup.exe">下载 Windows 一键整合包</a>
-        <p class="sha256" hidden>点击复制 SHA256</p>
-        <p class="platform-note" data-windows-bundle-note role="status">此独立包不在当前 release manifest 中；未提供 SHA-256 时不会显示或伪造校验值。</p>
       </div>
 
       <!-- Linux -->
@@ -214,6 +215,11 @@
 
   <script type="module">
     import { detectCurrentDevice, isArchitectureCompatible } from './js/device-detection.js'
+    import {
+      buildVersionOptions,
+      findVersionOption,
+      formatVersionLabel,
+    } from './js/download-versions.js'
 
     // SHA256 点击复制
     document.querySelectorAll('.sha256').forEach(function (el) {
@@ -283,51 +289,47 @@
         window.LaTeXSnipperLiquid.decorateLiquidSurface(button, 'control', true)
       })
 
-      try {
-        var response = await fetch('/release-manifest.json', {
-          cache: 'no-cache',
-        })
+      var versionOptions = []
+      var activeOption = null
 
-        if (!response.ok) {
-          throw new Error('release manifest returned ' + response.status)
-        }
-
-        var manifest = await response.json()
-
-        var versionEl = document.getElementById('releaseVersion')
-        if (versionEl) {
-          versionEl.textContent =
-            'v' + manifest.version + ' ' + (manifest.channel || '')
-        }
-
-        var dateEl = document.getElementById('releaseDate')
-        if (dateEl) {
-          var publishedDate = formatDate(manifest.publishedAt)
-          dateEl.textContent = publishedDate
-          dateEl.hidden = !publishedDate
-        }
-
-        var assets = Array.isArray(manifest.assets) ? manifest.assets : []
-        for (var index = 0; index < assets.length; index += 1) {
-          var item = assets[index]
-          var card = document.querySelector(
-            '[data-asset-id="' + item.id + '"]',
-          )
-
-          if (!card) continue
-
+      function renderCards(option) {
+        var assets = option && Array.isArray(option.assets) ? option.assets : []
+        document.querySelectorAll('.platform-card[data-asset-id]').forEach(function (card) {
+          var assetId = card.dataset.assetId
+          var item = assets.find(function (candidate) {
+            return candidate.id === assetId
+          })
           var link = card.querySelector('.download-btn')
           var sha = card.querySelector('.sha256')
           var meta = card.querySelector('.platform-meta')
+
+          if (!item) {
+            /* An archived release may not ship every asset: hide it, never keep a stale link. */
+            card.hidden = true
+            if (link) {
+              link.removeAttribute('href')
+              link.hidden = true
+            }
+            if (sha) {
+              delete sha.dataset.sha256
+              sha.hidden = true
+            }
+            return
+          }
 
           if (link && item.href) {
             link.href = item.href
             link.hidden = false
           }
 
-          if (sha && item.sha256) {
-            sha.dataset.sha256 = item.sha256
-            sha.hidden = false
+          if (sha) {
+            if (item.sha256) {
+              sha.dataset.sha256 = item.sha256
+              sha.hidden = false
+            } else {
+              delete sha.dataset.sha256
+              sha.hidden = true
+            }
           }
 
           if (meta) {
@@ -337,7 +339,154 @@
           }
 
           card.hidden = false
+        })
+      }
+
+      function applyRelease(option) {
+        if (!option) return false
+        activeOption = option
+
+        var versionEl = document.getElementById('releaseVersion')
+        if (versionEl) {
+          versionEl.textContent = formatVersionLabel(option)
         }
+
+        var dateEl = document.getElementById('releaseDate')
+        if (dateEl) {
+          var publishedDate = formatDate(option.publishedAt)
+          dateEl.textContent = publishedDate
+          dateEl.hidden = !publishedDate
+        }
+
+        var subLabel = document.querySelector('[data-release-label]')
+        if (subLabel) {
+          subLabel.textContent = formatVersionLabel(option)
+        }
+
+        var note = document.getElementById('releaseVersionNote')
+        if (note) {
+          var noteText = option.isLatest
+            ? ''
+            : '正在查看旧版 ' + formatVersionLabel(option) + '，可能缺少最新修复；仅建议用于兼容性回退。'
+          note.textContent = noteText
+          note.hidden = !noteText
+        }
+
+        renderCards(option)
+        return true
+      }
+
+      function mountPicker(options) {
+        var picker = document.getElementById('releasePicker')
+        var panel = document.getElementById('releaseVersionPanel')
+        var trigger = document.getElementById('releaseVersionTrigger')
+        var menu = picker ? picker.querySelector('.release-picker__menu') : null
+        if (!picker || !panel || !trigger || !menu || options.length < 2) return
+
+        function syncSelected(active) {
+          var version = active ? active.version : ''
+          panel.querySelectorAll('[data-version]').forEach(function (button) {
+            var isActive = button.dataset.version === version
+            button.classList.toggle('is-active', isActive)
+            button.setAttribute('aria-selected', isActive ? 'true' : 'false')
+          })
+          trigger.textContent = active ? formatVersionLabel(active) : '选择版本'
+        }
+
+        function closeMenu() {
+          menu.open = false
+        }
+
+        function selectVersion(version) {
+          var chosen = findVersionOption(versionOptions, version)
+          if (!applyRelease(chosen)) return
+          syncSelected(chosen)
+          closeMenu()
+          var url
+          try {
+            url = new URL(location.href)
+          } catch (error) {
+            console.warn('Unable to update the version query:', error)
+            return
+          }
+          if (chosen.isLatest) url.searchParams.delete('version')
+          else url.searchParams.set('version', chosen.version)
+          history.replaceState(null, '', url)
+        }
+
+        panel.textContent = ''
+        options.forEach(function (option) {
+          var button = document.createElement('button')
+          button.type = 'button'
+          button.dataset.version = option.version
+          button.setAttribute('role', 'option')
+          button.setAttribute('aria-selected', 'false')
+          button.className = 'release-picker__option'
+
+          var label = document.createElement('span')
+          label.className = 'release-picker__option-label'
+          label.textContent = formatVersionLabel(option)
+          button.append(label)
+
+          var tag = document.createElement('span')
+          tag.className = 'release-picker__option-tag'
+          tag.textContent = option.isLatest ? '最新版' : '旧版'
+          button.append(tag)
+
+          button.addEventListener('click', function () {
+            selectVersion(button.dataset.version)
+          })
+
+          panel.append(button)
+        })
+
+        menu.addEventListener('keydown', function (event) {
+          if (event.key !== 'Escape') return
+          event.preventDefault()
+          /* Focus the trigger before hiding the panel, or focus falls back to <body>. */
+          menu.querySelector('summary').focus()
+          closeMenu()
+        })
+
+        /* A native dropdown closes on outside clicks; details needs it spelled out. */
+        document.addEventListener('click', function (event) {
+          if (menu.open && !menu.contains(event.target)) closeMenu()
+        })
+
+        syncSelected(activeOption)
+        picker.hidden = false
+      }
+
+      try {
+        var responses = await Promise.all([
+          fetch('/release-manifest.json', { cache: 'no-cache' }),
+          /* The archive list is optional: a failure must not blank out the page. */
+          fetch('/old-versions.json', { cache: 'no-cache' }).catch(function () {
+            return null
+          }),
+        ])
+        var manifestResponse = responses[0]
+        var archivedResponse = responses[1]
+
+        if (!manifestResponse.ok) {
+          throw new Error('release manifest returned ' + manifestResponse.status)
+        }
+
+        var manifest = await manifestResponse.json()
+        var archivedVersions = []
+        if (archivedResponse && archivedResponse.ok) {
+          try {
+            archivedVersions = await archivedResponse.json()
+          } catch (error) {
+            console.warn('Unable to read archived release list:', error)
+          }
+        }
+
+        versionOptions = buildVersionOptions(manifest, archivedVersions)
+        applyRelease(findVersionOption(versionOptions, query.get('version')))
+        mountPicker(versionOptions)
+
+        var assets = activeOption ? activeOption.assets : []
 
         if (hasRequestedPlatform) {
           var selectedCard = Array.from(document.querySelectorAll('.platform-card')).find(function (card) {

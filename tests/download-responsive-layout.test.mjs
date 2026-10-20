@@ -12,22 +12,44 @@ const downloadCss = await readFile(
   'utf8',
 );
 
-test('Windows detection gates the optional liquid bundle treatment', () => {
-  assert.ok(source.includes("dataset.detectedPlatform === 'windows'"));
+test('Windows detection feeds the download page presentation', () => {
   assert.ok(source.includes('detectCurrentDevice'));
   assert.ok(source.includes("detectedDevice.platform || 'unknown'"));
+  assert.ok(source.includes("dataset.detectedPlatform = 'unknown'"));
 });
 
-test('non-Windows bundle loses the special interactive panel treatment', () => {
-  assert.ok(source.includes('normalizeNonWindowsBundleCard'));
-  assert.ok(source.includes("card.removeAttribute('data-lg-interactive')"));
-  assert.ok(source.includes("card.classList.remove('lg-surface', 'lg-surface--panel', 'is-pointer-lit')"));
+test('download page no longer lists a separately uploaded Windows bundle', async () => {
+  const downloadPageSource = await readFile(
+    new URL('../download.html', import.meta.url),
+    'utf8',
+  );
+  assert.doesNotMatch(downloadPageSource, /windows-x86_64-bundle/);
+  assert.doesNotMatch(downloadPageSource, /一键整合包/);
 });
 
-test('canonical stylesheet owns a compact desktop grid', () => {
-  assert.ok(downloadCss.includes('grid-template-columns: repeat(6, minmax(0, 1fr))'));
+test('deployed ecosystem metadata mirrors its public source', async () => {
+  const publicCopy = await readFile(
+    new URL('../public/js/ecosystem-metadata.js', import.meta.url),
+    'utf8',
+  );
+  const deployedCopy = await readFile(
+    new URL('../deploy/js/ecosystem-metadata.js', import.meta.url),
+    'utf8',
+  );
+  assert.equal(deployedCopy, publicCopy);
+  assert.ok(publicCopy.includes('syncEcosystemMetadata();'));
+});
+
+test('canonical stylesheet owns a centred platform grid', () => {
+  assert.ok(downloadCss.includes('--platform-columns: 3'));
+  assert.ok(downloadCss.includes('justify-content: center'));
   assert.ok(downloadCss.includes('.platform-card:not(.recommended)'));
-  assert.ok(downloadCss.includes('grid-column: span 2'));
+  assert.ok(
+    downloadCss.includes(
+      'flex: 0 1 calc((100% - (var(--platform-columns) - 1) * 12px) / var(--platform-columns))',
+    ),
+  );
+  assert.match(downloadCss, /\.platform-card\[hidden\] \{\s*display: none;/);
   assert.ok(downloadCss.includes('width: min(100%, 920px)'));
   assert.match(
     downloadCss,
@@ -37,7 +59,9 @@ test('canonical stylesheet owns a compact desktop grid', () => {
 
 test('narrow download layouts collapse to one safe column', () => {
   assert.ok(source.includes('@media (max-width: 760px)'));
-  assert.ok(source.includes('grid-template-columns: minmax(0, 1fr) !important'));
-  assert.ok(source.includes('grid-column: 1 !important'));
-  assert.ok(source.includes('width: 100% !important'));
+  assert.match(downloadCss, /\.platform-grid \{\s*--platform-columns: 1;/);
+  /* The deploy patch must not re-declare grid geometry the canonical sheet owns. */
+  assert.ok(!source.includes('grid-template-columns: minmax(0, 1fr) !important'));
+  assert.ok(!source.includes('grid-column: 1 !important'));
+  assert.ok(source.includes('max-width: 100%'));
 });

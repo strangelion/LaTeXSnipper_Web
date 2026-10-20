@@ -245,19 +245,6 @@ textarea:focus-visible,
     transform 160ms ease;
 }
 
-.site-menu-toggle {
-  flex-direction: column;
-  gap: 4px;
-}
-
-.site-menu-toggle > span:not(.sr-only) {
-  display: block;
-  width: 19px;
-  height: 1.5px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
 .site-menu-toggle > .lg-content {
   display: flex;
   align-items: center;

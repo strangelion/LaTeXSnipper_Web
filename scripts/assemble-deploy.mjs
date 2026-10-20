@@ -60,6 +60,7 @@ const REQUIRED_PATHS = [
   'vendor/fflate/fflate.js',
   'core-models.lock.json',
   'release-manifest.json',
+  'old-versions.json',
   'schemas/release-manifest-v1.schema.json',
   'open-source.html',
   'styles/product-shell.css',
@@ -74,6 +75,7 @@ const REQUIRED_PATHS = [
   'design/liquid-glass-lab.html',
   'js/product-shell.js',
   'js/device-detection.js',
+  'js/download-versions.js',
 ];
 
 // 1. Ensure Vite build exists

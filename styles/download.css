@@ -25,6 +25,167 @@
   line-height: 1.75;
 }
 
+.release-picker {
+  margin: 0 auto 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* Text inside the picker follows the same centred axis as the page heading. */
+  text-align: center;
+}
+
+.release-picker[hidden] {
+  display: none;
+}
+
+.release-picker__label {
+  color: var(--site-muted);
+  font: 600 0.75rem/1.1 var(--site-mono);
+  letter-spacing: 0.02em;
+}
+
+.release-picker__menu {
+  position: relative;
+  display: inline-flex;
+}
+
+/* details/summary keeps the toggle keyboard-accessible without extra script. */
+.release-picker__trigger {
+  min-height: 38px;
+  padding: 8px 14px 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--site-ink);
+  background: var(--site-surface);
+  box-shadow: var(--site-shadow-sm);
+  font: 600 0.78rem/1.1 var(--site-mono);
+  list-style: none;
+  cursor: pointer;
+  transition: border-color 0.18s var(--site-ease), background 0.18s var(--site-ease),
+    box-shadow 0.18s var(--site-ease);
+}
+
+.release-picker__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.release-picker__trigger:hover {
+  border-color: color-mix(in srgb, var(--site-blue) 45%, var(--site-line));
+  background: var(--site-surface-strong);
+}
+
+.release-picker__trigger:focus-visible {
+  outline: 2px solid var(--site-blue);
+  outline-offset: 2px;
+}
+
+.release-picker__menu[open] .release-picker__trigger {
+  border-color: var(--site-blue);
+  box-shadow: var(--site-shadow-md);
+}
+
+.release-picker__caret {
+  width: 10px;
+  height: auto;
+  flex: none;
+  color: var(--site-muted);
+  transition: transform 0.2s var(--site-ease), color 0.18s var(--site-ease);
+}
+
+.release-picker__menu[open] .release-picker__caret {
+  transform: rotate(180deg);
+  color: var(--site-blue);
+}
+
+/* A closed popover must not contribute layout, or it widens the page on narrow screens. */
+.release-picker__menu:not([open]) .release-picker__panel {
+  display: none;
+}
+
+.release-picker__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  z-index: 20;
+  min-width: 100%;
+  max-width: min(300px, calc(100vw - 32px));
+  max-height: 264px;
+  overflow: auto;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--site-line);
+  border-radius: 16px;
+  background: var(--site-glass-tint-strong);
+  /* Opaque-ish glass: the panel floats over live copy, so bleed-through ruins legibility. */
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: var(--site-shadow-md);
+  transform: translateX(-50%);
+}
+
+.release-picker__option {
+  width: 100%;
+  padding: 9px 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: var(--site-muted);
+  background: transparent;
+  font: 600 0.78rem/1.1 var(--site-mono);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.18s var(--site-ease), background 0.18s var(--site-ease);
+}
+
+.release-picker__option:hover {
+  color: var(--site-ink);
+  background: var(--site-surface-strong);
+}
+
+.release-picker__option:focus-visible {
+  outline: 2px solid var(--site-blue);
+  outline-offset: -2px;
+}
+
+.release-picker__option.is-active {
+  color: var(--site-blue);
+  background: var(--site-blue-soft);
+}
+
+.release-picker__option-tag {
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  opacity: 0.72;
+}
+
+.release-picker__option.is-active .release-picker__option-tag {
+  opacity: 1;
+}
+
+.release-picker__note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.release-picker__note[hidden] {
+  display: none;
+}
+
 .release-summary {
   margin: 0 auto 34px;
   display: flex;
@@ -54,15 +215,24 @@
 }
 
 .platform-grid {
+  --platform-columns: 3;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  /* Flex instead of grid so a trailing row of one or two cards stays centred. */
+  justify-content: center;
   align-items: stretch;
+  gap: 12px;
 }
 
 .platform-card:not(.recommended) {
-  grid-column: span 2;
+  flex: 0 1 calc((100% - (var(--platform-columns) - 1) * 12px) / var(--platform-columns));
+  max-width: calc((100% - (var(--platform-columns) - 1) * 12px) / var(--platform-columns));
+}
+
+/* The .platform-card display rule outranks the [hidden] attribute default. */
+.platform-card[hidden] {
+  display: none;
 }
 
 .platform-card {
@@ -88,7 +258,8 @@
 
 .platform-card.recommended {
   order: -1;
-  grid-column: 1 / -1;
+  flex: 0 0 100%;
+  max-width: 100%;
   width: 100%;
   min-height: 182px;
   padding: 22px 30px;
@@ -133,14 +304,13 @@
   grid-area: name;
   margin: 0;
   font-size: clamp(1.85rem, 3vw, 2.55rem);
-  text-align: left;
 }
 
+/* The recommended layout only re-flows the grid; text stays centred like every other card. */
 .recommended .platform-desc,
 .recommended .platform-owner {
   max-width: none;
   margin: 0;
-  text-align: left;
 }
 
 .recommended .platform-desc {
@@ -355,11 +525,7 @@
 
 @media (max-width: 1040px) {
   .platform-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .platform-card:not(.recommended) {
-    grid-column: auto;
+    --platform-columns: 2;
   }
 }
 
@@ -447,14 +613,16 @@
     margin-bottom: 28px;
   }
 
-  .platform-grid,
+  .platform-grid {
+    --platform-columns: 1;
+  }
+
   .project-links {
     grid-template-columns: 1fr;
   }
 
   .platform-card,
   .platform-card.recommended {
-    grid-column: 1;
     width: 100%;
     min-height: 0;
     padding: 28px 20px 24px;

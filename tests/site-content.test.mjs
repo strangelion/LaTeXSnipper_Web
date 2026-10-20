@@ -217,7 +217,7 @@ test('download page keeps desktop release labels aligned', () => {
   ]);
   assert.match(
     downloadSource,
-    new RegExp(`下载 SakuraMathcraft 维护的 Desktop ${releaseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+    new RegExp(`下载 SakuraMathcraft 维护的 Desktop <span data-release-label>${releaseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</span>`),
   );
 });
 
