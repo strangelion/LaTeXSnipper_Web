@@ -1,38 +1,41 @@
 {
-  "version": "3.1.0",
+  "version": "3.2.0",
   "channel": "LTS",
-  "publishedAt": "2026-10-03T07:39:24Z",
-  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.1.0-LTS",
+  "publishedAt": "2026-10-19T15:18:20Z",
+  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.2.0-LTS",
   "downloads": {
-    "windows": {
-      "id": "windows-x86_64",
-      "platform": "windows",
-      "label": "Windows",
-      "architecture": "x86_64",
-      "requirements": "Windows 10 / 11",
-      "href": "/dl/LaTeXSnipper_3.1.0_amd64.exe",
-      "sha256": "3500c8a6ebe97983f29e13312077656aad4441efe17e8046d894ca77e4b45f9d",
-      "size": "121.8 MB"
-    },
     "linux": {
-      "id": "linux-amd64",
+      "id": "linux-amd64-cpu",
       "platform": "linux",
       "label": "Linux",
       "architecture": "x86_64",
-      "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_3.1.0_amd64.deb",
-      "sha256": "178a7e1fe15520ff661509ece1e8762097dc1c1b5bfd1f1485d37052a7f1babc",
-      "size": "176.0 MB"
+      "requirements": "Linux x86_64 便携包（tar.xz）；可选依赖环境需要 Python >=3.10,<3.13",
+      "href": "/dl/LaTeXSnipper_3.2.0_linux_x86_64_cpu.tar.xz",
+      "sha256": "913b221c78faba0870ddb4e75e20b4dea1e87eb34cb1926085498932e8c6108f",
+      "size": "544.4 MB",
+      "edition": "cpu"
     },
     "macos": {
-      "id": "macos-arm64",
+      "id": "macos-arm64-cpu",
       "platform": "macos",
       "label": "macOS",
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_3.1.0_arm64.dmg",
-      "sha256": "3a8148887bcf6ef65c9d8f0af3e34a119f57fe52690a3ef3962943daab0c9e12",
-      "size": "193.1 MB"
+      "href": "/dl/LaTeXSnipper_3.2.0_macos_arm64_cpu.dmg",
+      "sha256": "751923a9396ad22ce88f06f04dd25c7d2cfb7e8df104a12861e9abd00e1a038f",
+      "size": "625.2 MB",
+      "edition": "cpu"
+    },
+    "windows": {
+      "id": "windows-x86_64-cpu",
+      "platform": "windows",
+      "label": "Windows",
+      "architecture": "x86_64",
+      "requirements": "Windows 10 / 11",
+      "href": "/dl/LaTeXSnipper_3.2.0_windows_x86_64_cpu.exe",
+      "sha256": "c7b41e8c82162750bcba0e3430d8685747ab73f924198e1b19b6305b51dd00e2",
+      "size": "413.7 MB",
+      "edition": "cpu"
     }
   }
 }
