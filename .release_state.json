@@ -1,12 +1,12 @@
 {
-  "last_sync": "2026-10-19T16:21:25Z",
+  "last_sync": "2026-10-27T06:44:20Z",
   "assets": {
-    "LaTeXSnipper_3.2.0_linux_x86_64_cpu.tar.xz": "2026-10-19T15:37:25Z",
-    "LaTeXSnipper_3.2.0_macos_arm64_cpu.dmg": "2026-10-19T15:21:08Z",
-    "LaTeXSnipper_3.2.0_windows_x86_64_cpu.exe": "2026-10-19T16:20:08Z",
-    "LaTeXSnipper_3.2.0_linux_x86_64_gpu.tar.xz": "2026-10-19T15:38:23Z",
-    "LaTeXSnipperOffice_3.2.0_amd64.exe": "2026-10-19T15:18:31Z",
-    "LaTeXSnipper_3.2.0_windows_x86_64_gpu.exe": "2026-10-19T16:21:25Z"
+    "LaTeXSnipper_3.2.0_linux_x86_64_cpu.tar.xz": "2026-10-27T06:38:25Z",
+    "LaTeXSnipper_3.2.0_macos_arm64_cpu.dmg": "2026-10-27T06:44:20Z",
+    "LaTeXSnipper_3.2.0_windows_x86_64_cpu.exe": "2026-10-27T06:40:41Z",
+    "LaTeXSnipper_3.2.0_linux_x86_64_gpu.tar.xz": "2026-10-27T06:39:17Z",
+    "LaTeXSnipperOffice_3.2.0_amd64.exe": "2026-10-27T06:30:23Z",
+    "LaTeXSnipper_3.2.0_windows_x86_64_gpu.exe": "2026-10-27T06:41:43Z"
   },
   "last_manual_sha": "29f389b0eb71bdb83f012f04bc1f73e270d488b9"
 }
