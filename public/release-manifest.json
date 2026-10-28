@@ -4,8 +4,8 @@
   "product": "LaTeXSnipper Desktop",
   "version": "3.2.0",
   "channel": "LTS",
-  "publishedAt": "2026-10-26T15:08:58Z",
-  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.2.0",
+  "publishedAt": "2026-10-27T10:55:21Z",
+  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.2.0-LTS",
   "assets": [
     {
       "id": "linux-amd64-cpu",
@@ -14,7 +14,7 @@
       "architecture": "x86_64",
       "requirements": "Linux x86_64 便携包（tar.xz）；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_3.2.0_linux_x86_64_cpu.tar.xz",
-      "sha256": "8103535806a1098db7fb6ff2cc6ec0359ad630bc0221768f9afc27a22f8b638a",
+      "sha256": "6c8b95cb76173ea3012e95f2638992fd819d8d11ffb167e4fd5521f2b789d4ba",
       "size": "543.7 MB",
       "edition": "cpu"
     },
@@ -25,8 +25,8 @@
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_3.2.0_macos_arm64_cpu.dmg",
-      "sha256": "daba3e755889764a7140db5c32b98f1bd52fc8c82286c099862f3bcdaf4265fe",
-      "size": "623.2 MB",
+      "sha256": "3e29b1d1b16ad3feeb2181e777fef3c56c0f39b9bfde6f68823d66ca8cfe5f4f",
+      "size": "617.9 MB",
       "edition": "cpu"
     },
     {
@@ -36,7 +36,7 @@
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipper_3.2.0_windows_x86_64_cpu.exe",
-      "sha256": "a53e7e38d78b3612f4088742a11f0da7cbf33ffd120f51aba0d4f1c129f4e000",
+      "sha256": "f9e99be360130a3927e9038701a84fdcbcb6b036d413dbc26de32950f6b9df3c",
       "size": "413.1 MB",
       "edition": "cpu"
     },
@@ -47,7 +47,7 @@
       "architecture": "x86_64",
       "requirements": "Linux x86_64 便携包（tar.xz）；可选依赖环境需要 Python >=3.10,<3.13",
       "href": "/dl/LaTeXSnipper_3.2.0_linux_x86_64_gpu.tar.xz",
-      "sha256": "953e0ca7544ecb97297d13586908329b3f4336db11ad4353cb14da4064c7a824",
+      "sha256": "c40f9adbe8fa4173713336491a5a803022e8b39a3a2f22444b9f31439239d0c9",
       "size": "1.9 GB",
       "edition": "gpu"
     },
@@ -68,7 +68,7 @@
       "architecture": "x86_64",
       "requirements": "Windows 10 / 11",
       "href": "/dl/LaTeXSnipper_3.2.0_windows_x86_64_gpu.exe",
-      "sha256": "fef2f3ccbb539a641312607b29f1ca9a6a0c3612575dfc4dc14555ee18b32413",
+      "sha256": "65ef3d7cb4e873a125639aff3da4318863fa457f5e65f7731987d93d28273d46",
       "size": "1.6 GB",
       "edition": "gpu"
     }
