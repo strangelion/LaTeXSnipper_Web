@@ -665,20 +665,13 @@ Windows 有托盘时关闭主窗口会隐藏，使用托盘退出。Linux 无托
 
 X11 使用 pynput 监听全局热键。Wayland 使用桌面提供的 GlobalShortcuts Portal，需要完成系统授权；实际组合键由桌面确认，应用显示授权后的快捷键。取消修改会保留原有授权。若桌面未提供该接口，请检查 `xdg-desktop-portal` 及对应桌面后端，也可使用截图按钮或切换 X11 会话，无需以 root 运行。
 
-Wayland 的截图仍受合成器策略限制；应用先尝试 Qt 截图，可使用可用的 `grim`、`maim`、`gnome-screenshot` 等后备工具。这些系统工具由用户或发行版安装。
+Wayland 使用桌面的 Screenshot Portal 获取屏幕图像，再由应用进行区域框选；桌面需提供该接口并允许截图。截图失败时请检查桌面授权和 Portal 服务。X11 使用 Qt 截图。
 
-出现 EGL、GLOzone 或 WebEngine 画面异常时，先检查桌面会话和系统图形库。应用对 Wayland、虚拟机、WSL 等高风险会话启用软件图形后备；可用以下变量手动控制：
-
-```bash
-LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS=1 latexsnipper
-LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS=1 latexsnipper
-```
-
-这是预览图形后端设置，不改变 MathCraft 推理发行类型。Linux 安装依赖必要的系统 Qt 图形库，但不使用系统 Python、CUDA Toolkit 或 cuDNN。
+Linux 安装依赖必要的系统 Qt 图形库，但不使用系统 Python、CUDA Toolkit 或 cuDNN。
 
 == macOS 屏幕录制权限
 
-把应用复制到 Applications，退出后从同一位置重新启动。在“系统设置 → 隐私与安全性 → 屏幕录制”中为实际运行的应用授权；较新系统可能将该项命名为“屏幕与系统音频录制”。开启后用 Command+Q 完全退出并重新启动，关闭窗口不会退出应用。
+macOS 使用 Qt 截图。把应用复制到 Applications，退出后从同一位置重新启动。在“系统设置 → 隐私与安全性 → 屏幕录制”中为实际运行的应用授权；较新系统可能将该项命名为“屏幕与系统音频录制”。开启后用 Command+Q 完全退出并重新启动，关闭窗口不会退出应用。
 
 源码运行应授权系统列出的 Python、Terminal 或 IDE 启动进程。不要直接从 DMG 或应用转移位置持续运行。原生 Carbon 全局热键通常不需要辅助功能权限，截图权限单独检查。
 
@@ -2021,4 +2014,4 @@ Linux/macOS：
 MATHCRAFT_HOME=./models python -m mathcraft_ocr doctor --provider cpu
 ```
 
-网络代理 `HTTP_PROXY`、`HTTPS_PROXY` 可作用于应用下载和外部服务。Linux 预览图形变量 `LATEXSNIPPER_FORCE_LINUX_GRAPHICS_FALLBACKS` 与 `LATEXSNIPPER_DISABLE_LINUX_GRAPHICS_FALLBACKS` 只影响 Qt 图形后端，具体用法见平台章节。排障时优先使用应用诊断中的实际版本、提供者与日志。
+网络代理 `HTTP_PROXY`、`HTTPS_PROXY` 可作用于应用下载和外部服务。排障时优先使用应用诊断中的实际版本、提供者与日志。
