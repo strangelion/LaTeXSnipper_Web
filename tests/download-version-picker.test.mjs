@@ -370,7 +370,7 @@ test('a renamed asset never inherits the previous checksum', async () => {
   // Reusing a recorded hash for a different file name rejected the 3.2.0
   // office build, whose upstream metadata carries no checksum of its own.
   assert.ok(
-    workflow.includes('if old.get("href") != f"/dl/{name}":'),
+    workflow.includes('if old.get("href") != f"/dl/{name}" or name in changed:'),
     'the sync must drop the recorded metadata once the file name changes',
   );
   const guard = workflow.indexOf('if old.get("href")');

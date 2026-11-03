@@ -63,6 +63,13 @@ OFFICE_META: dict[str, Any] = {
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 
 
+def asset_sha256(asset: dict[str, Any]) -> str:
+    """Read the checksum of the current GitHub release asset."""
+    digest = str(asset.get("digest") or "").strip().lower()
+    algorithm, _, value = digest.partition(":")
+    return value if algorithm == "sha256" and SHA256_RE.fullmatch(value) else ""
+
+
 def api_json(url: str) -> Any:
     req = urllib.request.Request(
         url,
@@ -192,7 +199,7 @@ def assets_from_legacy_names(
                 "url": asset.get("browser_download_url"),
                 "updated_at": asset.get("updated_at") or "",
                 "size": int(asset.get("size") or 0),
-                "sha256": "",
+                "sha256": asset_sha256(asset),
                 "platform": platform,
                 "label": meta["label"],
                 "architecture": meta["architecture"],
@@ -213,7 +220,7 @@ def office_asset(by_name: dict[str, dict[str, Any]], version: str) -> dict[str, 
         "url": asset.get("browser_download_url"),
         "updated_at": asset.get("updated_at") or "",
         "size": int(asset.get("size") or 0),
-        "sha256": "",
+        "sha256": asset_sha256(asset),
         "platform": OFFICE_META["platform"],
         "label": OFFICE_META["label"],
         "architecture": OFFICE_META["architecture"],

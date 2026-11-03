@@ -189,9 +189,11 @@ jobs:
               # Only a byte-identical file may reuse the recorded metadata. A
               # renamed asset belongs to a new build, so inheriting the old
               # checksum would reject a perfectly valid download.
-              if old.get("href") != f"/dl/{name}":
+              if old.get("href") != f"/dl/{name}" or name in changed:
                   old = {}
-              # desktop-release.json publishes the official checksum and size.
+              # Changed assets may replace bytes under the same name. Only the
+              # current upstream checksum can validate a fresh download.
+              # desktop-release.json or GitHub's asset digest supplies that hash.
               sha256 = asset.get("sha256") or old.get("sha256", "")
               if asset.get("size"):
                   size = human_size(asset["size"])
