@@ -69,8 +69,3 @@ rewrite('download.html', (source) => {
   );
   return next;
 });
-
-rewrite('src/components/HeroSection.jsx', (source) => source.replace(
-  /(<div className="hero-badge">)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(\s*·)/,
-  `$1${releaseLabel}$2`,
-));

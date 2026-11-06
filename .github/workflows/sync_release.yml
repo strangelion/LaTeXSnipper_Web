@@ -361,8 +361,7 @@ jobs:
             .release_state.json \
             index.html \
             download.html \
-            src/data/siteContent.js \
-            src/components/HeroSection.jsx
+            src/data/siteContent.js
           if git diff --staged --quiet; then
             echo "No release metadata or website copy changes"
             exit 0
