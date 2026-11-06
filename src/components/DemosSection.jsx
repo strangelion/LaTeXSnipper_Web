@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { recognitionDemos } from "../data/siteContent";
 
 function SectionHeading({ eyebrow, title, description }) {
@@ -27,19 +27,61 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-// Animated WebP demo. Rendered as a plain <img> so it always auto-plays and
-// loops without depending on video autoplay policies; browsers load it lazily
-// when the frame nears the viewport. Users who prefer reduced motion get the
-// static first frame instead of the animation.
-function DemoImage({ src, poster, alt }) {
+// Screen recordings for the demo cards. H.264 keeps the three clips around 1.8 MB in
+// total (the animated WebP versions were 13.7 MB) and every browser decodes it in
+// hardware. Clips only play while the card is on screen, and users who prefer
+// reduced motion get the static poster instead of the loop.
+function DemoMedia({ src, poster, alt }) {
   const reducedMotion = usePrefersReducedMotion();
-  const image = reducedMotion ? poster : src;
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reducedMotion) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const played = video.play();
+          if (played && typeof played.catch === "function") {
+            played.catch(() => {});
+          }
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.2 },
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [reducedMotion]);
+
+  if (reducedMotion) {
+    return (
+      <img
+        src={poster}
+        alt={alt}
+        width="960"
+        height="540"
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  }
+
   return (
-    <img
-      src={image}
-      alt={alt}
-      loading="lazy"
-      decoding="async"
+    <video
+      ref={videoRef}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="none"
+      width="960"
+      height="540"
+      aria-label={alt}
     />
   );
 }
@@ -50,7 +92,7 @@ function DemoGrid() {
       {recognitionDemos.map((demo) => (
         <article className="demo-card reveal" key={demo.id}>
           <div className="demo-frame">
-            <DemoImage
+            <DemoMedia
               src={demo.image}
               poster={demo.poster}
               alt={`${demo.title}演示：${demo.tagline}`}

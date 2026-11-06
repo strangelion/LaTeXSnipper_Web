@@ -206,7 +206,7 @@ export const recognitionDemos = [
     tagline: "从屏幕像素到数学结构",
     description:
       "截取屏幕中的任意区域，识别环境从像素中提取公式与文字结构，结果回到同一个工作空间继续编辑。",
-    image: "/assets/demos/screenshot-recognition.webp",
+    image: "/assets/demos/screenshot-recognition.mp4",
     poster: "/assets/demos/screenshot-recognition-poster.jpg",
   },
   {
@@ -216,7 +216,7 @@ export const recognitionDemos = [
     tagline: "教材、论文与手写页",
     description:
       "把已有的教材页、论文图片或照片载入识别环境，将公式与文字转换为可编辑、可导出的数学内容。",
-    image: "/assets/demos/image-recognition.webp",
+    image: "/assets/demos/image-recognition.mp4",
     poster: "/assets/demos/image-recognition-poster.jpg",
   },
   {
@@ -226,7 +226,7 @@ export const recognitionDemos = [
     tagline: "按页进入识别流程",
     description:
       "打开 PDF 文档后逐页识别，数学内容随版面顺序进入识别结果，供检查、复制或导出使用。",
-    image: "/assets/demos/pdf-recognition.webp",
+    image: "/assets/demos/pdf-recognition.mp4",
     poster: "/assets/demos/pdf-recognition-poster.jpg",
   },
 ];

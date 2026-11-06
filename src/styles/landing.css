@@ -154,6 +154,12 @@
   text-wrap: balance;
 }
 
+/* Chrome's word-break: auto-phrase has no Chinese dictionary, so CJK words that
+   straddle a line break are kept whole by wrapping them in this span instead. */
+.cjk-word {
+  white-space: nowrap;
+}
+
 .hero-kicker {
   margin: 0 0 24px;
   color: var(--ls-blue-deep);
@@ -186,7 +192,8 @@
   width: 100%;
   min-height: 610px;
   position: relative;
-  z-index: 2;
+  /* Above the mascot: the glass sheet is the subject, the character stands behind it. */
+  z-index: 4;
   display: grid;
   place-items: center;
   transition: width 260ms ease;
@@ -1035,10 +1042,12 @@
   margin-top: clamp(3.5rem, 8vw, 7rem);
 }
 
+/* Three recordings, three equal columns: a spanning card used to leave a tall empty
+   block under the shorter column once the clips were 16:9. */
 .demos-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto;
   gap: clamp(16px, 2.2vw, 26px);
   align-items: stretch;
 }
@@ -1050,7 +1059,7 @@
 }
 
 .demo-card:first-child {
-  grid-row: span 2;
+  grid-row: auto;
 }
 
 .demo-frame {
@@ -1098,10 +1107,13 @@
   opacity: 0.75;
 }
 
-.demo-frame video,
-.demo-frame img {
+.demo-frame img,
+.demo-frame video {
   display: block;
   width: 100%;
+  /* The width/height attributes keep the box reserved before metadata arrives;
+     height must stay auto or they override the 16:9 ratio. */
+  height: auto;
   aspect-ratio: 16 / 9;
   object-fit: cover;
   background: var(--ls-surface-strong);
@@ -1558,10 +1570,119 @@
 
 @media (prefers-reduced-motion: reduce) {
   .js .reveal,
+  .js [data-reveal],
   .js .hero-copy > * {
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
     transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Scene entrance: any element opts in with data-reveal, and the variant picks the
+   motion. Groups stagger their direct children through --reveal-order. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 760ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 820ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 820ms cubic-bezier(0.22, 1, 0.36, 1),
+    clip-path 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-order, 0) * 70ms);
+  will-change: opacity, transform;
+}
+
+.js [data-reveal][data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  clip-path: inset(0 0 0 0);
+  will-change: auto;
+}
+
+.js [data-reveal="fade"] {
+  transform: none;
+}
+
+.js [data-reveal="left"] {
+  transform: translateX(-30px);
+}
+
+.js [data-reveal="right"] {
+  transform: translateX(30px);
+}
+
+.js [data-reveal="scale"] {
+  transform: scale(0.96) translateY(16px);
+}
+
+/* Headings condense out of a blur instead of sliding: the "slowly surfacing" read. */
+.js [data-reveal="blur"] {
+  transform: translateY(16px);
+  filter: blur(10px);
+}
+
+/* Media wipes in from the bottom edge of its own frame. */
+.js [data-reveal="mask"] {
+  transform: translateY(16px);
+  clip-path: inset(16% 4% 0 4%);
+}
+
+[data-reveal-group] > :nth-child(1) {
+  --reveal-order: 0;
+}
+[data-reveal-group] > :nth-child(2) {
+  --reveal-order: 1;
+}
+[data-reveal-group] > :nth-child(3) {
+  --reveal-order: 2;
+}
+[data-reveal-group] > :nth-child(4) {
+  --reveal-order: 3;
+}
+[data-reveal-group] > :nth-child(5) {
+  --reveal-order: 4;
+}
+[data-reveal-group] > :nth-child(6) {
+  --reveal-order: 5;
+}
+
+/* Gentle scroll-linked drift on screenshots and clips, so a section keeps moving
+   while it crosses the viewport. Scroll timelines are progressive enhancement. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .js [data-drift] > img,
+    .js [data-drift] > video,
+    .js [data-drift] > canvas {
+      animation: media-drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+  }
+}
+
+.ambient-particles {
+  overflow: hidden;
+}
+
+/* Placeholder for a scene that is still streaming in, so nothing jumps. */
+.scene-loading {
+  min-height: 70vh;
+}
+
+.ambient-particles canvas {
+  display: block;
+}
+
+@keyframes media-drift {
+  from {
+    transform: translate3d(0, -14px, 0) scale(1.03);
+  }
+  to {
+    transform: translate3d(0, 14px, 0) scale(1.03);
   }
 }
 

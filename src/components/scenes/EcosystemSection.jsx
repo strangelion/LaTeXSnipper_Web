@@ -24,13 +24,14 @@ export default function EcosystemSection() {
       aria-labelledby="ecosystem-title"
     >
       <div className={styles.container}>
-        <header className={styles.heading}>
+        <header className={styles.heading} data-reveal="blur">
           <h2 id="ecosystem-title">Core 是生态的共同数学层。</h2>
           <p>Web、Desktop、Office 与 Mobile 以统一的结构和转换能力相连，同时保持各自清楚的项目边界。</p>
         </header>
         <div className={styles.ecosystemStage}>
           <LiquidGlassSurface
             className={styles.ecosystemMap}
+            data-reveal="scale"
             thickness="panel"
             aria-label="LaTeXSnipper 生态关系图"
           >
@@ -73,6 +74,7 @@ export default function EcosystemSection() {
           <LiquidGlassSurface
             as="article"
             className={styles.ecosystemDetail}
+            data-reveal="fade"
             thickness="panel"
             aria-live="polite"
           >

@@ -2,40 +2,54 @@
   "$schema": "/schemas/release-manifest-v1.schema.json",
   "schemaVersion": 1,
   "product": "LaTeXSnipper Desktop",
-  "version": "3.0.0",
+  "version": "3.2.0",
   "channel": "LTS",
-  "publishedAt": "2026-09-07T04:23:28Z",
-  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.0.0-LTS",
+  "publishedAt": "2026-10-27T10:55:21Z",
+  "releaseNotesUrl": "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.2.0-LTS",
   "assets": [
     {
-      "id": "windows-x86_64",
-      "platform": "windows",
-      "label": "Windows",
-      "architecture": "x86_64",
-      "requirements": "Windows 10 / 11",
-      "href": "/dl/LaTeXSnipperSetup-3.0.0.exe",
-      "sha256": "05860a1c490afce7e0343465a4a52a971b7d70c907107e168ec7d9324315437a",
-      "size": "121.2 MB"
-    },
-    {
-      "id": "linux-amd64",
+      "id": "linux-amd64-cpu",
       "platform": "linux",
       "label": "Linux",
       "architecture": "x86_64",
-      "requirements": "Debian / Ubuntu 及兼容发行版；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_3.0.0_amd64.deb",
-      "sha256": "76cfe112fab116080c2de56663135e175065bd139716f06310e187e5ec1afbd0",
-      "size": "175.6 MB"
+      "requirements": "Linux x86_64 便携包（tar.xz）；可选依赖环境需要 Python >=3.10,<3.13",
+      "href": "/dl/LaTeXSnipper_3.2.0_linux_x86_64_cpu.tar.xz",
+      "sha256": "6c8b95cb76173ea3012e95f2638992fd819d8d11ffb167e4fd5521f2b789d4ba",
+      "size": "543.7 MB",
+      "edition": "cpu"
     },
     {
-      "id": "macos-arm64",
+      "id": "macos-arm64-cpu",
       "platform": "macos",
       "label": "macOS",
       "architecture": "Apple Silicon",
       "requirements": "macOS 11 或更高版本；截图需屏幕录制权限；可选依赖环境需要 Python >=3.10,<3.13",
-      "href": "/dl/LaTeXSnipper_3.0.0_arm64.dmg",
-      "sha256": "99c8844ed480f1b33ea512750eb6a80631eb6dc1049e55aff5ab982e37544ec7",
-      "size": "196.1 MB"
+      "href": "/dl/LaTeXSnipper_3.2.0_macos_arm64_cpu.dmg",
+      "sha256": "3e29b1d1b16ad3feeb2181e777fef3c56c0f39b9bfde6f68823d66ca8cfe5f4f",
+      "size": "617.9 MB",
+      "edition": "cpu"
+    },
+    {
+      "id": "windows-x86_64-cpu",
+      "platform": "windows",
+      "label": "Windows",
+      "architecture": "x86_64",
+      "requirements": "Windows 10 / 11",
+      "href": "/dl/LaTeXSnipper_3.2.0_windows_x86_64_cpu.exe",
+      "sha256": "f9e99be360130a3927e9038701a84fdcbcb6b036d413dbc26de32950f6b9df3c",
+      "size": "413.1 MB",
+      "edition": "cpu"
+    },
+    {
+      "id": "linux-amd64-gpu",
+      "platform": "linux",
+      "label": "Linux",
+      "architecture": "x86_64",
+      "requirements": "Linux x86_64 便携包（tar.xz）；可选依赖环境需要 Python >=3.10,<3.13",
+      "href": "/dl/LaTeXSnipper_3.2.0_linux_x86_64_gpu.tar.xz",
+      "sha256": "c40f9adbe8fa4173713336491a5a803022e8b39a3a2f22444b9f31439239d0c9",
+      "size": "1.9 GB",
+      "edition": "gpu"
     },
     {
       "id": "office-plugin-windows",
@@ -43,9 +57,20 @@
       "label": "Desktop 内置 Office 插件",
       "architecture": "x86_64",
       "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
-      "href": "/dl/OfficePluginSetup-3.0.0.exe",
-      "sha256": "2a260b925205200491958185cefaeb9028149f28bfac196da80aad682125e3f9",
-      "size": "7.0 MB"
+      "href": "/dl/LaTeXSnipperOffice_3.2.0_amd64.exe",
+      "sha256": "24f9258355caaea8f575b8c51c44eb88ba3362804f43aeb81fde6c4ec6f5cbbd",
+      "size": "7.2 MB"
+    },
+    {
+      "id": "windows-x86_64-gpu",
+      "platform": "windows",
+      "label": "Windows",
+      "architecture": "x86_64",
+      "requirements": "Windows 10 / 11",
+      "href": "/dl/LaTeXSnipper_3.2.0_windows_x86_64_gpu.exe",
+      "sha256": "65ef3d7cb4e873a125639aff3da4318863fa457f5e65f7731987d93d28273d46",
+      "size": "1.6 GB",
+      "edition": "gpu"
     }
   ]
 }

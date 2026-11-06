@@ -594,6 +594,27 @@
   overflow-wrap: anywhere;
 }
 
+/* Ambient p5 backdrop for the closing scene. Decoration only: it sits behind the
+   panel, ignores pointer events, and fades out toward the section edges. */
+.ctaScene {
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(72% 82% at 50% 46%, #000 22%, transparent 76%);
+  mask-image: radial-gradient(72% 82% at 50% 46%, #000 22%, transparent 76%);
+}
+
+.ctaScene > .container {
+  position: relative;
+  z-index: 1;
+}
+
 .ctaPanel {
   padding: clamp(2rem, 6vw, 4.5rem);
 }

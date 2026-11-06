@@ -26,12 +26,14 @@ export default function AstSection() {
       aria-labelledby="understand-title"
     >
       <div className={styles.container}>
-        <header className={styles.heading}>
-          <h2 id="understand-title">OCR 只是开始，真正有价值的是结构。</h2>
+        <header className={styles.heading} data-reveal="blur">
+          <h2 id="understand-title">
+            OCR 只是开始，<span className="cjk-word">真正</span>有价值的是结构。
+          </h2>
           <p>同一表达式由节点和关系组成，因此可以继续编辑、计算和转换。</p>
         </header>
         <div className={styles.astLayout}>
-          <div className={styles.astVisualStack}>
+          <div className={styles.astVisualStack} data-reveal="mask">
             <LiquidGlassSurface className={styles.formulaPanel} thickness="panel">
               <span className={styles.formulaLabel}>Static AST visualization</span>
               <p className={styles.formulaText} aria-label={formulaExample.description}>
@@ -57,10 +59,11 @@ export default function AstSection() {
             />
           </div>
           <div>
-            <div className={styles.astList} aria-label="公式结构节点">
+            <div className={styles.astList} data-reveal-group aria-label="公式结构节点">
               {astNodes.map((node) => (
                 <button
                   className={styles.astNode}
+                  data-reveal="fade"
                   data-selected={node.id === selectedNodeId}
                   key={node.id}
                   type="button"
@@ -71,7 +74,7 @@ export default function AstSection() {
                 </button>
               ))}
             </div>
-            <div className={styles.astDetail} aria-live="polite">
+            <div className={styles.astDetail} data-reveal="fade" aria-live="polite">
               <strong>{selectedNode.title}</strong>
               <p>{selectedNode.detail}</p>
             </div>

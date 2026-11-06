@@ -251,6 +251,37 @@ textarea:focus-visible,
   justify-content: center;
 }
 
+/* Hamburger: three bars drawn from the current text color, replacing the UA button face. */
+.site-menu-toggle {
+  flex-direction: column;
+  gap: 4px;
+  border: 0;
+  background: none;
+}
+
+.site-menu-toggle > span:not(.sr-only) {
+  display: block;
+  width: 16px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 180ms var(--site-ease),
+    opacity 140ms ease;
+}
+
+.site-menu-toggle[aria-expanded="true"] > span:nth-child(2) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.site-menu-toggle[aria-expanded="true"] > span:nth-child(3) {
+  opacity: 0;
+}
+
+.site-menu-toggle[aria-expanded="true"] > span:nth-child(4) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 .theme-icon-button:hover,
 .theme-toggle:hover,
 .site-menu-toggle:hover {
@@ -459,36 +490,22 @@ textarea:focus-visible,
   }
 
   /* Menus are overlays, not clear navigation glass: keep links readable over page content. */
-  html[data-theme="light"] .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface {
-    --lg-blur: 18px;
-    --lg-tint-strength: 78%;
-    --lg-tint-falloff: 62%;
-    --lg-shadow-strength: 0.2;
-  }
-
-  html[data-theme="dark"] .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface {
-    --lg-blur: 18px;
-    --lg-tint-strength: 72%;
-    --lg-tint-falloff: 56%;
+  .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface {
+    --lg-blur: 20px;
+    --lg-tint-base: var(--site-glass-solid);
+    --lg-tint-strength: 96%;
+    --lg-tint-falloff: 92%;
     --lg-shadow-strength: 0.2;
   }
 
   .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface > .lg-backdrop {
     background:
-      linear-gradient(145deg, rgb(255 255 255 / 0.16), transparent 34% 72%, color-mix(in srgb, var(--site-blue) 10%, transparent)),
+      linear-gradient(145deg, rgb(255 255 255 / 0.12), transparent 34% 72%, color-mix(in srgb, var(--site-blue) 8%, transparent)),
       linear-gradient(
         138deg,
-        color-mix(in srgb, var(--site-glass-tint) var(--lg-tint-strength), transparent),
-        color-mix(in srgb, var(--site-glass-tint) var(--lg-tint-falloff), transparent)
+        color-mix(in srgb, var(--lg-tint-base) var(--lg-tint-strength), transparent),
+        color-mix(in srgb, var(--lg-tint-base) var(--lg-tint-falloff), transparent)
       );
-    backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
-    -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
-  }
-
-  html[data-liquid-engine="svg-backdrop-refraction"]:not([data-lg-refraction="off"])
-    .site-header-inner.lg-surface > .lg-content > .site-navigation.lg-surface > .lg-backdrop {
-    backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
-    -webkit-backdrop-filter: url("#liquid-backdrop-refraction") blur(var(--lg-blur)) saturate(var(--lg-saturate)) contrast(102%) brightness(var(--lg-brightness));
   }
 
   .site-navigation > .lg-content {

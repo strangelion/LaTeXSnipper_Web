@@ -37,10 +37,17 @@ export default defineConfig({
     assetsDir: 'assets',
     rollupOptions: {
       output: {
-        // Vite 8 (Rolldown) 要求 manualChunks 为函数
+        // Vite 8 (Rolldown) 要求 manualChunks 为函数。
+        // three / p5 只画装饰，单独成块靠动态 import 加载，避免进首屏 bundle。
         manualChunks(id) {
           if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) {
             return 'vendor';
+          }
+          if (id.includes('node_modules/three')) {
+            return 'three';
+          }
+          if (id.includes('node_modules/p5')) {
+            return 'p5';
           }
         },
       },

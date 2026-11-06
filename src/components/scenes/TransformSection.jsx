@@ -30,12 +30,12 @@ export default function TransformSection() {
       aria-labelledby="transform-title"
     >
       <div className={styles.container}>
-        <header className={styles.heading}>
+        <header className={styles.heading} data-reveal="blur">
           <span className={styles.eyebrow}>Transform</span>
           <h2 id="transform-title">一种数学结构，多种表达方式。</h2>
           <p>让同一棵结构进入 LaTeX、Typst、MathML 与 Office 工作流。</p>
         </header>
-        <div className={styles.formatTabs} role="tablist" aria-label="选择格式示例">
+        <div className={styles.formatTabs} data-reveal="fade" role="tablist" aria-label="选择格式示例">
           {conversionFormats.map((format) => (
             <button
               className={styles.formatButton}
@@ -54,7 +54,7 @@ export default function TransformSection() {
             </button>
           ))}
         </div>
-        <div className={styles.transformLayout}>
+        <div className={styles.transformLayout} data-reveal="scale">
           <SemanticGraph
             variant="conversion"
             activeId={selectedFormat.id}

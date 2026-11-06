@@ -9,6 +9,8 @@
   --site-surface-accent: rgba(40, 100, 215, 0.07);
   --site-glass-tint: rgba(247, 251, 255, 0.68);
   --site-glass-tint-strong: rgba(245, 250, 255, 0.82);
+  /* Opaque base for surfaces that must stay readable over busy content (header, menus). */
+  --site-glass-solid: #ffffff;
   --site-glass-edge: rgba(255, 255, 255, 0.76);
   --site-glass-sheen: #cfdcf0;
   --site-ink: #111318;
@@ -57,6 +59,7 @@
   --site-surface-accent: rgba(121, 168, 255, 0.075);
   --site-glass-tint: rgba(31, 45, 63, 0.56);
   --site-glass-tint-strong: rgba(34, 51, 72, 0.72);
+  --site-glass-solid: #0f141c;
   --site-glass-edge: rgba(214, 231, 255, 0.24);
   --site-glass-sheen: #9db2cf;
   --site-ink: #f5f7fa;
@@ -93,6 +96,7 @@
     --site-surface-accent: rgba(121, 168, 255, 0.075);
     --site-glass-tint: rgba(31, 45, 63, 0.56);
     --site-glass-tint-strong: rgba(34, 51, 72, 0.72);
+    --site-glass-solid: #0f141c;
     --site-glass-edge: rgba(214, 231, 255, 0.24);
     --site-glass-sheen: #9db2cf;
     --site-ink: #f5f7fa;

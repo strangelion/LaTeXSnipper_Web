@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import {
   ecosystemProjects,
   faqs,
@@ -8,12 +8,12 @@ import {
 } from "../data/siteContent";
 import { useReleaseInfo } from "../hooks/useReleaseInfo";
 import { useProjectStats } from "../hooks/useProjectStats";
+import useScrollReveal from "../hooks/useScrollReveal";
 import {
   GitHubStarCount,
   HeroCounters,
   ProjectStatsStrip,
 } from "./ProjectCounters";
-import MathWorld from "../three/MathWorld";
 import MathPlayground from "../p5/MathPlayground";
 import LiquidGlassSurface from "./LiquidGlassSurface";
 import AstSection from "./scenes/AstSection";
@@ -24,6 +24,9 @@ import RecognizeSection from "./scenes/RecognizeSection";
 import TransformSection from "./scenes/TransformSection";
 import WorkspaceSection from "./scenes/WorkspaceSection";
 import "../styles/landing.css";
+
+// three.js only draws the hero backdrop: keep it out of the initial bundle.
+const MathWorld = lazy(() => import("../three/MathWorld"));
 
 const GITHUB_URL = "https://github.com/SakuraMathcraft/LaTeXSnipper";
 
@@ -321,7 +324,9 @@ function SiteHeader({ counters }) {
 function HeroSection({ counters }) {
   return (
     <section className="hero-section" aria-labelledby="hero-title">
-      <MathWorld />
+      <Suspense fallback={null}>
+        <MathWorld />
+      </Suspense>
       <div className="ls-container hero-grid">
         <div className="hero-copy reveal">
           <span className="scene-index">LOCAL-FIRST MATHEMATICAL WORKSPACE</span>
@@ -821,23 +826,7 @@ function UnderstandSection() {
 
 export default function LandingPage() {
   const counters = useProjectStats();
-
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal, .hero-copy");
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            e.target.classList.add("in-view");
-            io.unobserve(e.target);
-          }
-        }
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+  useScrollReveal();
 
   return (
     <>
