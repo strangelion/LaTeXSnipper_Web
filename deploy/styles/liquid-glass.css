@@ -51,12 +51,14 @@
   border-radius: var(--site-radius-md, 18px);
   color: inherit;
   background: transparent;
-  /* Elevation stack: contact occlusion, short-range, mid-range and ambient shadow.
-     The bevel/refraction layers live on .lg-optics and .lg-rim, which sit above .lg-backdrop. */
+  /* Elevation stack: a wide soft shadow plus ambient haze. The former 1px/2px contact
+     shadows are gone on purpose: their alpha lands in the crescent between the rounded
+     corner arc and the square border box, which reads as a dark notch on light surfaces
+     (measured 232 vs a 246 page background). The offset shadow with a negative spread
+     keeps the card lifted without painting into that crescent (242 vs 246).
+     The bevel/refraction layers live on .lg-optics and .lg-rim, above .lg-backdrop. */
   box-shadow:
-    0 1px 1px rgb(3 8 18 / calc(0.18 * var(--lg-material-strength))),
-    0 2px 5px rgb(3 8 18 / calc(0.13 * var(--lg-material-strength))),
-    0 10px 22px rgb(3 8 18 / calc(var(--lg-shadow-strength) * 0.95 * var(--lg-material-strength))),
+    0 12px 28px -12px rgb(3 8 18 / calc(0.32 * var(--lg-material-strength))),
     0 28px 68px rgb(3 8 18 / calc(var(--lg-shadow-strength) * var(--lg-material-strength)));
   transition: box-shadow 260ms ease, transform 260ms ease;
 }
