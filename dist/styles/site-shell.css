@@ -128,7 +128,7 @@ textarea:focus-visible,
   display: contents;
 }
 
-.site-header-inner > .lg-content > * {
+.site-header-inner > .lg-content > :not(.site-navigation-scrim) {
   position: relative;
   z-index: 2;
 }
@@ -524,7 +524,8 @@ textarea:focus-visible,
     padding: 11px 12px;
   }
 
-  .site-navigation-scrim {
+  .site-navigation-scrim,
+  .site-header-inner > .lg-content > .site-navigation-scrim {
     position: fixed;
     z-index: 1;
     inset: 0;
