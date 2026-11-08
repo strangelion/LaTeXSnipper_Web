@@ -39,26 +39,48 @@ async function ensureArchive() {
   }
 
   mkdirSync(cacheDir, { recursive: true });
-  const partial = `${archivePath}.part`;
-  rmSync(partial, { force: true });
 
-  console.log(`[core] Downloading ${lock.asset.url}`);
-  const response = await fetch(lock.asset.url, { redirect: 'follow' });
-  if (!response.ok) {
-    throw new Error(
-      `Core WASM download failed: ${response.status} ${response.statusText}`,
-    );
-  }
-
-  writeFileSync(partial, new Uint8Array(await response.arrayBuffer()));
-  const actual = sha256(partial);
-  if (actual !== lock.asset.sha256) {
+  // GitHub's release CDN intermittently answers large assets with 502/504, and
+  // a single attempt turns that into a red build. Retry the whole transfer with
+  // backoff; a truncated file fails the checksum and is retried as well.
+  const attempts = Number(process.env.CORE_WASM_ATTEMPTS || 5);
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const partial = `${archivePath}.part`;
     rmSync(partial, { force: true });
-    throw new Error(
-      `Core WASM checksum mismatch: expected ${lock.asset.sha256}, got ${actual}`,
-    );
+
+    console.log(`[core] Downloading ${lock.asset.url}`);
+    try {
+      const response = await fetch(lock.asset.url, { redirect: 'follow' });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      writeFileSync(partial, new Uint8Array(await response.arrayBuffer()));
+      const actual = sha256(partial);
+      if (actual !== lock.asset.sha256) {
+        throw new Error(
+          `checksum mismatch: expected ${lock.asset.sha256}, got ${actual}`,
+        );
+      }
+      renameSync(partial, archivePath);
+      return;
+    } catch (error) {
+      rmSync(partial, { force: true });
+      lastError = error;
+      if (attempt === attempts) {
+        break;
+      }
+      const delayMs = 10000 * attempt;
+      console.warn(
+        `[core] Attempt ${attempt}/${attempts} failed (${error.message}); ` +
+          `retrying in ${delayMs / 1000}s`,
+      );
+      await new Promise((done) => setTimeout(done, delayMs));
+    }
   }
-  renameSync(partial, archivePath);
+
+  throw new Error(`Core WASM download failed: ${lastError.message}`);
 }
 
 await ensureArchive();
