@@ -264,6 +264,7 @@
 }
 
 .formula-sheet {
+  --lg-panel-radius: 22px;
   width: min(440px, 88%);
   min-height: 300px;
   position: relative;
@@ -517,6 +518,7 @@
 }
 
 .ast-sheet {
+  --lg-panel-radius: 22px;
   padding: clamp(28px, 4vw, 44px);
   border-radius: 22px;
 }
