@@ -146,6 +146,9 @@
 }
 
 .lg-surface--panel {
+  /* Clip composited glass layers and their corner artifacts to the rounded panel.
+     Panels use inner optical depth instead of an external elevation shadow. */
+  clip-path: inset(0 round var(--lg-panel-radius, var(--site-radius-md, 18px))) !important;
   --lg-blur: 20px;
   --lg-tint-strength: 92%;
   --lg-tint-falloff: 86%;

@@ -238,6 +238,7 @@
 
   document.addEventListener('pointermove', (event) => {
     if (!pointerQuery.matches || motionQuery.matches) return;
+    if (!(event.target instanceof Element)) return;
     const element = event.target.closest(highlightSelector);
     if (!element) return;
     pending = { element, clientX: event.clientX, clientY: event.clientY };
@@ -245,8 +246,9 @@
   }, { passive: true });
 
   document.addEventListener('pointerout', (event) => {
+    if (!(event.target instanceof Element)) return;
     const element = event.target.closest(highlightSelector);
-    if (!element || element.contains(event.relatedTarget)) return;
+    if (!element || (event.relatedTarget instanceof Node && element.contains(event.relatedTarget))) return;
     element.classList.remove('is-pointer-lit');
     element.style.removeProperty('--lg-pointer-x');
     element.style.removeProperty('--lg-pointer-y');
