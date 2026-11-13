@@ -435,6 +435,25 @@
   gap: clamp(2.5rem, 7vw, 6rem);
 }
 
+.ecosystemLite {
+  margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+  color: var(--ls-muted);
+  font: 400 0.9rem / 1.7 var(--ls-sans);
+  text-align: center;
+}
+
+.ecosystemLite a {
+  color: var(--ls-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--ls-line-strong, var(--ls-line));
+  text-underline-offset: 3px;
+  transition: color 160ms ease;
+}
+
+.ecosystemLite a:hover {
+  color: var(--ls-blue);
+}
+
 .ecosystemMap {
   position: relative;
   min-height: 32rem;

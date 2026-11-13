@@ -83,6 +83,17 @@ export default function EcosystemSection() {
             <span className={styles.ecosystemRepository}>{activeNode.repository}</span>
           </LiquidGlassSurface>
         </div>
+        <p className={styles.ecosystemLite}>
+          轻量桌面版：
+          <a
+            href="https://github.com/sigmalos/LaTeXSnipper-lite"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LaTeXSnipper Lite
+          </a>
+          ，安装包约 12 MB，OCR 模型按需下载。
+        </p>
       </div>
     </section>
   );

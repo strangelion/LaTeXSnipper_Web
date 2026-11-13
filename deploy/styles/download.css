@@ -547,6 +547,32 @@
   text-underline-offset: 3px;
 }
 
+.lite-section {
+  max-width: 900px;
+  margin: 48px auto 0;
+  text-align: center;
+}
+
+.lite-section h2 {
+  margin: 0 0 8px;
+  color: var(--site-ink);
+  font: 550 clamp(1.55rem, 3vw, 2.25rem)/1.2 var(--site-serif);
+  letter-spacing: -0.025em;
+}
+
+.lite-intro {
+  max-width: 680px;
+  margin: 0 auto 20px;
+  color: var(--site-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.lite-section .platform-note {
+  margin-top: -2px;
+}
+
 .project-boundary {
   margin-top: 42px;
   padding: 0;
@@ -593,6 +619,12 @@
   border-right: 1px solid var(--site-line);
 }
 
+/* A lone item in the last row spans both columns and centers itself. */
+.project-links a:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  border-right: 0;
+}
+
 .project-links a:hover {
   color: var(--site-blue);
   background: var(--site-surface);
@@ -605,7 +637,7 @@
 
 .installation-notes {
   margin-top: 48px;
-  text-align: left;
+  text-align: center;
 }
 
 @media (max-width: 1040px) {
