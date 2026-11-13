@@ -43,6 +43,22 @@ id = "1afdc87d24624a80aa99722ebf7e1ec6"
 workers_dev = true
 vars = { DEPLOY_ENV = "preview" }
 
+# ── Observability ──
+# observability.enabled is shorthand for logs.enabled; keep both explicit so the
+# dashboard view and this file do not drift. issue_detection and
+# redact_query_string are dashboard-only keys here: wrangler 4.112 rejects them
+# (issue detection needs >= 4.134, where the key is observability.issues).
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 [observability.logs]
 enabled = true
+head_sampling_rate = 1
 invocation_logs = true
+persist = true
+
+[observability.traces]
+enabled = false
+head_sampling_rate = 1
+persist = true
