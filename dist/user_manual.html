@@ -526,7 +526,9 @@
 <li>Debian/Ubuntu 兼容的 Linux x86_64（glibc 2.35 及以上）：CPU 或 NVIDIA GPU 离线安装归档，解包后运行 <code>sh install.sh</code>。</li>
 <li>macOS 14.0 及以上的 Apple Silicon：CPU DMG，把应用复制到 Applications 后运行。</li>
 </ul>
-<p>发行携带 Python、推理依赖、模型和内置预览资源，无需自行安装 Python 或 CUDA Toolkit。Linux 包管理器负责 Qt 所需的系统图形库，缺少依赖时通过 apt 补齐。GPU 需要支持的显卡和系统驱动，3.3.0 的最低 NVIDIA 驱动版本为 Windows 570.65、Linux 570.26。扩展导出所需工具见“预览与导出”。</p>
+<p>发行携带 Python、推理依赖、模型和内置预览资源，无需自行安装 Python 或 CUDA Toolkit。Linux 包管理器负责 Qt 所需的系统图形库，缺少依赖时通过 apt 补齐。GPU 版需要兼容的 NVIDIA 显卡和驱动。最低驱动版本见所选版本的</p>
+<p><a href="#">发布说明</a></p>
+<p>。扩展导出所需工具见“预览与导出”。</p>
 <h2 id="anzhuangyuanyuyong">安装资源与用户数据</h2>
 <p>Windows 安装目录包含业务目录 <code>application</code> 和固定资源目录 <code>runtime</code>、<code>inference</code>、<code>models</code>，以及 <code>distribution.json</code>。Linux 文件由 dpkg 管理，位于 <code>/usr/lib/latexsnipper</code>，安装身份位于 <code>/var/lib/latexsnipper/distribution.json</code>。macOS 业务目录位于应用的 <code>Contents/Resources/desktop</code>，固定资源位于 <code>Contents/Frameworks/LaTeXSnipperBase.bundle/Contents/Resources</code>。</p>
 <p>配置、历史、收藏和日志属于用户数据。Windows/Linux 应用状态位于 <code>~/.latexsnipper</code>；macOS 位于 <code>~/Library/Application Support/LaTeXSnipper</code>，日志位于 <code>~/Library/Logs/LaTeXSnipper</code>。MathCraft 默认模型缓存独立于安装组件。</p>
@@ -708,15 +710,15 @@ python scripts/translations/check_ui_translations.py</code></pre></div>
 
 </div>
 <h2 id="xinganzhuang">命令行静默安装</h2>
-<p>安装包支持 Inno Setup 标准静默参数：</p>
-<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>#静默安装（显示进度条）
-LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /silent
+<p>在安装包所在目录的命令提示符中运行以下命令，将 <code>&lt;版本&gt;</code> 替换为文件名中的版本号。 自定义路径时，将 <code>&lt;安装目录&gt;</code> 换成目标路径。</p>
+<div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>:: 静默安装（显示进度条）
+"LaTeXSnipperOffice_&lt;版本&gt;_windows_x86_64.exe"/silent
 
-#完全静默（无界面）
-LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /verysilent
+:: 完全静默（无界面）
+"LaTeXSnipperOffice_&lt;版本&gt;_windows_x86_64.exe"/verysilent
 
-#自定义安装目录
-LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></pre></div>
+:: 自定义安装目录
+"LaTeXSnipperOffice_&lt;版本&gt;_windows_x86_64.exe"/dir="&lt;安装目录&gt;"</code></pre></div>
 <div class="spacer-lg"></div>
 <h1 id="sec-office-word">Windows 版 Word 功能详解</h1>
 <h2 id="gongneng">功能区概览</h2>
@@ -736,9 +738,10 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 
 </div>
 <h2 id="shirufangshi">公式插入方式</h2>
-<p>Word 支持插件 OLE 对象和 Word 原生 OMML（Office Math Markup Language）公式，在“设置 → 公式插入方式”中选择：</p>
+<p>在“设置 → 公式插入方式”中选择 Word 公式的存储格式。</p>
 <ul>
 <li><strong>OLE 对象（默认）：</strong> 本地渲染的矢量公式对象，双击或“加载所选”可打开插件编辑器。复制到另一份文档后仍可加载并独立编辑。</li>
+<li><strong>MathType</strong> 直接插入原生 MathType 公式。带编号公式使用 MathType 的 Word 域。</li>
 <li><strong>Word 原生公式：</strong> 可直接使用 Word 的公式工具编辑，也可通过插件加载、更新和转换。</li>
 </ul>
 <div class="callout info">
@@ -803,14 +806,14 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 <p>选中公式后，通过功能区转换组选择目标格式：</p>
 <div class="block">
 <ul>
-<li><strong>转为 MathType：</strong> 将普通插件 OLE 公式转为 MathType 原生对象；带编号公式暂不支持</li>
+<li><strong>转为 MathType：</strong> 将行内、行间和带编号的插件 OLE 公式转为 MathType 原生对象，保留显示方式、编号位置和已有交叉引用。支持手动和自动编号，编号仍由 Word 管理。</li>
 <li><strong>转为 OLE：</strong> 将插件 OMML、Word 原生 OMML 或 MathType 公式转为插件 OLE 对象</li>
 <li><strong>转为 Word：</strong> 将 OLE 公式转为 Word 原生 OMML 公式（可像 Word 公式一样直接编辑）</li>
 </ul>
 
 </div>
-<p>MathType 双向转换无需安装 MathType；双击编辑 MathType 对象需要安装。转为 MathType 不保留原插件源码与字体快照，转回 OLE 根据对象当前内容生成。</p>
-<p>Word 原生 OMML 或 MathType 转为 OLE 后保存的是 MathML 源码，可加载、更新、格式化及继续转换，不会还原为原始 LaTeX。</p>
+<p>插入 MathType 公式和双向转换都无需安装 MathType。默认插入方式为 MathType 时，双击任意原生 MathType 公式或使用“加载所选”，会打开 LaTeXSnipper 编辑器。改用其他插入方式后，双击交由已安装的 MathType 处理。</p>
+<p>普通 Word 原生 OMML 转为 OLE 后以 MathML 保存公式源码，可加载、更新、格式化及继续转换。</p>
 <h2 id="shizhi">格式重置</h2>
 <div class="block">
 <ul>
@@ -950,7 +953,7 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 </table>
 <div class="block">
 <p>转换、公式解析和格式化会分批执行并更新状态窗格；单项失败会报告具体错误，并继续处理其他项，结束后显示处理统计。重编号会跳过编号信息不完整的公式并计数。长公式或大量公式时，主要耗时仍来自 <code>r</code>（MathJax 渲染/图片生成）和 <code>ole/xml/png</code>（Office COM 插入与对象替换）。建议长文档批量处理时分段执行并保存文档。</p>
-<p>格式化保留公式源码，通过当前默认属性重新渲染；LaTeX 和 MathML 源码均可处理。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
+<p>格式化按当前默认属性重新渲染，并同步更新公式源码中的全局颜色。LaTeX 和 MathML 均保留数学内容与局部样式。原生行内公式由 Word 自己维护外层公式输入框，少数单选场景下外层占位框可能由 Word 保留；继续转为 LaTeXSnipper 管理的 OMML 后会由插件接管并清理为插件格式。</p>
 
 </div>
 <h2 id="shibie">截图识别</h2>
@@ -970,8 +973,7 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 
 </div>
 <h2 id="rushi">插入公式</h2>
-<p>光标位于文本框文字中时，点击“插入公式”生成随文字排版的 PowerPoint 原生公式，可用 PowerPoint 的公式工具编辑。</p>
-<p>其他位置按设置插入居中的独立 OLE 对象或高 DPI PNG 图片；OLE 支持双击编辑，PNG 可通过“加载所选”修改。</p>
+<p>选择 MathType 时，公式插入为幻灯片上的独立对象。选择 OLE 或 PNG 时，光标位于文本框文字中会插入随文字排版的 PowerPoint 原生公式。光标在文字之外时，插入所选格式的独立对象。</p>
 <div class="callout info">
 <div class="callout-title">与 Word 的区别</div>
 <div class="callout-body"><p>加载、删除、转换和批量格式化面向插件插入的独立对象；文本内原生公式由 PowerPoint 管理。PowerPoint 不支持插件自动编号和重编号。</p>
@@ -997,7 +999,7 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 </ul>
 
 </div>
-<p>MathType 双向转换无需安装 MathType；双击编辑 MathType 对象需要安装。转为 MathType 不保留原插件源码与字体快照，转回 OLE 根据对象当前内容生成。</p>
+<p>编辑更新保留公式原有的 OLE、PNG 或 MathType 格式。默认插入方式为 MathType 时，可双击原生 MathType 公式或使用“加载所选”在 LaTeXSnipper 中编辑。插入 MathType 公式和双向转换都无需安装 MathType。</p>
 <div class="callout tip">
 <div class="callout-title">提示</div>
 <div class="callout-body"><p>如果你在幻灯片上找不到公式图片，可以检查形状的替代文本（Alt Text）。所有 LaTeXSnipper 公式图片的替代文本均以 "LaTeXSnipper formula"开头。</p>
@@ -1065,8 +1067,8 @@ LaTeXSnipperOffice_3.3.0_windows_x86_64.exe /dir="&lt;安装目录&gt;"</code></
 <p>通过功能区"设置"按钮打开。设置窗口支持完整的公式参数配置：</p>
 <div class="block">
 <ul>
-<li><strong>Word 公式插入方式：</strong> OLE 对象（默认）或 Word 原生 OMML 公式</li>
-<li><strong>PowerPoint 公式插入方式：</strong> OLE 对象（默认）或 PNG 图片；文本框内插入时使用 PowerPoint 原生公式</li>
+<li><strong>Word</strong> 支持 LaTeXSnipper OLE（默认）、Word 原生 OMML 和 MathType。</li>
+<li><strong>PowerPoint</strong> 支持 LaTeXSnipper OLE（默认）、PNG 和 MathType。</li>
 <li><strong>编号位置：</strong> 右编号（默认）或左编号</li>
 <li><strong>外框：</strong> 无、圆括号（()）、方括号（[]）、花括号（{}）</li>
 <li><strong>层级分隔符：</strong> <code>.</code>、<code>-</code>、<code>·</code>、<code>:</code>、<code>/</code></li>
