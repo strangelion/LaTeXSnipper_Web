@@ -680,6 +680,7 @@
 python -m pip install -e '.[cpu]'
 python src/main.py</code></pre></div>
 <p>源码桌面端使用启动应用的 Python 环境，按 CUDA、DirectML、CoreML、OpenVINO、CPU 的顺序选择该环境中 ONNX Runtime 提供的第一个计算后端。公式权重随所选后端匹配，缓存缺失或校验失败时按需下载。使用 CUDA 12.8 和 cuDNN 9 的环境可用 <code>python -m pip install -e '.[gpu-cu12]'</code> 安装 GPU 版，CPU 版和 GPU 版应分别装在不同环境。扩展导出所需工具见“预览与导出”。</p>
+<p>在 CLI 中用 <code>--formula-variant fp32-v2</code>，或在 Python SDK 中传入 <code>formula_variant="fp32-v2"</code>，可为 CPU、CUDA、TensorRT、DirectML、CoreML 或 OpenVINO 显式选择增量 FP32 公式识别权重。CoreML 尚待 Mac 真机验证。</p>
 <h2 id="jianyufaxing">检查与发行构建</h2>
 <p>在选定环境中安装检查工具后执行：</p>
 <div class="code-block"><pre><button class="copy-btn" onclick="copyCode(this)">复制</button><code>python -m pytest -q
@@ -1987,7 +1988,7 @@ python -m mathcraft_ocr ocr formula.png --profile formula --provider auto --json
 python -m mathcraft_ocr ocr page.png --profile mixed --provider auto --output result.md</code></pre></div>
 <p><strong>在 LaTeXSnipper 中使用：</strong> 在设置中选择 <strong>内置模型</strong>，再按输入内容选择公式、混合（文字+公式）或纯文字。</p>
 <h1 id="sec-mathcraft-models">模型集与识别配置</h1>
-<p>MathCraft OCR 运行时版本为 <code>0.3.3</code>，桌面模型来自</p>
+<p>MathCraft OCR 运行时版本为 <code>0.3.4</code>，桌面模型来自</p>
 <p><a href="#">MathCraft Models v2.0.0</a></p>
 <p>。每种桌面发行版都包含以下模型组件，两版共用文字模型：</p>
 <div class="block">
