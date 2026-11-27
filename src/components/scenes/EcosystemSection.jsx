@@ -1,21 +1,13 @@
 import { useState } from 'react';
-import { ecosystemNodes } from '../../data/landingScenes';
+import { ecosystemCoreNode, ecosystemNodes } from '../../data/landingScenes';
 import LiquidGlassSurface from '../LiquidGlassSurface';
 import styles from './Scenes.module.css';
 
-const coreNode = {
-  id: 'core',
-  name: 'latexsnipper-core',
-  repository: 'strangelion/latexsnipper-core',
-  summary: 'Unified Document AST, OCR pipelines, conversion and WASM capability.',
-  href: 'https://github.com/strangelion/latexsnipper-core',
-};
+const allNodes = [ecosystemCoreNode, ...ecosystemNodes];
 
 export default function EcosystemSection() {
   const [activeId, setActiveId] = useState('core');
-  const activeNode = [coreNode, ...ecosystemNodes].find(
-    (node) => node.id === activeId,
-  ) || coreNode;
+  const activeNode = allNodes.find((node) => node.id === activeId) || ecosystemCoreNode;
 
   return (
     <section
@@ -25,8 +17,9 @@ export default function EcosystemSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
+          <span className={styles.eyebrow}>07 · Ecosystem</span>
           <h2 id="ecosystem-title">Core 是生态的共同数学层。</h2>
-          <p>Web、Desktop、Office 与 Mobile 以统一的结构和转换能力相连，同时保持各自清楚的项目边界。</p>
+          <p>Desktop、Office、Mobile、Obsidian 与 Web 各司其职，以统一 Document AST、Core WASM 与 Automation API 紧密协作。</p>
         </header>
         <div className={styles.ecosystemStage}>
           <LiquidGlassSurface
@@ -42,33 +35,37 @@ export default function EcosystemSection() {
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              <path d="M50 50 L50 19 M50 50 L82 50 M50 50 L50 81 M50 50 L18 50" />
-              <path className={styles.ecosystemEdgeOuter} d="M50 19 L82 50 L50 81 L18 50 Z" />
+              <circle className={styles.ecosystemOrbit} cx="50" cy="50" r="34" />
+              <path d="M50 50 L50 15 M50 50 L83 39 M50 50 L71 79 M50 50 L29 79 M50 50 L17 39" />
+              <path className={styles.ecosystemEdgeOuter} d="M50 15 L83 39 L71 79 L29 79 L17 39 Z" />
             </svg>
-            <a
+            <button
+              type="button"
               className={styles.ecosystemCore}
-              href={coreNode.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              onFocus={() => setActiveId(coreNode.id)}
-              onMouseEnter={() => setActiveId(coreNode.id)}
+              data-selected={activeId === ecosystemCoreNode.id}
+              aria-pressed={activeId === ecosystemCoreNode.id}
+              onClick={() => setActiveId(ecosystemCoreNode.id)}
+              onFocus={() => setActiveId(ecosystemCoreNode.id)}
+              onMouseEnter={() => setActiveId(ecosystemCoreNode.id)}
             >
-              <span>{coreNode.name}</span>
-              <small>shared math layer</small>
-            </a>
+              <span>{ecosystemCoreNode.name}</span>
+              <small>v3.2.1 · shared AST</small>
+            </button>
             {ecosystemNodes.map((node) => (
-              <a
+              <button
+                type="button"
                 className={styles.ecosystemNode}
+                data-node={node.id}
                 data-selected={node.id === activeId}
-                href={node.href}
                 key={node.id}
-                target="_blank"
-                rel="noopener noreferrer"
+                aria-pressed={node.id === activeId}
+                onClick={() => setActiveId(node.id)}
                 onFocus={() => setActiveId(node.id)}
                 onMouseEnter={() => setActiveId(node.id)}
               >
-                {node.name}
-              </a>
+                <span>{node.name}</span>
+                <small>{node.badge}</small>
+              </button>
             ))}
           </LiquidGlassSurface>
           <LiquidGlassSurface
@@ -78,22 +75,53 @@ export default function EcosystemSection() {
             thickness="panel"
             aria-live="polite"
           >
-            <h3>{activeNode.name}</h3>
-            <p>{activeNode.summary}</p>
-            <span className={styles.ecosystemRepository}>{activeNode.repository}</span>
+            <div className={styles.ecosystemMeta}>
+              <span className={styles.ecosystemRole}>{activeNode.role}</span>
+              <span className={styles.ecosystemPill}>{activeNode.badge}</span>
+              <span className={styles.ecosystemPillMuted}>{activeNode.license}</span>
+            </div>
+            <h3>{activeNode.fullName || activeNode.name}</h3>
+            <p className={styles.ecosystemSummary}>{activeNode.summary}</p>
+            <ul className={styles.ecosystemHighlights}>
+              {activeNode.highlights.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <div className={styles.ecosystemFooter}>
+              <span className={styles.ecosystemRepository}>{activeNode.repository}</span>
+              <div className={styles.ecosystemActions}>
+                {activeNode.siteRoute && (
+                  <a className={styles.ecosystemBtnPrimary} href={activeNode.siteRoute}>
+                    {activeNode.siteLabel}
+                  </a>
+                )}
+                <a
+                  className={styles.ecosystemBtnGhost}
+                  href={activeNode.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub 仓库
+                </a>
+              </div>
+            </div>
           </LiquidGlassSurface>
         </div>
-        <p className={styles.ecosystemLite}>
-          轻量桌面版：
-          <a
-            href="https://github.com/sigmalos/LaTeXSnipper-lite"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LaTeXSnipper Lite
-          </a>
-          ，安装包约 12 MB，OCR 模型按需下载。
-        </p>
+        <div className={styles.ecosystemLite}>
+          <span>轻量分支</span>
+          <p>
+            <a
+              href="https://github.com/sigmalos/LaTeXSnipper-lite"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LaTeXSnipper Lite
+            </a>
+            （Rust + Tauri，安装包约 12 MB，OCR 模型按需下载）与合作计划
+            <a href="/download.html#visualtex">VisualTeX</a>
+            可在下载页一并查看。
+          </p>
+        </div>
       </div>
     </section>
   );

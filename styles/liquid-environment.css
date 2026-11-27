@@ -35,9 +35,9 @@
 .liquid-environment__word {
   position: absolute;
   color: var(--site-ink);
-  opacity: 0.035;
-  font: 800 clamp(3rem, 8vw, 7rem) / 0.85 var(--site-sans);
-  letter-spacing: -0.06em;
+  opacity: 0.025;
+  font: 800 clamp(2.8rem, 7vw, 6rem) / 0.9 var(--site-display, var(--site-sans));
+  letter-spacing: -0.04em;
   pointer-events: none;
   user-select: none;
 }
@@ -54,10 +54,10 @@
 
 .download-environment .liquid-environment__word {
   left: 50%;
-  top: 20px;
+  top: 84px;
   transform: translateX(-50%);
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
-  opacity: 0.03;
+  font-size: clamp(2.4rem, 6vw, 4.75rem);
+  opacity: 0.024;
 }
 
 .download-environment .env-orb-a {
@@ -106,10 +106,10 @@
 
 .ocr-environment .liquid-environment__word {
   left: 50%;
-  top: 10px;
+  top: 82px;
   transform: translateX(-50%);
-  font-size: clamp(2.6rem, 6.5vw, 5rem);
-  opacity: 0.028;
+  font-size: clamp(2.3rem, 5.8vw, 4.4rem);
+  opacity: 0.022;
 }
 
 .ocr-environment .env-orb-a {

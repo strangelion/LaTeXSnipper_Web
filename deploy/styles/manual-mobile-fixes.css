@@ -14,7 +14,7 @@ body.manual {
 }
 
 .manual-cover p:nth-child(3) {
-  padding-inline: 8px;
+  padding-inline: 14px;
   white-space: normal;
   overflow-wrap: anywhere;
   text-wrap: balance;
@@ -48,7 +48,8 @@ body.manual {
   }
 
   .manual-cover p:nth-child(3) {
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
     line-height: 1.45;
   }
 }

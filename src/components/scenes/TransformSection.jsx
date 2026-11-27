@@ -31,9 +31,9 @@ export default function TransformSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>Transform</span>
+          <span className={styles.eyebrow}>04 · Transform</span>
           <h2 id="transform-title">一种数学结构，多种表达方式。</h2>
-          <p>让同一棵结构进入 LaTeX、Typst、MathML 与 Office 工作流。</p>
+          <p>Core 3 支持 19 种输入与 14 种输出（含 AsciiMath / UnicodeMath），Desktop 内置 20 种导出直通论文与 Office 工作流。</p>
         </header>
         <div className={styles.formatTabs} data-reveal="fade" role="tablist" aria-label="选择格式示例">
           {conversionFormats.map((format) => (

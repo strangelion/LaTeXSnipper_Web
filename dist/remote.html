@@ -30,8 +30,8 @@
       <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
       </div></nav>
     <div class="site-header-actions">
-      <a class="site-download-link" href="/download.html">下载</a>
       <button class="theme-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+      <a class="site-download-link" href="/download.html">下载</a>
       <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
     </div>
     </div>
@@ -49,15 +49,40 @@
   </div>
 
   <header class="remote-hero">
-    <p class="demo-eyebrow">REMOTE DEVICE BRIDGE</p>
-    <h1 class="demo-title">让手机直接调用你的桌面版</h1>
-    <p class="demo-sub">先连接已授权的 LaTeXSnipper Desktop，再把图片发回自己的电脑识别。本站不接收图片。</p>
+    <p class="demo-eyebrow">REMOTE BRIDGE · AUTOMATION API V1</p>
+    <h1 class="demo-title">让手机直接<span class="cjk-word">调用</span>你的桌面版</h1>
+    <p class="demo-sub">先连接已授权的 LaTeXSnipper Desktop，再把图片发回自己的电脑识别。本站不接收、也不中转任何图片。</p>
   </header>
+
+  <ol class="remote-flow" aria-label="远程直连三步架构">
+    <li class="remote-flow__item">
+      <span class="remote-flow__step">01</span>
+      <div>
+        <strong>桌面端开启自动化接口</strong>
+        <p>默认监听端口 <code>28765</code>，按 Origin 白名单与访问密钥鉴权。</p>
+      </div>
+    </li>
+    <li class="remote-flow__item">
+      <span class="remote-flow__step">02</span>
+      <div>
+        <strong>隧道或原生 HTTPS 直连</strong>
+        <p>推荐 Tailscale / WireGuard 加密隧道，或 TLS 1.2+ 证书直连。</p>
+      </div>
+    </li>
+    <li class="remote-flow__item">
+      <span class="remote-flow__step">03</span>
+      <div>
+        <strong>直达本机识别队列</strong>
+        <p>单批最多 16 张图、20 次/分限流，调用本机 MathCraft 模型。</p>
+      </div>
+    </li>
+  </ol>
 
   <div class="remote-workspace" aria-label="远程识别工作区">
     <section class="remote-block remote-block--connection remote-stage lg-surface lg-surface--panel" id="remoteConnection" data-status="idle" aria-labelledby="remoteConnectionHeading">
       <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
       <div class="lg-content">
+        <p class="remote-stage-kicker">STEP 01 · AUTHENTICATE</p>
         <h2 class="remote-block-title" id="remoteConnectionHeading">连接桌面版</h2>
         <p class="remote-block-sub">使用桌面版生成的地址和密钥。连接成功后，右侧识别区会立即可用。</p>
 
@@ -123,6 +148,7 @@
     <section class="remote-block remote-block--primary remote-stage lg-surface lg-surface--panel" id="remoteSubmit" data-status="idle" aria-labelledby="remotePrimaryHeading">
       <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
       <div class="lg-content">
+        <p class="remote-stage-kicker">STEP 02 · CAPTURE &amp; DISPATCH</p>
         <h2 class="remote-block-title" id="remotePrimaryHeading">发回电脑识别</h2>
         <p class="remote-block-sub">选择图片、拍照、粘贴截图、截取屏幕或手写内容，再交给桌面端排队识别。</p>
 
@@ -272,6 +298,33 @@
     </details>
 
     <p class="info-note"><strong>说明：</strong>本页只是浏览器端的连接客户端，所有识别都在你授权的桌面版上完成，本站不参与、也无法看到传输内容。只有勾选「记住」时地址与密钥才会写入本机浏览器的 localStorage，请勿在公用设备上勾选。远程凭据默认只能使用公式识别后端，也不会返回桌面端的结果流。</p>
+
+    <section class="workflow-bridge" aria-label="关联入口">
+      <div class="workflow-bridge__head">
+        <p class="workflow-bridge__eyebrow">RELATED TOOLS</p>
+        <h2 class="workflow-bridge__title">其他使用方式与配置参考</h2>
+      </div>
+      <div class="workflow-bridge__grid">
+        <a class="workflow-bridge__card" href="/ocr.html">
+          <span class="workflow-bridge__kicker">Browser Local WASM</span>
+          <strong>不连电脑，浏览器直接识别</strong>
+          <p>由 LaTeXSnipper Core WASM 直接在当前设备完成单公式识别，支持截图粘贴、手写与多格式互转。</p>
+          <span class="workflow-bridge__meta">打开在线识别 →</span>
+        </a>
+        <a class="workflow-bridge__card" href="/download.html">
+          <span class="workflow-bridge__kicker">Desktop · <span data-release-label>v3.3.0 LTS</span></span>
+          <strong>获取最新桌面版与移动版</strong>
+          <p>安装含 Automation API v1 的 Desktop <span data-release-label>v3.3.0 LTS</span>，或使用 Android 原生离线客户端 Mobile v1.3.1。</p>
+          <span class="workflow-bridge__meta">前往下载中心 →</span>
+        </a>
+        <a class="workflow-bridge__card" href="/user_manual.html#https-moshi">
+          <span class="workflow-bridge__kicker">Documentation</span>
+          <strong>查看 HTTPS 与隧道配置说明</strong>
+          <p>完整步骤涵盖 Tailscale / WireGuard 隧道、原生 TLS 1.2+ 证书 SAN 配置与 Origin 白名单排查。</p>
+          <span class="workflow-bridge__meta">阅读使用手册 →</span>
+        </a>
+      </div>
+    </section>
   </div>
 </main>
 

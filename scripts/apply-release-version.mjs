@@ -38,15 +38,19 @@ console.log(`Applying website release copy: ${releaseLabel}`);
 rewrite('src/data/siteContent.js', (source) => {
   let next = source;
   next = next.replace(
-    /(export const FALLBACK_RELEASE\s*=\s*\{[\s\S]*?version:\s*')[^']+(')/,
+    /(export const FALLBACK_RELEASE\s*=\s*\{[\s\S]*?version:\s*['"])[^'"]+(['"])/,
     `$1${version}$2`,
   );
   next = next.replace(
-    /(export const FALLBACK_RELEASE\s*=\s*\{[\s\S]*?releaseNotesUrl:\s*\n?\s*')[^']+(')/,
+    /(export const FALLBACK_RELEASE\s*=\s*\{[\s\S]*?channel:\s*['"])[^'"]*(['"])/,
+    `$1${channel}$2`,
+  );
+  next = next.replace(
+    /(export const FALLBACK_RELEASE\s*=\s*\{[\s\S]*?releaseNotesUrl:\s*\n?\s*['"])[^'"]+(['"])/,
     `$1${releaseNotesUrl || 'https://github.com/SakuraMathcraft/LaTeXSnipper/releases'}$2`,
   );
   next = next.replace(
-    /(name:\s*'LaTeXSnipper Desktop',[\s\S]*?version:\s*')[^']+(')/,
+    /(name:\s*['"]LaTeXSnipper Desktop['"],[\s\S]*?version:\s*['"])[^'"]+(['"])/,
     `$1${releaseLabel}$2`,
   );
   return next;
@@ -57,10 +61,12 @@ rewrite('index.html', (source) => source.replace(
   `$1${version}$2`,
 ));
 
+const releaseLabelSpanPattern = /(<span\b[^>]*\bdata-release-label\b[^>]*>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(<\/span>)/g;
+
 rewrite('download.html', (source) => {
   let next = source;
   next = next.replace(
-    /(<span data-release-label>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(<\/span>)/,
+    /(<span data-release-label>)v\d+\.\d+\.\d+(?:\s+[A-Za-z0-9._-]+)?(<\/span>)/g,
     `$1${releaseLabel}$2`,
   );
   next = next.replace(
@@ -69,3 +75,7 @@ rewrite('download.html', (source) => {
   );
   return next;
 });
+
+for (const staticPage of ['public/ocr.html', 'public/remote.html', 'public/open-source.html']) {
+  rewrite(staticPage, (source) => source.replace(releaseLabelSpanPattern, `$1${releaseLabel}$2`));
+}

@@ -15,6 +15,7 @@ import FinalCta from "./scenes/FinalCta";
 import RecognizeSection from "./scenes/RecognizeSection";
 import TransformSection from "./scenes/TransformSection";
 import WorkspaceSection from "./scenes/WorkspaceSection";
+import { DESKTOP_RELEASE_LABEL } from "../data/siteContent";
 import "../styles/landing.css";
 
 // three.js only draws the hero backdrop: keep it out of the initial bundle.
@@ -314,7 +315,10 @@ function HeroSection({ counters }) {
       <div className="ls-container hero-grid">
         <div className="hero-copy reveal">
           <span className="scene-index">LOCAL-FIRST MATHEMATICAL WORKSPACE</span>
-          <h1 id="hero-title">把数学，从图像重新变成知识。</h1>
+          <h1 id="hero-title">
+            把数学，从图像<span className="cjk-word">重新</span>
+            <span className="cjk-word">变成</span>知识。
+          </h1>
           <p className="hero-description">
             从截图、图片、PDF 与手写输入开始，识别、理解并转入你的数学工作流。
           </p>
@@ -327,6 +331,24 @@ function HeroSection({ counters }) {
             </a>
             <HeroCounters counters={counters} />
           </div>
+          <ul className="hero-highlights" aria-label="核心能力概览">
+            <li>
+              <strong>自包含离线包</strong>
+              <span>{`Desktop ${DESKTOP_RELEASE_LABEL}`}</span>
+            </li>
+            <li>
+              <strong>20 种导出格式</strong>
+              <span>LaTeX / Typst / OMML</span>
+            </li>
+            <li>
+              <strong>Core 3 内核</strong>
+              <span>Document AST · WASM</span>
+            </li>
+            <li>
+              <strong>全生态协同</strong>
+              <span>Office · Mobile · Obsidian</span>
+            </li>
+          </ul>
         </div>
 
         <div
@@ -424,7 +446,7 @@ function SiteFooter() {
             />
             <span>LaTeXSnipper</span>
           </a>
-          <p>本地优先的数学识别、编辑与转换工作空间。</p>
+          <p>本地优先的数学识别、编辑、离线绘图与跨格式转换生态。</p>
         </div>
         <nav aria-label="站点链接">
           <a href="/download.html">下载</a>
@@ -436,7 +458,7 @@ function SiteFooter() {
         <p className="footer-note">
           各项目作者与许可证分别标注。
           <br />
-          Desktop GPL-3.0 · Lite GPL-3.0 · Core / Office / Mobile AGPL-3.0
+          Desktop / Lite GPL-3.0 · Core / Office / Mobile / Obsidian AGPL-3.0
         </p>
       </div>
     </footer>

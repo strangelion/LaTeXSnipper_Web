@@ -1,6 +1,7 @@
 import handwritingImage from '../../assets/images/product/handwriting.webp';
 import ocrResultImage from '../../assets/images/product/ocr-result.webp';
 import workspaceImage from '../../assets/images/product/hero-workspace.webp';
+import { DESKTOP_RELEASE_LABEL } from './siteContent';
 
 export const landingImages = {
   handwriting: handwritingImage,
@@ -11,46 +12,54 @@ export const landingImages = {
 export const captureSources = [
   {
     id: 'screenshot',
-    title: '截图',
-    description: '把屏幕上的公式直接带入识别流程。',
+    index: '01',
+    title: '全局截图',
+    description: 'Ctrl+F / Cmd+F 一键框选屏幕区域，识别结果直接送入工作台。',
   },
   {
     id: 'image',
-    title: '图片',
-    description: '从教材、论文或照片中提取可编辑内容。',
+    index: '02',
+    title: '本地图片',
+    description: '支持 PNG、JPEG、WebP、TIFF 等多格式，轻松提取教材与论文公式。',
   },
   {
     id: 'pdf',
-    title: 'PDF',
-    description: '按页处理文档中的公式和混排文本。',
+    index: '03',
+    title: '按页 PDF',
+    description: '逐页解析论文与讲义，按版面顺序保留公式与正文混排结构。',
   },
   {
     id: 'handwriting',
-    title: '手写',
-    description: '从手写输入开始，继续在工作台中修正。',
+    index: '04',
+    title: '手写画布',
+    description: '手写推导即刻转写为可编辑公式，继续在 MathLive 中精修。',
   },
   {
     id: 'clipboard',
-    title: '剪贴板',
-    description: '在已有应用和数学工作空间之间快速切换。',
+    index: '05',
+    title: '剪贴板与远程',
+    description: 'Ctrl+V 粘贴截图，或由手机通过远程桥接把照片直传电脑算力。',
   },
 ];
 
 export const recognitionStages = [
   {
     id: 'frame',
-    title: '定位公式区域',
-    description: '先识别页面中需要处理的数学内容。',
+    index: '01',
+    title: '定位公式与版面区域',
+    description: '独立公式检测与文字检测模型区分行内公式、块级公式与正文段落。',
   },
   {
     id: 'symbols',
-    title: '拆分符号关系',
-    description: '保留上下标、分式和运算符之间的空间关系。',
+    index: '02',
+    title: '解析二维符号关系',
+    description: 'ONNX 本地推理保留上下标、分式、矩阵与微积分算子的空间层次。',
   },
   {
     id: 'expression',
-    title: '重建数学表达式',
-    description: '让结果能够被继续检查、编辑和转换。',
+    index: '03',
+    title: '重建可编辑数学结构',
+    description: '输出结构化表达式，直接进入 MathLive 编辑、符号计算与多格式导出。',
   },
 ];
 
@@ -98,55 +107,141 @@ export const conversionFormats = [
     id: 'latex',
     label: 'LaTeX',
     code: '\\int_0^\\infty e^{-x^2}\\,dx',
-    description: '适合论文、笔记和数学编辑器。',
+    description: '论文、讲义、Obsidian 与 MathLive 编辑器的通用源码格式。',
   },
   {
     id: 'typst',
     label: 'Typst',
     code: '$ integral_0^infinity e^(-x^2) dif x $',
-    description: '适合 Typst 文档工作流。',
+    description: '直接贴合 Typst 现代排版与自动化文档构建流程。',
   },
   {
     id: 'mathml',
     label: 'MathML',
     code: '<math><msubsup><mo>∫</mo><mn>0</mn><mo>∞</mo></msubsup><msup><mi>e</mi><mrow><mo>-</mo><msup><mi>x</mi><mn>2</mn></msup></mrow></msup><mi>d</mi><mi>x</mi></math>',
-    description: '为网页和可访问性工具保留数学结构。',
+    description: '为网页渲染、无障碍阅读与 Word 剪贴板粘贴保留完整语义树。',
   },
   {
     id: 'omml',
     label: 'OMML',
     code: '<m:oMath><m:int><m:intPr><m:limLow><m:e><m:r><m:t>0</m:t></m:r></m:e></m:limLow><m:limUpp><m:e><m:r><m:t>∞</m:t></m:r></m:e></m:limUpp></m:intPr></m:int></m:oMath>',
-    description: '适合 Microsoft Office 文档集成。',
+    description: '直通 Microsoft Word 原生公式对象，并支持与 OLE / MathType 互转。',
   },
 ];
 
+export const ecosystemCoreNode = {
+  id: 'core',
+  name: 'latexsnipper-core',
+  badge: 'Core 3 · v3.2.1',
+  license: 'AGPL-3.0',
+  role: 'SHARED MATH ENGINE',
+  repository: 'strangelion/latexsnipper-core',
+  summary:
+    '37-crate Rust 文档理解内核，以统一 Document AST（schema 1.0.0）串联原生 ONNX / 浏览器 WASM 推理与跨格式语义转换。',
+  highlights: [
+    '支持 19 种输入与 14 种输出，含 AsciiMath / UnicodeMath 单公式互转',
+    '提供 CLI、Rust SDK、C FFI、PyO3、WASI 插件宿主与浏览器 WASM',
+    '内置离线绘图消毒管线（SVG / TikZ / PGFPlots / Graphviz）与自定义符号包',
+  ],
+  href: 'https://github.com/strangelion/latexsnipper-core',
+  siteRoute: '/open-source.html',
+  siteLabel: '查看开源许可与运行时',
+};
+
 export const ecosystemNodes = [
-  {
-    id: 'web',
-    name: 'Web',
-    repository: 'strangelion/LaTeXSnipper_Web',
-    summary: 'Browser-first mathematical workspace',
-    href: 'https://github.com/strangelion/LaTeXSnipper_Web',
-  },
   {
     id: 'desktop',
     name: 'Desktop',
+    fullName: 'LaTeXSnipper Desktop',
+    badge: DESKTOP_RELEASE_LABEL,
+    license: 'GPL-3.0',
+    role: 'FLAGSHIP WORKBENCH',
     repository: 'SakuraMathcraft/LaTeXSnipper',
-    summary: 'Full desktop workflow',
+    summary:
+      '旗舰桌面数学工作台，提供自包含离线安装包（Windows / Linux / macOS），内置 MathCraft OCR、MathLive 计算工作台与 Word / PowerPoint VSTO 插件。',
+    highlights: [
+      '自包含离线部署：内置运行环境与模型，无需首次联网配置',
+      '20 种导出格式（12 内置 + 8 Pandoc），支持 OLE 与 MathType 双向互转',
+      '内置 Automation API v1（端口 28765），串联 Office 插件与远程网页端',
+    ],
     href: 'https://github.com/SakuraMathcraft/LaTeXSnipper',
+    siteRoute: '/download.html',
+    siteLabel: '下载桌面版',
   },
   {
     id: 'office',
     name: 'Office',
+    fullName: 'LaTeXSnipper Office',
+    badge: 'v1.7.2',
+    license: 'AGPL-3.0',
+    role: 'EDITOR & PLUGINS',
     repository: 'strangelion/LaTeXSnipper-Office',
-    summary: 'Document-oriented integration',
+    summary:
+      'Tauri 2.0 独立公式与离线绘图套件，直接嵌入 Core 3 内核，覆盖 Word、Excel、PowerPoint、Visio、WPS、VS Code 与主流浏览器扩展。',
+    highlights: [
+      '5 大工作区：公式编辑、Core OCR 识别、2,100+ 预设公式库、Office 桥接与诊断',
+      '内置离线 SVG / TikZ / PGFPlots / Graphviz / Mermaid 绘图与自定义符号合成器',
+      'Windows 原生 VSTO/OLE 命名管道 + 跨平台本地桥接服务',
+    ],
     href: 'https://github.com/strangelion/LaTeXSnipper-Office',
+    siteRoute: '/download.html#projectBoundaryTitle',
+    siteLabel: '查看生态入口',
   },
   {
     id: 'mobile',
     name: 'Mobile',
+    fullName: 'LaTeXSnipper Mobile',
+    badge: 'v1.3.1',
+    license: 'AGPL-3.0',
+    role: 'OFFLINE ANDROID OCR',
     repository: 'strangelion/LaTeXSnipper_mobile',
-    summary: 'Capture and quick conversion',
+    summary:
+      '基于 Capacitor 的移动端离线数学识别应用，Android 通过 Java ONNX Runtime（NNAPI 加速）在本地运行公式、文字与混合 OCR。',
+    highlights: [
+      '拍照、相册、PDF 与手写识别，按需下载模型包并校验 SHA-256',
+      '集成 MathLive 编辑、KaTeX / MathJax 双渲染引擎与 7 套视觉主题',
+      '内嵌 Core WASM 完成 AST 校验与 9 种格式语义导出',
+    ],
     href: 'https://github.com/strangelion/LaTeXSnipper_mobile',
+    siteRoute: '/download.html',
+    siteLabel: '获取 Android APK',
+  },
+  {
+    id: 'obsidian',
+    name: 'Obsidian',
+    fullName: 'Obsidian Formula Library',
+    badge: 'v1.6.3',
+    license: 'AGPL-3.0',
+    role: 'KNOWLEDGE BASE PLUGIN',
+    repository: 'strangelion/obsidian-formula-library',
+    summary:
+      '零外部服务依赖的独立 Obsidian 社区插件（桌面与移动双端可用），内嵌 Core WASM 实现单公式 6×6 跨格式互转。',
+    highlights: [
+      '内置 2,216 条公式（19 分类）、拼音/别名模糊搜索与 19 类参数化模板',
+      '支持矩阵数据粘贴、交互式函数绘图（滑块调参）与 Mermaid 图形编辑器',
+      '36 条单公式互转路线（LaTeX / Typst / MathML / OMML / AsciiMath / UnicodeMath）',
+    ],
+    href: 'https://github.com/strangelion/obsidian-formula-library',
+    siteRoute: '/open-source.html#ecosystemMatrix',
+    siteLabel: '查看仓库详情',
+  },
+  {
+    id: 'web',
+    name: 'Web',
+    fullName: 'LaTeXSnipper Web',
+    badge: 'Core WASM',
+    license: 'Self-Hosted',
+    role: 'BROWSER WORKSPACE',
+    repository: 'strangelion/LaTeXSnipper_Web',
+    summary:
+      '当前所在站点：提供浏览器本地 Core WASM 单公式识别工作区、直连桌面版算力的远程桥接页，以及完整版本下载与用户手册。',
+    highlights: [
+      '/ocr.html：WASM / Tract 本地单公式推理，模型按需缓存、图片不上传',
+      '/remote.html：通过安全隧道或 HTTPS 直连桌面端 Automation API v1',
+      '/user_manual.html：Typst 自动构建的完整双端阅读版用户手册',
+    ],
+    href: 'https://github.com/strangelion/LaTeXSnipper_Web',
+    siteRoute: '/ocr.html',
+    siteLabel: '打开在线识别',
   },
 ];

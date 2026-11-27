@@ -1,7 +1,7 @@
 .manual-content {
   color: var(--site-ink-soft);
   font-size: 1rem;
-  line-height: 1.82;
+  line-height: 1.86;
 }
 
 .manual-content h1,
@@ -9,15 +9,15 @@
 .manual-content h3 {
   color: var(--site-ink);
   text-wrap: balance;
-  scroll-margin-top: 100px;
+  scroll-margin-top: 96px;
 }
 
 .manual-content h1 {
-  margin: 4.8rem 0 1.25rem;
-  padding-top: 1.5rem;
+  margin: 4.4rem 0 1.25rem;
+  padding-top: 1.65rem;
   border-top: 1px solid var(--site-line);
-  font: 520 clamp(2.15rem, 5vw, 3.7rem)/1.12 var(--site-serif);
-  letter-spacing: -0.04em;
+  font: 700 clamp(1.75rem, 3.4vw, 2.4rem)/1.2 var(--site-display, var(--site-sans));
+  letter-spacing: -0.028em;
 }
 
 .manual-content h1:first-of-type {
@@ -27,18 +27,19 @@
 }
 
 .manual-content h2 {
-  margin: 3rem 0 1rem;
-  font: 590 clamp(1.45rem, 3vw, 2.05rem)/1.25 var(--site-serif);
-  letter-spacing: -0.025em;
+  margin: 2.85rem 0 0.95rem;
+  font: 700 clamp(1.28rem, 2.2vw, 1.56rem)/1.28 var(--site-display, var(--site-sans));
+  letter-spacing: -0.022em;
 }
 
 .manual-content h3 {
-  margin: 2.15rem 0 0.8rem;
-  font: 700 1.08rem/1.35 var(--site-sans);
+  margin: 2.1rem 0 0.75rem;
+  font: 650 1.06rem/1.4 var(--site-display, var(--site-sans));
+  letter-spacing: -0.012em;
 }
 
 .manual-content p {
-  margin: 0.85rem 0;
+  margin: 0.9rem 0;
 }
 
 .manual-content a {
@@ -49,18 +50,18 @@
 
 .manual-content strong {
   color: var(--site-ink);
-  font-weight: 720;
+  font-weight: 700;
 }
 
 .manual-content ul,
 .manual-content ol {
-  margin: 1rem 0 1.35rem;
+  margin: 1rem 0 1.4rem;
   padding-left: 1.4rem;
 }
 
 .manual-content li {
-  margin: 0.42rem 0;
-  padding-left: 0.22rem;
+  margin: 0.45rem 0;
+  padding-left: 0.24rem;
 }
 
 .manual-content li::marker {
@@ -68,20 +69,20 @@
 }
 
 .manual-content code:not(pre code) {
-  padding: 0.13rem 0.38rem;
+  padding: 0.14rem 0.44rem;
   border: 1px solid var(--site-line);
   border-radius: 6px;
-  color: var(--site-ink-soft);
+  color: var(--site-ink);
   background: var(--site-surface);
-  font: 0.86em/1.4 var(--site-mono);
+  font: 0.84em/1.4 var(--site-mono);
   overflow-wrap: anywhere;
 }
 
 .manual-content hr {
   height: 1px;
-  margin: 3rem 0;
+  margin: 2.9rem 0;
   border: 0;
-  background: var(--site-line);
+  background: linear-gradient(90deg, transparent, var(--site-line-strong), transparent);
 }
 
 .manual-content img {
@@ -89,18 +90,19 @@
   height: auto;
   border: 1px solid var(--site-line);
   border-radius: var(--site-radius-md);
-  box-shadow: var(--site-shadow-sm);
+  box-shadow: var(--site-shadow-md);
 }
 
 .center {
-  margin: 1.5rem 0;
+  margin: 1.65rem 0;
   text-align: center;
 }
 
 .block {
-  margin: 1.4rem 0;
-  padding: 1.15rem 1.25rem;
+  margin: 1.45rem 0;
+  padding: 1.15rem 1.35rem;
   border-left: 2px solid var(--site-line-strong);
+  border-radius: 0 var(--site-radius-sm) var(--site-radius-sm) 0;
   color: var(--site-muted);
   background: var(--site-surface-soft);
 }
@@ -109,6 +111,7 @@
   border: 1px solid var(--site-line);
   border-radius: var(--site-radius-md);
   background: var(--site-surface);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
 }
 
 .block-orange {
@@ -118,22 +121,23 @@
 
 .callout,
 .warn-box {
-  margin: 1.55rem 0;
+  margin: 1.65rem 0;
   overflow: hidden;
   border: 1px solid var(--site-line);
   border-left: 3px solid var(--site-blue);
-  border-radius: 0 var(--site-radius-sm) var(--site-radius-sm) 0;
+  border-radius: var(--site-radius-sm);
   background: var(--site-surface);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
 }
 
 .callout-title {
-  padding: 0.8rem 1rem 0;
+  padding: 0.9rem 1.18rem 0;
   color: var(--site-ink);
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .callout-body {
-  padding: 0.25rem 1rem 0.85rem;
+  padding: 0.35rem 1.18rem 0.95rem;
   color: var(--site-muted);
 }
 
@@ -154,7 +158,7 @@
 
 .callout.warn,
 .warn-box {
-  padding: 1rem 1.1rem;
+  padding: 1rem 1.18rem;
   border-left-color: var(--site-warning);
   background: var(--site-warning-soft);
 }
@@ -166,20 +170,21 @@
 
 .code-block {
   max-width: 100%;
-  margin: 1.35rem 0;
+  margin: 1.45rem 0;
   overflow: hidden;
-  border: 1px solid var(--site-line);
-  border-radius: var(--site-radius-sm);
-  background: color-mix(in srgb, var(--site-bg) 86%, black 14%);
+  border: 1px solid var(--site-line-strong);
+  border-radius: var(--site-radius-md);
+  background: color-mix(in srgb, var(--site-bg-alt) 84%, var(--site-ink) 3%);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
 }
 
 .code-block pre {
   position: relative;
   margin: 0;
-  padding: 1.2rem;
+  padding: 1.18rem 1.3rem;
   overflow: auto;
-  color: var(--site-ink-soft);
-  font: 0.82rem/1.7 var(--site-mono);
+  color: var(--site-ink);
+  font: 0.82rem/1.72 var(--site-mono);
   tab-size: 2;
 }
 
@@ -189,35 +194,39 @@
   float: right;
   min-height: 30px;
   margin: -0.35rem -0.35rem 0.5rem 0.8rem;
-  padding: 4px 9px;
-  border: 1px solid var(--site-line);
-  border-radius: 7px;
+  padding: 4px 11px;
+  border: 1px solid var(--site-line-strong);
+  border-radius: 8px;
   color: var(--site-muted);
   background: var(--site-bg-elevated);
-  font: 600 0.7rem/1 var(--site-sans);
+  font: 600 0.72rem/1 var(--site-sans);
   cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
 }
 
 .copy-btn:hover,
 .copy-btn.copied {
   color: var(--site-blue);
-  border-color: color-mix(in srgb, var(--site-blue) 30%, transparent);
+  border-color: color-mix(in srgb, var(--site-blue) 42%, transparent);
+  background: var(--site-blue-soft);
 }
 
 .typst-table {
   width: 100%;
-  margin: 1.5rem 0;
+  margin: 1.65rem 0;
   border-collapse: collapse;
   border-spacing: 0;
   overflow: hidden;
   border: 1px solid var(--site-line);
-  border-radius: var(--site-radius-sm);
+  border-radius: var(--site-radius-md);
+  background: var(--site-surface);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
   font-size: 0.88rem;
 }
 
 .typst-table th,
 .typst-table td {
-  padding: 0.72rem 0.85rem;
+  padding: 0.78rem 0.96rem;
   border-bottom: 1px solid var(--site-line);
   text-align: left;
   vertical-align: top;
@@ -226,7 +235,11 @@
 .typst-table th {
   color: var(--site-ink);
   background: var(--site-surface-strong);
-  font-weight: 720;
+  font-weight: 700;
+}
+
+.typst-table tbody tr:hover td {
+  background: var(--site-surface-soft);
 }
 
 .typst-table tr:last-child td {
@@ -244,13 +257,13 @@
   }
 
   .manual-content h1 {
-    margin-top: 3.7rem;
-    font-size: clamp(1.95rem, 10vw, 2.65rem);
+    margin-top: 3.2rem;
+    font-size: clamp(1.55rem, 7.2vw, 2.05rem);
   }
 
   .manual-content h2 {
-    margin-top: 2.5rem;
-    font-size: 1.45rem;
+    margin-top: 2.3rem;
+    font-size: 1.32rem;
   }
 
   .code-block pre {

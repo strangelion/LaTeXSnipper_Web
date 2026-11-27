@@ -399,6 +399,9 @@ jobs:
             .release_state.json \
             index.html \
             download.html \
+            public/ocr.html \
+            public/remote.html \
+            public/open-source.html \
             src/data/siteContent.js
           if git diff --staged --quiet; then
             echo "No release metadata or website copy changes"

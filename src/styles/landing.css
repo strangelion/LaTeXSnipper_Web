@@ -15,7 +15,7 @@
 }
 
 .section-space {
-  padding: clamp(88px, 10vw, 148px) 0;
+  padding: clamp(68px, 8vw, 108px) 0;
 }
 
 .hero-section {
@@ -147,10 +147,10 @@
 
 .hero-copy h1 {
   max-width: 740px;
-  margin: 0 0 22px;
+  margin: 0 0 20px;
   color: var(--ls-ink);
-  font: 650 clamp(3.35rem, 5.4vw, 5.35rem) / 1.04 var(--ls-sans);
-  letter-spacing: -0.06em;
+  font: 700 clamp(2.85rem, 4.7vw, 4.4rem) / 1.12 var(--ls-display, var(--ls-sans));
+  letter-spacing: -0.028em;
   text-wrap: balance;
 }
 
@@ -168,17 +168,49 @@
 }
 
 .hero-description {
-  max-width: 580px;
+  max-width: 540px;
   margin: 0;
   color: var(--ls-muted);
-  font: 400 1.05rem / 1.9 var(--ls-sans);
+  font: 400 1.03rem / 1.82 var(--ls-sans);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 30px;
+}
+
+.hero-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  max-width: 540px;
+  margin: 28px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid var(--ls-line);
+  list-style: none;
+}
+
+.hero-highlights li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ls-line) 75%, transparent);
+  background: color-mix(in srgb, var(--ls-surface) 88%, transparent);
+  box-shadow: var(--site-card-highlight, none);
+}
+
+.hero-highlights strong {
+  color: var(--ls-ink);
+  font: 650 0.84rem / 1.35 var(--ls-sans);
+}
+
+.hero-highlights span {
+  color: var(--ls-muted);
+  font: 500 0.74rem / 1.4 var(--ls-mono);
 }
 
 .hero-visual {
@@ -466,7 +498,7 @@
 
 .section-heading {
   max-width: 760px;
-  margin-bottom: clamp(44px, 5vw, 68px);
+  margin-bottom: clamp(34px, 4.2vw, 54px);
 }
 
 .section-heading h2,
@@ -474,16 +506,16 @@
 .download-cta-panel h2 {
   margin: 0;
   color: var(--ls-ink);
-  font: 560 clamp(2.35rem, 4.5vw, 4.6rem) / 1.1 var(--ls-serif);
-  letter-spacing: -0.05em;
+  font: 700 clamp(2.05rem, 3.6vw, 3.2rem) / 1.16 var(--ls-display, var(--ls-sans));
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
 .section-heading p {
-  max-width: 62ch;
-  margin: 22px 0 0;
+  max-width: 60ch;
+  margin: 16px 0 0;
   color: var(--ls-muted);
-  font: 400 1rem / 1.8 var(--ls-sans);
+  font: 400 1rem / 1.78 var(--ls-sans);
 }
 
 .scene-index {
@@ -671,8 +703,8 @@
 .playground-copy h3 {
   margin: 0;
   color: var(--ls-ink);
-  font: 650 clamp(1.55rem, 2.8vw, 2.45rem) / 1.08 var(--ls-sans);
-  letter-spacing: -0.045em;
+  font: 700 clamp(1.45rem, 2.4vw, 2.05rem) / 1.18 var(--ls-display, var(--ls-sans));
+  letter-spacing: -0.024em;
 }
 
 .playground-copy code {
@@ -2099,7 +2131,8 @@
   }
 
   .hero-copy h1 {
-    font-size: clamp(2.7rem, 14vw, 3.6rem);
+    font-size: clamp(2.15rem, 9.6vw, 2.9rem);
+    line-height: 1.15;
   }
 
   .hero-eyebrow {
@@ -2117,7 +2150,7 @@
     min-width: 0;
     min-height: 46px;
     padding-inline: 10px;
-    font-size: 0.76rem;
+    font-size: 0.78rem;
   }
 
   .hero-trust {
@@ -2162,11 +2195,19 @@
   }
 
   .hero-float-card {
-    max-width: 52%;
+    min-width: 0;
+    max-width: 60%;
+    padding: 11px 13px;
   }
 
-  .hero-float-card span {
-    font-size: 0.61rem;
+  .hero-float-card strong {
+    font-size: 0.76rem;
+    white-space: nowrap;
+  }
+
+  .hero-float-card > .lg-content > span {
+    font-size: 0.62rem;
+    line-height: 1.35;
   }
 
   .node-omml,

@@ -27,10 +27,11 @@ export default function AstSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
+          <span className={styles.eyebrow}>03 · Understand</span>
           <h2 id="understand-title">
             OCR 只是开始，<span className="cjk-word">真正</span>有价值的是结构。
           </h2>
-          <p>同一表达式由节点和关系组成，因此可以继续编辑、计算和转换。</p>
+          <p>Core 3 以统一 Document AST（schema 1.0.0）组织表达式节点与关系，让结果可持续编辑、计算与无损转换。</p>
         </header>
         <div className={styles.astLayout}>
           <div className={styles.astVisualStack} data-reveal="mask">

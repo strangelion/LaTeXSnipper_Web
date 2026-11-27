@@ -29,14 +29,20 @@ export default function useScrollReveal() {
     targets.forEach((target) => observer.observe(target));
 
     // Safety net: if an observation is ever missed (a node replaced during a
-    // re-render, a jump straight to an anchor), nothing should stay invisible.
+    // re-render, fast scroll, or anchor jump), nothing at or above the viewport
+    // should remain invisible.
     let raf = 0;
     const revealVisible = () => {
-      for (const el of document.querySelectorAll("[data-reveal]:not([data-revealed])")) {
+      const pending = document.querySelectorAll(
+        ".reveal:not(.in-view), [data-reveal]:not([data-revealed])",
+      );
+      const cutoff = window.innerHeight * 0.96;
+      for (const el of pending) {
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.94 && rect.bottom > 0) {
+        if (rect.top <= cutoff) {
           el.dataset.revealed = "true";
           el.classList.add("in-view");
+          observer.unobserve(el);
         }
       }
     };
@@ -52,10 +58,12 @@ export default function useScrollReveal() {
     window.addEventListener("scroll", scheduleReveal, { passive: true });
     window.addEventListener("resize", scheduleReveal, { passive: true });
     window.addEventListener("load", scheduleReveal, { once: true });
+    const safetyEarly = window.setTimeout(revealVisible, 700);
     const safety = window.setTimeout(revealVisible, 2400);
 
     return () => {
       observer.disconnect();
+      window.clearTimeout(safetyEarly);
       window.clearTimeout(safety);
       window.cancelAnimationFrame(raf);
       window.removeEventListener("scroll", scheduleReveal);

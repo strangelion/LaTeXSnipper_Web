@@ -4,58 +4,583 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>开源许可 — LaTeXSnipper</title>
+  <meta name="description" content="LaTeXSnipper 网页端所使用的 Core WASM、浏览器运行时与开源组件许可清单。">
   <link rel="icon" type="image/png" href="/assets/images/icon.png">
-  <link rel="stylesheet" href="/styles/styles.css">
+  <script>
+    try { var s = localStorage.getItem('latexSnipper-theme'); if (s === 'dark' || s === 'light') document.documentElement.setAttribute('data-theme', s); } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="/styles/site-tokens.css">
+  <link rel="stylesheet" href="/styles/liquid-glass.css">
+  <link rel="stylesheet" href="/styles/liquid-environment.css">
+  <link rel="stylesheet" href="/styles/site-shell.css">
+  <script src="/js/product-shell.js" defer></script>
   <style>
-    body { background: var(--bg); color: var(--fg); }
-    main { width: min(920px, calc(100% - 2rem)); margin: 3rem auto 5rem; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin-bottom: .5rem; }
-    .lead { color: var(--muted); line-height: 1.8; }
-    .license-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 2rem 0; }
-    article { border: 1px solid var(--border-color); border-radius: 14px; background: var(--card-bg); padding: 1.25rem; }
-    article h2 { margin-top: 0; font-size: 1.1rem; }
-    dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; }
-    dd { margin: 0; overflow-wrap: anywhere; }
-    a { color: var(--accent); }
-    .back { display: inline-block; margin-bottom: 2rem; }
-    #buildInfoError { color: #ef4444; }
+    .oss-page {
+      position: relative;
+      isolation: isolate;
+      width: min(1080px, calc(100% - 40px));
+      margin-inline: auto;
+      padding-bottom: 92px;
+    }
+
+    .oss-environment .liquid-environment__word {
+      left: 50%;
+      top: 72px;
+      transform: translateX(-50%);
+      font-size: clamp(2.4rem, 6vw, 4.6rem);
+      opacity: 0.022;
+    }
+
+    .oss-hero {
+      max-width: 740px;
+      margin: 26px 0 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .oss-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 18px;
+      color: var(--site-muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 160ms ease;
+    }
+
+    .oss-back:hover {
+      color: var(--site-blue);
+    }
+
+    .oss-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 0 12px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--site-blue) 24%, var(--site-line));
+      background: color-mix(in srgb, var(--site-blue-soft) 55%, var(--site-surface));
+      color: var(--site-blue);
+      font: 700 0.7rem/1.25 var(--site-mono);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .oss-hero h1 {
+      margin: 0;
+      color: var(--site-ink);
+      font: 700 clamp(2.1rem, 4.4vw, 3.25rem)/1.12 var(--site-display, var(--site-sans));
+      letter-spacing: -0.03em;
+      text-wrap: balance;
+    }
+
+    .oss-lead {
+      margin: 14px 0 0;
+      color: var(--site-muted);
+      font-size: clamp(0.95rem, 1.35vw, 1.05rem);
+      line-height: 1.76;
+    }
+
+    .oss-section-head {
+      margin: 44px 0 18px;
+      padding-top: 30px;
+      border-top: 1px solid var(--site-line);
+    }
+
+    .oss-section-head .oss-eyebrow {
+      margin-bottom: 10px;
+    }
+
+    .oss-section-head h2 {
+      margin: 0;
+      color: var(--site-ink);
+      font: 700 clamp(1.45rem, 2.6vw, 1.95rem)/1.2 var(--site-display, var(--site-sans));
+      letter-spacing: -0.025em;
+    }
+
+    .oss-section-head p {
+      max-width: 68ch;
+      margin: 8px 0 0;
+      color: var(--site-muted);
+      font-size: 0.92rem;
+      line-height: 1.68;
+    }
+
+    .license-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 0 0 28px;
+    }
+
+    .license-card {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 22px 22px;
+      border: 1px solid var(--site-line);
+      border-radius: var(--site-radius-lg);
+      background: var(--site-surface);
+      box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
+      transition: transform 200ms var(--site-ease), border-color 180ms ease, background-color 180ms ease, box-shadow 220ms ease;
+    }
+
+    .license-card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--site-blue) 36%, var(--site-line-strong));
+      background: var(--site-surface-strong);
+      box-shadow: var(--site-card-highlight, none), var(--site-shadow-md);
+    }
+
+    .license-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .license-card__tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--site-blue);
+      font: 700 0.68rem/1.2 var(--site-mono);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .license-card__top .license-card__tag {
+      margin-bottom: 0;
+    }
+
+    .license-card h2,
+    .license-card h3 {
+      margin: 0 0 12px;
+      color: var(--site-ink);
+      font: 700 1.16rem/1.28 var(--site-display, var(--site-sans));
+      letter-spacing: -0.02em;
+    }
+
+    .license-card h2 {
+      margin-bottom: 16px;
+      font-size: 1.2rem;
+    }
+
+    .repo-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .repo-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--site-line);
+      background: var(--site-surface-soft);
+      color: var(--site-ink-soft);
+      font: 600 0.7rem/1.35 var(--site-mono);
+    }
+
+    .repo-pill--accent {
+      border-color: color-mix(in srgb, var(--site-blue) 28%, var(--site-line));
+      background: var(--site-blue-soft);
+      color: var(--site-blue);
+    }
+
+    .license-dl {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .license-dl > div {
+      display: grid;
+      grid-template-columns: minmax(7.2rem, auto) minmax(0, 1fr);
+      gap: 6px 12px;
+      align-items: baseline;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--site-line);
+    }
+
+    .license-dl > div:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .license-dl dt {
+      color: var(--site-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .license-dl dd {
+      margin: 0;
+      color: var(--site-ink);
+      font: 500 0.82rem/1.45 var(--site-mono);
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    #coreCommit {
+      display: inline-block;
+      max-width: 100%;
+      padding: 2px 7px;
+      border: 1px solid var(--site-line);
+      border-radius: 6px;
+      background: var(--site-surface-soft);
+      font-size: 0.74rem;
+      line-height: 1.45;
+      text-align: left;
+      word-break: break-all;
+      user-select: all;
+    }
+
+    .runtime-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .runtime-list li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid var(--site-line);
+      color: var(--site-ink-soft);
+      font-size: 0.86rem;
+    }
+
+    .runtime-list li:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .runtime-list strong {
+      color: var(--site-ink);
+      font-weight: 600;
+    }
+
+    .runtime-license {
+      flex: none;
+      padding: 2px 8px;
+      border: 1px solid var(--site-line);
+      border-radius: 999px;
+      color: var(--site-muted);
+      background: var(--site-surface-soft);
+      font: 600 0.7rem/1.3 var(--site-mono);
+    }
+
+    .license-copy {
+      margin: 0;
+      color: var(--site-muted);
+      font-size: 0.86rem;
+      line-height: 1.72;
+    }
+
+    .license-links {
+      margin: auto 0 0;
+      padding-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .license-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 4px 11px;
+      border: 1px solid var(--site-line);
+      border-radius: 999px;
+      color: var(--site-blue);
+      background: var(--site-surface-soft);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .license-links a:hover {
+      border-color: color-mix(in srgb, var(--site-blue) 48%, var(--site-line));
+      background: var(--site-blue-soft);
+      color: var(--site-blue-strong);
+    }
+
+    #buildInfoError {
+      margin: 8px 0 0;
+      color: var(--site-danger);
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+
+    #buildInfoError:empty {
+      display: none;
+    }
+
+    @media (max-width: 960px) {
+      .license-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .oss-page {
+        width: calc(100% - 24px);
+        padding-bottom: 68px;
+      }
+
+      .oss-hero {
+        margin: 18px 0 26px;
+      }
+
+      .license-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .license-dl > div {
+        grid-template-columns: 1fr;
+        gap: 3px;
+      }
+
+      .license-dl dd {
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <a class="back" href="/">← 返回首页</a>
-    <h1>开源许可</h1>
-    <p class="lead">本站在浏览器中运行 LaTeXSnipper Core WASM、ONNX Runtime Web、PDF.js、MathJax 与 p5.js。下面列出当前部署版本与对应许可。</p>
+  <header class="site-header" data-shell-header>
+    <div class="site-header-inner lg-surface lg-surface--navigation">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+      <div class="lg-content">
+        <a href="/" class="site-brand" aria-label="返回 LaTeXSnipper 主页"><img src="/assets/images/icon-96.png" width="34" height="34" alt=""><span>LaTeXSnipper</span></a>
+        <nav class="site-navigation" data-lg-mobile-panel id="siteNavigation" aria-label="主导航">
+          <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span>
+          <div class="lg-content">
+            <a href="/#product">产品</a>
+            <a href="/#workflow">工作流</a>
+            <a href="/remote.html">远程连接</a>
+            <a href="/#ecosystem">生态</a>
+            <a href="/user_manual.html">文档</a>
+            <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </nav>
+        <div class="site-header-actions">
+          <button class="theme-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+          <a class="site-download-link" href="/download.html">下载</a>
+          <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
+        </div>
+      </div>
+    </div>
+  </header>
 
-    <section class="license-grid">
-      <article>
+  <main class="site-page oss-page">
+    <div class="liquid-environment oss-environment" aria-hidden="true">
+      <span class="liquid-environment__word">OPEN SOURCE</span>
+      <span class="liquid-environment__orb env-orb-a"></span>
+      <span class="liquid-environment__orb env-orb-b"></span>
+      <span class="liquid-environment__line env-line-a"></span>
+      <span class="liquid-environment__line env-line-b"></span>
+      <span class="env-curve"></span>
+    </div>
+
+    <header class="oss-hero">
+      <a class="oss-back" href="/">← 返回首页</a>
+      <p class="oss-eyebrow">OPEN SOURCE &amp; RUNTIME LICENSES</p>
+      <h1>开源许可</h1>
+      <p class="oss-lead">本站在浏览器中运行 LaTeXSnipper Core WASM、ONNX Runtime Web、PDF.js、MathJax 与 p5.js。下面列出当前站点运行时与全生态开源仓库的版本与许可矩阵。</p>
+    </header>
+
+    <section class="license-grid" aria-label="网页运行时组件与许可清单">
+      <article class="license-card">
+        <span class="license-card__tag">Core Engine</span>
         <h2>LaTeXSnipper Core WASM</h2>
-        <dl>
-          <dt>版本</dt><dd id="coreVersion">读取中…</dd>
-          <dt>Commit</dt><dd id="coreCommit">读取中…</dd>
-          <dt>WASM API</dt><dd id="wasmApiVersion">读取中…</dd>
-          <dt>Document Schema</dt><dd id="documentSchemaVersion">读取中…</dd>
-          <dt>许可</dt><dd>AGPL-3.0-only</dd>
+        <dl class="license-dl">
+          <div><dt>版本</dt><dd id="coreVersion">读取中…</dd></div>
+          <div><dt>Commit</dt><dd id="coreCommit">读取中…</dd></div>
+          <div><dt>WASM API</dt><dd id="wasmApiVersion">读取中…</dd></div>
+          <div><dt>Document Schema</dt><dd id="documentSchemaVersion">读取中…</dd></div>
+          <div><dt>许可</dt><dd>AGPL-3.0-only</dd></div>
         </dl>
-        <p><a href="https://github.com/strangelion/latexsnipper-core">Core 源代码</a> · <a href="/core-wasm/LICENSE">许可原文</a></p>
+        <p class="license-links">
+          <a href="https://github.com/strangelion/latexsnipper-core" target="_blank" rel="noopener">Core 源代码</a>
+          <a href="/core-wasm/LICENSE">许可原文</a>
+        </p>
       </article>
 
-      <article>
+      <article class="license-card">
+        <span class="license-card__tag">Web Runtime</span>
         <h2>浏览器运行时</h2>
-        <p>ONNX Runtime Web 1.26.0 — MIT</p>
-        <p>PDF.js 3.11.174 — Apache-2.0</p>
-        <p>MathJax 3.2.2 — Apache-2.0</p>
-        <p>p5.js 2.3.3 — LGPL-2.1</p>
-        <p><a href="/vendor/onnxruntime/LICENSE">ORT 许可</a> · <a href="/vendor/pdfjs/LICENSE">PDF.js 许可</a> · <a href="/vendor/mathjax/LICENSE">MathJax 许可</a> · <a href="/vendor/p5/LICENSE">p5.js 许可</a></p>
+        <ul class="runtime-list">
+          <li><strong>ONNX Runtime Web 1.26.0</strong><span class="runtime-license">MIT</span></li>
+          <li><strong>PDF.js 3.11.174</strong><span class="runtime-license">Apache-2.0</span></li>
+          <li><strong>MathJax 3.2.2</strong><span class="runtime-license">Apache-2.0</span></li>
+          <li><strong>p5.js 2.3.3</strong><span class="runtime-license">LGPL-2.1</span></li>
+        </ul>
+        <p class="license-links">
+          <a href="/vendor/onnxruntime/LICENSE">ORT 许可</a>
+          <a href="/vendor/pdfjs/LICENSE">PDF.js 许可</a>
+          <a href="/vendor/mathjax/LICENSE">MathJax 许可</a>
+          <a href="/vendor/p5/LICENSE">p5.js 许可</a>
+        </p>
       </article>
 
-      <article>
+      <article class="license-card">
+        <span class="license-card__tag">Model Assets</span>
         <h2>识别模型</h2>
-        <p>模型文件由网页按需下载，并在浏览器缓存。各模型的来源、版本和许可应以随模型发布的 manifest 为准。</p>
-        <p><a href="https://github.com/strangelion/latexsnipper-core/releases">Core 与模型 Releases</a></p>
+        <p class="license-copy">模型文件由网页按需下载，并在浏览器本地缓存。各模型的来源、版本和许可应以随模型发布的 manifest 为准。</p>
+        <p class="license-links">
+          <a href="https://github.com/strangelion/latexsnipper-core/releases" target="_blank" rel="noopener">Core 与模型 Releases</a>
+        </p>
       </article>
     </section>
+
     <p id="buildInfoError" role="status"></p>
+
+    <section id="ecosystemMatrix" aria-labelledby="ecosystemMatrixHeading">
+      <div class="oss-section-head">
+        <p class="oss-eyebrow">ECOSYSTEM REPOSITORIES</p>
+        <h2 id="ecosystemMatrixHeading">全生态开源仓库与许可矩阵</h2>
+        <p>Desktop 与 Lite 采用 GPL-3.0；Rust 核心引擎、Office 独立套件、Android 客户端与 Obsidian 插件采用 AGPL-3.0 协议，源码均在 GitHub 公开维护。</p>
+      </div>
+
+      <div class="license-grid">
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Desktop</span>
+            <span class="runtime-license">GPL-3.0</span>
+          </div>
+          <h3>LaTeXSnipper Desktop</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill repo-pill--accent" data-release-label>v3.3.0 LTS</span>
+            <span class="repo-pill">SakuraMathcraft</span>
+          </div>
+          <p class="license-copy">Windows / Linux / macOS 自包含离线桌面端，内置 MathCraft 模型、20 种导出格式、Word/PPT 原生插件与 Automation API v1。</p>
+          <p class="license-links">
+            <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub 仓库</a>
+            <a href="/download.html">下载安装包</a>
+          </p>
+        </article>
+
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Rust Core</span>
+            <span class="runtime-license">AGPL-3.0</span>
+          </div>
+          <h3>latexsnipper-core</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill repo-pill--accent">v3.2.1</span>
+            <span class="repo-pill">37 Crates · MSRV 1.88</span>
+          </div>
+          <p class="license-copy">统一 Document AST 1.0.0、19 输入 / 14 输出格式转换、多后端本地推理（ONNX / Tract / WASM）与离线绘图安全净化引擎。</p>
+          <p class="license-links">
+            <a href="https://github.com/strangelion/latexsnipper-core" target="_blank" rel="noopener">GitHub 仓库</a>
+          </p>
+        </article>
+
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Office Suite</span>
+            <span class="runtime-license">AGPL-3.0-only</span>
+          </div>
+          <h3>LaTeXSnipper Office</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill repo-pill--accent">v1.7.2</span>
+            <span class="repo-pill">Tauri 2.0 + Core 3.2.1</span>
+          </div>
+          <p class="license-copy">独立桌面公式与离线绘图套件：2,100+ 公式预设、96+ 自定义符号与 Word / WPS / Visio / Obsidian / VS Code / 浏览器桥接。</p>
+          <p class="license-links">
+            <a href="https://github.com/strangelion/LaTeXSnipper-Office" target="_blank" rel="noopener">GitHub 仓库</a>
+          </p>
+        </article>
+
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Android App</span>
+            <span class="runtime-license">AGPL-3.0</span>
+          </div>
+          <h3>LaTeXSnipper Mobile</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill repo-pill--accent">v1.3.1</span>
+            <span class="repo-pill">Capacitor 8 · NNAPI</span>
+          </div>
+          <p class="license-copy">Android 原生 ONNX Runtime GPU 推理客户端，支持按需下载 SHA-256 校验模型包、7 套主题皮肤、5 种语言与 9 种导出格式。</p>
+          <p class="license-links">
+            <a href="https://github.com/strangelion/LaTeXSnipper_mobile" target="_blank" rel="noopener">GitHub 仓库</a>
+          </p>
+        </article>
+
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Obsidian Plugin</span>
+            <span class="runtime-license">AGPL-3.0-only</span>
+          </div>
+          <h3>Obsidian Formula Library</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill repo-pill--accent">v1.6.3</span>
+            <span class="repo-pill">Zero-Dep · WASM 3.2.1</span>
+          </div>
+          <p class="license-copy">零依赖 Obsidian 桌面 / 移动双端插件，内置 2,216 条公式、19 套参数化模板、交互函数绘图与 36 条单公式互转路由。</p>
+          <p class="license-links">
+            <a href="https://github.com/strangelion/obsidian-formula-library" target="_blank" rel="noopener">GitHub 仓库</a>
+          </p>
+        </article>
+
+        <article class="license-card">
+          <div class="license-card__top">
+            <span class="license-card__tag">Lightweight</span>
+            <span class="runtime-license">GPL-3.0</span>
+          </div>
+          <h3>LaTeXSnipper Lite</h3>
+          <div class="repo-meta-row">
+            <span class="repo-pill">Community Fork</span>
+            <span class="repo-pill">Lightweight</span>
+          </div>
+          <p class="license-copy">面向纯本地与轻量化部署场景的精简桌面分支，专注快速截图识别与高频剪贴板公式流转。</p>
+          <p class="license-links">
+            <a href="https://github.com/strangelion/LaTeXSnipper-Lite" target="_blank" rel="noopener">GitHub 仓库</a>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow-bridge" aria-label="继续浏览">
+      <div class="workflow-bridge__head">
+        <p class="workflow-bridge__eyebrow">EXPLORE PRODUCT</p>
+        <h2 class="workflow-bridge__title">立即体验或获取离线版本</h2>
+      </div>
+      <div class="workflow-bridge__grid">
+        <a class="workflow-bridge__card" href="/download.html">
+          <span class="workflow-bridge__kicker">Downloads</span>
+          <strong>下载桌面版与生态套件</strong>
+          <p>按操作系统自动推荐自包含离线安装包，一键获取 Desktop <span data-release-label>v3.3.0 LTS</span> 与移动 / 办公生态入口。</p>
+          <span class="workflow-bridge__meta">前往下载中心 →</span>
+        </a>
+        <a class="workflow-bridge__card" href="/ocr.html">
+          <span class="workflow-bridge__kicker">Try Online</span>
+          <strong>在浏览器里运行 Core WASM</strong>
+          <p>免安装体验单公式本地推理与多格式 AST 转换，所有计算都在你的浏览器完成。</p>
+          <span class="workflow-bridge__meta">打开在线识别 →</span>
+        </a>
+        <a class="workflow-bridge__card" href="/user_manual.html">
+          <span class="workflow-bridge__kicker">Manual</span>
+          <strong>查阅完整使用手册</strong>
+          <p>覆盖快捷键、模型设置、Office 集成、远程 Automation API 与常见问题排查。</p>
+          <span class="workflow-bridge__meta">打开使用手册 →</span>
+        </a>
+      </div>
+    </section>
   </main>
   <script type="module" src="/js/open-source.js"></script>
 </body>

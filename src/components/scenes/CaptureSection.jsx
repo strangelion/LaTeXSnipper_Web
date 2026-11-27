@@ -10,8 +10,11 @@ export default function CaptureSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <h2 id="capture-title">任何输入，都可以成为可编辑的数学。</h2>
-          <p>从截图、图片、PDF、手写或剪贴板开始。输入方式不改变后续工作流。</p>
+          <span className={styles.eyebrow}>01 · Capture</span>
+          <h2 id="capture-title">
+            任何输入，都可以<span className="cjk-word">成为</span>可编辑的数学。
+          </h2>
+          <p>从全局截图、图片、PDF、手写画布或远程手机拍摄开始，输入方式不割裂后续工作流。</p>
         </header>
         <div className={styles.captureGrid}>
           <figure className={styles.productFigure} data-reveal="mask" data-drift>
@@ -23,13 +26,16 @@ export default function CaptureSection() {
               decoding="async"
               alt="LaTeXSnipper 数学工作台中的手写识别和公式编辑界面"
             />
-            <figcaption>真实产品界面，展示手写输入如何进入数学工作台。</figcaption>
+            <figcaption>桌面版数学工作台 · 手写输入与公式精修实拍</figcaption>
           </figure>
           <ol className={styles.captureList} data-reveal-group>
             {captureSources.map((source) => (
               <li className={styles.captureItem} data-reveal="right" key={source.id}>
-                <strong>{source.title}</strong>
-                <p>{source.description}</p>
+                <span className={styles.itemIndex} aria-hidden="true">{source.index}</span>
+                <div className={styles.itemBody}>
+                  <strong>{source.title}</strong>
+                  <p>{source.description}</p>
+                </div>
               </li>
             ))}
           </ol>

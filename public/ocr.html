@@ -33,8 +33,8 @@
       <a href="https://github.com/SakuraMathcraft/LaTeXSnipper" target="_blank" rel="noopener">GitHub</a>
       </div></nav>
     <div class="site-header-actions">
-      <a class="site-download-link" href="/download.html">下载</a>
       <button class="theme-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-theme-toggle aria-label="切换主题"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><span data-theme-icon></span></span></button>
+      <a class="site-download-link" href="/download.html">下载</a>
       <button class="site-menu-toggle lg-surface lg-surface--control" data-lg-interactive="true" type="button" data-shell-menu aria-controls="siteNavigation" aria-expanded="false" aria-label="打开或关闭导航"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span></button>
     </div>
     </div>
@@ -52,22 +52,24 @@
   </div>
   <p class="demo-eyebrow">LOCAL-FIRST OCR WORKSPACE</p>
   <h1 class="demo-title">在线公式识别</h1>
-  <p class="demo-sub">LaTeXSnipper Core v3 · WASM / Tract 本地推理 · 模型按需下载并缓存</p>
+  <p class="demo-sub">基于 LaTeXSnipper Core v3 · 浏览器 WASM / Tract 本地推理 · 模型按需缓存，图片不离设备</p>
 
-  <!-- ═══ 状态栏 ═══ -->
-  <div class="status-bar lg-surface lg-surface--panel" id="statusBar">
-    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-    <span id="statusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-    <span id="statusText">正在加载识别引擎…</span>
-    <div class="spinner show" id="spinner"></div>
-    <div id="modelProgress" class="model-progress"></div>
-    </div></div>
-  <div class="runtime-strip lg-surface lg-surface--panel" aria-label="浏览器运行时状态">
-    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-    <span class="runtime-badge" id="coreRuntimeStatus">Core Conversion：正在初始化</span>
-    <span class="runtime-badge" id="coreOcrStatus" data-state="ready">单公式识别：Core WASM</span>
-    <span class="runtime-badge">兼容回退：ONNX Runtime Web</span>
-    </div></div>
+  <!-- ═══ 引擎遥测栏 ═══ -->
+  <div class="ocr-telemetry" aria-label="识别引擎与浏览器运行时状态">
+    <div class="status-bar lg-surface lg-surface--panel" id="statusBar">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
+      <span id="statusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+      <span id="statusText">正在加载识别引擎…</span>
+      <div class="spinner show" id="spinner"></div>
+      <div id="modelProgress" class="model-progress"></div>
+      </div></div>
+    <div class="runtime-strip lg-surface lg-surface--panel" aria-label="浏览器运行时状态">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
+      <span class="runtime-badge" id="coreRuntimeStatus">Core Conversion：正在初始化</span>
+      <span class="runtime-badge" id="coreOcrStatus" data-state="ready">单公式识别：Core WASM</span>
+      <span class="runtime-badge">兼容回退：ONNX Runtime Web</span>
+      </div></div>
+  </div>
 
   <!-- ═══ 下载进度 ═══ -->
   <div class="progress-wrap" id="progressWrap">
@@ -75,20 +77,21 @@
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- ═══ 模式切换 ═══ -->
-  <div class="mode-tabs lg-surface lg-surface--control" data-lg-interactive="true">
-    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-    <button class="mode-tab active" id="tabImage">图片识别</button>
-    <button class="mode-tab" id="tabHandwrite">手写识别</button>
-    </div></div>
+  <!-- ═══ 输入模式 & 模型选择控制栏 ═══ -->
+  <div class="ocr-control-bar">
+    <div class="mode-tabs lg-surface lg-surface--control" data-lg-interactive="true">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
+      <button class="mode-tab active" id="tabImage">图片识别</button>
+      <button class="mode-tab" id="tabHandwrite">手写识别</button>
+      </div></div>
 
-  <!-- ═══ 模型选择 ═══ -->
-  <div class="model-tabs lg-surface lg-surface--control" data-lg-interactive="true" id="modelTabs">
-    <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
-    <button class="model-tab active" data-mode="formula">公式</button>
-    <button class="model-tab" data-mode="text" disabled title="真实文字模型通过浏览器回归测试后开放">文字（开发中）</button>
-    <button class="model-tab" data-mode="mixed" disabled title="真实混合流水线通过浏览器回归测试后开放">混合（开发中）</button>
-    </div></div>
+    <div class="model-tabs lg-surface lg-surface--control" data-lg-interactive="true" id="modelTabs">
+      <span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
+      <button class="model-tab active" data-mode="formula">公式</button>
+      <button class="model-tab" data-mode="text" disabled title="真实文字模型通过浏览器回归测试后开放">文字（开发中）</button>
+      <button class="model-tab" data-mode="mixed" disabled title="真实混合流水线通过浏览器回归测试后开放">混合（开发中）</button>
+      </div></div>
+  </div>
 
   <!-- ═══ 图片识别模式：拖拽区 + 拍照 ═══ -->
   <div class="ocr-workspace-shell lg-surface lg-surface--panel"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><div class="lg-content">
@@ -96,8 +99,8 @@
     <input type="file" id="fileInput" accept="image/*,.pdf">
     <div id="dropContent">
       <div class="icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-      <div>拖入公式截图 / PDF · 点击上传 · <kbd>Ctrl+V</kbd> 粘贴截图</div>
-      <div class="drop-help">Win+Shift+S 截图后在此页面按 Ctrl+V 即可识别<br>也可上传 PDF（最多100页），逐页识别公式<br>网页版提供基础识别效果，桌面客户端内置专属优化引擎</div>
+      <div class="drop-lead">拖入公式截图 / PDF · 点击上传 · <kbd>Ctrl+V</kbd> 粘贴截图</div>
+      <div class="drop-help">Win+Shift+S 截图后在此页面按 Ctrl+V 即可识别 · 支持上传 PDF（最多 100 页）逐页识别<br>网页端基于 Core WASM 提供单公式本地推理，整页排版与批量工作流见桌面客户端</div>
     </div>
     <img id="preview" style="display:none;" alt="预览">
     <button class="cam-trigger-btn lg-surface lg-surface--control" data-lg-interactive="true" id="camTrigger" type="button"><span class="lg-backdrop" aria-hidden="true"></span><span class="lg-optics" aria-hidden="true"><span class="lg-caustic"></span><span class="lg-specular"></span><span class="lg-rim"></span></span><span class="lg-content">
@@ -161,6 +164,33 @@
   <div class="info-note">
     <strong>说明：</strong>单公式图片由 LaTeXSnipper Core WASM 直接识别，并通过同一 Core AST 转换为 LaTeX、Typst、Markdown、MathML、OMML 或 HTML。首次识别会下载约 104 MB 的 TrOCR 模型包，完成 SHA-256 校验后缓存于浏览器；图片不会上传。整页公式检测、文字、混合布局和完整 PDF 工作流仍以桌面版为准。
   </div>
+
+  <section class="workflow-bridge" aria-label="延伸工作流">
+    <div class="workflow-bridge__head">
+      <p class="workflow-bridge__eyebrow">CONTINUE WORKFLOW</p>
+      <h2 class="workflow-bridge__title">需要更完整的离线与跨设备能力？</h2>
+    </div>
+    <div class="workflow-bridge__grid">
+      <a class="workflow-bridge__card" href="/download.html">
+        <span class="workflow-bridge__kicker">Desktop · <span data-release-label>v3.3.0 LTS</span></span>
+        <strong>下载全功能离线桌面版</strong>
+        <p>自包含离线包内置 MathCraft 模型，支持公式 / 文字 / 混合模式、整页 PDF 与 20 种导出格式，免首次下载。</p>
+        <span class="workflow-bridge__meta">前往下载中心 →</span>
+      </a>
+      <a class="workflow-bridge__card" href="/remote.html">
+        <span class="workflow-bridge__kicker">Automation API v1</span>
+        <strong>用手机直连你的桌面算力</strong>
+        <p>通过 Tailscale / WireGuard 隧道或原生 HTTPS 将手机拍照直接发给电脑端队列识别，本站零中转。</p>
+        <span class="workflow-bridge__meta">打开远程连接 →</span>
+      </a>
+      <a class="workflow-bridge__card" href="/#ecosystem">
+        <span class="workflow-bridge__kicker">Office v1.7.2 · Obsidian v1.6.3</span>
+        <strong>Office 套件与 Obsidian 插件</strong>
+        <p>在 Word / WPS / Visio 中离线绘图与公式编辑，或在 Obsidian 中离线检索 2,216 条公式并 36 路由互转。</p>
+        <span class="workflow-bridge__meta">探索生态架构 →</span>
+      </a>
+    </div>
+  </section>
 </main>
 
 <!-- ═══ 自托管运行时依赖 ═══ -->

@@ -11,9 +11,9 @@ export default function RecognizeSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>Recognize</span>
+          <span className={styles.eyebrow}>02 · Recognize</span>
           <h2 id="recognize-title">从像素到公式。</h2>
-          <p>识别不是黑箱结果。区域、符号关系和表达式会依次进入可检查的数学流程。</p>
+          <p>MathCraft OCR 拆分为公式检测、符号解析与结构重建三个清晰阶段，每一步均可回看与修正。</p>
         </header>
         <div className={styles.recognizeGrid}>
           <figure className={styles.recognitionVisual} data-reveal="mask" data-drift>
@@ -25,18 +25,21 @@ export default function RecognizeSection() {
               decoding="async"
               alt="LaTeXSnipper OCR 识别结果界面"
             />
-            <figcaption>真实产品界面。扫描线仅为流程示意，不代表实时模型推理。</figcaption>
+            <figcaption>桌面版 MathCraft OCR · 识别结果与实时公式预览</figcaption>
           </figure>
           <div className={styles.recognitionFlow}>
             <ol className={styles.recognitionList} data-reveal-group>
               {recognitionStages.map((stage) => (
                 <li className={styles.recognitionItem} data-reveal="right" key={stage.id}>
-                  <strong>{stage.title}</strong>
-                  <p>{stage.description}</p>
+                  <span className={styles.itemIndex} aria-hidden="true">{stage.index}</span>
+                  <div className={styles.itemBody}>
+                    <strong>{stage.title}</strong>
+                    <p>{stage.description}</p>
+                  </div>
                 </li>
               ))}
             </ol>
-            <p className={styles.illustrativeNote} data-reveal="fade">此流程图是静态演示，不展示或伪造模型置信度。</p>
+            <p className={styles.illustrativeNote} data-reveal="fade">下方三段实机录屏展示截图、图片与逐页 PDF 的完整识别过程。</p>
           </div>
         </div>
         <DemosSection embedded />

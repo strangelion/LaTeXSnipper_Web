@@ -9,12 +9,16 @@ export const productImages = {
 };
 
 export const FALLBACK_RELEASE = {
-  version: "3.0.0",
+  version: "3.3.0",
   channel: "LTS",
-  publishedAt: "",
+  publishedAt: "2026-11-11",
   releaseNotesUrl:
-    "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.0.0-LTS",
+    "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.3.0-LTS",
 };
+
+export const DESKTOP_RELEASE_LABEL = `v${FALLBACK_RELEASE.version}${
+  FALLBACK_RELEASE.channel ? ` ${FALLBACK_RELEASE.channel}` : ""
+}`;
 
 export const trustItems = [
   {
@@ -31,7 +35,7 @@ export const trustItems = [
   },
   {
     title: "桌面多平台",
-    description: "Windows 为主要平台，Linux 与 macOS 通过 Provider 层支持",
+    description: "Windows 为主要平台，Linux 与 macOS 提供自包含离线包",
   },
 ];
 
@@ -103,12 +107,12 @@ export const featureShowcases = [
     eyebrow: "Desktop 随附 VSTO 插件",
     title: "在 Word 和 PowerPoint 中插入并维护公式",
     description:
-      "这是 SakuraMathcraft/LaTeXSnipper 桌面仓库随附的 Windows 插件：Word 支持 OLE 与原生 OMML，PowerPoint 支持 OLE 与 PNG。",
+      "这是 SakuraMathcraft/LaTeXSnipper 桌面仓库随附的 Windows 插件：Word 支持 OLE 与原生 OMML 及编号引用，PowerPoint 支持 OLE、PNG 与行内原生公式，并支持 OLE 与 MathType 双向互转。",
     points: [
-      "Word：OLE 与原生 OMML",
-      "PowerPoint：OLE 与 PNG",
-      "加载、更新和删除托管公式",
-      "通过本地 Bridge 调用截图 OCR",
+      "Word：OLE、原生 OMML 与自动编号引用",
+      "PowerPoint：OLE、PNG 与行内原生公式",
+      "无需安装 MathType 即可与原生 MathType 双向互转",
+      "通过 Automation API v1 调用桌面端截图 OCR",
     ],
     image: productImages.officeWord,
     width: 1440,
@@ -123,36 +127,36 @@ export const ecosystemProjects = [
   {
     name: "LaTeXSnipper Desktop",
     scope: "桌面数学工作台",
-    version: "v3.0.0 LTS",
+    version: "v3.3.0 LTS",
     status: "稳定发布",
     author: "SakuraMathcraft",
     license: "GPL-3.0",
     repository: "SakuraMathcraft/LaTeXSnipper",
     description:
-      "围绕截图、图片、PDF 与手写输入，提供 MathCraft OCR、MathLive 编辑、数学计算和 20 种导出格式。",
+      "围绕截图、图片、PDF 与手写输入，提供 MathCraft OCR、MathLive 编辑、数学计算、20 种导出格式与 Automation API v1。",
     points: [
-      "Windows 为主要发布平台",
-      "Linux / macOS 通过平台 Provider 支持",
-      "随附 Word / PowerPoint Windows VSTO 插件",
+      "Windows / Linux / macOS 自包含离线安装包，内置运行时与模型",
+      "随附 Word / PowerPoint Windows VSTO 插件与 MathType 双向互转",
+      "Automation API v1 支持本机与加密隧道远程识别",
     ],
     requirement:
-      "Windows 10/11；Linux 与 macOS 的可选依赖环境需要 Python >=3.10,<3.13。",
+      "Windows 10/11、Linux x86_64（glibc >= 2.35）或 macOS 14+（Apple Silicon）。",
     href: "https://github.com/SakuraMathcraft/LaTeXSnipper",
   },
   {
     name: "LaTeXSnipper Mobile",
     scope: "移动端 OCR",
-    version: "代码版本 v1.3.0",
+    version: "代码版本 v1.3.1",
     status: "独立仓库",
     author: "strangelion",
     license: "AGPL-3.0",
     repository: "strangelion/LaTeXSnipper_mobile",
     description:
-      "Capacitor 移动应用；Android 通过 Java ONNX Runtime 在本机执行公式、文字和混合 OCR。",
+      "Capacitor 移动应用；Android 通过 Java ONNX Runtime（NNAPI 加速）在本机执行公式、文字和混合 OCR，并内嵌 Core WASM 语义导出。",
     points: [
-      "图片、PDF、拍照与手写输入",
-      "MathLive 编辑、历史记录与多格式导出",
-      "模型按需下载、断点续传与 SHA-256 校验",
+      "图片、PDF、拍照与手写输入，支持 9 种导出格式",
+      "MathLive 编辑、KaTeX / MathJax 双引擎与 7 套主题皮肤",
+      "模型按需下载、镜像回退、断点续传与 SHA-256 校验",
     ],
     requirement:
       "Android minSdk 24（Android 7.0+）；iOS 构建需要 macOS、Xcode 与签名，当前本地 OCR 原生桥接以 Android 为主。",
@@ -160,41 +164,60 @@ export const ecosystemProjects = [
   },
   {
     name: "LaTeXSnipper Office",
-    scope: "公式编辑与插件生态",
-    version: "代码版本 v1.4.2",
+    scope: "公式编辑、离线绘图与插件生态",
+    version: "代码版本 v1.7.2",
     status: "独立仓库",
     author: "strangelion",
     license: "AGPL-3.0",
     repository: "strangelion/LaTeXSnipper-Office",
     description:
-      "独立公式编辑器，以及 Native Office、Office.js、Obsidian、WPS、VS Code 和浏览器扩展。",
+      "基于 Tauri 2.0 与 Core 3 的独立公式与离线绘图工作台，以及 Native Office、Office.js、Obsidian、WPS、VS Code 和浏览器扩展。",
     points: [
-      "Windows：Word / Excel / PowerPoint，Visio Beta",
-      "macOS 12+ / Linux：Tauri 桌面编辑器",
-      "Obsidian、WPS、VS Code、Chrome / Edge / Firefox",
+      "5 大工作区与 2,100+ 预设公式库（18 分类）",
+      "离线 SVG / TikZ / PGFPlots / Graphviz / Mermaid 绘图与自定义符号合成器",
+      "Word / Excel / PowerPoint / Visio Beta、WPS、Obsidian、VS Code 与浏览器扩展",
     ],
     requirement:
-      "Native VSTO / OLE 仅限 Windows；macOS 与 Office Web 使用 Office.js 或复制粘贴工作流。",
+      "Native VSTO / OLE 仅限 Windows；macOS 与 Linux 提供 Tauri 桌面编辑器与跨平台桥接工作流。",
     href: "https://github.com/strangelion/LaTeXSnipper-Office",
   },
   {
     name: "LaTeXSnipper Core",
     scope: "Rust 文档理解核心",
-    version: "v3.0.1",
+    version: "v3.2.1",
     status: "Core 3 稳定契约",
     author: "strangelion",
     license: "AGPL-3.0",
     repository: "strangelion/latexsnipper-core",
     description:
-      "提供统一 Document AST、OCR 流水线、多格式转换、CLI、Rust SDK、插件基础设施与 WASM 接口。",
+      "37-crate Rust 文档理解内核，提供统一 Document AST、OCR 流水线、19 进 14 出语义转换、离线绘图消毒、CLI、SDK 与 WASM 接口。",
     points: [
-      "原生 ONNX Runtime 与浏览器 Tract / WASM",
-      "LaTeX、Markdown、Typst、MathML、OMML 等语义转换",
-      "能力注册表按运行时和模型报告真实 readiness",
+      "原生 ONNX Runtime / Paddle / CoreML / TensorRT 与浏览器 Tract / WASM",
+      "LaTeX、Typst、Markdown、MathML、OMML、AsciiMath 与 UnicodeMath 语义转换",
+      "冻结 .lsmodel 传输契约与 EngineReadiness v2 能力分级",
     ],
     requirement:
-      "Rust MSRV 1.88；支持 Windows、Linux、macOS 与 WASM。WASM 语义转换稳定，WASM OCR 仍按模型能力分级。",
+      "Rust MSRV 1.88；支持 Windows、Linux、macOS 与 WASM。WASM 语义转换稳定，WASM OCR 按模型能力分级。",
     href: "https://github.com/strangelion/latexsnipper-core",
+  },
+  {
+    name: "Obsidian Formula Library",
+    scope: "独立 Obsidian 公式库与转换插件",
+    version: "v1.6.3",
+    status: "独立仓库",
+    author: "strangelion",
+    license: "AGPL-3.0",
+    repository: "strangelion/obsidian-formula-library",
+    description:
+      "零外部服务依赖的 Obsidian 社区插件（桌面与移动双端），内置 2,216 条公式库、函数绘图、Mermaid 编辑器与内嵌 Core WASM 互转。",
+    points: [
+      "2,216 条内置公式（19 分类）、拼音模糊搜索与 19 类参数模板",
+      "矩阵数据粘贴、滑块交互式函数绘图与 Mermaid 可视化编辑器",
+      "内嵌 Core WASM，提供 6×6 共 36 条单公式格式互转与 Copy for Word",
+    ],
+    requirement:
+      "Obsidian 桌面端与移动端均可直接安装，无需启动任何本地守护进程。",
+    href: "https://github.com/strangelion/obsidian-formula-library",
   },
 ];
 
@@ -302,9 +325,9 @@ export const faqs = [
       "使用本地 MathCraft OCR 时，图片与公式在本机处理。启用 OpenAI-compatible、Ollama 或 MinerU Local 等外部服务时，数据流向由对应服务和配置决定。",
   },
   {
-    question: "为什么首次使用需要联网？",
+    question: "安装包是否需要首次联网配置？",
     answer:
-      "依赖向导需要安装运行依赖并准备模型。模型和依赖准备完成后，本地 MathCraft OCR 可以离线运行。",
+      "不需要。Desktop v3.3.0 LTS 提供自包含离线安装包（Windows / Linux / macOS），已内置运行环境、Pandoc 与本地 MathCraft OCR 模型，安装即可离线使用；仅网页版与移动版采用按需下载并缓存模型。",
   },
   {
     question: "网页版 OCR 与桌面端完全相同吗？",
@@ -314,7 +337,7 @@ export const faqs = [
   {
     question: "Office 插件支持哪些程序？",
     answer:
-      "需要区分两个项目：SakuraMathcraft/LaTeXSnipper 随附的稳定 Windows VSTO 插件支持 Word 和 PowerPoint；strangelion/LaTeXSnipper-Office 是独立生态仓库，包含 Word、Excel、PowerPoint、Visio Beta、Office.js、WPS、Obsidian、VS Code 和浏览器扩展。",
+      "需要区分三个项目：SakuraMathcraft/LaTeXSnipper 随附的稳定 Windows VSTO 插件支持 Word 和 PowerPoint（含 MathType 双向互转）；strangelion/LaTeXSnipper-Office 是基于 Tauri 2.0 与 Core 3 的独立套件，覆盖 Word、Excel、PowerPoint、Visio Beta、WPS、Obsidian、VS Code 与浏览器扩展；strangelion/obsidian-formula-library 则是零外部依赖的独立 Obsidian 社区插件。",
   },
   {
     question: "是否支持外部模型？",
@@ -324,6 +347,6 @@ export const faqs = [
   {
     question: "这些 LaTeXSnipper 项目是同一位作者吗？",
     answer:
-      "不是。LaTeXSnipper Desktop 的作者是 SakuraMathcraft；LaTeXSnipper Mobile、LaTeXSnipper Office 与 LaTeXSnipper Core 的仓库作者和维护者标记为 strangelion。各项目的版本、稳定性与许可证也分别以各自仓库为准。",
+      "不是。LaTeXSnipper Desktop 的作者是 SakuraMathcraft；LaTeXSnipper Mobile、LaTeXSnipper Office、LaTeXSnipper Core 与 Obsidian Formula Library 的维护者标记为 strangelion。各项目的版本、稳定性与许可证均以各自仓库为准。",
   },
 ];

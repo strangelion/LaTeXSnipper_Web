@@ -213,7 +213,7 @@ function MathPlayground() {
     <section id="explore" className="section-space playground-section" aria-labelledby="playground-title">
       <div className="ls-container">
         <header className="section-heading reveal">
-          <span className="scene-index">EXPLORE · MATHEMATICAL PLAYGROUND</span>
+          <span className="scene-index">06 · PLAYGROUND · MATHEMATICAL EXPERIMENTS</span>
           <h2 id="playground-title">把结构，也变成可探索的图形。</h2>
           <p>这组浏览器内生成的数学实验是视觉层，不会替代 OCR、AST 或转换结果。</p>
         </header>

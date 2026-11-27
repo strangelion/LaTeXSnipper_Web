@@ -6,6 +6,7 @@
 
 html {
   min-width: 320px;
+  overflow-x: clip;
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--site-header-height) + 1.5rem);
   background: var(--site-bg);
@@ -21,9 +22,14 @@ body {
   color: var(--site-ink);
   background:
     radial-gradient(
-      900px 520px at 78% -8%,
+      960px 540px at 80% -10%,
       var(--site-blue-soft),
       transparent 72%
+    ),
+    radial-gradient(
+      760px 500px at 12% 24%,
+      var(--site-ambient-secondary, transparent),
+      transparent 74%
     ),
     linear-gradient(180deg, var(--site-bg), var(--site-bg-alt));
   font-family: var(--site-sans);
@@ -69,6 +75,10 @@ textarea:focus-visible,
 .container {
   width: min(var(--site-max-width), calc(100% - 40px));
   margin-inline: auto;
+}
+
+.cjk-word {
+  white-space: nowrap;
 }
 
 .site-header,
@@ -251,15 +261,15 @@ textarea:focus-visible,
   justify-content: center;
 }
 
-/* Hamburger: three bars drawn from the current text color, replacing the UA button face. */
-.site-menu-toggle {
+/* Hamburger: three bars drawn from the current text color when not using Liquid Glass SVG icons. */
+.site-menu-toggle:not(.lg-surface) {
   flex-direction: column;
   gap: 4px;
   border: 0;
   background: none;
 }
 
-.site-menu-toggle > span:not(.sr-only) {
+.site-menu-toggle:not(.lg-surface) > span:not(.sr-only) {
   display: block;
   width: 16px;
   height: 2px;
@@ -270,15 +280,15 @@ textarea:focus-visible,
     opacity 140ms ease;
 }
 
-.site-menu-toggle[aria-expanded="true"] > span:nth-child(2) {
+.site-menu-toggle:not(.lg-surface)[aria-expanded="true"] > span:nth-child(2) {
   transform: translateY(6px) rotate(45deg);
 }
 
-.site-menu-toggle[aria-expanded="true"] > span:nth-child(3) {
+.site-menu-toggle:not(.lg-surface)[aria-expanded="true"] > span:nth-child(3) {
   opacity: 0;
 }
 
-.site-menu-toggle[aria-expanded="true"] > span:nth-child(4) {
+.site-menu-toggle:not(.lg-surface)[aria-expanded="true"] > span:nth-child(4) {
   transform: translateY(-6px) rotate(-45deg);
 }
 
@@ -314,13 +324,15 @@ textarea:focus-visible,
   box-shadow:
     0 10px 28px color-mix(in srgb, var(--site-blue) 22%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.32);
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.1;
   text-decoration: none;
   cursor: pointer;
   transition:
     transform 180ms var(--site-ease),
     box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
     filter 180ms ease;
 }
 
@@ -347,12 +359,25 @@ textarea:focus-visible,
   );
 }
 
+.button.button-secondary:not(.lg-surface),
 .button-secondary,
 .secondary-button {
   color: var(--site-ink);
   border-color: var(--site-line-strong);
-  background: var(--site-surface);
+  background: var(--site-surface-strong);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.button.button-secondary:not(.lg-surface):hover,
+.button-secondary:hover,
+.secondary-button:hover {
+  color: var(--site-ink);
+  border-color: color-mix(in srgb, var(--site-blue) 52%, var(--site-line-strong));
+  background: var(--site-surface-accent);
+  filter: none;
+  box-shadow:
+    0 10px 24px color-mix(in srgb, var(--site-blue) 12%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .site-menu-toggle {
@@ -375,16 +400,17 @@ textarea:focus-visible,
 .site-title {
   margin: 0;
   color: var(--site-ink);
-  font: 500 clamp(2.4rem, 6vw, 5.8rem) / 0.98 var(--site-serif);
-  letter-spacing: -0.055em;
+  font: 700 clamp(2.1rem, 4.4vw, 3.35rem) / 1.12 var(--site-display);
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
 .site-lede {
-  max-width: 720px;
-  margin: 20px 0 0;
+  max-width: 64ch;
+  margin: 16px 0 0;
   color: var(--site-muted);
-  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  font-size: clamp(0.96rem, 1.3vw, 1.08rem);
+  line-height: 1.72;
 }
 
 .site-footer {
@@ -575,6 +601,109 @@ textarea:focus-visible,
   .brand-link img {
     width: 32px;
     height: 32px;
+  }
+}
+
+.workflow-bridge {
+  margin-top: 32px;
+  padding-top: 26px;
+  border-top: 1px solid var(--site-line);
+}
+
+.workflow-bridge__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.workflow-bridge__eyebrow {
+  margin: 0;
+  color: var(--site-blue);
+  font: 700 0.72rem / 1.3 var(--site-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.workflow-bridge__title {
+  margin: 0;
+  color: var(--site-ink);
+  font-family: var(--site-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.workflow-bridge__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workflow-bridge__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--site-line);
+  background: var(--site-surface);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-sm);
+  color: var(--site-ink);
+  text-decoration: none;
+  transition:
+    transform 220ms var(--site-ease),
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms var(--site-ease);
+}
+
+.workflow-bridge__card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--site-blue) 42%, var(--site-line));
+  background: var(--site-surface-strong);
+  box-shadow: var(--site-card-highlight, none), var(--site-shadow-md);
+}
+
+.workflow-bridge__kicker {
+  color: var(--site-blue);
+  font: 700 0.7rem / 1.25 var(--site-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workflow-bridge__card strong {
+  color: var(--site-ink);
+  font-family: var(--site-display);
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.workflow-bridge__card p {
+  margin: 0;
+  color: var(--site-muted);
+  font-size: 0.83rem;
+  line-height: 1.58;
+}
+
+.workflow-bridge__meta {
+  margin-top: auto;
+  padding-top: 8px;
+  color: var(--site-blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .workflow-bridge__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-bridge__head {
+    flex-direction: column;
+    gap: 4px;
   }
 }
 
