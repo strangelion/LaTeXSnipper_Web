@@ -140,10 +140,11 @@
 
 .remote-environment .liquid-environment__word {
   left: 50%;
-  top: 82px;
+  top: 22px;
   transform: translateX(-50%);
-  font-size: clamp(2.4rem, 6vw, 4.6rem);
-  opacity: 0.022;
+  font-size: clamp(2.1rem, 5vw, 4rem);
+  letter-spacing: 0.06em;
+  opacity: 0.016;
 }
 
 .remote-main :is(h1, h2) {

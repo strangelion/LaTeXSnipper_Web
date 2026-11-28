@@ -224,6 +224,7 @@ textarea:focus-visible,
 
 .site-navigation a:hover,
 .site-navigation a[aria-current="page"],
+.site-navigation a[aria-current="location"],
 .top-nav > .inner > a.active-link,
 .top-nav > .inner > a:hover {
   color: var(--site-ink);

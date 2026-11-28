@@ -31,7 +31,7 @@ export default function TransformSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>04 · Transform</span>
+          <span className={styles.eyebrow}>04 · 多格式转换</span>
           <h2 id="transform-title">一种数学结构，多种表达方式。</h2>
           <p>Core 3 支持 19 种输入与 14 种输出（含 AsciiMath / UnicodeMath），Desktop 内置 20 种导出直通论文与 Office 工作流。</p>
         </header>
@@ -70,19 +70,24 @@ export default function TransformSection() {
             role="tabpanel"
             aria-labelledby={`format-tab-${selectedFormat.id}`}
           >
-            <span className={styles.conversionLabel}>Illustrative static format sample</span>
+            <span className={styles.conversionLabel}>格式输出示例</span>
             <h3>{selectedFormat.label}</h3>
             <p>{selectedFormat.description}</p>
             <code className={styles.codeBlock}>{selectedFormat.code}</code>
             <div className={styles.copyRow}>
-              <button className={styles.copyButton} type="button" onClick={handleCopy}>
+              <button
+                className={styles.copyButton}
+                data-lg-action="primary"
+                type="button"
+                onClick={handleCopy}
+              >
                 复制示例
               </button>
               <p className={styles.copyStatus} aria-live="polite">{copyStatus}</p>
             </div>
           </LiquidGlassSurface>
         </div>
-        <p className={styles.illustrativeNote}>这些是静态格式示例。实际转换能力与保真度以 Core 和 Desktop 的运行时报告为准。</p>
+        <p className={styles.illustrativeNote}>示例展示同一表达式的常见输出，实际转换能力以 Core 与 Desktop 运行时为准。</p>
       </div>
     </section>
   );

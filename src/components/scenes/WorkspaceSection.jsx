@@ -13,7 +13,7 @@ export default function WorkspaceSection() {
       <div className={styles.container}>
         <div className={styles.workspaceGrid}>
           <LiquidGlassSurface className={styles.workspaceCopy} thickness="panel" data-reveal="left">
-            <span className={styles.eyebrow}>05 · Workspace</span>
+            <span className={styles.eyebrow}>05 · 数学工作台</span>
             <h2 id="workspace-title">一个引擎，多个数学工作流。</h2>
             <p>OCR、MathLive 可视化编辑、符号计算与文档导出围绕同一份数学内容协作，无需反复切换工具或重新输入。</p>
             <ul className={styles.workspaceSpecs}>
@@ -35,9 +35,9 @@ export default function WorkspaceSection() {
               </li>
             </ul>
             <div className={styles.workspaceLinks}>
-              <a href="/user_manual.html">查看用户手册</a>
-              <a href="/ocr.html">体验在线识别</a>
-              <a href="/remote.html">远程连接</a>
+              <a href="/user_manual.html" data-lg-action="primary">查看用户手册</a>
+              <a href="/ocr.html" data-lg-solid>体验在线识别</a>
+              <a href="/remote.html" data-lg-solid>远程连接</a>
             </div>
           </LiquidGlassSurface>
           <figure className={styles.productFigure} data-reveal="right" data-drift>

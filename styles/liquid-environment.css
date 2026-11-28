@@ -54,10 +54,11 @@
 
 .download-environment .liquid-environment__word {
   left: 50%;
-  top: 84px;
+  top: 22px;
   transform: translateX(-50%);
-  font-size: clamp(2.4rem, 6vw, 4.75rem);
-  opacity: 0.024;
+  font-size: clamp(2.1rem, 5.2vw, 4.1rem);
+  letter-spacing: 0.06em;
+  opacity: 0.017;
 }
 
 .download-environment .env-orb-a {
@@ -106,10 +107,11 @@
 
 .ocr-environment .liquid-environment__word {
   left: 50%;
-  top: 82px;
+  top: 22px;
   transform: translateX(-50%);
-  font-size: clamp(2.3rem, 5.8vw, 4.4rem);
-  opacity: 0.022;
+  font-size: clamp(2rem, 5vw, 3.85rem);
+  letter-spacing: 0.06em;
+  opacity: 0.016;
 }
 
 .ocr-environment .env-orb-a {

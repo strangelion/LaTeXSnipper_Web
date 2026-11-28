@@ -25,8 +25,9 @@ const CONVERSION_GRAPH = {
   edges: [["ast", "latex"], ["ast", "typst"], ["ast", "mathml"], ["ast", "omml"]],
 };
 
-function themeColors() {
-  const isDark = document.documentElement.getAttribute("data-theme") === "dark"
+function themeColors(forceDark = false) {
+  const isDark = forceDark
+    || document.documentElement.getAttribute("data-theme") === "dark"
     || (!document.documentElement.getAttribute("data-theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
   return isDark
     ? { active: "#9dbfff", idle: "#62779f", line: "#566a8e", label: "#e7efff" }
@@ -42,7 +43,7 @@ function createLabelTexture(THREE, text, color) {
   context.textAlign = "center";
   context.textBaseline = "middle";
   context.fillStyle = color;
-  context.font = '700 24px "Aptos", "Segoe UI", sans-serif';
+  context.font = '700 24px "Inter", "Segoe UI", sans-serif';
   context.fillText(text, canvas.width / 2, canvas.height / 2);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -50,11 +51,12 @@ function createLabelTexture(THREE, text, color) {
   return texture;
 }
 
-function SemanticGraph({ variant, activeId, onSelect, className = "" }) {
+function SemanticGraph({ variant, activeId, onSelect, surface, className = "" }) {
   const hostRef = useRef(null);
   const tooltipRef = useRef(null);
   const activeRef = useRef(activeId);
   const selectRef = useRef(onSelect);
+  const forceDark = surface === "dark";
   activeRef.current = activeId;
   selectRef.current = onSelect;
 
@@ -108,7 +110,7 @@ function SemanticGraph({ variant, activeId, onSelect, className = "" }) {
 
     const applyTheme = () => {
       if (!THREE) return;
-      const colors = themeColors();
+      const colors = themeColors(forceDark);
       nodeMeshes.forEach((mesh) => {
         mesh.material.color.set(mesh.userData.id === activeRef.current ? colors.active : colors.idle);
         mesh.userData.label.material.color.set(colors.label);
@@ -166,7 +168,8 @@ function SemanticGraph({ variant, activeId, onSelect, className = "" }) {
         const active = mesh.userData.id === activeRef.current;
         const scale = active ? 1.3 : mesh === hovered ? 1.14 : 1;
         mesh.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.14);
-        mesh.material.color.lerp(new THREE.Color(active ? themeColors().active : themeColors().idle), 0.12);
+        const palette = themeColors(forceDark);
+        mesh.material.color.lerp(new THREE.Color(active ? palette.active : palette.idle), 0.12);
         mesh.position.y = mesh.userData.baseY + Math.sin(state.time * 0.72 + index) * (reducedMotion ? 0 : 0.028);
       });
       renderer.render(scene, camera);
@@ -177,7 +180,7 @@ function SemanticGraph({ variant, activeId, onSelect, className = "" }) {
       try {
         THREE = await import("three");
         if (cancelled) return;
-        const colors = themeColors();
+        const colors = themeColors(forceDark);
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(42, state.width / state.height, 0.1, 30);
         camera.position.set(0, 0, 6.2);

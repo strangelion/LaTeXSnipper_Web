@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { astNodes, formulaExample } from '../../data/landingScenes';
 import SemanticGraph from '../../three/SemanticGraph';
 import LiquidGlassSurface from '../LiquidGlassSurface';
+import { GaussianIntegralExpr } from '../MathFormulaSvg';
 import styles from './Scenes.module.css';
 
 // The scene data stores the integral's upper bound as a plain "∞" character, which would
@@ -22,12 +23,12 @@ export default function AstSection() {
   return (
     <section
       id="understand"
-      className={styles.scene}
+      className={`${styles.scene} ${styles.sceneSpotlight}`}
       aria-labelledby="understand-title"
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>03 · Understand</span>
+          <span className={styles.eyebrow}>03 · 结构理解</span>
           <h2 id="understand-title">
             OCR 只是开始，<span className="cjk-word">真正</span>有价值的是结构。
           </h2>
@@ -36,25 +37,30 @@ export default function AstSection() {
         <div className={styles.astLayout}>
           <div className={styles.astVisualStack} data-reveal="mask">
             <LiquidGlassSurface className={styles.formulaPanel} thickness="panel">
-              <span className={styles.formulaLabel}>Static AST visualization</span>
-              <p className={styles.formulaText} aria-label={formulaExample.description}>
-                {renderUpperBounds(formulaExample.visual, styles.upperBound)}
-              </p>
+              <span className={styles.formulaLabel}>Document AST 结构示意</span>
+              <div className={styles.formulaDisplayWrap}>
+                <GaussianIntegralExpr className={styles.formulaSvg} />
+              </div>
               <code className={styles.formulaCode}>{formulaExample.latex}</code>
               <div className={styles.tokenRow} aria-label="公式组成部分">
                 {astNodes.map((node) => (
-                  <span
+                  <button
+                    type="button"
                     className={styles.token}
+                    data-lg-solid
                     data-selected={node.id === selectedNodeId}
+                    aria-pressed={node.id === selectedNodeId}
                     key={node.id}
+                    onClick={() => setSelectedNodeId(node.id)}
                   >
                     {renderUpperBounds(node.token, styles.upperBound)}
-                  </span>
+                  </button>
                 ))}
               </div>
             </LiquidGlassSurface>
             <SemanticGraph
               variant="ast"
+              surface="dark"
               activeId={selectedNodeId}
               onSelect={setSelectedNodeId}
             />
@@ -81,7 +87,7 @@ export default function AstSection() {
             </div>
           </div>
         </div>
-        <p className={styles.illustrativeNote}>静态结构示例用于说明 Document AST 的语义层，不代表一次实时 OCR 推理。</p>
+        <p className={styles.illustrativeNote}>静态结构示例，展示 Core 3 的 Document AST 语义层次。</p>
       </div>
     </section>
   );

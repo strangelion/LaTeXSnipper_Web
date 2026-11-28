@@ -399,8 +399,11 @@ html[data-theme="light"] .lg-content {
 
 /* A control that paints its own opaque brand fill already guarantees contrast, so the
    glass halo must not double its glyph edges. These are the same blue-fill controls
-   declared in site-shell.css, plus any surface marked as a primary action. */
+   declared in site-shell.css, plus any surface or child control marked as primary/solid. */
 .lg-surface[data-lg-action="primary"] > .lg-content,
+.lg-content [data-lg-action="primary"],
+.lg-content [data-lg-solid],
+.lg-content code,
 .lg-content .site-download-link,
 .lg-content .button:not(.lg-surface),
 .lg-content .download-btn:not(.lg-surface),

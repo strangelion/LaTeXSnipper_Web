@@ -1,18 +1,15 @@
 import { useEffect, useRef, memo } from "react";
 
 /*
- * AmbientParticles — a very quiet p5.js particle field used as a scene backdrop.
+ * AmbientParticles — lightweight native Canvas 2D particle field used as a scene backdrop.
  *
- * It is decoration only: pointer-events are off, nothing is announced to assistive
- * tech, and the canvas is skipped entirely under prefers-reduced-motion (a single
- * static frame is drawn instead). p5 is imported on approach, the loop stops when
- * the scene leaves the viewport or the tab is hidden, and the frame rate is capped
- * so a backdrop never competes with the page's own rendering.
+ * Decoration only: pointer-events are off, hidden from assistive tech, pauses when
+ * off-screen or tab-hidden, and draws a single static frame under prefers-reduced-motion.
  */
 
-const MAX_PARTICLES = 64;
+const MAX_PARTICLES = 54;
 const LINK_DISTANCE = 132;
-const FRAME_RATE = 30;
+const FRAME_INTERVAL_MS = 1000 / 30;
 
 const readInk = () => {
   const theme = document.documentElement.getAttribute("data-theme");
@@ -31,146 +28,135 @@ function AmbientParticles({ className = "" }) {
     if (!host) return undefined;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let cancelled = false;
-    let loading = false;
-    let instance = null;
-    let isReady = false;
-    let inViewport = false;
-    let sketchState = null;
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-hidden", "true");
+    canvas.className = "ambient-p5";
+    canvas.style.cssText = "display:block;width:100%;height:100%;";
+    host.appendChild(canvas);
 
-    const canAnimate = () => inViewport && !document.hidden && !reducedMotion;
-    const syncPlayback = () => {
-      if (!instance || !isReady) return;
-      if (canAnimate()) instance.loop();
-      else instance.noLoop();
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return () => canvas.remove();
+
+    const state = { w: 2, h: 2, dpr: 1, points: [], ink: readInk() };
+    let rafId = 0;
+    let lastTick = 0;
+    let inViewport = false;
+
+    const seedPoints = () => {
+      const target = Math.max(
+        10,
+        Math.min(MAX_PARTICLES, Math.round((state.w * state.h) / 24000)),
+      );
+      state.points = Array.from({ length: target }, () => ({
+        x: Math.random() * state.w,
+        y: Math.random() * state.h,
+        vx: (Math.random() - 0.5) * 0.42,
+        vy: (Math.random() - 0.5) * 0.34,
+        r: 0.9 + Math.random() * 1.15,
+      }));
     };
 
-    const mount = async () => {
-      if (cancelled || loading || instance) return;
-      loading = true;
+    const drawFrame = () => {
+      const { w, h, dpr, points, ink } = state;
+      if (w < 4 || h < 4) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
 
-      try {
-        const p5Module = await import("p5");
-        const P5 = p5Module.default;
-        if (cancelled || !P5) return;
+      ctx.fillStyle = `rgba(${ink}, 0.58)`;
+      for (const point of points) {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, point.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-        instance = new P5((p) => {
-          const state = { w: 2, h: 2, points: [], ink: "32, 96, 214" };
-          sketchState = state;
-
-          const seedPoints = () => {
-            const target = Math.max(
-              12,
-              Math.min(MAX_PARTICLES, Math.round((state.w * state.h) / 21000)),
-            );
-            state.points = Array.from({ length: target }, () => ({
-              x: p.random(state.w),
-              y: p.random(state.h),
-              vx: p.random(-0.22, 0.22),
-              vy: p.random(-0.18, 0.18),
-              r: p.random(0.9, 2.1),
-            }));
-          };
-
-          const draw = () => {
-            const { w, h, points } = state;
-            p.clear();
-            if (w < 4 || h < 4) return;
-
-            p.noStroke();
-            for (const point of points) {
-              p.fill(`rgba(${state.ink}, 0.7)`);
-              p.circle(point.x, point.y, point.r * 2);
-            }
-
-            p.strokeWeight(0.6);
-            for (let i = 0; i < points.length; i += 1) {
-              for (let j = i + 1; j < points.length; j += 1) {
-                const a = points[i];
-                const b = points[j];
-                const dx = a.x - b.x;
-                const dy = a.y - b.y;
-                const distance = Math.hypot(dx, dy);
-                if (distance > LINK_DISTANCE) continue;
-                p.stroke(`rgba(${state.ink}, ${(1 - distance / LINK_DISTANCE) * 0.16})`);
-                p.line(a.x, a.y, b.x, b.y);
-              }
-            }
-          };
-
-          p.setup = () => {
-            state.w = Math.max(2, host.clientWidth);
-            state.h = Math.max(2, host.clientHeight);
-            state.ink = readInk();
-            p.pixelDensity(Math.min(window.devicePixelRatio || 1, 1.5));
-            const canvas = p.createCanvas(state.w, state.h);
-            canvas.parent(host);
-            canvas.elt.setAttribute("aria-hidden", "true");
-            canvas.elt.classList.add("ambient-p5");
-            p.frameRate(FRAME_RATE);
-            seedPoints();
-            p.noLoop();
-            isReady = true;
-            if (canAnimate()) p.loop();
-            else p.redraw();
-          };
-
-          p.windowResized = () => {
-            if (cancelled) return;
-            state.w = Math.max(2, host.clientWidth);
-            state.h = Math.max(2, host.clientHeight);
-            p.resizeCanvas(state.w, state.h, false);
-            seedPoints();
-            if (!canAnimate()) p.redraw();
-          };
-
-          p.draw = () => {
-            const { w, h, points } = state;
-            for (const point of points) {
-              point.x += point.vx;
-              point.y += point.vy;
-              if (point.x < -12) point.x = w + 12;
-              if (point.x > w + 12) point.x = -12;
-              if (point.y < -12) point.y = h + 12;
-              if (point.y > h + 12) point.y = -12;
-            }
-            draw();
-          };
-        }, host);
-      } finally {
-        loading = false;
+      ctx.lineWidth = 0.65;
+      for (let i = 0; i < points.length; i += 1) {
+        const a = points[i];
+        for (let j = i + 1; j < points.length; j += 1) {
+          const b = points[j];
+          const distance = Math.hypot(a.x - b.x, a.y - b.y);
+          if (distance > LINK_DISTANCE) continue;
+          ctx.strokeStyle = `rgba(${ink}, ${(1 - distance / LINK_DISTANCE) * 0.14})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
       }
     };
+
+    const resize = () => {
+      state.w = Math.max(2, host.clientWidth);
+      state.h = Math.max(2, host.clientHeight);
+      state.dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = Math.round(state.w * state.dpr);
+      canvas.height = Math.round(state.h * state.dpr);
+      seedPoints();
+      drawFrame();
+    };
+
+    const stop = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+
+    const tick = (now) => {
+      rafId = 0;
+      if (!inViewport || document.hidden || reducedMotion) return;
+      if (now - lastTick >= FRAME_INTERVAL_MS) {
+        lastTick = now;
+        const { w, h, points } = state;
+        for (const point of points) {
+          point.x += point.vx;
+          point.y += point.vy;
+          if (point.x < -12) point.x = w + 12;
+          if (point.x > w + 12) point.x = -12;
+          if (point.y < -12) point.y = h + 12;
+          if (point.y > h + 12) point.y = -12;
+        }
+        drawFrame();
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const syncPlayback = () => {
+      if (inViewport && !document.hidden && !reducedMotion) {
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      } else {
+        stop();
+      }
+    };
+
+    resize();
 
     const observer = new IntersectionObserver(
       (entries) => {
         inViewport = entries[0]?.isIntersecting ?? false;
-        if (inViewport) void mount();
         syncPlayback();
       },
       { threshold: 0.05 },
     );
-    const onVisibility = () => syncPlayback();
+    const resizeObserver = new ResizeObserver(resize);
     const themeObserver = new MutationObserver(() => {
-      if (!sketchState) return;
-      sketchState.ink = readInk();
-      instance?.redraw();
+      state.ink = readInk();
+      drawFrame();
     });
 
     observer.observe(host);
-    document.addEventListener("visibilitychange", onVisibility);
+    resizeObserver.observe(host);
+    document.addEventListener("visibilitychange", syncPlayback);
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["data-theme"],
     });
 
     return () => {
-      cancelled = true;
+      stop();
       observer.disconnect();
+      resizeObserver.disconnect();
       themeObserver.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
-      instance?.remove();
-      instance = null;
+      document.removeEventListener("visibilitychange", syncPlayback);
+      canvas.remove();
     };
   }, []);
 

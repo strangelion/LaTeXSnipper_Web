@@ -35,10 +35,10 @@
   --site-shadow-sm: 0 8px 24px rgba(15, 34, 68, 0.065);
   --site-shadow-md: 0 22px 58px rgba(15, 34, 68, 0.1);
   --site-shadow-lg: 0 32px 90px rgba(15, 34, 68, 0.14);
-  --site-display: "Segoe UI Variable Display", Aptos, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
-  --site-serif: "Cambria Math", "STIX Two Math", "Source Han Serif SC", "Noto Serif SC", "Songti SC", "STZhongsong", serif;
-  --site-sans: Aptos, "Segoe UI Variable", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
-  --site-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  --site-display: "Inter", "SF Pro Display", "Segoe UI Variable Display", Aptos, "Segoe UI", "PingFang SC", "Noto Sans SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --site-serif: "STIX Two Math", "Cambria Math", "Latin Modern Math", "Source Han Serif SC", "Noto Serif SC", "Songti SC", "STZhongsong", serif;
+  --site-sans: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable", Aptos, "Segoe UI", "PingFang SC", "Noto Sans SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --site-mono: "JetBrains Mono", "Cascadia Mono", "SFMono-Regular", ui-monospace, Consolas, monospace;
   --site-radius-xs: 8px;
   --site-radius-sm: 12px;
   --site-radius-md: 18px;
@@ -144,6 +144,7 @@
   --ls-blue-soft: var(--site-blue-soft);
   --ls-cyan-soft: var(--site-success-soft);
   --ls-primary-ink: var(--site-blue-ink);
+  --ls-blue-ink: var(--site-blue-ink);
   --ls-nav-cta-bg: var(--site-blue);
   --ls-nav-cta-bg-hover: var(--site-blue-strong);
   --ls-nav-cta-ink: var(--site-blue-ink);

@@ -17,7 +17,7 @@ export default function EcosystemSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>07 · Ecosystem</span>
+          <span className={styles.eyebrow}>07 · 产品生态</span>
           <h2 id="ecosystem-title">Core 是生态的共同数学层。</h2>
           <p>Desktop、Office、Mobile、Obsidian 与 Web 各司其职，以统一 Document AST、Core WASM 与 Automation API 紧密协作。</p>
         </header>
@@ -42,6 +42,7 @@ export default function EcosystemSection() {
             <button
               type="button"
               className={styles.ecosystemCore}
+              data-lg-action="primary"
               data-selected={activeId === ecosystemCoreNode.id}
               aria-pressed={activeId === ecosystemCoreNode.id}
               onClick={() => setActiveId(ecosystemCoreNode.id)}
@@ -55,6 +56,7 @@ export default function EcosystemSection() {
               <button
                 type="button"
                 className={styles.ecosystemNode}
+                data-lg-solid
                 data-node={node.id}
                 data-selected={node.id === activeId}
                 key={node.id}
@@ -91,12 +93,17 @@ export default function EcosystemSection() {
               <span className={styles.ecosystemRepository}>{activeNode.repository}</span>
               <div className={styles.ecosystemActions}>
                 {activeNode.siteRoute && (
-                  <a className={styles.ecosystemBtnPrimary} href={activeNode.siteRoute}>
+                  <a
+                    className={styles.ecosystemBtnPrimary}
+                    data-lg-action="primary"
+                    href={activeNode.siteRoute}
+                  >
                     {activeNode.siteLabel}
                   </a>
                 )}
                 <a
                   className={styles.ecosystemBtnGhost}
+                  data-lg-solid
                   href={activeNode.href}
                   target="_blank"
                   rel="noopener noreferrer"

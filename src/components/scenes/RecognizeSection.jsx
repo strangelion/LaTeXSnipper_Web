@@ -11,11 +11,11 @@ export default function RecognizeSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>02 · Recognize</span>
+          <span className={styles.eyebrow}>02 · 离线识别</span>
           <h2 id="recognize-title">从像素到公式。</h2>
           <p>MathCraft OCR 拆分为公式检测、符号解析与结构重建三个清晰阶段，每一步均可回看与修正。</p>
         </header>
-        <div className={styles.recognizeGrid}>
+        <div className={`${styles.recognizeGrid} ${styles.recognizeGridAlt}`}>
           <figure className={styles.recognitionVisual} data-reveal="mask" data-drift>
             <img
               src={landingImages.ocrResult}

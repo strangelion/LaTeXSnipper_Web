@@ -52,30 +52,31 @@
 }
 
 .ocr-telemetry {
-  display: grid;
-  gap: 8px;
   margin-bottom: 18px;
+  padding: 10px 16px;
+}
+
+.ocr-telemetry > .lg-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
 }
 
 .status-bar {
-  min-height: 44px;
-  padding: 9px 16px;
-  color: var(--site-muted);
-  font-size: 0.87rem;
-  text-align: center;
-}
-
-.status-bar > .lg-content {
-  min-height: 26px;
+  min-height: 28px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
+  gap: 8px;
+  color: var(--site-ink-soft);
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 #statusIcon {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   display: grid;
   place-items: center;
   color: var(--site-blue);
@@ -88,8 +89,8 @@
 }
 
 .spinner {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: none;
   flex: 0 0 auto;
   border: 2px solid var(--site-line-strong);
@@ -108,26 +109,25 @@
 
 .runtime-strip {
   margin: 0;
-  padding: 6px 10px;
-}
-
-.runtime-strip > .lg-content {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 7px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .runtime-badge {
-  min-height: 28px;
-  padding: 4px 11px;
+  min-height: 26px;
+  padding: 3px 10px;
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--site-line);
   border-radius: 999px;
   color: var(--site-muted);
   background: var(--site-surface);
-  font: 600 0.71rem/1.2 var(--site-mono);
+  font: 600 0.7rem/1.2 var(--site-mono);
+  text-shadow: none;
+  -webkit-text-stroke-width: 0;
 }
 
 .runtime-badge[data-state="ready"] {
@@ -706,30 +706,31 @@ pre.result-code {
     font-size: 0.88rem;
   }
 
-  .status-bar {
-    min-height: 0;
-    padding: 11px 14px;
-    font-size: 0.84rem;
+  .ocr-telemetry {
+    padding: 10px 12px;
   }
 
-  .status-bar > .lg-content {
+  .ocr-telemetry > .lg-content {
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .status-bar {
     flex-wrap: wrap;
+    justify-content: center;
+    font-size: 0.82rem;
+    text-align: center;
   }
 
   .runtime-strip {
-    padding: 7px 8px;
+    justify-content: center;
+    gap: 6px;
   }
 
   .runtime-badge {
     max-width: 100%;
     font-size: 0.68rem;
-    padding: 5px 9px;
-  }
-
-  .runtime-strip > .lg-content {
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    padding: 4px 9px;
   }
 
   .mode-tabs,

@@ -50,7 +50,7 @@ rewrite('src/data/siteContent.js', (source) => {
     `$1${releaseNotesUrl || 'https://github.com/SakuraMathcraft/LaTeXSnipper/releases'}$2`,
   );
   next = next.replace(
-    /(name:\s*['"]LaTeXSnipper Desktop['"],[\s\S]*?version:\s*['"])[^'"]+(['"])/,
+    /(name:\s*['"]LaTeXSnipper Desktop['"],[^}]*?version:\s*['"])[^'"]+(['"])/,
     `$1${releaseLabel}$2`,
   );
   return next;

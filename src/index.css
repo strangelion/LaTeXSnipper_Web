@@ -1,18 +1,18 @@
 /* ===== 主题调色板 ===== */
 /* Paper / engineering drawing aesthetic */
 :root {
-  --bg: #f6f5f1;
-  --fg: #18202c;
-  --accent: #1769aa;
-  --accent-hover: #0f548d;
-  --muted: #667085;
+  --bg: var(--site-bg, #f5f7fb);
+  --fg: var(--site-ink, #0f172a);
+  --accent: var(--site-blue, #2563eb);
+  --accent-hover: var(--site-blue-strong, #1d4ed8);
+  --muted: var(--site-muted, #5c687c);
   --max-w: 960px;
-  --hdr-bg: rgba(246, 245, 241, 0.82);
-  --ftr-bg: #f6f5f1;
-  --border-color: rgba(24, 32, 44, 0.14);
+  --hdr-bg: var(--site-glass-tint, rgba(247, 251, 255, 0.72));
+  --ftr-bg: var(--site-bg-alt, #ecf0f7);
+  --border-color: var(--site-line, rgba(15, 23, 42, 0.09));
   --text-shadow: none;
-  --canvas-bg: #f6f5f1;
-  --card-bg: #fbfaf7;
+  --canvas-bg: var(--site-bg, #f5f7fb);
+  --card-bg: var(--site-bg-elevated, #ffffff);
   --card-border: rgba(24, 32, 44, 0.1);
   --card-text: #475569;
   --card-shadow: 0 4px 16px rgba(24, 32, 44, 0.06);
@@ -105,12 +105,10 @@ main {
 }
 
 .site-footer {
-  border-top: 1px solid var(--border-color);
-  padding: 1.2rem 0;
-  text-align: center;
-  color: var(--muted);
+  border-top: 1px solid var(--site-line, var(--border-color));
+  color: var(--site-muted, var(--muted));
   font-size: 0.85rem;
-  background: var(--ftr-bg);
+  background: var(--site-bg-alt, var(--ftr-bg));
 }
 
 .brand {
@@ -128,26 +126,26 @@ main {
 /* ===== 暗色模式 ===== */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #11151b;
-    --fg: #ecf0f6;
-    --muted: #9aa4b2;
-    --accent: #68aee8;
-    --accent-hover: #8bc4f1;
-    --hdr-bg: rgba(17, 21, 27, 0.88);
-    --ftr-bg: #11151b;
-    --border-color: rgba(236, 240, 246, 0.12);
+    --bg: var(--site-bg, #070a12);
+    --fg: var(--site-ink, #f3f6fc);
+    --muted: var(--site-muted, #93a1b8);
+    --accent: var(--site-blue, #7aa8ff);
+    --accent-hover: var(--site-blue-strong, #9cc0ff);
+    --hdr-bg: var(--site-glass-tint, rgba(24, 36, 54, 0.58));
+    --ftr-bg: var(--site-bg-alt, #0d121d);
+    --border-color: var(--site-line, rgba(214, 228, 255, 0.11));
     --text-shadow: none;
-    --canvas-bg: #11151b;
-    --card-bg: #171c24;
+    --canvas-bg: var(--site-bg, #070a12);
+    --card-bg: var(--site-bg-elevated, #0e1421);
     --card-border: rgba(236, 240, 246, 0.08);
     --card-text: #9aa4b2;
     --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     --card-shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
 
     /* Canvas / grid (Dark) */
-    --bg1: #11151b;
-    --bg2: #171c24;
-    --bg3: #1e2530;
+    --bg1: #070a12;
+    --bg2: #0d121d;
+    --bg3: #141c2c;
     --grid-color: rgba(104, 174, 232, 0.07);
     --symbol-color: rgba(156, 174, 200, 0.9);
     --formula-color: rgba(148, 163, 184, 0.8);
@@ -155,14 +153,14 @@ main {
 }
 
 :root[data-theme="dark"] {
-  --bg: #11151b;
-  --fg: #ecf0f6;
-  --muted: #9aa4b2;
-  --accent: #68aee8;
-  --accent-hover: #8bc4f1;
-  --hdr-bg: rgba(17, 21, 27, 0.88);
-  --ftr-bg: #11151b;
-  --border-color: rgba(236, 240, 246, 0.12);
+  --bg: var(--site-bg, #070a12);
+  --fg: var(--site-ink, #f3f6fc);
+  --muted: var(--site-muted, #93a1b8);
+  --accent: var(--site-blue, #7aa8ff);
+  --accent-hover: var(--site-blue-strong, #9cc0ff);
+  --hdr-bg: var(--site-glass-tint, rgba(24, 36, 54, 0.58));
+  --ftr-bg: var(--site-bg-alt, #0d121d);
+  --border-color: var(--site-line, rgba(214, 228, 255, 0.11));
   --text-shadow: none;
   --canvas-bg: #11151b;
   --card-bg: #171c24;

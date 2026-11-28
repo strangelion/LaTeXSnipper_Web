@@ -10,7 +10,7 @@ export default function CaptureSection() {
     >
       <div className={styles.container}>
         <header className={styles.heading} data-reveal="blur">
-          <span className={styles.eyebrow}>01 · Capture</span>
+          <span className={styles.eyebrow}>01 · 捕获输入</span>
           <h2 id="capture-title">
             任何输入，都可以<span className="cjk-word">成为</span>可编辑的数学。
           </h2>

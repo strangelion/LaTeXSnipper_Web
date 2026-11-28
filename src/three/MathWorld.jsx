@@ -104,6 +104,12 @@ function MathWorld() {
     let focusedSprite = null;
     const resources = [];
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isCompactViewport = window.matchMedia("(max-width: 720px)").matches;
+    const saveData = Boolean(navigator.connection?.saveData);
+    if (reducedMotion || isCompactViewport || saveData) {
+      host.dataset.mathWorld = "fallback";
+      return undefined;
+    }
     const state = {
       width: 2,
       height: 2,
@@ -269,13 +275,13 @@ function MathWorld() {
         grid.rotation.x = Math.PI / 2;
         grid.position.z = -3.7;
         grid.material.transparent = true;
-        grid.material.opacity = 0.16;
+        grid.material.opacity = 0.11;
         grid.material.depthWrite = false;
         resources.push(grid.geometry, grid.material);
         state.ambientGrid = grid;
         world.add(grid);
 
-        const particleCount = state.width < 720 ? 42 : 96;
+        const particleCount = state.width < 720 ? 42 : 76;
         const positions = new Float32Array(particleCount * 3);
         for (let index = 0; index < particleCount; index += 1) {
           const radius = 1.5 + Math.random() * 3.4;
@@ -288,9 +294,9 @@ function MathWorld() {
         particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
         const particleMaterial = new THREE.PointsMaterial({
           color: colors.particle,
-          size: state.width < 720 ? 0.035 : 0.045,
+          size: state.width < 720 ? 0.035 : 0.04,
           transparent: true,
-          opacity: 0.4,
+          opacity: 0.28,
           depthWrite: false,
         });
         const particles = new THREE.Points(particleGeometry, particleMaterial);
@@ -300,7 +306,7 @@ function MathWorld() {
 
         MATH_OBJECTS.forEach((object, index) => {
           const texture = createObjectTexture(THREE, object, colors[object.group]);
-          const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.35 + (index % 3) * 0.06 });
+          const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.21 + (index % 3) * 0.04 });
           const sprite = new THREE.Sprite(material);
           const base = new THREE.Vector3(Math.cos(object.angle) * object.radius, object.y, object.z);
           sprite.position.copy(base);

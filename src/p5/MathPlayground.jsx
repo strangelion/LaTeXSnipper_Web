@@ -33,6 +33,7 @@ const isDark = () => {
 
 function MathPlayground() {
   const hostRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
   const [mode, setMode] = useState("fourier");
   const [detail, setDetail] = useState(0.56);
   const modeRef = useRef("fourier");
@@ -43,6 +44,7 @@ function MathPlayground() {
   const activeMode = MODES.find((item) => item.id === mode) || MODES[0];
 
   useEffect(() => {
+    if (!expanded) return undefined;
     const host = hostRef.current;
     if (!host) return undefined;
 
@@ -207,62 +209,93 @@ function MathPlayground() {
       p5Instance?.remove();
       p5Instance = null;
     };
-  }, []);
+  }, [expanded]);
 
   return (
     <section id="explore" className="section-space playground-section" aria-labelledby="playground-title">
       <div className="ls-container">
-        <header className="section-heading reveal">
-          <span className="scene-index">06 · PLAYGROUND · MATHEMATICAL EXPERIMENTS</span>
-          <h2 id="playground-title">把结构，也变成可探索的图形。</h2>
-          <p>这组浏览器内生成的数学实验是视觉层，不会替代 OCR、AST 或转换结果。</p>
-        </header>
-        <div className="playground-stage reveal">
-          <div className="playground-toolbar" role="tablist" aria-label="选择数学实验">
+        <div className="playground-header-bar reveal">
+          <header className="section-heading">
+            <span className="scene-index">06 · 数学图形实验</span>
+            <h2 id="playground-title">把结构，也变成可探索的图形。</h2>
+            <p>8 组浏览器内生成的经典数学曲线与分形实验，按需展开交互体验。</p>
+          </header>
+          <button
+            type="button"
+            className="playground-toggle-btn"
+            aria-expanded={expanded}
+            aria-controls="math-playground-stage"
+            onClick={() => setExpanded((value) => !value)}
+          >
+            {expanded ? "收起实验画布" : "展开交互实验"}
+          </button>
+        </div>
+
+        {!expanded ? (
+          <div className="playground-preview-pills reveal" aria-label="包含的数学实验">
             {MODES.map((m) => (
               <button
                 key={m.id}
                 type="button"
-                className={mode === m.id ? "is-active" : ""}
-                role="tab"
-                aria-selected={mode === m.id}
-                aria-controls="math-experiment-panel"
+                className="playground-preview-chip"
                 onClick={() => {
                   setMode(m.id);
-                  window.requestAnimationFrame(() => resetRef.current?.());
+                  setExpanded(true);
                 }}
               >
-                {m.label}
+                <strong>{m.title}</strong>
+                <span>{m.label}</span>
               </button>
             ))}
           </div>
-          <div className="playground-panel" id="math-experiment-panel" role="tabpanel">
-            <div className="playground-copy">
-              <div>
-                <span>P5.JS EXPERIMENT</span>
-                <h3>{activeMode.title}</h3>
-              </div>
-              <code>{activeMode.equation}</code>
-              <p>{activeMode.description}</p>
+        ) : (
+          <div className="playground-stage" id="math-playground-stage">
+            <div className="playground-toolbar" role="tablist" aria-label="选择数学实验">
+              {MODES.map((m) => (
+                <button
+                  key={m.id}
+                  type="button"
+                  className={mode === m.id ? "is-active" : ""}
+                  role="tab"
+                  aria-selected={mode === m.id}
+                  aria-controls="math-experiment-panel"
+                  onClick={() => {
+                    setMode(m.id);
+                    window.requestAnimationFrame(() => resetRef.current?.());
+                  }}
+                >
+                  {m.label}
+                </button>
+              ))}
             </div>
-            <div ref={hostRef} className="playground-canvas" aria-label={`${activeMode.title} 数学可视化`} />
-            <div className="playground-controls">
-              <label htmlFor="math-detail">
-                图形细节 <output>{Math.round(detail * 100)}%</output>
-              </label>
-              <input
-                id="math-detail"
-                type="range"
-                min="0.2"
-                max="1"
-                step="0.02"
-                value={detail}
-                onChange={(event) => setDetail(Number(event.target.value))}
-              />
-              <button type="button" onClick={() => resetRef.current?.()}>重置实验</button>
+            <div className="playground-panel" id="math-experiment-panel" role="tabpanel">
+              <div className="playground-copy">
+                <div>
+                  <span>交互数学实验</span>
+                  <h3>{activeMode.title}</h3>
+                </div>
+                <code>{activeMode.equation}</code>
+                <p>{activeMode.description}</p>
+              </div>
+              <div ref={hostRef} className="playground-canvas" aria-label={`${activeMode.title} 数学可视化`} />
+              <div className="playground-controls">
+                <label htmlFor="math-detail">
+                  图形细节 <output>{Math.round(detail * 100)}%</output>
+                </label>
+                <input
+                  id="math-detail"
+                  type="range"
+                  min="0.2"
+                  max="1"
+                  step="0.02"
+                  value={detail}
+                  onChange={(event) => setDetail(Number(event.target.value))}
+                />
+                <button type="button" onClick={() => resetRef.current?.()}>重置实验</button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

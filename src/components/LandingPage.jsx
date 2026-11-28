@@ -16,6 +16,7 @@ import RecognizeSection from "./scenes/RecognizeSection";
 import TransformSection from "./scenes/TransformSection";
 import WorkspaceSection from "./scenes/WorkspaceSection";
 import { DESKTOP_RELEASE_LABEL } from "../data/siteContent";
+import { GaussianIntegralFormula } from "./MathFormulaSvg";
 import "../styles/landing.css";
 
 // three.js only draws the hero backdrop: keep it out of the initial bundle.
@@ -110,67 +111,10 @@ function ThemeIcon({ theme }) {
   );
 }
 
-function GaussianIntegralFormula() {
-  return (
-    <svg
-      className="formula-gaussian-integral"
-      viewBox="0 0 620 150"
-      role="img"
-      aria-label="从零到无穷的 e 的负 x 平方积分，等于根号派除以二"
-    >
-      <g
-        fill="currentColor"
-        fontFamily="STIX Two Math, Cambria Math, Latin Modern Math, Times New Roman, serif"
-      >
-        <text x="28" y="108" fontSize="88">
-          ∫
-        </text>
-        <text x="83" y="44" fontSize="27">
-          ∞
-        </text>
-        <text x="85" y="125" fontSize="27">
-          0
-        </text>
-        <text x="118" y="101" fontSize="66" fontStyle="italic">
-          e
-        </text>
-        <text x="161" y="58" fontSize="30">
-          −x²
-        </text>
-        <text x="231" y="101" fontSize="64" fontStyle="italic">
-          dx
-        </text>
-        <text x="328" y="100" fontSize="60">
-          =
-        </text>
-        <path
-          d="M399 76h13l10 20 16-52h76"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <text x="452" y="91" fontSize="55">
-          π
-        </text>
-        <path
-          d="M398 105h128"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <text x="451" y="140" fontSize="37">
-          2
-        </text>
-      </g>
-    </svg>
-  );
-}
-
 function SiteHeader({ counters }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuMaterial, setMobileMenuMaterial] = useState(false);
+  const [activeNav, setActiveNav] = useState("");
   const { theme, toggleTheme } = useTheme();
   const headerRef = useRef(null);
 
@@ -183,6 +127,38 @@ function SiteHeader({ counters }) {
     sync();
     query.addEventListener("change", sync);
     return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const sectionMap = [
+      { id: "capture", nav: "capture" },
+      { id: "recognize", nav: "capture" },
+      { id: "understand", nav: "capture" },
+      { id: "transform", nav: "capture" },
+      { id: "workspace", nav: "workspace" },
+      { id: "ecosystem", nav: "ecosystem" },
+    ];
+    const targets = sectionMap
+      .map((entry) => ({ ...entry, el: document.getElementById(entry.id) }))
+      .filter((entry) => entry.el);
+    if (!targets.length || typeof IntersectionObserver === "undefined") {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const hit = targets.find((item) => item.el === visible.target);
+        if (hit) setActiveNav(hit.nav);
+      },
+      { rootMargin: "-24% 0px -58% 0px", threshold: [0.05, 0.25, 0.5] },
+    );
+
+    targets.forEach((item) => observer.observe(item.el));
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -252,16 +228,28 @@ function SiteHeader({ counters }) {
             <span className="lg-rim" />
           </span>
           <div className="lg-content">
-            <a href="#workspace" onClick={closeMenu}>
+            <a
+              href="#workspace"
+              aria-current={activeNav === "workspace" ? "location" : undefined}
+              onClick={closeMenu}
+            >
               产品
             </a>
-            <a href="#capture" onClick={closeMenu}>
+            <a
+              href="#capture"
+              aria-current={activeNav === "capture" ? "location" : undefined}
+              onClick={closeMenu}
+            >
               工作流
             </a>
             <a href="/remote.html" onClick={closeMenu}>
               远程连接
             </a>
-            <a href="#ecosystem" onClick={closeMenu}>
+            <a
+              href="#ecosystem"
+              aria-current={activeNav === "ecosystem" ? "location" : undefined}
+              onClick={closeMenu}
+            >
               生态
             </a>
             <a href="/user_manual.html" onClick={closeMenu}>
@@ -314,10 +302,12 @@ function HeroSection({ counters }) {
       </Suspense>
       <div className="ls-container hero-grid">
         <div className="hero-copy reveal">
-          <span className="scene-index">LOCAL-FIRST MATHEMATICAL WORKSPACE</span>
+          <span className="scene-index">本地优先 · 数学工作空间</span>
           <h1 id="hero-title">
-            把数学，从图像<span className="cjk-word">重新</span>
-            <span className="cjk-word">变成</span>知识。
+            <span className="cjk-word">把数学，</span>
+            <span className="cjk-word">从图像</span>
+            <span className="cjk-word">重新变成</span>
+            <span className="cjk-word">知识。</span>
           </h1>
           <p className="hero-description">
             从截图、图片、PDF 与手写输入开始，识别、理解并转入你的数学工作流。
@@ -374,7 +364,7 @@ function HeroSection({ counters }) {
           )}
           <div className="hero-math-layer">
             <LiquidGlassSurface className="formula-sheet" thickness="panel">
-              <span className="formula-sheet-label">DOCUMENT AST</span>
+              <span className="formula-sheet-label">语义结构 · DOCUMENT AST</span>
               <div className="formula-display">
                 <GaussianIntegralFormula />
               </div>
@@ -382,7 +372,7 @@ function HeroSection({ counters }) {
                 \int_0^\infty e^&#123;-x^2&#125;\,dx
               </div>
               <div className="formula-sheet-status">
-                <span /> Editable mathematical semantics
+                <span /> 可编辑数学语义结构
               </div>
             </LiquidGlassSurface>
             <LiquidGlassSurface
@@ -408,22 +398,6 @@ function HeroSection({ counters }) {
               className="format-node node-omml"
             >
               OMML
-            </LiquidGlassSurface>
-            <LiquidGlassSurface
-              thickness="floating"
-              interactive
-              className="hero-float-card float-ocr"
-            >
-              <strong>MathCraft OCR</strong>
-              <span>Local-first recognition</span>
-            </LiquidGlassSurface>
-            <LiquidGlassSurface
-              thickness="floating"
-              interactive
-              className="hero-float-card float-core"
-            >
-              <strong>Core 3</strong>
-              <span>Unified Document AST</span>
             </LiquidGlassSurface>
           </div>
         </div>
