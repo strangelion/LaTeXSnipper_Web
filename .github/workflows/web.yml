@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_run:
-    workflows: ["同步 Release 到 R2"]
+    workflows: ["同步 Release 到 R2", "Build User Manual"]
     types: [completed]
     branches: [master]
 

@@ -127,7 +127,7 @@ export const ecosystemProjects = [
   {
     name: "LaTeXSnipper Desktop",
     scope: "桌面数学工作台",
-    version: "v3.3.0 LTS",
+    version: DESKTOP_RELEASE_LABEL,
     status: "稳定发布",
     author: "SakuraMathcraft",
     license: "GPL-3.0",
@@ -327,7 +327,7 @@ export const faqs = [
   {
     question: "安装包是否需要首次联网配置？",
     answer:
-      "不需要。Desktop v3.3.0 LTS 提供自包含离线安装包（Windows / Linux / macOS），已内置运行环境、Pandoc 与本地 MathCraft OCR 模型，安装即可离线使用；仅网页版与移动版采用按需下载并缓存模型。",
+      `不需要。Desktop ${DESKTOP_RELEASE_LABEL} 提供自包含离线安装包（Windows / Linux / macOS），已内置运行环境、Pandoc 与本地 MathCraft OCR 模型，安装即可离线使用；仅网页版与移动版采用按需下载并缓存模型。`,
   },
   {
     question: "网页版 OCR 与桌面端完全相同吗？",

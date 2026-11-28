@@ -35,7 +35,6 @@ jobs:
 
       - name: 检查上游用户手册是否更新
         id: check_manual
-        if: github.event_name == 'schedule'
         shell: bash
         run: |
           set -euo pipefail
@@ -326,7 +325,7 @@ jobs:
 
           desktop_downloads = {}
           for item in new_assets:
-              if item["platform"] not in ("windows", "linux", "macos"):
+              if item["platform"] not in ("windows", "linux", "macos") or item["id"].startswith("office-plugin-"):
                   continue
               current_item = desktop_downloads.get(item["platform"])
               # The legacy single-link contract stays on the CPU edition.

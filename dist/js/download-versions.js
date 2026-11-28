@@ -19,6 +19,7 @@ export const KNOWN_ASSET_IDS = Object.freeze([
   'linux-amd64-gpu',
   'macos-arm64-cpu',
   'office-plugin-windows',
+  'office-plugin-macos',
 ])
 
 /**

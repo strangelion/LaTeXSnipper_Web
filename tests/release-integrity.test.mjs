@@ -18,6 +18,13 @@ current = 'b' * 64
 name = 'LaTeXSnipperOffice_3.2.0_amd64.exe'
 asset = {'name': name, 'digest': 'sha256:' + current}
 assert resolver.office_asset({name: asset}, '3.2.0')['sha256'] == current
+new_win = 'LaTeXSnipperOffice_3.4.0_windows_x86_64.exe'
+new_mac = 'LaTeXSnipperOffice_3.4.0_macos_arm64.dmg'
+assets = {n: {'name': n, 'digest': 'sha256:' + current} for n in (new_win, new_mac)}
+assert resolver.office_asset(assets, '3.4.0')['name'] == new_win
+assert resolver.office_asset(assets, '3.4.0', resolver.OFFICE_MAC_META)['id'] == 'office-plugin-macos'
+assert resolver.office_asset(assets, '3.4.0', resolver.OFFICE_MAC_META)['sha256'] == current
+assert resolver.office_asset({}, '3.3.0', resolver.OFFICE_MAC_META) is None
 for digest in (None, '', 'md5:' + current, 'sha256:invalid'):
     assert resolver.asset_sha256({'digest': digest}) == ''
 assert resolver.asset_sha256({}) == ''

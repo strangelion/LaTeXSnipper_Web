@@ -53,12 +53,22 @@ PLATFORM_META: dict[str, dict[str, Any]] = {
 OFFICE_META: dict[str, Any] = {
     "id": "office-plugin-windows",
     "platform": "windows",
-    "label": "Desktop 内置 Office 插件",
+    "label": "Desktop 配套 Office 插件（Windows）",
     "architecture": "x86_64",
     "requirements": "Windows Word / PowerPoint；与 Desktop 同属 SakuraMathcraft/LaTeXSnipper",
     # The Office plugin is not part of desktop-release.json; it keeps its own names.
-    "names": lambda v: (f"LaTeXSnipperOffice_{v}_amd64.exe", f"OfficePluginSetup-{v}.exe"),
+    "names": lambda v: (f"LaTeXSnipperOffice_{v}_windows_x86_64.exe", f"LaTeXSnipperOffice_{v}_amd64.exe", f"OfficePluginSetup-{v}.exe"),
 }
+
+OFFICE_MAC_META: dict[str, Any] = {
+    "id": "office-plugin-macos",
+    "platform": "macos",
+    "label": "Desktop 配套 Office 插件（macOS）",
+    "architecture": "arm64",
+    "requirements": "Apple Silicon；macOS Word / PowerPoint（Office.js）",
+    "names": lambda v: (f"LaTeXSnipperOffice_{v}_macos_arm64.dmg",),
+}
+
 
 SHA256_RE = re.compile(r"^[a-f0-9]{64}$")
 
@@ -164,6 +174,8 @@ def assets_from_desktop_manifest(
             continue
         seen.add(asset_id)
         name = url.rsplit("/", 1)[-1]
+        if name not in by_name:
+            continue
         sha256 = str(installer.get("sha256") or "").strip().lower()
         assets.append(
             {
@@ -210,21 +222,23 @@ def assets_from_legacy_names(
     return assets
 
 
-def office_asset(by_name: dict[str, dict[str, Any]], version: str) -> dict[str, Any] | None:
-    asset = next((by_name[n] for n in OFFICE_META["names"](version) if n in by_name), None)
+def office_asset(
+    by_name: dict[str, dict[str, Any]], version: str, meta: dict[str, Any] = OFFICE_META
+) -> dict[str, Any] | None:
+    asset = next((by_name[n] for n in meta["names"](version) if n in by_name), None)
     if asset is None:
         return None
     return {
-        "id": OFFICE_META["id"],
+        "id": meta["id"],
         "name": asset["name"],
         "url": asset.get("browser_download_url"),
         "updated_at": asset.get("updated_at") or "",
         "size": int(asset.get("size") or 0),
         "sha256": asset_sha256(asset),
-        "platform": OFFICE_META["platform"],
-        "label": OFFICE_META["label"],
-        "architecture": OFFICE_META["architecture"],
-        "requirements": OFFICE_META["requirements"],
+        "platform": meta["platform"],
+        "label": meta["label"],
+        "architecture": meta["architecture"],
+        "requirements": meta["requirements"],
         "edition": "",
     }
 
@@ -265,6 +279,15 @@ def resolve() -> dict[str, Any]:
             continue
 
         selected.append(office)
+        office_mac = office_asset(by_name, version, OFFICE_MAC_META)
+        if vt >= (3, 4, 0) and office_mac is None:
+            print(f"skip incomplete {tag}: {OFFICE_MAC_META['id']}")
+            continue
+        if office_mac is not None:
+            selected.append(office_mac)
+        for asset in selected:
+            if asset["id"].startswith("macos-") and vt >= (3, 4, 0):
+                asset["requirements"] = asset["requirements"].replace("macOS 11", "macOS 14")
         selected.sort(key=lambda a: (a["edition"] != "cpu", a["platform"], a["id"]))
         candidates.append((vt, release, version, selected))
 
@@ -310,7 +333,7 @@ def main() -> None:
         manifest.get("version") != resolved["version"]
         or manifest.get("channel") != resolved["channel"]
         or manifest.get("releaseNotesUrl") != resolved["releaseNotesUrl"]
-        or any(current_hrefs.get(k) != v for k, v in expected_hrefs.items())
+        or current_hrefs != expected_hrefs
     )
 
     manual = os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"

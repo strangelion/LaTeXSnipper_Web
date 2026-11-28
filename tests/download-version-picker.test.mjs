@@ -377,3 +377,11 @@ test('a renamed asset never inherits the previous checksum', async () => {
   const fallback = workflow.indexOf('asset.get("sha256") or old.get("sha256"');
   assert.ok(guard > 0 && guard < fallback, 'the guard must run before any reuse');
 });
+
+test('macOS Office assets remain selectable without becoming Desktop recommendations', () => {
+  const macOffice = { id: 'office-plugin-macos', href: '/dl/office.dmg', platform: 'macos' };
+  const entry = normalizeVersionEntry({ version: '3.4.0', assets: [windowsAsset, macOffice] });
+  assert.equal(entry.assets[1].id, 'office-plugin-macos');
+  assert.match(downloadPage, /data-asset-id="office-plugin-macos"/);
+  assert.ok(downloadPage.includes("!item.id.startsWith('office-plugin-')"));
+});
