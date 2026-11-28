@@ -9,11 +9,11 @@ export const productImages = {
 };
 
 export const FALLBACK_RELEASE = {
-  version: "3.3.0",
+  version: "3.4.0",
   channel: "LTS",
   publishedAt: "2026-11-11",
   releaseNotesUrl:
-    "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.3.0-LTS",
+    "https://github.com/SakuraMathcraft/LaTeXSnipper/releases/tag/v3.4.0-LTS",
 };
 
 export const DESKTOP_RELEASE_LABEL = `v${FALLBACK_RELEASE.version}${
